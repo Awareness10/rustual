@@ -17,7 +17,10 @@ struct Pressed(String);
 
 impl Knob {
     fn new(label: &str) -> Self {
-        Knob { label: label.into(), presses: 0 }
+        Knob {
+            label: label.into(),
+            presses: 0,
+        }
     }
 }
 
@@ -66,7 +69,10 @@ impl Widget for KnobApp {
         ]
     }
     fn bindings(&self) -> Vec<Binding> {
-        vec![Binding::new("x", "mark", "Mark"), Binding::new("q", "quit", "Quit")]
+        vec![
+            Binding::new("x", "mark", "Mark"),
+            Binding::new("q", "quit", "Quit"),
+        ]
     }
     fn run_action(&mut self, action: &str, _args: &[String], ctx: &mut Ctx) -> bool {
         if action == "mark" {
@@ -80,7 +86,8 @@ impl Widget for KnobApp {
     }
     fn on_message(&mut self, msg: &Message, ctx: &mut Ctx) -> Flow {
         if let Some(Pressed(label)) = msg.get::<Pressed>() {
-            self.log.push(format!("pressed {label} from {:?}", msg.sender_id()));
+            self.log
+                .push(format!("pressed {label} from {:?}", msg.sender_id()));
             if let Some(l) = ctx.query_one::<Label>("#status") {
                 l.update(format!("pressed {label}"));
             }
@@ -202,8 +209,11 @@ async fn intervals_and_workers() {
     assert_eq!(pilot.query_one::<Ticker>("#t").unwrap().ticks, 2);
     pilot.wait(Duration::from_millis(100)).await;
     assert_eq!(pilot.query_one::<Ticker>("#t").unwrap().ticks, 3);
-    assert!(pilot.wait_for_signal(Duration::from_secs(1)).await);
-    assert_eq!(pilot.query_one::<Ticker>("#t").unwrap().done.as_deref(), Some("finished"));
+    pilot.wait(Duration::from_millis(10)).await;
+    assert_eq!(
+        pilot.query_one::<Ticker>("#t").unwrap().done.as_deref(),
+        Some("finished")
+    );
     assert!(pilot.screen_text().contains("ticks=3"));
 }
 
@@ -274,7 +284,10 @@ impl Widget for ListApp {
         compose![VerticalScroll::new().id("list")]
     }
     fn bindings(&self) -> Vec<Binding> {
-        vec![Binding::new("a", "add", "Add"), Binding::new("d", "del", "Delete")]
+        vec![
+            Binding::new("a", "add", "Add"),
+            Binding::new("d", "del", "Delete"),
+        ]
     }
     fn run_action(&mut self, action: &str, _args: &[String], ctx: &mut Ctx) -> bool {
         let list = ctx.query_id("#list").unwrap();

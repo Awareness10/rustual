@@ -22,15 +22,21 @@ pub struct Static {
 
 impl Static {
     pub fn new(markup: impl Into<String>) -> Self {
-        Static { content: StaticContent::Markup(markup.into()) }
+        Static {
+            content: StaticContent::Markup(markup.into()),
+        }
     }
 
     pub fn plain(text: impl Into<String>) -> Self {
-        Static { content: StaticContent::Plain(text.into()) }
+        Static {
+            content: StaticContent::Plain(text.into()),
+        }
     }
 
     pub fn text(text: Text) -> Self {
-        Static { content: StaticContent::Text(text) }
+        Static {
+            content: StaticContent::Text(text),
+        }
     }
 
     pub fn update(&mut self, markup: impl Into<String>) {
@@ -90,11 +96,15 @@ pub struct Label {
 
 impl Label {
     pub fn new(markup: impl Into<String>) -> Self {
-        Label { inner: Static::new(markup) }
+        Label {
+            inner: Static::new(markup),
+        }
     }
 
     pub fn plain(text: impl Into<String>) -> Self {
-        Label { inner: Static::plain(text) }
+        Label {
+            inner: Static::plain(text),
+        }
     }
 
     pub fn update(&mut self, markup: impl Into<String>) {

@@ -86,7 +86,9 @@ impl<'a> Ctx<'a> {
         let screen = self.screen();
         let mut ids = self.app.dom.query_str(screen, selector);
         ids.extend(self.app.dom.query_str(self.app.root, selector));
-        let id = ids.into_iter().find(|id| self.app.dom.widget::<W>(*id).is_some())?;
+        let id = ids
+            .into_iter()
+            .find(|id| self.app.dom.widget::<W>(*id).is_some())?;
         self.app.dirty = true;
         self.app.dom.widget_mut::<W>(id)
     }
@@ -98,19 +100,31 @@ impl<'a> Ctx<'a> {
     }
 
     /// Run `f` on another widget with a `Ctx` of its own (so it can post messages, etc.).
-    pub fn with_id<W: Widget, R>(&mut self, id: NodeId, f: impl FnOnce(&mut W, &mut Ctx) -> R) -> Option<R> {
+    pub fn with_id<W: Widget, R>(
+        &mut self,
+        id: NodeId,
+        f: impl FnOnce(&mut W, &mut Ctx) -> R,
+    ) -> Option<R> {
         self.app.dom.widget::<W>(id)?;
         self.app
-            .call_widget(id, |w, ctx| (w as &mut dyn Any).downcast_mut::<W>().map(|w| f(w, ctx)))
+            .call_widget(id, |w, ctx| {
+                (w as &mut dyn Any).downcast_mut::<W>().map(|w| f(w, ctx))
+            })
             .flatten()
     }
 
     /// Like [`Ctx::with_id`] for the first widget of type `W` matching `selector`.
-    pub fn with<W: Widget, R>(&mut self, selector: &str, f: impl FnOnce(&mut W, &mut Ctx) -> R) -> Option<R> {
+    pub fn with<W: Widget, R>(
+        &mut self,
+        selector: &str,
+        f: impl FnOnce(&mut W, &mut Ctx) -> R,
+    ) -> Option<R> {
         let screen = self.screen();
         let mut ids = self.app.dom.query_str(screen, selector);
         ids.extend(self.app.dom.query_str(self.app.root, selector));
-        let id = ids.into_iter().find(|id| self.app.dom.widget::<W>(*id).is_some())?;
+        let id = ids
+            .into_iter()
+            .find(|id| self.app.dom.widget::<W>(*id).is_some())?;
         self.with_id(id, f)
     }
 
@@ -140,7 +154,10 @@ impl<'a> Ctx<'a> {
     /// Queue an action string (e.g. `"app.quit"`) as if triggered by this widget's binding.
     pub fn run_action(&mut self, action: &str) {
         let target = self.node;
-        self.app.queue.push_back(Pending::Action { target, action: action.to_string() });
+        self.app.queue.push_back(Pending::Action {
+            target,
+            action: action.to_string(),
+        });
     }
 
     /// A `Send` handle for posting messages from workers / threads.
@@ -156,7 +173,11 @@ impl<'a> Ctx<'a> {
     }
 
     pub fn has_class(&self, class: &str) -> bool {
-        self.app.dom.get(self.node).map(|n| n.has_class(class)).unwrap_or(false)
+        self.app
+            .dom
+            .get(self.node)
+            .map(|n| n.has_class(class))
+            .unwrap_or(false)
     }
 
     pub fn add_class(&mut self, class: &str) {
@@ -220,19 +241,36 @@ impl<'a> Ctx<'a> {
 
     /// Show / hide a node (`display: block | none`).
     pub fn set_display(&mut self, id: NodeId, visible: bool) {
-        self.set_styles_of(id, |s| s.display = Some(if visible { Display::Block } else { Display::None }));
+        self.set_styles_of(id, |s| {
+            s.display = Some(if visible {
+                Display::Block
+            } else {
+                Display::None
+            })
+        });
     }
 
     /// Computed styles of this widget (from the last frame).
     pub fn styles(&self) -> Styles {
-        self.app.dom.get(self.node).map(|n| n.styles.clone()).unwrap_or_default()
+        self.app
+            .dom
+            .get(self.node)
+            .map(|n| n.styles.clone())
+            .unwrap_or_default()
     }
 
     pub fn set_disabled(&mut self, id: NodeId, disabled: bool) {
         if let Some(n) = self.node_mut(id) {
             n.disabled = disabled;
         }
-        if disabled && self.app.dom.focused.map(|f| f == id || self.app.dom.is_ancestor(id, f)).unwrap_or(false) {
+        if disabled
+            && self
+                .app
+                .dom
+                .focused
+                .map(|f| f == id || self.app.dom.is_ancestor(id, f))
+                .unwrap_or(false)
+        {
             self.app.set_focus(None);
         }
     }
@@ -267,7 +305,12 @@ impl<'a> Ctx<'a> {
     }
 
     /// Mount under `parent`, optionally at `index`.
-    pub fn mount_to(&mut self, parent: NodeId, child: impl Into<Child>, index: Option<usize>) -> NodeId {
+    pub fn mount_to(
+        &mut self,
+        parent: NodeId,
+        child: impl Into<Child>,
+        index: Option<usize>,
+    ) -> NodeId {
         self.app.mount(parent, child.into(), index)
     }
 
@@ -323,7 +366,11 @@ impl<'a> Ctx<'a> {
     // ------------------------------------------------------------------ timers & workers
 
     /// Call `f` once after `delay` (with this widget, downcast to `W`).
-    pub fn set_timer<W: Widget>(&mut self, delay: Duration, mut f: impl FnMut(&mut W, &mut Ctx) + 'static) -> TimerId {
+    pub fn set_timer<W: Widget>(
+        &mut self,
+        delay: Duration,
+        mut f: impl FnMut(&mut W, &mut Ctx) + 'static,
+    ) -> TimerId {
         let node = self.node;
         self.app.add_timer(
             node,
@@ -338,7 +385,11 @@ impl<'a> Ctx<'a> {
     }
 
     /// Call `f` every `interval` until cancelled or the widget is removed.
-    pub fn set_interval<W: Widget>(&mut self, interval: Duration, mut f: impl FnMut(&mut W, &mut Ctx) + 'static) -> TimerId {
+    pub fn set_interval<W: Widget>(
+        &mut self,
+        interval: Duration,
+        mut f: impl FnMut(&mut W, &mut Ctx) + 'static,
+    ) -> TimerId {
         let node = self.node;
         self.app.add_timer(
             node,
@@ -398,11 +449,23 @@ impl<'a> Ctx<'a> {
     }
 
     pub fn notify(&mut self, message: &str) {
-        self.app.notify(message.to_string(), String::new(), Severity::Information, None);
+        self.app.notify(
+            message.to_string(),
+            String::new(),
+            Severity::Information,
+            None,
+        );
     }
 
-    pub fn notify_with(&mut self, message: &str, title: &str, severity: Severity, timeout: Option<Duration>) {
-        self.app.notify(message.to_string(), title.to_string(), severity, timeout);
+    pub fn notify_with(
+        &mut self,
+        message: &str,
+        title: &str,
+        severity: Severity,
+        timeout: Option<Duration>,
+    ) {
+        self.app
+            .notify(message.to_string(), title.to_string(), severity, timeout);
     }
 
     pub fn title(&self) -> &str {
@@ -455,7 +518,9 @@ impl<'a> Ctx<'a> {
 
     /// Pop the top screen, posting `result` to the widget that pushed it.
     pub fn dismiss<T: Any + Send>(&mut self, result: T) {
-        self.app.queue.push_back(Pending::PopScreen(Some(Box::new(result))));
+        self.app
+            .queue
+            .push_back(Pending::PopScreen(Some(Box::new(result))));
     }
 
     pub fn screen_count(&self) -> usize {
@@ -475,7 +540,11 @@ impl<'a> Ctx<'a> {
 
     /// Content region from the last layout (screen coordinates).
     pub fn content_region(&self) -> Region {
-        self.app.dom.get(self.node).map(|n| n.layout.content_region).unwrap_or_default()
+        self.app
+            .dom
+            .get(self.node)
+            .map(|n| n.layout.content_region)
+            .unwrap_or_default()
     }
 
     /// Size of the content region.
@@ -489,12 +558,20 @@ impl<'a> Ctx<'a> {
     }
 
     pub fn scroll_offset(&self) -> Offset {
-        self.app.dom.get(self.node).map(|n| n.scroll_offset).unwrap_or_default()
+        self.app
+            .dom
+            .get(self.node)
+            .map(|n| n.scroll_offset)
+            .unwrap_or_default()
     }
 
     /// Maximum scroll offset from the last layout.
     pub fn max_scroll(&self) -> Offset {
-        self.app.dom.get(self.node).map(|n| n.layout.max_scroll()).unwrap_or_default()
+        self.app
+            .dom
+            .get(self.node)
+            .map(|n| n.layout.max_scroll())
+            .unwrap_or_default()
     }
 
     /// Set this widget's scroll offset (clamped at the next layout).

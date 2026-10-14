@@ -4,10 +4,12 @@
 use crate::app::MouseKind;
 use crate::events::{KeyEvent, MouseButton, MouseEvent};
 use crossterm::event::{
-    self as ct, DisableBracketedPaste, DisableMouseCapture, EnableBracketedPaste, EnableMouseCapture,
-    EventStream, KeyCode, KeyEventKind, KeyModifiers, MouseEventKind,
+    self as ct, DisableBracketedPaste, DisableMouseCapture, EnableBracketedPaste,
+    EnableMouseCapture, EventStream, KeyCode, KeyEventKind, KeyModifiers, MouseEventKind,
 };
-use crossterm::style::{Attribute, Color as CtColor, Print, SetAttribute, SetBackgroundColor, SetForegroundColor};
+use crossterm::style::{
+    Attribute, Color as CtColor, Print, SetAttribute, SetBackgroundColor, SetForegroundColor,
+};
 use crossterm::terminal::{self, BeginSynchronizedUpdate, EndSynchronizedUpdate};
 use crossterm::{cursor, execute, queue};
 use std::io::{self, Write};
@@ -55,7 +57,9 @@ impl CrosstermDriver {
             restore_terminal();
             prev(info);
         }));
-        Ok(CrosstermDriver { out: io::BufWriter::with_capacity(1 << 16, io::stdout()) })
+        Ok(CrosstermDriver {
+            out: io::BufWriter::with_capacity(1 << 16, io::stdout()),
+        })
     }
 
     pub fn stop(&mut self) -> io::Result<()> {
@@ -89,7 +93,10 @@ impl CrosstermDriver {
         queue!(self.out, BeginSynchronizedUpdate)?;
         let mut last: Option<(Color, Color, Attrs)> = None;
         for run in runs {
-            queue!(self.out, cursor::MoveTo(run.x.max(0) as u16, run.y.max(0) as u16))?;
+            queue!(
+                self.out,
+                cursor::MoveTo(run.x.max(0) as u16, run.y.max(0) as u16)
+            )?;
             for cell in &run.cells {
                 if cell.symbol.is_empty() {
                     continue;
@@ -98,16 +105,28 @@ impl CrosstermDriver {
                 queue!(self.out, Print(&cell.symbol))?;
             }
         }
-        queue!(self.out, SetAttribute(Attribute::Reset), EndSynchronizedUpdate)?;
+        queue!(
+            self.out,
+            SetAttribute(Attribute::Reset),
+            EndSynchronizedUpdate
+        )?;
         self.out.flush()
     }
 }
 
 fn ct_color(c: Color) -> CtColor {
-    CtColor::Rgb { r: c.r, g: c.g, b: c.b }
+    CtColor::Rgb {
+        r: c.r,
+        g: c.g,
+        b: c.b,
+    }
 }
 
-fn write_style(out: &mut impl Write, cell: &Cell, last: &mut Option<(Color, Color, Attrs)>) -> io::Result<()> {
+fn write_style(
+    out: &mut impl Write,
+    cell: &Cell,
+    last: &mut Option<(Color, Color, Attrs)>,
+) -> io::Result<()> {
     let key = (cell.fg, cell.bg, cell.attrs);
     if *last == Some(key) {
         return Ok(());
@@ -130,7 +149,11 @@ fn write_style(out: &mut impl Write, cell: &Cell, last: &mut Option<(Color, Colo
                 queue!(out, SetAttribute(attr))?;
             }
         }
-        queue!(out, SetForegroundColor(ct_color(cell.fg)), SetBackgroundColor(ct_color(cell.bg)))?;
+        queue!(
+            out,
+            SetForegroundColor(ct_color(cell.fg)),
+            SetBackgroundColor(ct_color(cell.bg))
+        )?;
     } else {
         if last.map(|l| l.0 != cell.fg).unwrap_or(true) {
             queue!(out, SetForegroundColor(ct_color(cell.fg)))?;
@@ -157,7 +180,14 @@ pub fn convert_key(k: ct::KeyEvent) -> Option<KeyEvent> {
             if ctrl || alt {
                 c.to_lowercase().collect()
             } else {
-                return Some(KeyEvent { key: if c == ' ' { "space".into() } else { c.to_string() }, character: Some(c) });
+                return Some(KeyEvent {
+                    key: if c == ' ' {
+                        "space".into()
+                    } else {
+                        c.to_string()
+                    },
+                    character: Some(c),
+                });
             }
         }
         KeyCode::Enter => "enter".into(),

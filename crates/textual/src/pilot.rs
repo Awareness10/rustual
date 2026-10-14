@@ -49,8 +49,14 @@ impl Pilot {
     }
 
     /// Wait (in real or tokio-paused time) and then process what became due.
+    /// Timers fire at each of their deadlines along the way, like in the real event loop.
     pub async fn wait(&mut self, d: Duration) {
-        tokio::time::sleep(d).await;
+        let target = tokio::time::Instant::now() + d;
+        while let Some(next) = self.state.next_deadline().filter(|n| *n <= target) {
+            tokio::time::sleep_until(next).await;
+            self.pause().await;
+        }
+        tokio::time::sleep_until(target).await;
         self.pause().await;
     }
 
@@ -69,7 +75,8 @@ impl Pilot {
     /// Press keys in order (key names as in [`KeyEvent`], e.g. `"tab"`, `"ctrl+c"`, `"a"`).
     pub async fn press(&mut self, keys: &[&str]) {
         for k in keys {
-            self.state.handle_driver_event(DriverEvent::Key(KeyEvent::new(*k)));
+            self.state
+                .handle_driver_event(DriverEvent::Key(KeyEvent::new(*k)));
             self.pause().await;
         }
     }
@@ -77,14 +84,30 @@ impl Pilot {
     /// Type text one character at a time.
     pub async fn type_text(&mut self, text: &str) {
         for c in text.chars() {
-            let key = if c == ' ' { "space".to_string() } else { c.to_string() };
-            self.state.handle_driver_event(DriverEvent::Key(KeyEvent { key, character: Some(c) }));
+            let key = if c == ' ' {
+                "space".to_string()
+            } else {
+                c.to_string()
+            };
+            self.state.handle_driver_event(DriverEvent::Key(KeyEvent {
+                key,
+                character: Some(c),
+            }));
             self.pause().await;
         }
     }
 
     fn mouse(&mut self, kind: MouseKind, x: i32, y: i32, button: Option<MouseButton>) {
-        let m = MouseEvent { x, y, screen_x: x, screen_y: y, button, ctrl: false, alt: false, shift: false };
+        let m = MouseEvent {
+            x,
+            y,
+            screen_x: x,
+            screen_y: y,
+            button,
+            ctrl: false,
+            alt: false,
+            shift: false,
+        };
         self.state.handle_driver_event(DriverEvent::Mouse(kind, m));
     }
 
@@ -98,13 +121,17 @@ impl Pilot {
 
     /// Click the first widget matching `selector` at the center of its visible area. Returns false if not found / not visible.
     pub async fn click(&mut self, selector: &str) -> bool {
-        let Some((x, y)) = self.center_of(selector) else { return false };
+        let Some((x, y)) = self.center_of(selector) else {
+            return false;
+        };
         self.click_at(x, y).await;
         true
     }
 
     pub async fn hover(&mut self, selector: &str) -> bool {
-        let Some((x, y)) = self.center_of(selector) else { return false };
+        let Some((x, y)) = self.center_of(selector) else {
+            return false;
+        };
         self.mouse(MouseKind::Move, x, y, None);
         self.pause().await;
         true
@@ -150,15 +177,26 @@ impl Pilot {
     }
 
     pub fn query_one<W: Widget>(&self, selector: &str) -> Option<&W> {
-        self.query(selector).into_iter().find_map(|id| self.state.dom.widget::<W>(id))
+        self.query(selector)
+            .into_iter()
+            .find_map(|id| self.state.dom.widget::<W>(id))
     }
 
     /// Run `f` with mutable access to a widget and a `Ctx` for it, then process the consequences.
-    pub async fn with<W: Widget, R>(&mut self, selector: &str, f: impl FnOnce(&mut W, &mut Ctx) -> R) -> Option<R> {
-        let id = self.query(selector).into_iter().find(|id| self.state.dom.widget::<W>(*id).is_some())?;
+    pub async fn with<W: Widget, R>(
+        &mut self,
+        selector: &str,
+        f: impl FnOnce(&mut W, &mut Ctx) -> R,
+    ) -> Option<R> {
+        let id = self
+            .query(selector)
+            .into_iter()
+            .find(|id| self.state.dom.widget::<W>(*id).is_some())?;
         let r = self
             .state
-            .call_widget(id, |w, ctx| (w as &mut dyn Any).downcast_mut::<W>().map(|w| f(w, ctx)))
+            .call_widget(id, |w, ctx| {
+                (w as &mut dyn Any).downcast_mut::<W>().map(|w| f(w, ctx))
+            })
             .flatten();
         self.pause().await;
         r
@@ -175,7 +213,11 @@ impl Pilot {
 
     /// CSS id of the focused widget.
     pub fn focused_id(&self) -> Option<String> {
-        self.state.dom.focused.and_then(|f| self.state.dom.get(f)).and_then(|n| n.css_id.clone())
+        self.state
+            .dom
+            .focused
+            .and_then(|f| self.state.dom.get(f))
+            .and_then(|n| n.css_id.clone())
     }
 
     pub fn focused(&self) -> Option<NodeId> {
@@ -207,7 +249,11 @@ impl Pilot {
     }
 
     pub fn notifications(&self) -> Vec<String> {
-        self.state.notifications.iter().map(|n| n.message.clone()).collect()
+        self.state
+            .notifications
+            .iter()
+            .map(|n| n.message.clone())
+            .collect()
     }
 
     /// Render the current frame.

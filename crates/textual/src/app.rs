@@ -73,7 +73,10 @@ pub struct Notified(pub Notification);
 
 /// Signals sent to the app from other tasks or threads (see [`AppHandle`]).
 pub(crate) enum Signal {
-    Message { target: NodeId, payload: Box<dyn Any + Send> },
+    Message {
+        target: NodeId,
+        payload: Box<dyn Any + Send>,
+    },
     Exit,
 }
 
@@ -86,7 +89,12 @@ pub struct AppHandle {
 impl AppHandle {
     /// Post a message to `target` (it bubbles like any message). Returns false if the app has exited.
     pub fn post_message<T: Any + Send>(&self, target: NodeId, payload: T) -> bool {
-        self.tx.send(Signal::Message { target, payload: Box::new(payload) }).is_ok()
+        self.tx
+            .send(Signal::Message {
+                target,
+                payload: Box::new(payload),
+            })
+            .is_ok()
     }
 
     pub fn exit(&self) {
@@ -173,15 +181,21 @@ impl App {
     /// Create an app whose root widget is `root`. The root's `compose()` populates the
     /// default screen; its `bindings()`/`run_action()`/`on_message()` act at app level.
     pub fn new<W: Widget>(root: W) -> App {
-        let title = std::any::type_name::<W>().rsplit("::").next().unwrap_or("App").to_string();
+        let title = std::any::type_name::<W>()
+            .rsplit("::")
+            .next()
+            .unwrap_or("App")
+            .to_string();
         let mut dom = Dom::new();
         let mut node = Node::new(Box::new(root));
         node.type_names.insert(node.type_names.len() - 1, "App");
         let root_id = dom.insert(node);
         dom.root = Some(root_id);
         let (tx, rx) = mpsc::unbounded_channel();
-        let mut env = RenderEnv::default();
-        env.title = title;
+        let env = RenderEnv {
+            title,
+            ..Default::default()
+        };
         let state = AppState {
             dom,
             env,
@@ -212,7 +226,9 @@ impl App {
             last_frame: None,
             started: false,
         };
-        App { state: Box::new(state) }
+        App {
+            state: Box::new(state),
+        }
     }
 
     /// Add app-level CSS (Textual's `App.CSS`). May be called multiple times.
@@ -272,7 +288,10 @@ impl App {
 
     /// Run on a new multi-threaded tokio runtime (for non-async `main`).
     pub fn run_blocking(self) -> io::Result<()> {
-        tokio::runtime::Builder::new_multi_thread().enable_all().build()?.block_on(self.run())
+        tokio::runtime::Builder::new_multi_thread()
+            .enable_all()
+            .build()?
+            .block_on(self.run())
     }
 
     /// Start the app headless for testing, at the given terminal size.
@@ -304,7 +323,9 @@ async fn run_loop(
             driver.draw(&frame, state.last_frame.as_ref())?;
             state.last_frame = Some(frame);
         }
-        let deadline = state.next_deadline().unwrap_or_else(|| Instant::now() + Duration::from_secs(3600));
+        let deadline = state
+            .next_deadline()
+            .unwrap_or_else(|| Instant::now() + Duration::from_secs(3600));
         tokio::select! {
             ev = events.next() => {
                 match ev {
@@ -342,7 +363,9 @@ impl AppState {
             return;
         }
         self.started = true;
-        self.env.stylesheet.add_source("App", APP_DEFAULT_CSS, Origin::Default);
+        self.env
+            .stylesheet
+            .add_source("App", APP_DEFAULT_CSS, Origin::Default);
         let theme_name = self.theme.clone();
         self.apply_theme(&theme_name);
         for (key, css) in self.app_css.clone() {
@@ -353,7 +376,12 @@ impl AppState {
         let root = self.root;
         self.register_css(root);
         // The root's compose() goes onto the default screen.
-        let children = self.dom.get_mut(root).and_then(|n| n.widget.as_mut()).map(|w| w.compose()).unwrap_or_default();
+        let children = self
+            .dom
+            .get_mut(root)
+            .and_then(|n| n.widget.as_mut())
+            .map(|w| w.compose())
+            .unwrap_or_default();
         let screen = self.mount_screen(Child::new(Box::new(Screen::new())).with(children), false);
         self.screens.push(screen);
         self.queue.push_back(Pending::Mount(root));
@@ -420,7 +448,16 @@ impl AppState {
     }
 
     fn build_node(&mut self, child: Child) -> NodeId {
-        let Child { widget, id, classes, styles, disabled, border_title, border_subtitle, children } = child;
+        let Child {
+            widget,
+            id,
+            classes,
+            styles,
+            disabled,
+            border_title,
+            border_subtitle,
+            children,
+        } = child;
         let mut node = Node::new(widget);
         node.css_id = id;
         node.classes = classes;
@@ -435,7 +472,12 @@ impl AppState {
         }
         let nid = self.dom.insert(node);
         self.register_css(nid);
-        let composed = self.dom.get_mut(nid).and_then(|n| n.widget.as_mut()).map(|w| w.compose()).unwrap_or_default();
+        let composed = self
+            .dom
+            .get_mut(nid)
+            .and_then(|n| n.widget.as_mut())
+            .map(|w| w.compose())
+            .unwrap_or_default();
         for c in children.into_iter().chain(composed) {
             let cid = self.build_node(c);
             self.dom.append_child(nid, cid);
@@ -455,13 +497,25 @@ impl AppState {
                 n.type_names.insert(pos, "Screen");
             }
             if modal && !n.type_names.contains(&"ModalScreen") {
-                let pos = n.type_names.iter().position(|t| *t == "Screen").unwrap_or(pos);
+                let pos = n
+                    .type_names
+                    .iter()
+                    .position(|t| *t == "Screen")
+                    .unwrap_or(pos);
                 n.type_names.insert(pos, "ModalScreen");
-                self.env.stylesheet.add_source("default:ModalScreen", crate::screen::MODAL_SCREEN_CSS, Origin::Default);
+                self.env.stylesheet.add_source(
+                    "default:ModalScreen",
+                    crate::screen::MODAL_SCREEN_CSS,
+                    Origin::Default,
+                );
             }
         }
         if !self.env.stylesheet.has_source("default:Screen") {
-            self.env.stylesheet.add_source("default:Screen", crate::screen::SCREEN_CSS, Origin::Default);
+            self.env.stylesheet.add_source(
+                "default:Screen",
+                crate::screen::SCREEN_CSS,
+                Origin::Default,
+            );
         }
         let root = self.root;
         self.dom.append_child(root, id);
@@ -491,7 +545,10 @@ impl AppState {
         let pusher = self.screen_pushers.remove(&screen);
         self.remove_now(screen);
         if let Some(top) = self.active_screen() {
-            let f = self.screen_focus.remove(&top).filter(|f| self.dom.contains(*f));
+            let f = self
+                .screen_focus
+                .remove(&top)
+                .filter(|f| self.dom.contains(*f));
             match f {
                 Some(f) => self.set_focus(Some(f)),
                 None => self.auto_focus(top),
@@ -500,7 +557,10 @@ impl AppState {
         if let Some(pusher) = pusher.filter(|p| self.dom.contains(*p)) {
             let payload = result.unwrap_or_else(|| Box::new(ScreenDismissed));
             let msg = Message::from_boxed(screen, None, payload);
-            self.queue.push_back(Pending::Message { target: pusher, msg });
+            self.queue.push_back(Pending::Message {
+                target: pusher,
+                msg,
+            });
         }
         self.dirty = true;
         true
@@ -524,7 +584,12 @@ impl AppState {
     }
 
     fn auto_focus(&mut self, screen: NodeId) {
-        if self.dom.focused.map(|f| self.dom.screen_of(f) == Some(screen)).unwrap_or(false) {
+        if self
+            .dom
+            .focused
+            .map(|f| self.dom.screen_of(f) == Some(screen))
+            .unwrap_or(false)
+        {
             return;
         }
         let chain = self.focus_chain();
@@ -568,7 +633,11 @@ impl AppState {
         for a in self.arrangements.values_mut() {
             a.order.retain(|n| !ids.contains(n));
         }
-        if self.mouse_down_on.map(|m| ids.contains(&m)).unwrap_or(false) {
+        if self
+            .mouse_down_on
+            .map(|m| ids.contains(&m))
+            .unwrap_or(false)
+        {
             self.mouse_down_on = None;
         }
         if focused_removed {
@@ -581,10 +650,17 @@ impl AppState {
 
     /// Check out the widget at `id`, run `f` with a [`Ctx`] for it, check it back in.
     /// Returns `None` if the node doesn't exist or its widget is already checked out.
-    pub(crate) fn call_widget<R>(&mut self, id: NodeId, f: impl FnOnce(&mut dyn Widget, &mut Ctx) -> R) -> Option<R> {
+    pub(crate) fn call_widget<R>(
+        &mut self,
+        id: NodeId,
+        f: impl FnOnce(&mut dyn Widget, &mut Ctx) -> R,
+    ) -> Option<R> {
         let mut widget = self.dom.get_mut(id)?.widget.take()?;
         let result = {
-            let mut ctx = Ctx { app: self, node: id };
+            let mut ctx = Ctx {
+                app: self,
+                node: id,
+            };
             f(widget.as_mut(), &mut ctx)
         };
         match self.dom.get_mut(id) {
@@ -604,7 +680,9 @@ impl AppState {
         let mut did = false;
         loop {
             self.apply_removals();
-            let Some(p) = self.queue.pop_front() else { break };
+            let Some(p) = self.queue.pop_front() else {
+                break;
+            };
             did = true;
             match p {
                 Pending::Mount(id) => {
@@ -647,7 +725,9 @@ impl AppState {
                 break;
             }
             let parent = self.dom.parent(id);
-            let flow = self.call_widget(id, |w, ctx| w.on_message(&msg, ctx)).unwrap_or(Flow::Continue);
+            let flow = self
+                .call_widget(id, |w, ctx| w.on_message(&msg, ctx))
+                .unwrap_or(Flow::Continue);
             if flow == Flow::Stop || !msg.bubble {
                 break;
             }
@@ -673,7 +753,8 @@ impl AppState {
             let flow = if disabled && (event.mouse().is_some() || event.key().is_some()) {
                 Flow::Continue
             } else {
-                self.call_widget(id, |w, ctx| w.on_event(&event, ctx)).unwrap_or(Flow::Continue)
+                self.call_widget(id, |w, ctx| w.on_event(&event, ctx))
+                    .unwrap_or(Flow::Continue)
             };
             if flow == Flow::Stop {
                 return Flow::Stop;
@@ -702,17 +783,29 @@ impl AppState {
     }
 
     pub(crate) fn handle(&self) -> AppHandle {
-        AppHandle { tx: self.signal_tx.clone() }
+        AppHandle {
+            tx: self.signal_tx.clone(),
+        }
     }
 
-    pub(crate) fn add_timer(&mut self, node: NodeId, delay: Duration, repeat: bool, cb: TimerCallback) -> TimerId {
+    pub(crate) fn add_timer(
+        &mut self,
+        node: NodeId,
+        delay: Duration,
+        repeat: bool,
+        cb: TimerCallback,
+    ) -> TimerId {
         let id = TimerId(self.next_timer_id);
         self.next_timer_id += 1;
         self.timers.push(Timer {
             id,
             node,
             deadline: Instant::now() + delay,
-            interval: if repeat { Some(delay.max(Duration::from_millis(1))) } else { None },
+            interval: if repeat {
+                Some(delay.max(Duration::from_millis(1)))
+            } else {
+                None
+            },
             callback: Some(cb),
         });
         id
@@ -728,7 +821,12 @@ impl AppState {
     }
 
     pub(crate) fn next_deadline(&self) -> Option<Instant> {
-        let t = self.timers.iter().filter(|t| t.callback.is_some()).map(|t| t.deadline).min();
+        let t = self
+            .timers
+            .iter()
+            .filter(|t| t.callback.is_some())
+            .map(|t| t.deadline)
+            .min();
         let n = self.notifications.iter().map(|n| n.expires).min();
         match (t, n) {
             (Some(a), Some(b)) => Some(a.min(b)),
@@ -752,7 +850,9 @@ impl AppState {
             .map(|t| t.id)
             .collect();
         for tid in due {
-            let Some(idx) = self.timers.iter().position(|t| t.id == tid) else { continue };
+            let Some(idx) = self.timers.iter().position(|t| t.id == tid) else {
+                continue;
+            };
             let node = self.timers[idx].node;
             let mut cb = self.timers[idx].callback.take().expect("timer callback");
             self.call_widget(node, |w, ctx| cb(w, ctx));
@@ -783,11 +883,15 @@ impl AppState {
 
     /// Focusable nodes of the active screen in document order.
     pub(crate) fn focus_chain(&self) -> Vec<NodeId> {
-        let Some(screen) = self.active_screen() else { return Vec::new() };
+        let Some(screen) = self.active_screen() else {
+            return Vec::new();
+        };
         let mut out = Vec::new();
         let mut stack = vec![screen];
         while let Some(id) = stack.pop() {
-            let Some(node) = self.dom.get(id) else { continue };
+            let Some(node) = self.dom.get(id) else {
+                continue;
+            };
             if node.styles.get_display() == Display::None || node.disabled {
                 continue;
             }
@@ -809,10 +913,16 @@ impl AppState {
         let old = self.dom.focused;
         self.dom.focused = id;
         if let Some(old) = old {
-            self.queue.push_back(Pending::Event { target: old, event: Event::Blur });
+            self.queue.push_back(Pending::Event {
+                target: old,
+                event: Event::Blur,
+            });
         }
         if let Some(new) = id {
-            self.queue.push_back(Pending::Event { target: new, event: Event::Focus });
+            self.queue.push_back(Pending::Event {
+                target: new,
+                event: Event::Focus,
+            });
             self.scroll_visible_request = Some(new);
         }
         self.dirty = true;
@@ -861,13 +971,20 @@ impl AppState {
         let mut targets = vec![self.root];
         targets.extend(self.screens.iter().copied());
         for t in targets {
-            self.queue.push_back(Pending::Event { target: t, event: Event::Resize(size) });
+            self.queue.push_back(Pending::Event {
+                target: t,
+                event: Event::Resize(size),
+            });
         }
     }
 
     /// Nodes whose bindings apply, innermost first: focused → ancestors → app root.
     fn binding_chain(&self) -> Vec<NodeId> {
-        let start = self.dom.focused.or(self.active_screen()).unwrap_or(self.root);
+        let start = self
+            .dom
+            .focused
+            .or(self.active_screen())
+            .unwrap_or(self.root);
         let mut chain = self.dom.ancestors_with_self(start);
         if !chain.contains(&self.root) {
             chain.push(self.root);
@@ -876,7 +993,12 @@ impl AppState {
     }
 
     fn node_bindings(&self, id: NodeId) -> Vec<Binding> {
-        let mut b = self.dom.get(id).and_then(|n| n.widget()).map(|w| w.bindings()).unwrap_or_default();
+        let mut b = self
+            .dom
+            .get(id)
+            .and_then(|n| n.widget())
+            .map(|w| w.bindings())
+            .unwrap_or_default();
         if id == self.root {
             b.push(Binding::new("ctrl+q", "quit", "Quit").hidden().priority());
             b.push(Binding::new("ctrl+c", "quit", "Quit").hidden().priority());
@@ -899,7 +1021,11 @@ impl AppState {
             }
         }
         // 2. the focused widget (bubbling)
-        let target = self.dom.focused.or(self.active_screen()).unwrap_or(self.root);
+        let target = self
+            .dom
+            .focused
+            .or(self.active_screen())
+            .unwrap_or(self.root);
         if self.dispatch_event(target, Event::Key(key.clone())) == Flow::Stop {
             return;
         }
@@ -928,11 +1054,10 @@ impl AppState {
                 self.update_hover(target);
                 let Some(t) = target else { return };
                 if m.button == Some(MouseButton::Left) {
-                    let focus_target = self
-                        .dom
-                        .ancestors_with_self(t)
-                        .into_iter()
-                        .find(|n| self.dom.get(*n).map(|n| n.can_focus).unwrap_or(false) && !self.dom.is_disabled(*n));
+                    let focus_target = self.dom.ancestors_with_self(t).into_iter().find(|n| {
+                        self.dom.get(*n).map(|n| n.can_focus).unwrap_or(false)
+                            && !self.dom.is_disabled(*n)
+                    });
                     if let Some(f) = focus_target {
                         if self.focus_chain().contains(&f) {
                             self.set_focus(Some(f));
@@ -948,13 +1073,20 @@ impl AppState {
                 self.dispatch_event(t, Event::MouseUp(m));
                 if let Some(d) = down {
                     // Click goes to the nearest common node of press and release.
-                    let click_target = self.dom.ancestors_with_self(t).into_iter().find(|a| *a == d || self.dom.is_ancestor(*a, d));
+                    let click_target = self
+                        .dom
+                        .ancestors_with_self(t)
+                        .into_iter()
+                        .find(|a| *a == d || self.dom.is_ancestor(*a, d));
                     if let Some(ct) = click_target {
                         self.dispatch_event(ct, Event::Click(m));
                     }
                 }
             }
-            MouseKind::ScrollUp | MouseKind::ScrollDown | MouseKind::ScrollLeft | MouseKind::ScrollRight => {
+            MouseKind::ScrollUp
+            | MouseKind::ScrollDown
+            | MouseKind::ScrollLeft
+            | MouseKind::ScrollRight => {
                 let Some(t) = target else { return };
                 let (event, dx, dy) = match kind {
                     MouseKind::ScrollUp => (Event::MouseScrollUp(m), 0, -WHEEL_LINES),
@@ -974,10 +1106,16 @@ impl AppState {
             return;
         }
         if let Some(old) = self.dom.hovered {
-            self.queue.push_back(Pending::Event { target: old, event: Event::Leave });
+            self.queue.push_back(Pending::Event {
+                target: old,
+                event: Event::Leave,
+            });
         }
         if let Some(new) = target {
-            self.queue.push_back(Pending::Event { target: new, event: Event::Enter });
+            self.queue.push_back(Pending::Event {
+                target: new,
+                event: Event::Enter,
+            });
         }
         self.dom.hovered = target;
         self.dirty = true;
@@ -991,7 +1129,9 @@ impl AppState {
     /// Scroll the innermost scrollable node at or above `from` that can move in the given direction.
     fn scroll_nearest(&mut self, from: NodeId, dx: i32, dy: i32) -> bool {
         for id in self.dom.ancestors_with_self(from) {
-            let Some(node) = self.dom.get(id) else { continue };
+            let Some(node) = self.dom.get(id) else {
+                continue;
+            };
             let max = node.layout.max_scroll();
             let cur = node.scroll_offset;
             let next = Offset::new(cur.x + dx, cur.y + dy).clamp(max.x, max.y);
@@ -1021,7 +1161,9 @@ impl AppState {
             _ => owner,
         };
         let handled = self
-            .call_widget(target, |w, ctx| w.run_action(&parsed.name, &parsed.args, ctx))
+            .call_widget(target, |w, ctx| {
+                w.run_action(&parsed.name, &parsed.args, ctx)
+            })
             .unwrap_or(false);
         if handled {
             return true;
@@ -1037,7 +1179,11 @@ impl AppState {
             "toggle_dark" => {
                 let dark = !self.dom.dark;
                 let current = self.theme.clone();
-                let alt = if dark { "textual-dark" } else { "textual-light" };
+                let alt = if dark {
+                    "textual-dark"
+                } else {
+                    "textual-light"
+                };
                 if current != alt {
                     self.apply_theme(alt);
                 }
@@ -1070,10 +1216,17 @@ impl AppState {
                     }
                 }
             }
-            "notify" => self.notify(arg(0).to_string(), arg(1).to_string(), Severity::Information, None),
-            "scroll_up" | "scroll_down" | "scroll_left" | "scroll_right" | "scroll_home" | "scroll_end"
-            | "page_up" | "page_down" => {
-                let Some(node) = self.dom.get_mut(target) else { return false };
+            "notify" => self.notify(
+                arg(0).to_string(),
+                arg(1).to_string(),
+                Severity::Information,
+                None,
+            ),
+            "scroll_up" | "scroll_down" | "scroll_left" | "scroll_right" | "scroll_home"
+            | "scroll_end" | "page_up" | "page_down" => {
+                let Some(node) = self.dom.get_mut(target) else {
+                    return false;
+                };
                 let max = node.layout.max_scroll();
                 let page = node.layout.content_region.height.max(1);
                 let cur = node.scroll_offset;
@@ -1095,7 +1248,13 @@ impl AppState {
         true
     }
 
-    pub(crate) fn notify(&mut self, message: String, title: String, severity: Severity, timeout: Option<Duration>) {
+    pub(crate) fn notify(
+        &mut self,
+        message: String,
+        title: String,
+        severity: Severity,
+        timeout: Option<Duration>,
+    ) {
         let n = Notification {
             message,
             title,
@@ -1115,7 +1274,9 @@ impl AppState {
         let mut stack = vec![(self.root, None::<NodeId>)];
         while let Some((id, parent)) = stack.pop() {
             let mut styles = self.env.stylesheet.compute(self.dom.node_ref(id));
-            let Some(node) = self.dom.get(id) else { continue };
+            let Some(node) = self.dom.get(id) else {
+                continue;
+            };
             styles.merge(&node.inline_styles);
             if let Some(p) = parent.and_then(|p| self.dom.get(p)) {
                 styles.inherit_from(&p.styles);
@@ -1174,10 +1335,14 @@ impl AppState {
 
     /// Adjust scrollable ancestors so `target`'s region is visible. Returns whether anything moved.
     pub(crate) fn scroll_into_view(&mut self, target: NodeId) -> bool {
-        let Some(mut region) = self.dom.get(target).map(|n| n.layout.region) else { return false };
+        let Some(mut region) = self.dom.get(target).map(|n| n.layout.region) else {
+            return false;
+        };
         let mut moved = false;
         for anc in self.dom.ancestors(target) {
-            let Some(node) = self.dom.get(anc) else { continue };
+            let Some(node) = self.dom.get(anc) else {
+                continue;
+            };
             let max = node.layout.max_scroll();
             if max == Offset::ZERO {
                 continue;
@@ -1204,8 +1369,10 @@ impl AppState {
     pub(crate) fn render_frame(&mut self) -> Canvas {
         self.layout();
         let screens = self.visible_screens();
-        let layers: Vec<(NodeId, &Arrangement)> =
-            screens.iter().filter_map(|s| self.arrangements.get(s).map(|a| (*s, a))).collect();
+        let layers: Vec<(NodeId, &Arrangement)> = screens
+            .iter()
+            .filter_map(|s| self.arrangements.get(s).map(|a| (*s, a)))
+            .collect();
         let canvas = compositor::render(&self.dom, &self.env, &layers, self.size);
         self.dirty = false;
         canvas
@@ -1213,7 +1380,10 @@ impl AppState {
 
     /// Region of a node from the last layout.
     pub(crate) fn region_of(&self, id: NodeId) -> Region {
-        self.dom.get(id).map(|n| n.layout.region).unwrap_or_default()
+        self.dom
+            .get(id)
+            .map(|n| n.layout.region)
+            .unwrap_or_default()
     }
 }
 

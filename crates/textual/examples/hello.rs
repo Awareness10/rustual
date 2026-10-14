@@ -52,7 +52,10 @@ impl Widget for Hello {
             if let Some(c) = k.character.filter(|c| c.is_alphabetic()) {
                 self.count += 1;
                 if let Some(s) = ctx.query_one::<Static>("#greeting") {
-                    s.update(format!("You pressed [b $accent]{c}[/] ({} keys)", self.count));
+                    s.update(format!(
+                        "You pressed [b $accent]{c}[/] ({} keys)",
+                        self.count
+                    ));
                 }
             }
         }

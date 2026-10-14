@@ -24,7 +24,7 @@ impl Binding {
         Binding {
             keys: keys
                 .split(',')
-                .map(|k| normalize_key(k))
+                .map(normalize_key)
                 .filter(|k| !k.is_empty())
                 .collect(),
             action: action.to_string(),

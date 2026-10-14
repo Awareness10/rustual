@@ -78,7 +78,11 @@ pub fn normalize_key(key: &str) -> String {
         shift = false;
     }
     // with ctrl/alt, letters are reported lowercase (`ctrl+c`, not `ctrl+C`)
-    let base = if base.chars().count() == 1 && (ctrl || alt) { base.to_lowercase() } else { base };
+    let base = if base.chars().count() == 1 && (ctrl || alt) {
+        base.to_lowercase()
+    } else {
+        base
+    };
     let mut out = String::new();
     if ctrl {
         out.push_str("ctrl+");

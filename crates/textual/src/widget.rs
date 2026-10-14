@@ -413,10 +413,7 @@ pub fn style_from_styles(styles: &Styles, background: Color) -> Style {
     let mut style = styles.text_style.clone().unwrap_or_default();
     style.fg = None;
     style.bg = None;
-    let bg = match styles.background {
-        Some(b) => Some(background.composite(b)),
-        None => None,
-    };
+    let bg = styles.background.map(|b| background.composite(b));
     let under = bg.unwrap_or(background);
     style.fg = match styles.color {
         Some(ColorValue::Color(c)) => Some(under.composite(c)),

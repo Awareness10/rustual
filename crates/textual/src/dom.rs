@@ -141,7 +141,7 @@ impl Node {
     }
 
     pub fn is_type(&self, name: &str) -> bool {
-        self.type_names.iter().any(|t| *t == name)
+        self.type_names.contains(&name)
     }
 }
 

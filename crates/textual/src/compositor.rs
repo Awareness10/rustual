@@ -23,7 +23,9 @@ use crate::layout::Arrangement;
 use crate::widget::{style_from_styles, Content, RenderCtx, RenderEnv};
 use textual_css::{AlignH, AlignV, BorderEdge, ColorValue, Styles};
 use textual_render::border::BorderCellStyle;
-use textual_render::{BorderKind, Canvas, Cell, Color, Justify, Region, Size, Strip, Style, Text, TextOverflow};
+use textual_render::{
+    BorderKind, Canvas, Cell, Color, Justify, Region, Size, Strip, Style, Text, TextOverflow,
+};
 
 pub fn render(dom: &Dom, env: &RenderEnv, layers: &[(NodeId, &Arrangement)], size: Size) -> Canvas {
     let mut canvas = Canvas::new(size, Color::BLACK);
@@ -38,7 +40,10 @@ pub fn render(dom: &Dom, env: &RenderEnv, layers: &[(NodeId, &Arrangement)], siz
 }
 
 fn sample_bg(canvas: &Canvas, region: Region) -> Color {
-    canvas.get(region.x, region.y).map(|c| c.bg).unwrap_or(Color::BLACK)
+    canvas
+        .get(region.x, region.y)
+        .map(|c| c.bg)
+        .unwrap_or(Color::BLACK)
 }
 
 fn snapshot(canvas: &Canvas, region: Region) -> Vec<Cell> {
@@ -68,7 +73,11 @@ fn paint_node(canvas: &mut Canvas, dom: &Dom, env: &RenderEnv, id: NodeId, node:
     if opacity <= 0.0 {
         return;
     }
-    let before = if opacity < 1.0 { Some(snapshot(canvas, clip)) } else { None };
+    let before = if opacity < 1.0 {
+        Some(snapshot(canvas, clip))
+    } else {
+        None
+    };
 
     // Outer background: what is beneath the widget.
     let outer_bg = sample_bg(canvas, clip);
@@ -93,7 +102,14 @@ fn paint_node(canvas: &mut Canvas, dom: &Dom, env: &RenderEnv, id: NodeId, node:
     let fg = resolve_fg(styles, inner_bg);
 
     // 2. border + titles
-    paint_border(canvas, styles.get_border(), region, clip, inner_bg, outer_bg);
+    paint_border(
+        canvas,
+        styles.get_border(),
+        region,
+        clip,
+        inner_bg,
+        outer_bg,
+    );
     paint_labels(canvas, dom, env, id, node, inner_bg, outer_bg, fg, clip);
 
     // 3. content
@@ -152,13 +168,24 @@ fn border_cell_style(loc: BorderCellStyle, color: Color, inner: Color, outer: Co
     }
 }
 
-fn paint_border(canvas: &mut Canvas, edges: [BorderEdge; 4], region: Region, clip: Region, inner: Color, outer: Color) {
+fn paint_border(
+    canvas: &mut Canvas,
+    edges: [BorderEdge; 4],
+    region: Region,
+    clip: Region,
+    inner: Color,
+    outer: Color,
+) {
     let [top, right, bottom, left] = edges;
     if region.is_empty() {
         return;
     }
-    let (has_t, has_r, has_b, has_l) =
-        (top.kind.has_width(), right.kind.has_width(), bottom.kind.has_width(), left.kind.has_width());
+    let (has_t, has_r, has_b, has_l) = (
+        top.kind.has_width(),
+        right.kind.has_width(),
+        bottom.kind.has_width(),
+        left.kind.has_width(),
+    );
     if !(has_t || has_r || has_b || has_l) {
         return;
     }
@@ -166,7 +193,13 @@ fn paint_border(canvas: &mut Canvas, edges: [BorderEdge; 4], region: Region, cli
     let x1 = region.right() - 1;
     let y0 = region.y;
     let y1 = region.bottom() - 1;
-    let put = |canvas: &mut Canvas, x: i32, y: i32, kind: BorderKind, row: usize, col: usize, color: Color| {
+    let put = |canvas: &mut Canvas,
+               x: i32,
+               y: i32,
+               kind: BorderKind,
+               row: usize,
+               col: usize,
+               color: Color| {
         let ch = kind.chars()[row][col];
         let loc = kind.locations()[row][col];
         canvas.put_str(x, y, ch, &border_cell_style(loc, color, inner, outer), clip);
@@ -225,10 +258,26 @@ fn paint_labels(
     let region = node.layout.region;
     let ctx = RenderCtx::new(dom, env, id, region.size());
     let labels = [
-        (node.border_title.as_deref(), top, region.y, 0usize, styles.border_title_align, &styles.border_title_color,
-         &styles.border_title_background, &styles.border_title_style),
-        (node.border_subtitle.as_deref(), bottom, region.bottom() - 1, 2usize, styles.border_subtitle_align,
-         &styles.border_subtitle_color, &styles.border_subtitle_background, &styles.border_subtitle_style),
+        (
+            node.border_title.as_deref(),
+            top,
+            region.y,
+            0usize,
+            styles.border_title_align,
+            &styles.border_title_color,
+            &styles.border_title_background,
+            &styles.border_title_style,
+        ),
+        (
+            node.border_subtitle.as_deref(),
+            bottom,
+            region.bottom() - 1,
+            2usize,
+            styles.border_subtitle_align,
+            &styles.border_subtitle_color,
+            &styles.border_subtitle_background,
+            &styles.border_subtitle_style,
+        ),
     ];
     for (label, edge, y, row, align, color, background, text_style) in labels {
         let Some(label) = label else { continue };
@@ -244,7 +293,11 @@ fn paint_labels(
         }
         let text: Text = ctx.markup(label);
         let max = width - 2 * corners;
-        let mut strip = text.wrap(max, Justify::Left, TextOverflow::Ellipsis, true).into_iter().next().unwrap_or_default();
+        let mut strip = text
+            .wrap(max, Justify::Left, TextOverflow::Ellipsis, true)
+            .into_iter()
+            .next()
+            .unwrap_or_default();
         if strip.cell_len() > max {
             strip = strip.crop(0, max);
         }
@@ -275,7 +328,11 @@ fn paint_labels(
             base.bg = Some(base.bg.unwrap_or(inner).composite(*b));
         }
         if let Some(ts) = text_style {
-            base = base.combine(&Style { fg: None, bg: None, ..ts.clone() });
+            base = base.combine(&Style {
+                fg: None,
+                bg: None,
+                ..ts.clone()
+            });
         }
         let len = label_strip.cell_len();
         let space = (width - corners - len).max(0);
@@ -295,7 +352,14 @@ fn paint_labels(
     }
 }
 
-fn paint_content(canvas: &mut Canvas, dom: &Dom, env: &RenderEnv, id: NodeId, node: &Node, clip: Region) {
+fn paint_content(
+    canvas: &mut Canvas,
+    dom: &Dom,
+    env: &RenderEnv,
+    id: NodeId,
+    node: &Node,
+    clip: Region,
+) {
     let cr = node.layout.content_region;
     if cr.is_empty() {
         return;
@@ -362,10 +426,13 @@ pub(crate) fn thumb(track: i32, viewport: i32, virtual_len: i32, offset: i32) ->
     if virtual_len <= viewport {
         return (0, track);
     }
-    let len = ((viewport as f32 / virtual_len as f32) * track as f32).ceil().max(1.0) as i32;
+    let len = ((viewport as f32 / virtual_len as f32) * track as f32)
+        .ceil()
+        .max(1.0) as i32;
     let len = len.min(track);
     let max_offset = (virtual_len - viewport).max(1);
-    let start = ((offset.clamp(0, max_offset) as f32 / max_offset as f32) * (track - len) as f32).round() as i32;
+    let start = ((offset.clamp(0, max_offset) as f32 / max_offset as f32) * (track - len) as f32)
+        .round() as i32;
     (start, len)
 }
 
@@ -377,7 +444,8 @@ fn paint_scrollbars(canvas: &mut Canvas, node: &Node, clip: Region, inner_bg: Co
     let s = &node.styles;
     let track_color = inner_bg.composite(s.scrollbar_background.unwrap_or(Color::rgb(30, 30, 30)));
     let thumb_color = track_color.composite(s.scrollbar_color.unwrap_or(Color::rgb(90, 90, 90)));
-    let corner_color = inner_bg.composite(s.scrollbar_corner_color.unwrap_or(Color::rgb(30, 30, 30)));
+    let corner_color =
+        inner_bg.composite(s.scrollbar_corner_color.unwrap_or(Color::rgb(30, 30, 30)));
     let cr = layout.content_region;
     let vs = layout.virtual_size;
     let off = node.scroll_offset;
@@ -402,7 +470,11 @@ fn paint_scrollbars(canvas: &mut Canvas, node: &Node, clip: Region, inner_bg: Co
     if layout.scrollbar_v && layout.scrollbar_h {
         let w = s.get_scrollbar_size_vertical();
         let h = s.get_scrollbar_size_horizontal();
-        canvas.fill(Region::new(cr.right(), cr.bottom(), w, h), clip, corner_color);
+        canvas.fill(
+            Region::new(cr.right(), cr.bottom(), w, h),
+            clip,
+            corner_color,
+        );
     }
 }
 

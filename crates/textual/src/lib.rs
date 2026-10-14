@@ -18,14 +18,14 @@ pub mod screen;
 pub mod widget;
 pub mod widgets;
 
-pub use app::{App, AppHandle, Severity, TimerId, WorkerHandle, ScreenDismissed, Notified};
+pub use app::{App, AppHandle, Notified, ScreenDismissed, Severity, TimerId, WorkerHandle};
 pub use binding::{Action, Binding};
-pub use pilot::Pilot;
-pub use screen::Screen;
 pub use context::Ctx;
 pub use dom::{Dom, Node, NodeId, NodeLayout};
 pub use events::{Event, KeyEvent, MouseButton, MouseEvent};
 pub use message::{Flow, Message};
+pub use pilot::Pilot;
+pub use screen::Screen;
 pub use widget::{Child, Content, RenderCtx, RenderEnv, Widget, WidgetExt};
 
 pub use textual_css as css;
@@ -34,7 +34,9 @@ pub use textual_render::{Color, Offset, Region, Size, Spacing, Strip, Style, Tex
 
 /// Everything needed to write an app: `use textual::prelude::*;`
 pub mod prelude {
-    pub use crate::app::{App, AppHandle, Notified, ScreenDismissed, Severity, TimerId, WorkerHandle};
+    pub use crate::app::{
+        App, AppHandle, Notified, ScreenDismissed, Severity, TimerId, WorkerHandle,
+    };
     pub use crate::binding::Binding;
     pub use crate::compose;
     pub use crate::context::Ctx;
