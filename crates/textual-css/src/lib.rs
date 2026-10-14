@@ -3,6 +3,7 @@
 
 pub mod model;
 pub mod parser;
+mod properties;
 pub mod scalar;
 pub mod selector;
 pub mod styles;
@@ -11,6 +12,9 @@ pub mod theme;
 pub mod tokenizer;
 
 pub use model::{CssError, Declaration, Rule, RuleSet};
+pub use properties::{
+    is_known_property, parse_border_kind, parse_color_value, parse_text_style, IGNORED_PROPERTIES,
+};
 pub use scalar::{Dimension, Scalar, Unit};
 pub use selector::{SelectorList, SelectorNode, Specificity};
 pub use styles::*;

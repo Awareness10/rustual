@@ -1,0 +1,7 @@
+
+    HorizontalScroll {
+        layout: horizontal;
+        overflow-y: hidden;
+        overflow-x: auto;
+    }
+    

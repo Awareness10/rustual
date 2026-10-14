@@ -1,0 +1,30 @@
+
+    Tabs {
+        width: 100%;
+        height: 2;
+        &:focus {
+            .underline--bar {
+                background: $foreground 30%;
+            }
+            & .-active {
+                text-style: $block-cursor-text-style;
+                color: $block-cursor-foreground;
+                background: $block-cursor-background;
+            }
+        }
+
+        & > #tabs-scroll {
+            overflow: hidden;
+        }
+
+        #tabs-list {
+            width: auto;
+        }
+        #tabs-list-bar, #tabs-list {
+            width: auto;
+            height: auto;
+            min-width: 100%;
+            overflow: hidden hidden;
+        }
+    }
+    

@@ -1,0 +1,8 @@
+
+    HeaderClock {
+        background: $foreground-darken-1 5%;
+        color: $foreground;
+        text-opacity: 85%;
+        content-align: center middle;
+    }
+    

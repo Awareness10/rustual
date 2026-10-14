@@ -1,0 +1,6 @@
+
+    ETAStatus {
+        width: 9;
+        content-align-horizontal: right;
+    }
+    

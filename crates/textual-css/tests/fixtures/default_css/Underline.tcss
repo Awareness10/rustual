@@ -1,0 +1,16 @@
+
+    Underline {
+        width: 1fr;
+        height: 1;
+        & > .underline--bar {
+            color: $block-cursor-background;
+            background: $foreground 10%;
+        }        
+        &:ansi {            
+            & > .underline--bar {
+                color: $block-cursor-background;
+                background: $border-blurred;
+            }
+        }
+    }
+    

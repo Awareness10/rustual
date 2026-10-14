@@ -1,0 +1,8 @@
+
+    MarkdownH6 {
+        color: $markdown-h6-color;
+        background: $markdown-h6-background;
+        text-style: $markdown-h6-text-style;
+        margin: 1 0;
+    }
+    

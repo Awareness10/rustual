@@ -1,0 +1,7 @@
+
+    MarkdownHeader {
+        color: $text;
+        margin: 2 0 1 0;
+
+    }
+    

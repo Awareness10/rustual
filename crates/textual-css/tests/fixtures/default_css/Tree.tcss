@@ -1,0 +1,68 @@
+
+    Tree {
+        background: $surface;
+        color: $foreground;
+
+        & > .tree--label {}
+        & > .tree--guides {
+            color: $surface-lighten-2;
+        }
+        & > .tree--guides-hover {
+            color: $surface-lighten-2;
+        }
+        & > .tree--guides-selected {
+            color: $block-cursor-blurred-background;
+        }
+        & > .tree--cursor {
+            text-style: $block-cursor-blurred-text-style;
+            background: $block-cursor-blurred-background;
+        }
+        & > .tree--highlight {}
+        & > .tree--highlight-line {
+            background: $block-hover-background;
+        }
+
+        &:focus {
+            background-tint: $foreground 5%;
+            & > .tree--cursor {
+                color: $block-cursor-foreground;
+                background: $block-cursor-background;
+                text-style: $block-cursor-text-style;
+            }
+            & > .tree--guides {
+                color: $surface-lighten-3;
+            }
+            & > .tree--guides-hover {
+                color: $surface-lighten-3;
+            }
+            & > .tree--guides-selected {
+                color: $block-cursor-background;
+            }
+        }
+
+        &:light {
+            /* In light mode the guides are darker*/
+            & > .tree--guides {
+                color: $surface-darken-1;
+            }
+            & > .tree--guides-hover {
+                color: $block-cursor-background;
+            }
+            & > .tree--guides-selected {
+                color: $block-cursor-background;
+            }
+        }
+
+
+    }
+    Tree:ansi {
+        color: ansi_default;
+        & > .tree--guides {
+            color: $ansi-background;
+        }
+        &:nocolor > .tree--cursor{
+            text-style: reverse;
+        }        
+    }
+    
+    

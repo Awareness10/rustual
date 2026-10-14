@@ -1,0 +1,9 @@
+
+    CommandInput, CommandInput:focus {
+        border: blank;
+        width: 1fr;
+        padding-left: 0;
+        background: transparent;
+        background-tint: 0%;
+    }
+    

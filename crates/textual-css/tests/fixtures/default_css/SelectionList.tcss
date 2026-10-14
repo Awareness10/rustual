@@ -1,0 +1,28 @@
+
+    SelectionList {
+        height: auto;
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+        
+        & > .selection-list--button {
+            color: $panel-darken-2;
+            background: $panel;
+        }
+
+        & > .selection-list--button-highlighted {
+            color: $panel-darken-2;
+            background: $panel;
+        }
+
+        & > .selection-list--button-selected {
+            color: $text-success;
+            background: $panel;
+        }
+
+        & > .selection-list--button-selected-highlighted {
+            color: $text-success;
+            background: $panel;
+        }
+
+    }
+    

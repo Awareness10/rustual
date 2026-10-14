@@ -1,0 +1,8 @@
+
+    HorizontalGroup {
+        width: 1fr;
+        height: auto;
+        layout: horizontal;
+        overflow: hidden hidden;
+    }
+    

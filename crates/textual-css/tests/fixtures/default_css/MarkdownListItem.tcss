@@ -1,0 +1,12 @@
+
+    MarkdownListItem {
+        layout: horizontal;
+        margin-right: 1;
+        height: auto;
+    }
+
+    MarkdownListItem > Vertical {
+        width: 1fr;
+        height: auto;
+    }
+    

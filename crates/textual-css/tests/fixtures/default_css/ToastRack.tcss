@@ -1,0 +1,14 @@
+
+    ToastRack {
+        display: none;
+        layer: _toastrack;
+        width: 1fr;
+        height: auto;
+        dock: bottom;
+        align: right bottom;
+        visibility: hidden;
+        layout: vertical;
+        overflow-y: scroll;
+        margin-bottom: 1;         
+    }
+    

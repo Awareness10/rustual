@@ -1,0 +1,8 @@
+
+    MarkdownH5 {
+        color: $markdown-h5-color;
+        background: $markdown-h5-background;
+        text-style: $markdown-h5-text-style;
+        margin: 1 0;
+    }
+    

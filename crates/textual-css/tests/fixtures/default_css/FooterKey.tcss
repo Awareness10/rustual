@@ -1,0 +1,39 @@
+
+    FooterKey {
+        width: auto;
+        height: 1;
+        text-wrap: nowrap;
+        background: $footer-item-background;
+        .footer-key--key {
+            color: $footer-key-foreground;
+            background: $footer-key-background;
+            text-style: bold;
+            padding: 0 1;
+        }
+
+        .footer-key--description {
+            padding: 0 1 0 0;
+            color: $footer-description-foreground;
+            background: $footer-description-background;
+        }
+
+        &:hover {
+            pointer: pointer;
+            color: $footer-key-foreground;
+            background: $block-hover-background;            
+        }
+
+        &.-disabled {
+            text-style: dim;
+        }
+
+        &.-compact {
+            .footer-key--key {
+                padding: 0;
+            }
+            .footer-key--description {
+                padding: 0 0 0 1;
+            }
+        }
+    }
+    

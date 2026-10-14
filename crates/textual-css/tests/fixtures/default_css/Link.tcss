@@ -1,0 +1,12 @@
+
+    Link {
+        width: auto;
+        height: auto;
+        min-height: 1;
+        color: $text-accent;
+        text-style: underline;
+        &:hover { color: $accent; }
+        &:focus { text-style: bold reverse; }
+        pointer: pointer;
+    }
+    

@@ -1,0 +1,35 @@
+
+    Markdown {
+        height: auto;
+        padding: 0 2 0 2;
+        layout: vertical;
+        color: $foreground;
+        overflow-y: hidden;
+
+        &:ansi {
+            MarkdownBlock > .code_inline {
+                background: ansi_default !important;
+            }
+        }
+        
+        MarkdownBlock {
+            &:dark > .code_inline {
+                background: $warning 10%;
+                color: $text-warning 95%;
+            }
+            &:light > .code_inline {
+                background: $error 5%;
+                color: $text-error 95%;
+            }           
+            & > .em {
+                text-style: italic;
+            }
+            & > .strong {
+                text-style: bold;
+            }
+            & > .s {
+                text-style: strike;
+            }
+        }
+    }
+    

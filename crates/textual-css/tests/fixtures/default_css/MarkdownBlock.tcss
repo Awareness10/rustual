@@ -1,0 +1,6 @@
+
+    MarkdownBlock {
+        width: 1fr;
+        height: auto;
+    }
+    

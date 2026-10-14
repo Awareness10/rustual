@@ -1,0 +1,7 @@
+
+    MarkdownH2 {
+        color: $markdown-h2-color;
+        background: $markdown-h2-background;
+        text-style: $markdown-h2-text-style;
+    }
+    

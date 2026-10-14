@@ -1,0 +1,51 @@
+
+    
+    CommandList:ansi {
+        & > .option-list--option-highlighted {             
+            color: $block-cursor-foreground;
+            background: $block-cursor-background;
+            text-style: $block-cursor-text-style;    
+        }               
+    }       
+    
+    CommandList {
+        visibility: hidden;
+        border-top: blank;
+        border-bottom: hkey black;
+        border-left: none;
+        border-right: none;
+        height: auto;
+        max-height: 70vh;
+        background: transparent;
+        padding: 0;
+    }
+
+    CommandList:focus {
+        border: blank;
+    }
+
+    CommandList.--visible {
+        visibility: visible;
+    }
+
+    CommandList.--populating {
+        border-bottom: none;
+    }
+
+    CommandList > .option-list--option-highlighted {
+        color: $block-cursor-blurred-foreground;
+        background: $block-cursor-blurred-background;
+        text-style: $block-cursor-blurred-text-style;        
+    }
+    
+
+    CommandList:nocolor > .option-list--option-highlighted {       
+        text-style: reverse;
+    }
+
+    CommandList > .option-list--option {
+        padding: 0 2;
+        color: $foreground;
+        text-style: bold;
+    }
+    

@@ -1,0 +1,8 @@
+
+    HeaderTitle {
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+        content-align: center middle;
+        width: 100%;
+    }
+    

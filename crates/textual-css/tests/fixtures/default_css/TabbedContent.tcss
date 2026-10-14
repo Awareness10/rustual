@@ -1,0 +1,8 @@
+
+    TabbedContent {
+        height: auto;
+        &> ContentTabs {
+            dock: top;
+        }
+    }
+    

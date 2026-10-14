@@ -1,0 +1,15 @@
+
+    MarkdownViewer {
+        height: 1fr;
+        scrollbar-gutter: stable;
+        background: $surface;
+        & > MarkdownTableOfContents {
+            display: none;
+            dock:left;
+        }
+    }
+
+    MarkdownViewer.-show-table-of-contents > MarkdownTableOfContents {
+        display: block;
+    }
+    

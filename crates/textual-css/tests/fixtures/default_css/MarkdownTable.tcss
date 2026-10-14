@@ -1,0 +1,9 @@
+
+    MarkdownTable {
+        width: 1fr;
+        margin-bottom: 1;
+        &:light {
+            background: white 30%;
+        }
+    }
+    

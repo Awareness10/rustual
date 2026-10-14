@@ -1,0 +1,8 @@
+
+    ScrollableContainer {
+        width: 1fr;
+        height: 1fr;
+        layout: vertical;
+        overflow: auto auto;
+    }
+    

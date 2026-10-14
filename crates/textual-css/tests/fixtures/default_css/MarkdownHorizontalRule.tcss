@@ -1,0 +1,8 @@
+
+    MarkdownHorizontalRule {
+        border-bottom: solid $secondary;
+        height: 1;
+        padding-top: 1;
+        margin-bottom: 1;
+    }
+    

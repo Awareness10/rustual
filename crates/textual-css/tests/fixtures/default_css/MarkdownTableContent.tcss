@@ -1,0 +1,29 @@
+
+    MarkdownTableContent {
+        width: 1fr;
+        height: auto;
+        layout: grid;
+        grid-columns: auto;
+        grid-rows: auto;
+        grid-gutter: 1 1;
+
+        & > .cell {
+            margin: 0 0;
+            height: auto;
+            padding: 0 1;
+            text-overflow: ellipsis;
+        }
+        & > .header {
+            height: auto;
+            margin: 0 0;
+            padding: 0 1;
+            color: $primary;
+            text-overflow: ellipsis;
+            content-align: left bottom;
+        }
+        keyline: thin $foreground 20%;
+    }
+    MarkdownTableContent > .markdown-table--header {
+        text-style: bold;
+    }
+    
