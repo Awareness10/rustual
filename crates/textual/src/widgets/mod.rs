@@ -67,3 +67,7 @@ pub use list_view::{ListItem, ListView};
 pub use log::Log;
 pub use option_list::{OptionItem, OptionList};
 pub use rich_log::RichLog;
+
+// Multi-line editor. (`text_area::Selection` is not re-exported: it would clash with Input's.)
+pub mod text_area;
+pub use text_area::{IndentType, TabBehavior, TextArea, TextAreaTheme};

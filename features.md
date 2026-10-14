@@ -81,7 +81,7 @@ _Last updated: 2026-10-14._
 | Button | ✅ | 95 | variants, flat, action, active effect |
 | Input | ✅ | 85 | password, restrict (char predicate), max length, integer/number, selection; no suggester/validators API |
 | MaskedInput | ❌ | 0 | |
-| TextArea | ❌ | 0 | essential — multi-line editor |
+| TextArea | 🟡 | 80 | editing, selection (keys/mouse drag/double+triple click), undo/redo batching, soft wrap, line numbers, themes (css/monokai/dracula/vscode_dark/github_light), bracket matching, read-only, placeholder; no tree-sitter (simple per-line keyword highlighter for python/rust/js/json/toml), no suggestions, no OSC 52 clipboard, no mouse capture |
 | Checkbox / ToggleButton | ✅ | 95 | |
 | RadioButton / RadioSet | ✅ | 95 | |
 | Switch | ✅ | 90 | no slide animation |
@@ -117,7 +117,7 @@ _Last updated: 2026-10-14._
 
 ## Roadmap
 
-1. **Essential widgets:** TextArea, Markdown/MarkdownViewer.
+1. **Essential widgets:** Markdown/MarkdownViewer (TextArea done, minus tree-sitter highlighting).
 2. **Core:** command palette, animation (easing, `animate`, smooth scroll, Tabs/Switch/ProgressBar motion),
    tooltips, `@click` links, scrollbar dragging + mouse capture, OSC 52 clipboard.
 3. **Low-hanging fruit:** Link, Pretty, SelectionList, MaskedInput, DirectoryTree, KeyPanel/HelpPanel, Welcome,

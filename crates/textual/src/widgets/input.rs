@@ -68,7 +68,20 @@ Input {
 const BLINK_INTERVAL: Duration = Duration::from_millis(500);
 
 /// Shared local clipboard for cut / copy / paste (Textual uses `app.clipboard`).
+/// Shared with `TextArea`.
 static CLIPBOARD: Mutex<String> = Mutex::new(String::new());
+
+/// The local clipboard's contents (shared by `Input` and `TextArea`).
+pub(crate) fn clipboard_text() -> String {
+    CLIPBOARD.lock().map(|c| c.clone()).unwrap_or_default()
+}
+
+/// Replace the local clipboard's contents (shared by `Input` and `TextArea`).
+pub(crate) fn set_clipboard_text(text: &str) {
+    if let Ok(mut c) = CLIPBOARD.lock() {
+        *c = text.to_string();
+    }
+}
 
 /// Posted when the value changes (Textual: `Input.Changed`).
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -726,9 +739,7 @@ impl Input {
     }
 
     fn set_clipboard(text: &str) {
-        if let Ok(mut c) = CLIPBOARD.lock() {
-            *c = text.to_string();
-        }
+        set_clipboard_text(text);
     }
 
     pub fn action_cut(&mut self, ctx: &mut Ctx) {
@@ -746,7 +757,7 @@ impl Input {
     }
 
     pub fn action_paste(&mut self, ctx: &mut Ctx) {
-        let text = CLIPBOARD.lock().map(|c| c.clone()).unwrap_or_default();
+        let text = clipboard_text();
         let Selection { start, end } = self.selection;
         self.replace(&text, start, end, ctx);
     }
