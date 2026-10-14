@@ -185,6 +185,21 @@ fn hidden_ancestor_background(dom: &Dom, id: NodeId) -> Color {
     })
 }
 
+/// Split unstyled leading spaces (added by justification) off a strip: (cells, rest).
+fn split_leading_pad(line: &Strip) -> (i32, Strip) {
+    let mut pad = 0;
+    let mut spans = line.spans.iter().peekable();
+    while let Some(span) = spans.peek() {
+        if span.style.is_empty() && !span.text.is_empty() && span.text.chars().all(|c| c == ' ') {
+            pad += span.text.len() as i32;
+            spans.next();
+        } else {
+            break;
+        }
+    }
+    (pad, Strip::new(spans.cloned().collect()))
+}
+
 /// `visibility` is inherited unless set explicitly (Textual semantics).
 fn effectively_hidden(dom: &Dom, id: NodeId) -> bool {
     for n in dom.ancestors_with_self(id) {
@@ -459,7 +474,10 @@ fn paint_content(
         if y >= cr.bottom() {
             break;
         }
-        canvas.put_strip(cr.x + off_x, y, line, content_clip, &base);
+        // Justification padding is layout, not text: skip it so text styles such as `reverse`
+        // only apply to the actual text (as in Textual).
+        let (pad, line) = if justified { split_leading_pad(line) } else { (0, line.clone()) };
+        canvas.put_strip(cr.x + off_x + pad, y, &line, content_clip, &base);
     }
     let text_opacity = node.styles.get_text_opacity();
     if text_opacity < 1.0 {
