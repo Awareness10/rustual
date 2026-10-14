@@ -1,5 +1,7 @@
+type NamedColor = (&'static str, (u8, u8, u8, u8));
+
 /// Named colors from Textual's `_color_constants.py` (sorted for binary search).
-pub(crate) static NAMED_COLORS: &[(&str, (u8, u8, u8, u8))] = &[
+pub(crate) static NAMED_COLORS: &[NamedColor] = &[
     ("aliceblue", (240, 248, 255, 255)),
     ("ansi_black", (0, 0, 0, 255)),
     ("ansi_blue", (0, 0, 128, 255)),
