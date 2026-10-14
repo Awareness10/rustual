@@ -1,0 +1,71 @@
+//! Messages: typed payloads posted by widgets that bubble up the DOM.
+
+use crate::dom::NodeId;
+use std::any::Any;
+use std::fmt;
+
+/// Return value of event / message handlers.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Flow {
+    /// Not handled (or handled but should keep bubbling).
+    #[default]
+    Continue,
+    /// Stop propagation to parents (and for keys, skip default handling such as bindings).
+    Stop,
+}
+
+/// A message: `payload` is any `Send + 'static` value. Handlers match with [`Message::get`].
+///
+/// ```ignore
+/// fn on_message(&mut self, msg: &Message, ctx: &mut Ctx) -> Flow {
+///     if let Some(_) = msg.get::<button::Pressed>() {
+///         if msg.sender_id() == Some("ok") { ctx.exit(); }
+///     }
+///     Flow::Continue
+/// }
+/// ```
+pub struct Message {
+    /// The node that posted the message.
+    pub sender: NodeId,
+    /// The CSS id of the sender at post time, if it had one.
+    pub sender_css_id: Option<String>,
+    /// Whether the message bubbles to ancestors after the target handles it.
+    pub bubble: bool,
+    payload: Box<dyn Any + Send>,
+}
+
+impl Message {
+    pub fn new<T: Any + Send>(sender: NodeId, sender_css_id: Option<String>, payload: T) -> Self {
+        Message { sender, sender_css_id, bubble: true, payload: Box::new(payload) }
+    }
+
+    pub fn from_boxed(sender: NodeId, sender_css_id: Option<String>, payload: Box<dyn Any + Send>) -> Self {
+        Message { sender, sender_css_id, bubble: true, payload }
+    }
+
+    pub fn get<T: Any>(&self) -> Option<&T> {
+        self.payload.downcast_ref::<T>()
+    }
+
+    pub fn is<T: Any>(&self) -> bool {
+        self.payload.is::<T>()
+    }
+
+    pub fn sender_id(&self) -> Option<&str> {
+        self.sender_css_id.as_deref()
+    }
+
+    pub fn into_payload(self) -> Box<dyn Any + Send> {
+        self.payload
+    }
+}
+
+impl fmt::Debug for Message {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Message")
+            .field("sender", &self.sender)
+            .field("sender_css_id", &self.sender_css_id)
+            .field("bubble", &self.bubble)
+            .finish_non_exhaustive()
+    }
+}

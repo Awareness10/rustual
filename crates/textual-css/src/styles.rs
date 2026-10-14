@@ -1,0 +1,238 @@
+//! Typed style properties. Every field is `Option`: `None` = not set by any rule.
+//! Getter methods return the effective value with Textual's defaults applied.
+
+use crate::scalar::Scalar;
+use textual_render::{BorderKind, Color, Spacing, Style};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Display { #[default] Block, None }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Visibility { #[default] Visible, Hidden }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum LayoutKind { #[default] Vertical, Horizontal, Grid }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum BoxSizing { #[default] BorderBox, ContentBox }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Overflow { #[default] Hidden, Auto, Scroll }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AlignH { #[default] Left, Center, Right }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AlignV { #[default] Top, Middle, Bottom }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TextAlign { #[default] Start, End, Left, Center, Right, Justify }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Dock { Top, Right, Bottom, Left }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ScrollbarGutter { #[default] Auto, Stable }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TextWrap { #[default] Wrap, NoWrap }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TextOverflowKind { #[default] Fold, Clip, Ellipsis }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Position { #[default] Relative, Absolute }
+
+/// One border edge: kind + color.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct BorderEdge {
+    pub kind: BorderKind,
+    pub color: Color,
+}
+
+/// Text attributes from `text-style: bold italic` etc. Only `Some` flags are applied;
+/// `none` sets all to `Some(false)`; `not bold` sets bold `Some(false)`.
+pub type TextStyle = Style; // only attribute fields are used, never colors
+
+/// A color value that may be `auto` (contrast text color with given alpha).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ColorValue {
+    Color(Color),
+    /// `color: auto 87%` → pick contrasting white/black over the background, alpha 0.87.
+    Auto(f32),
+}
+
+/// All supported style properties. Field names map to CSS names with `_` → `-`
+/// (e.g. `content_align_horizontal` ← `content-align-horizontal`, also set by `content-align: center middle`).
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Styles {
+    pub display: Option<Display>,
+    pub visibility: Option<Visibility>,
+    pub layout: Option<LayoutKind>,
+    pub position: Option<Position>,
+
+    pub width: Option<Scalar>,
+    pub height: Option<Scalar>,
+    pub min_width: Option<Scalar>,
+    pub min_height: Option<Scalar>,
+    pub max_width: Option<Scalar>,
+    pub max_height: Option<Scalar>,
+    pub box_sizing: Option<BoxSizing>,
+
+    pub margin: Option<Spacing>,
+    pub padding: Option<Spacing>,
+
+    /// `border: <kind> <color>`, `border-top: ...` etc. Missing color defaults to `$foreground`-ish (green in Textual's default) — the parser uses WHITE when not given.
+    pub border_top: Option<BorderEdge>,
+    pub border_right: Option<BorderEdge>,
+    pub border_bottom: Option<BorderEdge>,
+    pub border_left: Option<BorderEdge>,
+    /// Outline: drawn over the content area edge, takes no space.
+    pub outline_top: Option<BorderEdge>,
+    pub outline_right: Option<BorderEdge>,
+    pub outline_bottom: Option<BorderEdge>,
+    pub outline_left: Option<BorderEdge>,
+    pub border_title_align: Option<AlignH>,
+    pub border_subtitle_align: Option<AlignH>,
+    pub border_title_color: Option<Color>,
+    pub border_title_background: Option<Color>,
+    pub border_title_style: Option<TextStyle>,
+    pub border_subtitle_color: Option<Color>,
+    pub border_subtitle_background: Option<Color>,
+    pub border_subtitle_style: Option<TextStyle>,
+
+    pub color: Option<ColorValue>,
+    pub background: Option<Color>,
+    pub background_tint: Option<Color>,
+    pub tint: Option<Color>,
+    pub opacity: Option<f32>,
+    pub text_opacity: Option<f32>,
+    pub text_style: Option<TextStyle>,
+    pub text_align: Option<TextAlign>,
+    pub text_wrap: Option<TextWrap>,
+    pub text_overflow: Option<TextOverflowKind>,
+
+    pub content_align_horizontal: Option<AlignH>,
+    pub content_align_vertical: Option<AlignV>,
+    pub align_horizontal: Option<AlignH>,
+    pub align_vertical: Option<AlignV>,
+
+    pub dock: Option<Dock>,
+    pub offset_x: Option<Scalar>,
+    pub offset_y: Option<Scalar>,
+    pub layer: Option<String>,
+    pub layers: Option<Vec<String>>,
+
+    pub overflow_x: Option<Overflow>,
+    pub overflow_y: Option<Overflow>,
+    pub scrollbar_gutter: Option<ScrollbarGutter>,
+    pub scrollbar_size_vertical: Option<i32>,
+    pub scrollbar_size_horizontal: Option<i32>,
+    pub scrollbar_color: Option<Color>,
+    pub scrollbar_color_hover: Option<Color>,
+    pub scrollbar_color_active: Option<Color>,
+    pub scrollbar_background: Option<Color>,
+    pub scrollbar_background_hover: Option<Color>,
+    pub scrollbar_background_active: Option<Color>,
+    pub scrollbar_corner_color: Option<Color>,
+
+    pub grid_size_columns: Option<i32>,
+    pub grid_size_rows: Option<i32>,
+    pub grid_columns: Option<Vec<Scalar>>,
+    pub grid_rows: Option<Vec<Scalar>>,
+    pub grid_gutter_horizontal: Option<i32>,
+    pub grid_gutter_vertical: Option<i32>,
+    pub column_span: Option<i32>,
+    pub row_span: Option<i32>,
+
+    pub link_color: Option<Color>,
+    pub link_background: Option<Color>,
+    pub link_style: Option<TextStyle>,
+    pub link_color_hover: Option<Color>,
+    pub link_background_hover: Option<Color>,
+    pub link_style_hover: Option<TextStyle>,
+}
+
+impl Styles {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Overlay: every `Some` field in `other` replaces the field in `self`.
+    pub fn merge(&mut self, other: &Styles) {
+        todo!("{other:?}")
+    }
+
+    /// Fill unset *inherited* properties from the parent's computed styles. Inherited:
+    /// color, text_style, text_align, text_wrap, text_overflow, text_opacity? (no — not inherited),
+    /// link_* properties. Everything else is not inherited.
+    pub fn inherit_from(&mut self, parent: &Styles) {
+        todo!("{parent:?}")
+    }
+
+    // ---- effective-value getters (Textual defaults) ----
+    pub fn get_display(&self) -> Display { self.display.unwrap_or_default() }
+    pub fn get_visibility(&self) -> Visibility { self.visibility.unwrap_or_default() }
+    pub fn get_layout(&self) -> LayoutKind { self.layout.unwrap_or_default() }
+    pub fn get_box_sizing(&self) -> BoxSizing { self.box_sizing.unwrap_or_default() }
+    pub fn get_margin(&self) -> Spacing { self.margin.unwrap_or_default() }
+    pub fn get_padding(&self) -> Spacing { self.padding.unwrap_or_default() }
+    pub fn get_background(&self) -> Color { self.background.unwrap_or(Color::TRANSPARENT) }
+    pub fn get_opacity(&self) -> f32 { self.opacity.unwrap_or(1.0) }
+    pub fn get_text_opacity(&self) -> f32 { self.text_opacity.unwrap_or(1.0) }
+    pub fn get_overflow_x(&self) -> Overflow { self.overflow_x.unwrap_or_default() }
+    pub fn get_overflow_y(&self) -> Overflow { self.overflow_y.unwrap_or_default() }
+    pub fn get_scrollbar_size_vertical(&self) -> i32 { self.scrollbar_size_vertical.unwrap_or(2) }
+    pub fn get_scrollbar_size_horizontal(&self) -> i32 { self.scrollbar_size_horizontal.unwrap_or(1) }
+    pub fn get_text_align(&self) -> TextAlign { self.text_align.unwrap_or_default() }
+    pub fn get_content_align(&self) -> (AlignH, AlignV) {
+        (self.content_align_horizontal.unwrap_or_default(), self.content_align_vertical.unwrap_or_default())
+    }
+    pub fn get_align(&self) -> (AlignH, AlignV) {
+        (self.align_horizontal.unwrap_or_default(), self.align_vertical.unwrap_or_default())
+    }
+    pub fn get_grid_size(&self) -> (i32, i32) {
+        (self.grid_size_columns.unwrap_or(1), self.grid_size_rows.unwrap_or(0))
+    }
+    pub fn get_grid_gutter(&self) -> (i32, i32) {
+        (self.grid_gutter_horizontal.unwrap_or(0), self.grid_gutter_vertical.unwrap_or(0))
+    }
+
+    /// Border edges as (top, right, bottom, left); unset edges are `BorderKind::None`.
+    pub fn get_border(&self) -> [BorderEdge; 4] {
+        let none = BorderEdge { kind: BorderKind::None, color: Color::TRANSPARENT };
+        [self.border_top.unwrap_or(none), self.border_right.unwrap_or(none),
+         self.border_bottom.unwrap_or(none), self.border_left.unwrap_or(none)]
+    }
+
+    pub fn get_outline(&self) -> [BorderEdge; 4] {
+        let none = BorderEdge { kind: BorderKind::None, color: Color::TRANSPARENT };
+        [self.outline_top.unwrap_or(none), self.outline_right.unwrap_or(none),
+         self.outline_bottom.unwrap_or(none), self.outline_left.unwrap_or(none)]
+    }
+
+    /// Cells taken by borders: 1 per edge whose kind has width.
+    pub fn border_spacing(&self) -> Spacing {
+        let [t, r, b, l] = self.get_border();
+        let w = |e: BorderEdge| if e.kind.has_width() { 1 } else { 0 };
+        Spacing::new(w(t), w(r), w(b), w(l))
+    }
+
+    /// Padding + border (the "gutter" between outer box and content).
+    pub fn gutter(&self) -> Spacing {
+        self.get_padding() + self.border_spacing()
+    }
+
+    /// Parse a single declaration (`name`, raw value text with variables already substituted)
+    /// and set the corresponding field(s). Shorthands (`border`, `margin`, `padding`, `align`,
+    /// `content-align`, `overflow`, `offset`, `grid-size`, `grid-gutter`, `scrollbar-size`,
+    /// `outline`) set several fields.
+    pub fn set_declaration(&mut self, name: &str, value: &str) -> Result<(), String> {
+        todo!("{name}{value}")
+    }
+
+    /// Parse inline-style text like `"width: 10; color: red"`.
+    pub fn parse_inline(css: &str) -> Result<Styles, String> {
+        todo!("{css}")
+    }
+}

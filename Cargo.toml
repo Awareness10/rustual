@@ -1,0 +1,18 @@
+[workspace]
+resolver = "2"
+members = ["crates/textual-render", "crates/textual-css", "crates/textual"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+textual-render = { path = "crates/textual-render" }
+textual-css = { path = "crates/textual-css" }
+unicode-width = "0.2"
+unicode-segmentation = "1.12"
+crossterm = { version = "0.29", features = ["event-stream"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }
+futures = "0.3"
+slotmap = "1"
