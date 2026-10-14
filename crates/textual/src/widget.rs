@@ -256,6 +256,8 @@ pub struct RenderEnv {
     pub dark: bool,
     /// Active notifications (oldest first), for toast widgets.
     pub notifications: Vec<crate::app::Notification>,
+    /// The hovered / grabbed scrollbar, painted with the `-hover` / `-active` colors.
+    pub scrollbar_highlight: Option<crate::scrollbar::ScrollbarHighlight>,
 }
 
 /// Read-only context for [`Widget::render`] and measurement.

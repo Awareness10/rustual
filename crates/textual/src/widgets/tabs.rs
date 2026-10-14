@@ -10,9 +10,12 @@
 //! (Horizontal#tabs-list > Tab*, Underline)`. Tabs given with `.with(...)` are moved into
 //! `#tabs-list` when the `Tabs` is mounted.
 //!
-//! Deviations: the underline does not animate; the underline position is computed from the
-//! active tab's layout at render time (Textual updates it after refresh).
+//! The underline slides to the newly active tab over 0.3s (`in_out_cubic`, level `basic`), as in
+//! Textual. Deviations: the underline's resting position is computed from the active tab's
+//! layout at render time (Textual updates it after refresh); the slide interpolates from where
+//! the underline was towards the active tab's current position.
 
+use crate::animation::{AnimationLevel, Easing};
 use crate::binding::Binding;
 use crate::compose;
 use crate::context::Ctx;
@@ -20,7 +23,9 @@ use crate::dom::NodeId;
 use crate::events::Event;
 use crate::message::{Flow, Message};
 use crate::widget::{Child, Content, RenderCtx, Widget, WidgetExt};
+use crate::widgets::progress_bar::BarRenderable;
 use crate::widgets::{Container, Horizontal, Vertical};
+use std::time::Duration;
 use textual_render::{cells::cell_len, Span, Strip, Style, Text};
 
 const UNDERLINE_CSS: &str = r#"
@@ -259,6 +264,22 @@ impl Widget for Underline {
             ..Style::default()
         };
         let range = self.highlight_range(ctx);
+        // Sliding: interpolate from where the underline was towards the active tab.
+        let tabs = ctx
+            .dom
+            .ancestors(ctx.node)
+            .into_iter()
+            .find_map(|a| ctx.dom.widget::<Tabs>(a));
+        if let (Some((from, t)), Some((s, e))) = (tabs.and_then(|t| t.underline_slide()), range) {
+            let lerp = |a: f32, b: i32| a + (b as f32 - a) * t;
+            let bar = BarRenderable::new(
+                (lerp(from.0, s) as f64, lerp(from.1, e) as f64),
+                highlight,
+                background,
+                ctx.size.width,
+            );
+            return Content::Lines(vec![bar.render()]);
+        }
         Content::Lines(vec![render_bar(
             ctx.size.width,
             range,
@@ -364,6 +385,9 @@ pub struct Tabs {
     counter: usize,
     /// Extra CSS type names (used by `TabbedContent`'s `ContentTabs`).
     content_tabs: bool,
+    /// Underline slide: the range it started from (relative to the underline) and progress.
+    underline_from: Option<(f32, f32)>,
+    underline_t: f32,
 }
 
 impl Tabs {
@@ -390,6 +414,61 @@ impl Tabs {
     /// The id of the active tab, or `""` if no tab is active.
     pub fn active_id(&self) -> &str {
         &self.active
+    }
+
+    /// While the underline slides: (start range, eased progress 0..1).
+    fn underline_slide(&self) -> Option<((f32, f32), f32)> {
+        self.underline_from.map(|f| (f, self.underline_t))
+    }
+
+    /// Columns (relative to the underline) under `tab`, from the last layout.
+    fn underline_span(ctx: &Ctx, tab: NodeId) -> Option<(f32, f32)> {
+        let underline = ctx.query_in(ctx.id(), "Underline").into_iter().next()?;
+        let origin = ctx.dom().get(underline)?.layout.content_region;
+        let t = ctx.dom().get(tab)?;
+        if origin.width == 0 || !t.layout.visible {
+            return None;
+        }
+        let r = t.layout.content_region;
+        Some(((r.x - origin.x) as f32, (r.right() - origin.x) as f32))
+    }
+
+    /// Where the underline is currently drawn (mid-slide or under the active tab).
+    fn underline_now(&self, ctx: &Ctx) -> Option<(f32, f32)> {
+        let target = Self::underline_span(ctx, self.active_tab(ctx)?)?;
+        Some(match self.underline_slide() {
+            Some((from, t)) => (
+                from.0 + (target.0 - from.0) * t,
+                from.1 + (target.1 - from.1) * t,
+            ),
+            None => target,
+        })
+    }
+
+    /// Slide the underline from `from` to the active tab (Textual's `_highlight_active`).
+    fn slide_underline(&mut self, from: (f32, f32), ctx: &mut Ctx) {
+        let own_ctx = ctx
+            .dom()
+            .get(ctx.id())
+            .map(|n| n.is_type("Tabs"))
+            .unwrap_or(false);
+        if !own_ctx || ctx.animation_level() == AnimationLevel::None {
+            return;
+        }
+        self.underline_from = Some(from);
+        self.underline_t = 0.0;
+        ctx.animate_value_with::<Tabs>(
+            "underline",
+            0.0,
+            1.0,
+            Duration::from_millis(300),
+            Easing::DEFAULT,
+            AnimationLevel::Basic,
+            |tabs, v, _ctx| tabs.underline_t = v,
+            Some(Box::new(|tabs: &mut Tabs, _ctx: &mut Ctx| {
+                tabs.underline_from = None;
+            })),
+        );
     }
 
     fn next_id(&mut self) -> String {
@@ -561,6 +640,11 @@ impl Tabs {
                 None => return false,
             }
         };
+        let underline_was = if self.active.is_empty() {
+            None
+        } else {
+            self.underline_now(ctx)
+        };
         for t in &tabs {
             ctx.remove_class_from(*t, "-active");
         }
@@ -568,6 +652,9 @@ impl Tabs {
         match target {
             Some((index, node)) => {
                 ctx.add_class_to(node, "-active");
+                if let Some(from) = underline_was {
+                    self.slide_underline(from, ctx);
+                }
                 self.scroll_active_tab(node, ctx);
                 let label = ctx
                     .dom()

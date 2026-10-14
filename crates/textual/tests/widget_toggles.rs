@@ -344,7 +344,7 @@ async fn disabled_radio_set() {
 
 // ---------------------------------------------------------------- Switch
 
-#[tokio::test]
+#[tokio::test(start_paused = true)]
 async fn switch_renders_and_toggles() {
     let mut pilot = form(compose![Switch::new().id("sw")], Size::new(20, 3)).await;
     assert!(pilot.css_errors().is_empty(), "{:?}", pilot.css_errors());
@@ -360,6 +360,9 @@ async fn switch_renders_and_toggles() {
 
     pilot.press(&["enter"]).await;
     assert!(pilot.query_one::<Switch>("#sw").unwrap().get_value());
+    // The slider slides over 0.3s; `-on` is set when it arrives.
+    assert!(!has_class(&pilot, "#sw", "-on"));
+    pilot.wait(std::time::Duration::from_millis(300)).await;
     assert!(has_class(&pilot, "#sw", "-on"));
     let c = pilot.canvas();
     // Thumb moved right: the left half now shows the track color.

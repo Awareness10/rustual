@@ -80,7 +80,7 @@ async fn log_partial_writes_max_lines_clear() {
     assert_eq!(log.line_count(), 2);
 }
 
-#[tokio::test]
+#[tokio::test(start_paused = true)]
 async fn log_horizontal_scroll() {
     let mut p = pilot().await;
     p.with::<Log, _>("#log", |log, ctx| {
@@ -90,6 +90,8 @@ async fn log_horizontal_scroll() {
     assert!(!p.screen_text().contains("END"));
     p.click_at(5, 0).await;
     p.press(&["right"; 30]).await;
+    // Keyboard scrolling is animated (Textual's `scroll_right(animate=True)`).
+    p.wait(std::time::Duration::from_millis(500)).await;
     assert!(p.screen_text().contains("END"), "{}", p.screen_text());
 }
 

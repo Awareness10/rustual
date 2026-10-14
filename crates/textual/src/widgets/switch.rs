@@ -1,12 +1,14 @@
 //! `Switch` (port of `textual/widgets/_switch.py`): an on/off slider rendered like a
-//! horizontal scrollbar whose thumb sits left (off) or right (on). The slide is instant
-//! (Textual animates it over 0.3s).
+//! horizontal scrollbar whose thumb sits left (off) or right (on). The slider slides over 0.3s
+//! (`in_out_cubic`, animation level `basic`); the `-on` class is set when it reaches the right.
 
+use crate::animation::{AnimationLevel, Easing};
 use crate::binding::Binding;
 use crate::context::Ctx;
 use crate::events::Event;
 use crate::message::Flow;
 use crate::widget::{Content, RenderCtx, Widget};
+use std::time::Duration;
 use textual_render::{Span, Strip, Style};
 
 const DEFAULT_CSS: &str = r#"
@@ -93,7 +95,7 @@ impl Switch {
         self
     }
 
-    /// Accepted for API parity; the slide is always instant.
+    /// Whether toggling slides the slider (default true).
     pub fn animate(mut self, animate: bool) -> Self {
         self.animate = animate;
         self
@@ -103,14 +105,42 @@ impl Switch {
         self.value
     }
 
+    /// Slider position: 0.0 (off) ..= 1.0 (on); in between while sliding.
+    pub fn slider_position(&self) -> f32 {
+        self.slider_position
+    }
+
     /// Set the value, posting [`Changed`] if it differs.
     pub fn set_value(&mut self, value: bool, ctx: &mut Ctx) {
         if self.value == value {
             return;
         }
         self.value = value;
-        self.slider_position = if value { 1.0 } else { 0.0 };
-        ctx.set_class(self.slider_position == 1.0, "-on");
+        let target = if value { 1.0 } else { 0.0 };
+        // Only animate with this switch's own ctx (the animation is keyed by the ctx node).
+        let own_ctx = ctx
+            .dom()
+            .get(ctx.id())
+            .map(|n| n.is_type("Switch"))
+            .unwrap_or(false);
+        if self.animate && own_ctx && ctx.animation_level() != AnimationLevel::None {
+            ctx.animate_value_with::<Switch>(
+                "slider_position",
+                self.slider_position,
+                target,
+                Duration::from_millis(300),
+                Easing::DEFAULT,
+                AnimationLevel::Basic,
+                |sw, v, ctx| {
+                    sw.slider_position = v;
+                    ctx.set_class(v == 1.0, "-on");
+                },
+                None,
+            );
+        } else {
+            self.slider_position = target;
+            ctx.set_class(self.slider_position == 1.0, "-on");
+        }
         let switch_id = ctx.css_id(ctx.id()).map(String::from);
         ctx.post_message(Changed { value, switch_id });
     }

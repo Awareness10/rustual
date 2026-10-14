@@ -69,7 +69,7 @@ async fn renders_tabs_and_underline() {
     assert_eq!(active(&p), "tab-1");
 }
 
-#[tokio::test]
+#[tokio::test(start_paused = true)]
 async fn left_right_keys_cycle_tabs() {
     let mut p = pilot(app(&["A", "B", "C"])).await;
     assert_eq!(p.focused_id().as_deref(), Some("tabs"));
@@ -89,7 +89,9 @@ async fn left_right_keys_cycle_tabs() {
             "activated tab-3 2 C",
         ]
     );
-    // Underline moved under "C" (content cells 7..8).
+    // Underline slid (0.3s) under "C" (content cells 7..8).
+    p.wait(std::time::Duration::from_millis(300)).await;
+    assert_eq!(p.animations_running(), 0);
     let text = p.screen_text();
     let bar: Vec<char> = text.lines().nth(1).unwrap().chars().collect();
     assert_eq!(bar[6], '╸', "{text}");

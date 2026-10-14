@@ -30,6 +30,15 @@ App {
 *:disabled:can-focus {
     opacity: 0.7;
 }
+Widget {
+    scrollbar-background: $scrollbar-background;
+    scrollbar-background-hover: $scrollbar-background-hover;
+    scrollbar-background-active: $scrollbar-background-active;
+    scrollbar-color: $scrollbar;
+    scrollbar-color-active: $scrollbar-active;
+    scrollbar-color-hover: $scrollbar-hover;
+    scrollbar-corner-color: $scrollbar-corner-color;
+}
 ";
 
 /// Lines scrolled per mouse-wheel tick.
@@ -161,6 +170,8 @@ pub(crate) struct AppState {
     pub notifications: Vec<Notification>,
     pub last_frame: Option<Canvas>,
     pub started: bool,
+    pub animator: crate::animation::Animator,
+    pub mouse: crate::scrollbar::MouseState,
 }
 
 /// The application: build with [`App::new`], configure, then [`App::run`] (or [`App::test`]).
@@ -225,6 +236,8 @@ impl App {
             notifications: Vec::new(),
             last_frame: None,
             started: false,
+            animator: Default::default(),
+            mouse: Default::default(),
         };
         App {
             state: Box::new(state),
@@ -859,10 +872,7 @@ impl AppState {
             .map(|t| t.deadline)
             .min();
         let n = self.notifications.iter().map(|n| n.expires).min();
-        match (t, n) {
-            (Some(a), Some(b)) => Some(a.min(b)),
-            (a, b) => a.or(b),
-        }
+        [t, n, self.animator.next_frame].into_iter().flatten().min()
     }
 
     /// Fire all timers whose deadline has passed. Returns whether any fired.
@@ -907,6 +917,7 @@ impl AppState {
                 }
             }
         }
+        fired |= self.tick_animations(now, false);
         fired
     }
 
@@ -1073,16 +1084,21 @@ impl AppState {
 
     pub(crate) fn handle_mouse(&mut self, kind: MouseKind, m: MouseEvent) {
         self.mouse_pos = Some(Offset::new(m.screen_x, m.screen_y));
-        let target = self.node_at(m.screen_x, m.screen_y);
+        if self.scrollbar_mouse(kind, &m) {
+            return;
+        }
+        let under = self.node_at(m.screen_x, m.screen_y);
+        // Mouse capture / implicit drag capture (see `scrollbar.rs`).
+        let target = self.mouse_route(kind, &m, under);
         match kind {
             MouseKind::Move => {
-                self.update_hover(target);
+                self.update_hover(self.mouse.captured.or(under));
                 if let Some(t) = target {
                     self.dispatch_event(t, Event::MouseMove(m));
                 }
             }
             MouseKind::Down => {
-                self.update_hover(target);
+                self.update_hover(self.mouse.captured.or(under));
                 let Some(t) = target else { return };
                 if m.button == Some(MouseButton::Left) {
                     let focus_target = self.dom.ancestors_with_self(t).into_iter().find(|n| {
@@ -1102,6 +1118,7 @@ impl AppState {
                 let down = self.mouse_down_on.take();
                 let Some(t) = target else { return };
                 self.dispatch_event(t, Event::MouseUp(m));
+                let Some(t) = under else { return };
                 if let Some(d) = down {
                     // Click goes to the nearest common node of press and release.
                     let click_target = self
@@ -1110,6 +1127,7 @@ impl AppState {
                         .into_iter()
                         .find(|a| *a == d || self.dom.is_ancestor(*a, d));
                     if let Some(ct) = click_target {
+                        self.register_click(Offset::new(m.screen_x, m.screen_y));
                         self.dispatch_event(ct, Event::Click(m));
                     }
                 }
@@ -1167,6 +1185,7 @@ impl AppState {
             let cur = node.scroll_offset;
             let next = Offset::new(cur.x + dx, cur.y + dy).clamp(max.x, max.y);
             if next != cur {
+                self.animator.cancel_scroll(id);
                 if let Some(n) = self.dom.get_mut(id) {
                     n.scroll_offset = next;
                 }
@@ -1255,12 +1274,13 @@ impl AppState {
             ),
             "scroll_up" | "scroll_down" | "scroll_left" | "scroll_right" | "scroll_home"
             | "scroll_end" | "page_up" | "page_down" => {
-                let Some(node) = self.dom.get_mut(target) else {
+                let Some(node) = self.dom.get(target) else {
                     return false;
                 };
                 let max = node.layout.max_scroll();
                 let page = node.layout.content_region.height.max(1);
-                let cur = node.scroll_offset;
+                // Relative to where an animated scroll is heading (Textual's `scroll_target_y`).
+                let cur = self.scroll_target(target);
                 let next = match action.name.as_str() {
                     "scroll_up" => Offset::new(cur.x, cur.y - 1),
                     "scroll_down" => Offset::new(cur.x, cur.y + 1),
@@ -1271,7 +1291,13 @@ impl AppState {
                     "page_up" => Offset::new(cur.x, cur.y - page),
                     _ => Offset::new(cur.x, cur.y + page),
                 };
-                node.scroll_offset = next.clamp(max.x, max.y);
+                // Animated like Textual's `scroll_*(animate=True)`.
+                self.scroll_animated(
+                    target,
+                    next.clamp(max.x, max.y),
+                    None,
+                    crate::animation::Easing::DEFAULT_SCROLL,
+                );
             }
             _ => return false,
         }

@@ -14,8 +14,8 @@ _Last updated: 2026-10-14._
 | App, compose, mount/remove | ✅ | 95 | `App::new(root)`, `compose![...]`, `.with([...])`, `ctx.mount/remove` |
 | Event loop (tokio + crossterm) | ✅ | 90 | raw mode, alt screen, synchronized output, frame diffing |
 | Keyboard input & key names | ✅ | 90 | Textual-style names; no kitty keyboard protocol |
-| Mouse: click, hover, wheel | ✅ | 85 | `:hover`, Enter/Leave, Click, wheel scrolls nearest scrollable |
-| Mouse capture / drag | ❌ | 10 | drag events arrive as moves; no capture; no scrollbar dragging |
+| Mouse: click, hover, wheel | ✅ | 90 | `:hover`, Enter/Leave, Click (+ `ctx.click_chain()` for double/triple clicks), wheel scrolls nearest scrollable |
+| Mouse capture / drag | ✅ | 85 | `ctx.capture_mouse/release_mouse`; drags go to the MouseDown widget; scrollbar thumb drag + track paging; no `MouseCapture`/`MouseRelease` events |
 | Focus chain, tab/shift+tab, auto-focus | ✅ | 90 | `can_focus_children`, focus on click, restore on screen pop |
 | Messages (bubbling) | ✅ | 95 | typed payloads, `Flow::Stop`, `sender_id()` |
 | Bindings & actions | ✅ | 85 | priority, namespaces `app.`/`screen.`/`focused.`, args; no keymap overrides, no `check_action` |
@@ -24,7 +24,7 @@ _Last updated: 2026-10-14._
 | Workers (async + blocking) | ✅ | 80 | result posted as message; no worker state events / groups / exclusive |
 | Screens: push/pop/dismiss, modal | ✅ | 85 | modal dims the screen below; no `switch_screen`, no named screens / `MODES` |
 | Notifications (toasts) | ✅ | 90 | `ctx.notify`, severity, timeout, click to dismiss |
-| Animation (`animate`, easing, transitions) | ❌ | 0 | widgets that animate in Textual change state instantly here |
+| Animation (`animate`, easing, transitions) | 🟡 | 75 | all 33 easings, `ctx.animate_value`, `animate_style` (opacity/offset/width/height), smooth scroll, animation levels, Tabs/Switch animate; no CSS `transition`, no color animation, no `delay`/`speed` |
 | Tooltips | ❌ | 0 | |
 | Command palette | ❌ | 0 | |
 | Text selection & copy (screen selection) | ❌ | 0 | Input has its own selection + internal clipboard |
@@ -55,7 +55,7 @@ _Last updated: 2026-10-14._
 | background, background-tint, tint, opacity | ✅ | 85 | |
 | content-align, align | ✅ | 95 | |
 | dock, layers, layer, offset, position: absolute | ✅ | 85 | |
-| overflow, scrollbar-size, scrollbar colors, scrollbar-gutter | ✅ | 80 | no hover/active scrollbar colors; whole-cell thumb (no ⅛-cell ends) |
+| overflow, scrollbar-size, scrollbar colors, scrollbar-gutter | ✅ | 95 | hover/active colors, ⅛-cell thumb ends (`ScrollBarRender`), theme scrollbar variables |
 | Grid: grid-size, grid-columns/rows, gutter, spans | ✅ | 90 | |
 | hatch, keyline, pointer, constrain, overlay, expand, line-pad, transitions | ❌ | 0 | parsed and ignored |
 | CSS hot reload / `CSS_PATH` file watching | 🟡 | 30 | `App::css_path` loads once |
@@ -66,7 +66,7 @@ _Last updated: 2026-10-14._
 |---|---|---|---|
 | Vertical / horizontal / grid layouts | ✅ | 95 | port of Textual's `layouts/*` |
 | Stream layout | ❌ | 0 | falls back to vertical |
-| Scrolling: containers, self-scrolling (ScrollView) | ✅ | 85 | no smooth scrolling animation |
+| Scrolling: containers, self-scrolling (ScrollView) | ✅ | 90 | keyboard / scrollbar-track scrolling animates (out_cubic, 50 cells/s); wheel and drag are immediate |
 | Compositor: clipping, layers, opacity, modal dimming | ✅ | 90 | full-frame paint + diff (~2 ms per frame at 1000 widgets, release build) |
 | Content markup (`[b red on $panel]`, `[/]`, `\[`) | ✅ | 90 | |
 | Unicode cell widths (CJK, emoji, ZWJ) | ✅ | 90 | |
@@ -84,7 +84,7 @@ _Last updated: 2026-10-14._
 | TextArea | ❌ | 0 | essential — multi-line editor |
 | Checkbox / ToggleButton | ✅ | 95 | |
 | RadioButton / RadioSet | ✅ | 95 | |
-| Switch | ✅ | 90 | no slide animation |
+| Switch | ✅ | 95 | slides over 0.3s |
 | Select | ✅ | 85 | dropdown via a transparent modal screen; type-to-search |
 | SelectionList | ❌ | 0 | |
 | OptionList | ✅ | 90 | |
@@ -92,7 +92,7 @@ _Last updated: 2026-10-14._
 | DataTable | ✅ | 85 | cursors, sorting, fixed rows/cols, zebra, hover; cells always left-aligned |
 | Tree | ✅ | 90 | generic data payload, guides, keyboard + mouse |
 | DirectoryTree | ❌ | 0 | |
-| Tabs / Tab | ✅ | 90 | no underline animation |
+| Tabs / Tab | ✅ | 95 | underline slides over 0.3s |
 | TabbedContent / TabPane | ✅ | 90 | |
 | ContentSwitcher | ✅ | 95 | |
 | Collapsible | ✅ | 95 | |
