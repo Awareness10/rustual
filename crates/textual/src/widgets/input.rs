@@ -11,6 +11,7 @@ use crate::context::Ctx;
 use crate::events::Event;
 use crate::message::Flow;
 use crate::widget::{Content, RenderCtx, Widget};
+use std::any::Any;
 use std::cell::Cell;
 use std::fmt;
 use std::rc::Rc;
@@ -170,6 +171,16 @@ pub struct Input {
     mouse_placed_cursor: bool,
     /// Horizontal scroll (cells), updated while rendering to keep the cursor visible.
     scroll_x: Cell<i32>,
+    /// Finds this `Input` inside the widget that owns it (for the blink timer), so widgets
+    /// that wrap an `Input` (`MaskedInput`) keep a blinking cursor.
+    pub(crate) access: InputAccess,
+}
+
+/// Extracts the `Input` from the widget running a timer callback.
+pub(crate) type InputAccess = fn(&mut dyn Any) -> Option<&mut Input>;
+
+fn self_access(w: &mut dyn Any) -> Option<&mut Input> {
+    w.downcast_mut::<Input>()
 }
 
 impl fmt::Debug for Input {
@@ -333,6 +344,7 @@ impl Input {
             selecting: false,
             mouse_placed_cursor: false,
             scroll_x: Cell::new(0),
+            access: self_access,
         }
     }
 
@@ -562,15 +574,24 @@ impl Input {
 
     // ------------------------------------------------------------------ blink
 
-    fn restart_blink(&mut self, ctx: &mut Ctx) {
+    pub(crate) fn restart_blink(&mut self, ctx: &mut Ctx) {
         self.cursor_visible = true;
         if let Some(t) = self.blink_timer.take() {
             ctx.cancel_timer(t);
         }
         if self.cursor_blink && ctx.has_focus() {
-            self.blink_timer = Some(ctx.set_interval(BLINK_INTERVAL, |w: &mut Input, _ctx| {
-                w.cursor_visible = !w.cursor_visible;
-            }));
+            let access = self.access;
+            let node = ctx.id();
+            self.blink_timer = Some(ctx.app.add_timer(
+                node,
+                BLINK_INTERVAL,
+                true,
+                Box::new(move |w, _ctx| {
+                    if let Some(input) = access(w as &mut dyn Any) {
+                        input.cursor_visible = !input.cursor_visible;
+                    }
+                }),
+            ));
         }
     }
 
@@ -738,8 +759,13 @@ impl Input {
         });
     }
 
-    fn set_clipboard(text: &str) {
+    pub(crate) fn set_clipboard(text: &str) {
         set_clipboard_text(text);
+    }
+
+    /// The local clipboard's content.
+    pub(crate) fn clipboard() -> String {
+        CLIPBOARD.lock().map(|c| c.clone()).unwrap_or_default()
     }
 
     pub fn action_cut(&mut self, ctx: &mut Ctx) {

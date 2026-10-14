@@ -17,7 +17,7 @@ pub mod text;
 
 pub use border::BorderKind;
 pub use canvas::{Canvas, Cell, CellRun};
-pub use color::{Color, ColorParseError};
+pub use color::{Color, ColorParseError, Gradient, GradientError};
 pub use geometry::{Offset, Region, Size, Spacing};
 pub use strip::Strip;
 pub use style::{Attrs, Style, StyleParseError};

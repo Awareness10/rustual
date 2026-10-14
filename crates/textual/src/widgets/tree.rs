@@ -201,7 +201,7 @@ impl TreeLine {
 }
 
 /// Only the attributes of `style` that differ from `base` (Textual's `partial=True`).
-fn partial(style: Style, base: &Style) -> Style {
+pub(crate) fn partial(style: Style, base: &Style) -> Style {
     let mut s = style;
     if s.fg == base.fg {
         s.fg = None;
@@ -236,6 +236,30 @@ pub struct Tree<T: 'static> {
     cursor_line: i32,
     cursor_node: Option<TreeNodeId>,
     hover_line: i32,
+    /// Custom icon / label rendering (Textual's overridable `render_label`), used by `DirectoryTree`.
+    pub(crate) label_hook: Option<LabelHook<T>>,
+}
+
+/// Overrides how a node's icon and label are rendered (crate-internal "subclassing" hook).
+pub(crate) struct LabelHook<T: 'static> {
+    /// The icon drawn before the label (replaces `▶ ` / `▼ `; also used for leaves).
+    pub icon: fn(&TreeNode<T>) -> &'static str,
+    /// The styled label (cursor / hover styles are applied on top).
+    pub label: fn(&TreeNode<T>, &RenderCtx) -> Text,
+}
+
+impl<T> Clone for LabelHook<T> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+impl<T> Copy for LabelHook<T> {}
+
+impl<T> std::fmt::Debug for LabelHook<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("LabelHook")
+    }
 }
 
 impl<T: 'static> Tree<T> {
@@ -257,6 +281,7 @@ impl<T: 'static> Tree<T> {
             cursor_line: -1,
             cursor_node: None,
             hover_line: -1,
+            label_hook: None,
         };
         t.root = t.new_node(None, label.into(), data);
         t.build();
@@ -717,12 +742,15 @@ impl<T: 'static> Tree<T> {
 
     fn label_width(&self, id: TreeNodeId) -> i32 {
         let Some(n) = self.node(id) else { return 0 };
-        let prefix = if n.allow_expand {
-            cell_len(ICON_NODE)
-        } else {
-            0
-        };
-        prefix + cell_len(&n.label_text())
+        self.icon_width(n) + cell_len(&n.label_text())
+    }
+
+    fn icon_width(&self, n: &TreeNode<T>) -> i32 {
+        match &self.label_hook {
+            Some(hook) => cell_len((hook.icon)(n)),
+            None if n.allow_expand => cell_len(ICON_NODE),
+            None => 0,
+        }
     }
 
     fn label_region(&self, line: i32) -> Option<Region> {
@@ -1048,7 +1076,9 @@ impl<T: 'static> Tree<T> {
             label_style = label_style.combine(&ctx.component_style("tree--cursor"));
         }
         if let Some(n) = self.node(last_node) {
-            if n.allow_expand {
+            if let Some(hook) = &self.label_hook {
+                strip.push(Span::new((hook.icon)(n), line_style.clone()));
+            } else if n.allow_expand {
                 let icon = if n.expanded {
                     ICON_NODE_EXPANDED
                 } else {
@@ -1056,7 +1086,10 @@ impl<T: 'static> Tree<T> {
                 };
                 strip.push(Span::new(icon, line_style.clone()));
             }
-            let text = ctx.markup(&n.label);
+            let text = match &self.label_hook {
+                Some(hook) => (hook.label)(n, ctx),
+                None => ctx.markup(&n.label),
+            };
             for span in text.spans {
                 let style = line_style.combine(&span.style).combine(&label_style);
                 strip.push(Span::new(span.text.replace('\n', " "), style));
@@ -1149,7 +1182,8 @@ impl<T: 'static> Widget for Tree<T> {
                 let line = &self.lines[y as usize];
                 let gx = line.guide_width(self.guide_depth);
                 let allow = self.node(node).map(|n| n.allow_expand).unwrap_or(false);
-                if allow && x >= gx && x < gx + cell_len(ICON_NODE) {
+                let icon_width = self.node(node).map(|n| self.icon_width(n)).unwrap_or(0);
+                if allow && x >= gx && x < gx + icon_width {
                     self.toggle_node(node, ctx);
                 } else {
                     self.set_cursor_line(y, ctx);

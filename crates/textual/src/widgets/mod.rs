@@ -83,3 +83,14 @@ pub use tooltip::Tooltip;
 // Multi-line editor. (`text_area::Selection` is not re-exported: it would clash with Input's.)
 pub mod text_area;
 pub use text_area::{IndentType, TabBehavior, TextArea, TextAreaTheme};
+// Extra widgets: SelectionList, MaskedInput, DirectoryTree, Pretty, Welcome.
+pub mod selection_list;
+pub use selection_list::SelectionList;
+pub mod masked_input;
+pub use masked_input::MaskedInput;
+pub mod directory_tree;
+pub use directory_tree::{DirEntry, DirectoryTree};
+pub mod pretty;
+pub mod welcome;
+pub use pretty::Pretty;
+pub use welcome::Welcome;

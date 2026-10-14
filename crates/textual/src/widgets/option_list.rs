@@ -18,7 +18,10 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use textual_render::{Justify, Region, Size, Strip, Style, Text, TextOverflow};
 
-const DEFAULT_CSS: &str = r#"
+/// OptionList's default CSS as a literal, so "subclasses" (`SelectionList`) can `concat!` it.
+macro_rules! option_list_css {
+    () => {
+        r#"
 OptionList {
     overflow-y: auto;
     overflow-x: auto;
@@ -66,7 +69,12 @@ OptionList {
         background: $block-hover-background;
     }
 }
-"#;
+"#
+    };
+}
+pub(crate) use option_list_css;
+
+const DEFAULT_CSS: &str = option_list_css!();
 
 /// Posted when an option is highlighted (Textual: `OptionList.OptionHighlighted`).
 #[derive(Debug, Clone, PartialEq, Eq)]

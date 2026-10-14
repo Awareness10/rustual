@@ -363,6 +363,136 @@ fn lab_to_rgb(l: f32, a: f32, b: f32, alpha: f32) -> Color {
     Color::rgba(ch(r), ch(g), ch(bb), alpha)
 }
 
+/// Error creating a [`Gradient`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct GradientError(pub String);
+
+impl fmt::Display for GradientError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl std::error::Error for GradientError {}
+
+/// A color gradient through `(position, color)` stops (port of `textual.color.Gradient`).
+///
+/// `quality` colors are pre-computed along the spectrum; [`Gradient::get_color`] blends between
+/// the two nearest ones.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Gradient {
+    stops: Vec<(f64, Color)>,
+    quality: usize,
+    colors: Vec<Color>,
+}
+
+impl Gradient {
+    /// A gradient with the default quality (50 steps). Stops are sorted by position; there must
+    /// be at least two, starting at 0.0 and ending at 1.0.
+    pub fn new(stops: &[(f64, Color)]) -> Result<Gradient, GradientError> {
+        Self::with_quality(stops, 50)
+    }
+
+    pub fn with_quality(stops: &[(f64, Color)], quality: usize) -> Result<Gradient, GradientError> {
+        let mut stops = stops.to_vec();
+        stops.sort_by(|a, b| a.0.total_cmp(&b.0));
+        if stops.len() < 2 {
+            return Err(GradientError("At least 2 stops required.".into()));
+        }
+        if stops[0].0 != 0.0 {
+            return Err(GradientError("First stop must be 0.".into()));
+        }
+        if stops[stops.len() - 1].0 != 1.0 {
+            return Err(GradientError("Last stop must be 1.".into()));
+        }
+        let quality = quality.max(2);
+        let mut colors = Vec::with_capacity(quality);
+        let mut position = 0;
+        for step_position in 0..quality {
+            let step = step_position as f64 / (quality - 1) as f64;
+            while step > stops[position + 1].0 {
+                position += 1;
+            }
+            let (stop1, color1) = stops[position];
+            let (stop2, color2) = stops[position + 1];
+            let span = stop2 - stop1;
+            let factor = if span > 0.0 {
+                (step - stop1) / span
+            } else {
+                1.0
+            };
+            colors.push(color1.blend(color2, factor as f32));
+        }
+        Ok(Gradient {
+            stops,
+            quality,
+            colors,
+        })
+    }
+
+    /// A gradient through evenly spaced colors (at least two).
+    pub fn from_colors(colors: &[Color]) -> Result<Gradient, GradientError> {
+        if colors.len() < 2 {
+            return Err(GradientError("Two or more colors required.".into()));
+        }
+        let n = (colors.len() - 1) as f64;
+        let stops: Vec<(f64, Color)> = colors
+            .iter()
+            .enumerate()
+            .map(|(i, c)| (i as f64 / n, *c))
+            .collect();
+        Self::new(&stops)
+    }
+
+    pub fn stops(&self) -> &[(f64, Color)] {
+        &self.stops
+    }
+
+    /// The pre-computed colors (`quality` of them).
+    pub fn colors(&self) -> &[Color] {
+        &self.colors
+    }
+
+    /// The color at `position` (clamped to 0..=1).
+    pub fn get_color(&self, position: f64) -> Color {
+        if position <= 0.0 || position.is_nan() {
+            return self.colors[0];
+        }
+        if position >= 1.0 {
+            return self.colors[self.quality - 1];
+        }
+        let color_position = position * (self.quality - 1) as f64;
+        let index = color_position as usize;
+        let (c1, c2) = (self.colors[index], self.colors[index + 1]);
+        c1.blend(c2, (color_position % 1.0) as f32)
+    }
+}
+
+#[cfg(test)]
+mod gradient_tests {
+    use super::*;
+
+    #[test]
+    fn gradient_stops_and_blend() {
+        let red = Color::rgb(255, 0, 0);
+        let blue = Color::rgb(0, 0, 255);
+        let g = Gradient::new(&[(1.0, blue), (0.0, red)]).unwrap();
+        assert_eq!(g.colors().len(), 50);
+        assert_eq!(g.get_color(0.0), red);
+        assert_eq!(g.get_color(1.0), blue);
+        assert_eq!(g.get_color(-3.0), red);
+        let mid = g.get_color(0.5);
+        assert!((mid.r as i32 - 127).abs() <= 2 && (mid.b as i32 - 127).abs() <= 2);
+        let g3 = Gradient::from_colors(&[red, Color::rgb(0, 255, 0), blue]).unwrap();
+        assert_eq!(g3.stops()[1].0, 0.5);
+        assert!(g3.get_color(0.5).g > 240);
+        assert!(Gradient::new(&[(0.0, red)]).is_err());
+        assert!(Gradient::new(&[(0.1, red), (1.0, blue)]).is_err());
+        assert!(Gradient::new(&[(0.0, red), (0.9, blue)]).is_err());
+        assert!(Gradient::from_colors(&[red]).is_err());
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
