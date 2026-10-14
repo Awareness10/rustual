@@ -4,6 +4,7 @@
 //! a DOM of widgets styled with Textual CSS, laid out with vertical/horizontal/grid/dock
 //! layouts, driven by an async (tokio) event loop.
 
+pub mod animation;
 pub mod app;
 pub mod binding;
 pub mod compositor;
@@ -15,9 +16,11 @@ pub mod layout;
 pub mod message;
 pub mod pilot;
 pub mod screen;
+pub mod scrollbar;
 pub mod widget;
 pub mod widgets;
 
+pub use animation::{AnimationId, AnimationLevel, Easing, OnComplete, StyleProp};
 pub use app::{App, AppHandle, Notified, ScreenDismissed, Severity, TimerId, WorkerHandle};
 pub use binding::{Action, Binding};
 pub use context::Ctx;
@@ -34,6 +37,7 @@ pub use textual_render::{Color, Offset, Region, Size, Spacing, Strip, Style, Tex
 
 /// Everything needed to write an app: `use textual::prelude::*;`
 pub mod prelude {
+    pub use crate::animation::{AnimationLevel, Easing, StyleProp};
     pub use crate::app::{
         App, AppHandle, Notified, ScreenDismissed, Severity, TimerId, WorkerHandle,
     };

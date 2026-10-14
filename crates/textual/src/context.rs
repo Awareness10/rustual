@@ -581,6 +581,8 @@ impl<'a> Ctx<'a> {
     }
 
     pub fn scroll_node_to(&mut self, id: NodeId, x: i32, y: i32) {
+        // A direct scroll stops a smooth scroll in progress (Textual's `_scroll_to`).
+        self.app.animator.cancel_scroll(id);
         if let Some(n) = self.node_mut(id) {
             n.scroll_offset = Offset::new(x.max(0), y.max(0));
         }

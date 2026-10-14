@@ -72,6 +72,10 @@ Users then match messages as `msg.get::<button::Pressed>()`.
 | `self.app.push_screen(S())` / `dismiss(r)` | `ctx.push_screen(S)`, `ctx.push_modal(S)`, `ctx.dismiss(r)` (pusher gets `r` as a message) |
 | `ScrollView` (virtual size, render_line) | `fn virtual_size(&self, ctx) -> Option<Size>`; `render` uses `ctx.scroll_offset` & `ctx.size`; scroll with `ctx.scroll_to/scroll_by/scroll_to_show(region)` |
 | `self.notify(...)` | `ctx.notify(..)` / `ctx.notify_with(..)` |
+| `self.animate("x", v, duration=.., easing=..)` | `ctx.animate_value::<Self>("x", from, to, dur, Easing::InOutCubic, \|w, v, ctx\| w.x = v)` (`animate_value_with` adds level + on_complete); tests: `#[tokio::test(start_paused = true)]` + `pilot.wait(..)` |
+| `w.styles.animate("opacity", ..)` | `ctx.animate_style(id, StyleProp::Opacity, to, dur, easing)` |
+| `scroll_to(.., animate=True)` | `ctx.scroll_to_animated(x, y, Some(dur))` |
+| `self.capture_mouse()` / `release_mouse()` | `ctx.capture_mouse()` / `ctx.release_mouse()`; `Click.chain` → `ctx.click_chain()` |
 
 ## Rendering
 

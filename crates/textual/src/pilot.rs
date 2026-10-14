@@ -24,11 +24,17 @@ use tokio::sync::mpsc;
 pub struct Pilot {
     state: Box<AppState>,
     rx: mpsc::UnboundedReceiver<Signal>,
+    /// Button held by `mouse_down_at` (sent with moves, like a terminal reports drags).
+    held: Option<MouseButton>,
 }
 
 impl Pilot {
     pub(crate) fn new(state: Box<AppState>, rx: mpsc::UnboundedReceiver<Signal>) -> Self {
-        Pilot { state, rx }
+        Pilot {
+            state,
+            rx,
+            held: None,
+        }
     }
 
     /// Process everything pending (queue, worker signals, due timers), then lay out.
@@ -49,7 +55,9 @@ impl Pilot {
     }
 
     /// Wait (in real or tokio-paused time) and then process what became due.
-    /// Timers fire at each of their deadlines along the way, like in the real event loop.
+    /// Timers fire at each of their deadlines along the way, like in the real event loop, and
+    /// running animations get a final frame at exactly the target time (so animated values are
+    /// deterministic under `#[tokio::test(start_paused = true)]`).
     pub async fn wait(&mut self, d: Duration) {
         let target = tokio::time::Instant::now() + d;
         while let Some(next) = self.state.next_deadline().filter(|n| *n <= target) {
@@ -57,7 +65,13 @@ impl Pilot {
             self.pause().await;
         }
         tokio::time::sleep_until(target).await;
+        self.state.tick_animations(target, true);
         self.pause().await;
+    }
+
+    /// Number of running animations.
+    pub fn animations_running(&self) -> usize {
+        self.state.animator.len()
     }
 
     /// Wait until worker results arrive (up to `timeout`), processing them.
@@ -101,6 +115,41 @@ impl Pilot {
     pub async fn paste(&mut self, text: &str) {
         self.state
             .handle_driver_event(DriverEvent::Paste(text.to_string()));
+        self.pause().await;
+    }
+
+    /// Press the left button at screen coordinates (without releasing).
+    pub async fn mouse_down_at(&mut self, x: i32, y: i32) {
+        self.mouse(MouseKind::Move, x, y, None);
+        self.mouse(MouseKind::Down, x, y, Some(MouseButton::Left));
+        self.held = Some(MouseButton::Left);
+        self.pause().await;
+    }
+
+    /// Move the mouse to screen coordinates (a drag if a button is held).
+    pub async fn mouse_move_to(&mut self, x: i32, y: i32) {
+        let held = self.held;
+        self.mouse(MouseKind::Move, x, y, held);
+        self.pause().await;
+    }
+
+    /// Release the held button at screen coordinates.
+    pub async fn mouse_up_at(&mut self, x: i32, y: i32) {
+        let held = self.held.take().or(Some(MouseButton::Left));
+        self.mouse(MouseKind::Up, x, y, held);
+        self.pause().await;
+    }
+
+    /// Drag with the left button from one point to another (press, move, release).
+    pub async fn drag(&mut self, from: (i32, i32), to: (i32, i32)) {
+        self.mouse_down_at(from.0, from.1).await;
+        self.mouse_move_to(to.0, to.1).await;
+        self.mouse_up_at(to.0, to.1).await;
+    }
+
+    /// Move the mouse to screen coordinates without a button held (hover).
+    pub async fn hover_at(&mut self, x: i32, y: i32) {
+        self.mouse(MouseKind::Move, x, y, None);
         self.pause().await;
     }
 

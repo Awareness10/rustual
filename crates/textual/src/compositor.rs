@@ -11,7 +11,8 @@
 //!    widget's color (incl. `auto`) and `text-style` (see `widget::style_from_styles`).
 //!    `text-opacity` blends text toward the background.
 //! 4. Draw scrollbars inside the padding, at the edges of `content_region`
-//!    (vertical: right, horizontal: bottom, plus corner) using `scrollbar-*` colors.
+//!    (vertical: right, horizontal: bottom, plus corner) using `scrollbar-*` colors, with
+//!    ⅛-cell thumb ends and hover / active colors (see `scrollbar.rs`).
 //! 5. Draw outline over the border box edge.
 //! 6. `tint` and `opacity` (< 1 blends the node's painted cells toward what was beneath).
 //!
@@ -20,6 +21,7 @@
 
 use crate::dom::{Dom, Node, NodeId};
 use crate::layout::Arrangement;
+use crate::scrollbar;
 use crate::widget::{style_from_styles, Content, RenderCtx, RenderEnv};
 use textual_css::{AlignH, AlignV, BorderEdge, ColorValue, Styles};
 use textual_render::border::BorderCellStyle;
@@ -128,7 +130,7 @@ fn paint_node(canvas: &mut Canvas, dom: &Dom, env: &RenderEnv, id: NodeId, node:
     paint_content(canvas, dom, env, id, node, clip);
 
     // 4. scrollbars
-    paint_scrollbars(canvas, node, clip, inner_bg);
+    paint_scrollbars(canvas, env, id, node, clip, inner_bg);
 
     // 5. outline (drawn over the edge of the border box)
     let outline = styles.get_outline();
@@ -430,56 +432,52 @@ fn paint_content(
     }
 }
 
-/// (start, length) of a scrollbar thumb along a track.
-pub(crate) fn thumb(track: i32, viewport: i32, virtual_len: i32, offset: i32) -> (i32, i32) {
-    if track <= 0 || virtual_len <= 0 {
-        return (0, 0);
-    }
-    if virtual_len <= viewport {
-        return (0, track);
-    }
-    let len = ((viewport as f32 / virtual_len as f32) * track as f32)
-        .ceil()
-        .max(1.0) as i32;
-    let len = len.min(track);
-    let max_offset = (virtual_len - viewport).max(1);
-    let start = ((offset.clamp(0, max_offset) as f32 / max_offset as f32) * (track - len) as f32)
-        .round() as i32;
-    (start, len)
-}
-
-fn paint_scrollbars(canvas: &mut Canvas, node: &Node, clip: Region, inner_bg: Color) {
+/// Paint scrollbars with Textual's `ScrollBarRender` (⅛-cell thumb ends), using the hover /
+/// active colors for the scrollbar in `env.scrollbar_highlight`.
+fn paint_scrollbars(
+    canvas: &mut Canvas,
+    env: &RenderEnv,
+    id: NodeId,
+    node: &Node,
+    clip: Region,
+    inner_bg: Color,
+) {
     let layout = &node.layout;
     if !(layout.scrollbar_v || layout.scrollbar_h) {
         return;
     }
-    let s = &node.styles;
-    let track_color = inner_bg.composite(s.scrollbar_background.unwrap_or(Color::rgb(30, 30, 30)));
-    let thumb_color = track_color.composite(s.scrollbar_color.unwrap_or(Color::rgb(90, 90, 90)));
-    let corner_color =
-        inner_bg.composite(s.scrollbar_corner_color.unwrap_or(Color::rgb(30, 30, 30)));
-    let cr = layout.content_region;
-    let vs = layout.virtual_size;
-    let off = node.scroll_offset;
-    if layout.scrollbar_v {
-        let w = s.get_scrollbar_size_vertical();
-        let (start, len) = thumb(cr.height, cr.height, vs.height, off.y);
-        for dy in 0..cr.height {
-            let on = dy >= start && dy < start + len;
-            let color = if on { thumb_color } else { track_color };
-            canvas.fill(Region::new(cr.right(), cr.y + dy, w, 1), clip, color);
-        }
-    }
-    if layout.scrollbar_h {
-        let h = s.get_scrollbar_size_horizontal();
-        let (start, len) = thumb(cr.width, cr.width, vs.width, off.x);
-        for dx in 0..cr.width {
-            let on = dx >= start && dx < start + len;
-            let color = if on { thumb_color } else { track_color };
-            canvas.fill(Region::new(cr.x + dx, cr.bottom(), 1, h), clip, color);
+    let state = |vertical: bool| {
+        env.scrollbar_highlight
+            .filter(|h| h.node == id && h.vertical == vertical)
+            .map(|h| h.active)
+    };
+    for vertical in [true, false] {
+        let Some(region) = scrollbar::bar_region(node, vertical) else {
+            continue;
+        };
+        let (back, bar) = scrollbar::bar_colors(node, inner_bg, state(vertical));
+        let (size, virt, window, pos) = scrollbar::bar_metrics(node, vertical);
+        let cells = scrollbar::render_bar(size, virt, window, pos, vertical, back, bar);
+        for (i, cell) in cells.iter().enumerate() {
+            let style = Style::new().fg(cell.fg).bg(cell.bg);
+            let i = i as i32;
+            let (x0, y0, w, h) = if vertical {
+                (region.x, region.y + i, region.width, 1)
+            } else {
+                (region.x + i, region.y, 1, region.height)
+            };
+            for y in y0..y0 + h {
+                for x in x0..x0 + w {
+                    canvas.put_str(x, y, cell.glyph, &style, clip);
+                }
+            }
         }
     }
     if layout.scrollbar_v && layout.scrollbar_h {
+        let s = &node.styles;
+        let corner_color =
+            inner_bg.composite(s.scrollbar_corner_color.unwrap_or(Color::rgb(30, 30, 30)));
+        let cr = layout.content_region;
         let w = s.get_scrollbar_size_vertical();
         let h = s.get_scrollbar_size_horizontal();
         canvas.fill(
@@ -487,18 +485,5 @@ fn paint_scrollbars(canvas: &mut Canvas, node: &Node, clip: Region, inner_bg: Co
             clip,
             corner_color,
         );
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::thumb;
-
-    #[test]
-    fn thumb_geometry() {
-        assert_eq!(thumb(10, 10, 5, 0), (0, 10));
-        assert_eq!(thumb(10, 10, 20, 0), (0, 5));
-        assert_eq!(thumb(10, 10, 20, 10), (5, 5));
-        assert_eq!(thumb(10, 10, 1000, 990), (9, 1));
     }
 }
