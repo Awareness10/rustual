@@ -23,7 +23,7 @@ use crate::dom::{Dom, Node, NodeId};
 use crate::layout::Arrangement;
 use crate::scrollbar;
 use crate::widget::{style_from_styles, Content, RenderCtx, RenderEnv};
-use textual_css::{AlignH, AlignV, BorderEdge, ColorValue, Styles, Visibility};
+use textual_css::{AlignH, AlignV, BorderEdge, ColorValue, Styles, TextAlign, Visibility};
 use textual_render::border::BorderCellStyle;
 use textual_render::{
     BorderKind, Canvas, Cell, Color, Justify, Region, Size, Strip, Style, Text, TextOverflow,
@@ -429,6 +429,7 @@ fn paint_content(
     if content_clip.is_empty() {
         return;
     }
+    let is_text = matches!(content, Content::Text(_));
     let lines: Vec<Strip> = match content {
         Content::Empty => return,
         Content::Text(t) => {
@@ -438,7 +439,10 @@ fn paint_content(
         Content::Lines(lines) => lines,
     };
     let (align_h, align_v) = node.styles.get_content_align();
-    let block_w = lines.iter().map(|l| l.cell_len()).max().unwrap_or(0);
+    // Justified text (text-align center/right/justify) spans the full content width, as in
+    // Textual, so horizontal content-align only moves left-aligned blocks.
+    let justified = is_text && node.styles.get_text_align() != TextAlign::Start && node.styles.get_text_align() != TextAlign::Left;
+    let block_w = if justified { cr.width } else { lines.iter().map(|l| l.cell_len()).max().unwrap_or(0) };
     let block_h = lines.len() as i32;
     let off_x = match align_h {
         AlignH::Left => 0,

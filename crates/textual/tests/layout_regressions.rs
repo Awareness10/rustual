@@ -53,3 +53,33 @@ async fn modal_screen_dims_rather_than_erases_screen_below() {
     assert_eq!(after.symbol, "U");
     assert_ne!(after.fg, before.fg, "text below should be dimmed");
 }
+
+struct WideButton;
+impl Widget for WideButton {
+    fn compose(&mut self) -> Vec<Child> {
+        compose![Button::new("OK").style("width: 100%;")]
+    }
+}
+
+#[tokio::test]
+async fn full_width_button_label_is_centered() {
+    let mut pilot = App::new(WideButton).test(Size::new(40, 4)).await;
+    let text = pilot.screen_text();
+    let line = text.lines().nth(1).unwrap();
+    let x = line.find("OK").unwrap() as i32;
+    assert!((18..=20).contains(&x), "label at {x}: {text}");
+}
+
+struct CenteredText;
+impl Widget for CenteredText {
+    fn compose(&mut self) -> Vec<Child> {
+        compose![Static::new("Hi").style("text-align: center;")]
+    }
+}
+
+#[tokio::test]
+async fn text_align_center_centers_single_line() {
+    let mut pilot = App::new(CenteredText).test(Size::new(20, 2)).await;
+    let text = pilot.screen_text();
+    assert_eq!(text.lines().next().unwrap().find("Hi"), Some(9), "{text}");
+}
