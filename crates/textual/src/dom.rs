@@ -62,6 +62,10 @@ pub struct Node {
     pub is_screen: bool,
     /// A modal screen: the screen beneath stays visible.
     pub is_modal: bool,
+    /// Cached `Widget::can_focus` (refreshed whenever the widget is checked back in).
+    pub can_focus: bool,
+    /// Cached `Widget::can_focus_children`.
+    pub can_focus_children: bool,
 }
 
 impl Node {
@@ -70,6 +74,8 @@ impl Node {
         if !type_names.contains(&"Widget") {
             type_names.push("Widget");
         }
+        let can_focus = widget.can_focus();
+        let can_focus_children = widget.can_focus_children();
         Node {
             widget: Some(widget),
             parent: None,
@@ -87,6 +93,8 @@ impl Node {
             mounted: false,
             is_screen: false,
             is_modal: false,
+            can_focus,
+            can_focus_children,
         }
     }
 
@@ -396,11 +404,7 @@ impl<'a> SelectorNode for NodeRef<'a> {
             "enabled" => !dom.is_disabled(self.id),
             "dark" => dom.dark,
             "light" => !dom.dark,
-            "can-focus" => self
-                .node()
-                .and_then(|n| n.widget())
-                .map(|w| w.can_focus())
-                .unwrap_or(false),
+            "can-focus" => self.node().map(|n| n.can_focus).unwrap_or(false),
             "empty" => dom.children(self.id).is_empty(),
             "first-child" | "first-of-type" => {
                 self.sibling_index().map(|(i, _)| i == 0).unwrap_or(false)
