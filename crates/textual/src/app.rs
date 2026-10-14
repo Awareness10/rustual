@@ -17,7 +17,7 @@ use std::collections::{HashMap, VecDeque};
 use std::hash::{Hash, Hasher};
 use std::io;
 use std::time::Duration;
-use textual_css::{Display, Overflow, Origin, Styles, Theme};
+use textual_css::{Display, Origin, Overflow, Styles, Theme};
 use textual_render::{Canvas, Offset, Region, Size};
 use tokio::sync::mpsc;
 use tokio::time::Instant;
@@ -1414,8 +1414,16 @@ impl AppState {
 /// (like Textual's `allow_horizontal_scroll` / `allow_vertical_scroll`).
 fn scrollable_max(node: &Node) -> Offset {
     let max = node.layout.max_scroll();
-    let x = if node.styles.get_overflow_x() == Overflow::Hidden { 0 } else { max.x };
-    let y = if node.styles.get_overflow_y() == Overflow::Hidden { 0 } else { max.y };
+    let x = if node.styles.get_overflow_x() == Overflow::Hidden {
+        0
+    } else {
+        max.x
+    };
+    let y = if node.styles.get_overflow_y() == Overflow::Hidden {
+        0
+    } else {
+        max.y
+    };
     Offset::new(x, y)
 }
 

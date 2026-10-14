@@ -6,7 +6,13 @@ struct Many(usize);
 impl Widget for Many {
     fn compose(&mut self) -> Vec<Child> {
         let items: Vec<Child> = (0..self.0)
-            .map(|i| Label::new(format!("item [b]{i}[/]")).classes(if i % 2 == 0 { "even" } else { "odd" }))
+            .map(|i| {
+                Label::new(format!("item [b]{i}[/]")).classes(if i % 2 == 0 {
+                    "even"
+                } else {
+                    "odd"
+                })
+            })
             .collect();
         compose![VerticalScroll::new().with(items)]
     }

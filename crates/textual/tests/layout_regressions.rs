@@ -3,7 +3,8 @@ use textual::prelude::*;
 struct Row;
 impl Widget for Row {
     fn compose(&mut self) -> Vec<Child> {
-        compose![HorizontalGroup::new().with(compose![Label::new("Name:").id("l"), Input::new().id("i")])]
+        compose![HorizontalGroup::new()
+            .with(compose![Label::new("Name:").id("l"), Input::new().id("i")])]
     }
 }
 
@@ -30,7 +31,9 @@ impl Widget for Base {
     }
     fn run_action(&mut self, action: &str, _a: &[String], ctx: &mut Ctx) -> bool {
         if action == "modal" {
-            ctx.push_modal(Vertical::new().with(compose![Static::new("dialog").style("width: 10; height: 1; margin: 2 20;")]));
+            ctx.push_modal(Vertical::new().with(compose![
+                Static::new("dialog").style("width: 10; height: 1; margin: 2 20;")
+            ]));
             return true;
         }
         false
