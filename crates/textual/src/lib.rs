@@ -7,6 +7,7 @@
 pub mod animation;
 pub mod app;
 pub mod binding;
+pub mod command;
 pub mod compositor;
 pub mod context;
 pub mod dom;
@@ -17,12 +18,15 @@ pub mod message;
 pub mod pilot;
 pub mod screen;
 pub mod scrollbar;
+pub mod tooltip;
+mod ux;
 pub mod widget;
 pub mod widgets;
 
 pub use animation::{AnimationId, AnimationLevel, Easing, OnComplete, StyleProp};
 pub use app::{App, AppHandle, Notified, ScreenDismissed, Severity, TimerId, WorkerHandle};
 pub use binding::{Action, Binding};
+pub use command::{Command, CommandAction, CommandProvider, Matcher};
 pub use context::Ctx;
 pub use dom::{Dom, Node, NodeId, NodeLayout};
 pub use events::{Event, KeyEvent, MouseButton, MouseEvent};
@@ -42,6 +46,7 @@ pub mod prelude {
         App, AppHandle, Notified, ScreenDismissed, Severity, TimerId, WorkerHandle,
     };
     pub use crate::binding::Binding;
+    pub use crate::command::{Command, CommandProvider};
     pub use crate::compose;
     pub use crate::context::Ctx;
     pub use crate::dom::NodeId;

@@ -105,12 +105,21 @@ impl Canvas {
                     x += 1;
                 }
                 let mut class = String::from("t");
-                for (flag, name) in [(Attrs::BOLD, " b"), (Attrs::ITALIC, " i"), (Attrs::UNDERLINE, " u"), (Attrs::STRIKE, " s")] {
+                for (flag, name) in [
+                    (Attrs::BOLD, " b"),
+                    (Attrs::ITALIC, " i"),
+                    (Attrs::UNDERLINE, " u"),
+                    (Attrs::STRIKE, " s"),
+                ] {
                     if attrs.contains(flag) {
                         class.push_str(name);
                     }
                 }
-                let opacity = if attrs.contains(Attrs::DIM) { r#" opacity="0.6""# } else { "" };
+                let opacity = if attrs.contains(Attrs::DIM) {
+                    r#" opacity="0.6""#
+                } else {
+                    ""
+                };
                 let text = text.trim_end();
                 let _ = writeln!(
                     s,
@@ -176,7 +185,13 @@ mod tests {
 
     fn sample() -> Canvas {
         let mut c = Canvas::new(Size::new(6, 2), Color::rgb(10, 20, 30));
-        c.put_str(0, 0, "a<b", &Style::new().fg(Color::rgb(255, 0, 0)).bold(), Region::new(0, 0, 6, 2));
+        c.put_str(
+            0,
+            0,
+            "a<b",
+            &Style::new().fg(Color::rgb(255, 0, 0)).bold(),
+            Region::new(0, 0, 6, 2),
+        );
         c.put_str(0, 1, "日本", &Style::new(), Region::new(0, 0, 6, 2));
         c
     }

@@ -172,6 +172,8 @@ pub(crate) struct AppState {
     pub started: bool,
     pub animator: crate::animation::Animator,
     pub mouse: crate::scrollbar::MouseState,
+    /// Command palette, tooltip and key panel state (see `crate::ux`).
+    pub ux: crate::ux::UxState,
 }
 
 /// The application: build with [`App::new`], configure, then [`App::run`] (or [`App::test`]).
@@ -238,6 +240,7 @@ impl App {
             started: false,
             animator: Default::default(),
             mouse: Default::default(),
+            ux: Default::default(),
         };
         App {
             state: Box::new(state),
@@ -315,10 +318,17 @@ impl App {
                 Some(Size::new(w.trim().parse().ok()?, h.trim().parse().ok()?))
             })
             .unwrap_or(Size::new(100, 30));
-        let delay = std::env::var("TEXTUAL_SCREENSHOT_DELAY").ok().and_then(|d| d.parse().ok()).unwrap_or(500);
+        let delay = std::env::var("TEXTUAL_SCREENSHOT_DELAY")
+            .ok()
+            .and_then(|d| d.parse().ok())
+            .unwrap_or(500);
         let mut pilot = self.test(size).await;
         if let Ok(keys) = std::env::var("TEXTUAL_PRESS") {
-            let keys: Vec<&str> = keys.split(',').map(str::trim).filter(|k| !k.is_empty()).collect();
+            let keys: Vec<&str> = keys
+                .split(',')
+                .map(str::trim)
+                .filter(|k| !k.is_empty())
+                .collect();
             pilot.press(&keys).await;
         }
         pilot.wait(Duration::from_millis(delay)).await;
@@ -496,6 +506,7 @@ impl AppState {
             border_title,
             border_subtitle,
             children,
+            tooltip,
         } = child;
         let mut node = Node::new(widget);
         node.css_id = id;
@@ -503,6 +514,7 @@ impl AppState {
         node.disabled = disabled;
         node.border_title = border_title;
         node.border_subtitle = border_subtitle;
+        node.tooltip = tooltip;
         if let Some(css) = styles {
             match Styles::parse_inline(&css) {
                 Ok(s) => node.inline_styles = s,
@@ -1044,6 +1056,9 @@ impl AppState {
         if id == self.root {
             b.push(Binding::new("ctrl+q", "quit", "Quit").hidden().priority());
             b.push(Binding::new("ctrl+c", "quit", "Quit").hidden());
+            if self.ux.palette_enabled {
+                b.push(crate::command::palette_binding());
+            }
         }
         if self.dom.get(id).map(|n| n.is_screen).unwrap_or(false) {
             b.push(Binding::new("tab", "app.focus_next", "Focus next").hidden());
@@ -1053,6 +1068,7 @@ impl AppState {
     }
 
     pub(crate) fn handle_key(&mut self, key: KeyEvent) {
+        crate::tooltip::clear(self);
         let chain = self.binding_chain();
         // 1. priority bindings (app first, like Textual)
         for id in chain.iter().rev() {
@@ -1088,6 +1104,7 @@ impl AppState {
             return;
         }
         let under = self.node_at(m.screen_x, m.screen_y);
+        crate::tooltip::on_mouse(self, kind, under);
         // Mouse capture / implicit drag capture (see `scrollbar.rs`).
         let target = self.mouse_route(kind, &m, under);
         match kind {
@@ -1128,7 +1145,10 @@ impl AppState {
                         .find(|a| *a == d || self.dom.is_ancestor(*a, d));
                     if let Some(ct) = click_target {
                         self.register_click(Offset::new(m.screen_x, m.screen_y));
-                        self.dispatch_event(ct, Event::Click(m));
+                        // `[@click=action]` markup under the pointer runs its action instead of bubbling.
+                        if ct != t || !crate::ux::click_link(self, t, m) {
+                            self.dispatch_event(ct, Event::Click(m));
+                        }
                     }
                 }
             }
@@ -1299,7 +1319,7 @@ impl AppState {
                     crate::animation::Easing::DEFAULT_SCROLL,
                 );
             }
-            _ => return false,
+            _ => return crate::ux::builtin_action(self, action),
         }
         self.dirty = true;
         true
@@ -1365,15 +1385,22 @@ impl AppState {
     /// Compute bindings shown in the footer: focus chain inner → outer, first binding per key wins.
     fn update_active_bindings(&mut self) {
         let mut seen: Vec<String> = Vec::new();
+        let mut seen_all: Vec<String> = Vec::new();
         let mut groups: Vec<Vec<Binding>> = Vec::new();
+        let mut all_groups: Vec<Vec<Binding>> = Vec::new();
         let chain = self.binding_chain();
         for id in chain {
             let mut group = Vec::new();
+            let mut all_group = Vec::new();
             for b in self.node_bindings(id) {
+                let k = b.keys.first().cloned().unwrap_or_default();
+                if !seen_all.contains(&k) {
+                    seen_all.push(k.clone());
+                    all_group.push(b.clone());
+                }
                 if !b.show {
                     continue;
                 }
-                let k = b.keys.first().cloned().unwrap_or_default();
                 if seen.contains(&k) {
                     continue;
                 }
@@ -1381,11 +1408,14 @@ impl AppState {
                 group.push(b);
             }
             groups.push(group);
+            all_groups.push(all_group);
         }
         // Like Textual's `Screen.active_bindings`: app first (chain order reversed), each node's
         // bindings in declaration order.
         groups.reverse();
+        all_groups.reverse();
         self.env.active_bindings = groups.into_iter().flatten().collect();
+        self.env.all_bindings = all_groups;
     }
 
     pub(crate) fn layout(&mut self) {

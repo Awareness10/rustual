@@ -25,11 +25,11 @@ _Last updated: 2026-10-14._
 | Screens: push/pop/dismiss, modal | ✅ | 85 | modal dims the screen below; no `switch_screen`, no named screens / `MODES` |
 | Notifications (toasts) | ✅ | 90 | `ctx.notify`, severity, timeout, click to dismiss |
 | Animation (`animate`, easing, transitions) | 🟡 | 75 | all 33 easings, `ctx.animate_value`, `animate_style` (opacity/offset/width/height), smooth scroll, animation levels, Tabs/Switch animate; no CSS `transition`, no color animation, no `delay`/`speed` |
-| Tooltips | ❌ | 0 | |
-| Command palette | ❌ | 0 | |
+| Tooltips | ✅ | 85 | `Child::tooltip`, `ctx.set_tooltip`; 0.5s delay, ancestor inheritance, flip above / keep on screen; no Rich renderables, no `_disable_tooltips` |
+| Command palette | ✅ | 80 | `ctrl+p`, fuzzy `Matcher` port, `CommandProvider` / `App::command_provider` / `Widget::commands`, system commands, theme picker, header icon; synchronous providers (no async search / busy indicator) |
 | Text selection & copy (screen selection) | ❌ | 0 | Input has its own selection + internal clipboard |
 | Clipboard (OSC 52) | ❌ | 0 | |
-| `@click` markup links | ❌ | 10 | parsed into `Style.link`, not executed on click |
+| `@click` markup links | 🟡 | 75 | click runs the action with the widget as owner; no `link-*-hover` styles, no `@mouse.down`/`@mouse.up` |
 | Screenshots (SVG / ANSI / text export) | ✅ | 85 | `canvas.to_svg()`, `to_ansi()`, `pilot.export_svg()`, `TEXTUAL_SCREENSHOT=out.svg` env mode (+ `TEXTUAL_SIZE`, `TEXTUAL_PRESS`); no screenshot key binding yet |
 | Maximize (`ctrl+m`), `loading` overlay, `disabled` | 🟡 | 40 | `disabled` done; no maximize; no `loading` reactive |
 | Suspend (`ctrl+z`), inline mode, no-color / ANSI themes | ❌ | 0 | |
@@ -96,7 +96,7 @@ _Last updated: 2026-10-14._
 | TabbedContent / TabPane | ✅ | 90 | |
 | ContentSwitcher | ✅ | 95 | |
 | Collapsible | ✅ | 95 | |
-| Header | ✅ | 85 | clock in UTC (offset configurable); no command-palette icon |
+| Header | ✅ | 90 | clock in UTC (offset configurable); icon opens the command palette |
 | Footer | ✅ | 85 | click replays the key; no binding groups |
 | Log | ✅ | 90 | |
 | RichLog | ✅ | 80 | no highlighter |
@@ -109,17 +109,17 @@ _Last updated: 2026-10-14._
 | Toast / ToastRack | ✅ | 90 | |
 | Containers (Container, Vertical, Horizontal, Grid, Center, Middle, ScrollableContainer, ...) | ✅ | 95 | |
 | Markdown / MarkdownViewer | 🟡 | 75 | pulldown-cmark (GFM tables, strikethrough, task lists); all block types, inline styles, clickable links, TOC + goto_anchor, viewer with TOC tree and file history; no syntax highlighting (hook only), no streaming / incremental append, no `open_url` |
-| Link | ❌ | 0 | |
+| Link | ✅ | 90 | opener stubbable via `link::set_url_opener`; posts `link::Opened` |
 | Pretty | ❌ | 0 | |
-| Tooltip | ❌ | 0 | needs core tooltip support |
-| KeyPanel / HelpPanel | ❌ | 0 | |
+| Tooltip | ✅ | 90 | runtime-positioned (no `constrain` CSS) |
+| KeyPanel / HelpPanel | 🟡 | 60 | KeyPanel ✅ (~85%, `dock: right` instead of `split`); no HelpPanel (needs Markdown / `HELP`) |
 | Welcome | ❌ | 0 | |
 
 ## Roadmap
 
 1. **Essential widgets:** TextArea, Markdown/MarkdownViewer.
-2. **Core:** command palette, animation (easing, `animate`, smooth scroll, Tabs/Switch/ProgressBar motion),
-   tooltips, `@click` links, scrollbar dragging + mouse capture, OSC 52 clipboard.
-3. **Low-hanging fruit:** Link, Pretty, SelectionList, MaskedInput, DirectoryTree, KeyPanel/HelpPanel, Welcome,
+2. **Core:** animation (easing, `animate`, smooth scroll, Tabs/Switch/ProgressBar motion),
+   scrollbar dragging + mouse capture, OSC 52 clipboard.
+3. **Low-hanging fruit:** Pretty, SelectionList, MaskedInput, DirectoryTree, HelpPanel, Welcome,
    SVG/text screenshots, `switch_screen` + named screens/modes, scrollbar hover colors, maximize, `loading` overlay,
    suspend (`ctrl+z`).
