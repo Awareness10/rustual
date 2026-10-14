@@ -30,7 +30,7 @@ _Last updated: 2026-10-14._
 | Text selection & copy (screen selection) | ❌ | 0 | Input has its own selection + internal clipboard |
 | Clipboard (OSC 52) | ❌ | 0 | |
 | `@click` markup links | ❌ | 10 | parsed into `Style.link`, not executed on click |
-| Screenshots (SVG / text export) | 🟡 | 20 | `pilot.screen_text()` / `canvas()` only |
+| Screenshots (SVG / ANSI / text export) | ✅ | 85 | `canvas.to_svg()`, `to_ansi()`, `pilot.export_svg()`, `TEXTUAL_SCREENSHOT=out.svg` env mode (+ `TEXTUAL_SIZE`, `TEXTUAL_PRESS`); no screenshot key binding yet |
 | Maximize (`ctrl+m`), `loading` overlay, `disabled` | 🟡 | 40 | `disabled` done; no maximize; no `loading` reactive |
 | Suspend (`ctrl+z`), inline mode, no-color / ANSI themes | ❌ | 0 | |
 | Devtools console / logging | ❌ | 0 | |

@@ -114,7 +114,7 @@ impl Canvas {
                 let text = text.trim_end();
                 let _ = writeln!(
                     s,
-                    r#"<text class="{class}" x="{:.1}" y="{:.1}" fill="{}"{opacity} textLength="{:.1}" lengthAdjust="spacingAndGlyphs">{}</text>"#,
+                    r#"<text xml:space="preserve" class="{class}" x="{:.1}" y="{:.1}" fill="{}"{opacity} textLength="{:.1}" lengthAdjust="spacingAndGlyphs">{}</text>"#,
                     start as f32 * CHAR_WIDTH,
                     py + LINE_HEIGHT / 2.0,
                     fg.hex(),
