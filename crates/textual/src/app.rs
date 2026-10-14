@@ -517,6 +517,11 @@ impl AppState {
                 Origin::Default,
             );
         }
+        // Every screen gets a toast rack (last child) to show notifications.
+        let rack = self.build_node(Child::new(
+            Box::new(crate::widgets::toast::ToastRack::new()),
+        ));
+        self.dom.append_child(id, rack);
         let root = self.root;
         self.dom.append_child(root, id);
         self.dirty = true;
@@ -1263,8 +1268,22 @@ impl AppState {
         };
         self.notifications.push(n.clone());
         let root = self.root;
+        // Let every screen's toast rack show the new notification.
+        for rack in self.dom.query_str(root, "ToastRack") {
+            let mut msg = Message::new(root, None, Notified(n.clone()));
+            msg.bubble = false;
+            self.post(rack, msg);
+        }
         self.post(root, Message::new(root, None, Notified(n)));
         self.dirty = true;
+    }
+
+    /// Forget a notification (e.g. a dismissed toast). Removes the first equal one.
+    pub(crate) fn unnotify(&mut self, n: &Notification) {
+        if let Some(i) = self.notifications.iter().position(|x| x == n) {
+            self.notifications.remove(i);
+            self.dirty = true;
+        }
     }
 
     // ------------------------------------------------------------------ frames
@@ -1294,9 +1313,10 @@ impl AppState {
     /// Compute bindings shown in the footer: focus chain inner → outer, first binding per key wins.
     fn update_active_bindings(&mut self) {
         let mut seen: Vec<String> = Vec::new();
-        let mut out = Vec::new();
+        let mut groups: Vec<Vec<Binding>> = Vec::new();
         let chain = self.binding_chain();
         for id in chain {
+            let mut group = Vec::new();
             for b in self.node_bindings(id) {
                 if !b.show {
                     continue;
@@ -1306,12 +1326,14 @@ impl AppState {
                     continue;
                 }
                 seen.push(k);
-                out.push(b);
+                group.push(b);
             }
+            groups.push(group);
         }
-        // App bindings last, focused first is Textual's grouping; keep chain order reversed (app first)
-        out.reverse();
-        self.env.active_bindings = out;
+        // Like Textual's `Screen.active_bindings`: app first (chain order reversed), each node's
+        // bindings in declaration order.
+        groups.reverse();
+        self.env.active_bindings = groups.into_iter().flatten().collect();
     }
 
     pub(crate) fn layout(&mut self) {

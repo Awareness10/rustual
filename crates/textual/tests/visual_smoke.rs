@@ -4,7 +4,10 @@ struct Demo;
 impl Widget for Demo {
     fn compose(&mut self) -> Vec<Child> {
         compose![
-            Static::new("Hello, [b]World[/]!").id("greeting").border_title("textual-rs").border_subtitle("sub"),
+            Static::new("Hello, [b]World[/]!")
+                .id("greeting")
+                .border_title("textual-rs")
+                .border_subtitle("sub"),
             Horizontal::new().id("row").with(compose![
                 Button::new("Default"),
                 Button::primary("Primary").id("p"),
