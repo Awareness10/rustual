@@ -274,7 +274,15 @@ impl App {
     }
 
     /// Run in the terminal until the app exits.
+    ///
+    /// Screenshot mode (like `textual run --screenshot`): if `TEXTUAL_SCREENSHOT=<file.svg>` is set,
+    /// the app runs headless at `TEXTUAL_SIZE` (`COLSxROWS`, default `100x30`), presses the
+    /// comma-separated keys in `TEXTUAL_PRESS`, waits `TEXTUAL_SCREENSHOT_DELAY` ms (default 500),
+    /// writes an SVG screenshot and returns.
     pub async fn run(self) -> io::Result<()> {
+        if let Ok(path) = std::env::var("TEXTUAL_SCREENSHOT") {
+            return self.screenshot_to(&path).await;
+        }
         let mut state = self.state;
         let mut driver = CrosstermDriver::start()?;
         state.size = driver.size();
@@ -284,6 +292,24 @@ impl App {
         state.shutdown();
         driver.stop()?;
         result
+    }
+
+    async fn screenshot_to(self, path: &str) -> io::Result<()> {
+        let size = std::env::var("TEXTUAL_SIZE")
+            .ok()
+            .and_then(|s| {
+                let (w, h) = s.split_once('x')?;
+                Some(Size::new(w.trim().parse().ok()?, h.trim().parse().ok()?))
+            })
+            .unwrap_or(Size::new(100, 30));
+        let delay = std::env::var("TEXTUAL_SCREENSHOT_DELAY").ok().and_then(|d| d.parse().ok()).unwrap_or(500);
+        let mut pilot = self.test(size).await;
+        if let Ok(keys) = std::env::var("TEXTUAL_PRESS") {
+            let keys: Vec<&str> = keys.split(',').map(str::trim).filter(|k| !k.is_empty()).collect();
+            pilot.press(&keys).await;
+        }
+        pilot.wait(Duration::from_millis(delay)).await;
+        std::fs::write(path, pilot.export_svg())
     }
 
     /// Run on a new multi-threaded tokio runtime (for non-async `main`).
