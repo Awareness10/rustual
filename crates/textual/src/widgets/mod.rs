@@ -67,3 +67,15 @@ pub use list_view::{ListItem, ListView};
 pub use log::Log;
 pub use option_list::{OptionItem, OptionList};
 pub use rich_log::RichLog;
+
+// Extra widgets: SelectionList, MaskedInput, DirectoryTree, Pretty, Welcome.
+pub mod selection_list;
+pub use selection_list::SelectionList;
+pub mod masked_input;
+pub use masked_input::MaskedInput;
+pub mod directory_tree;
+pub use directory_tree::{DirEntry, DirectoryTree};
+pub mod pretty;
+pub mod welcome;
+pub use pretty::Pretty;
+pub use welcome::Welcome;

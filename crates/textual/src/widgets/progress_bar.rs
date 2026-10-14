@@ -13,7 +13,7 @@ use crate::app::TimerId;
 use crate::context::Ctx;
 use crate::widget::{Child, Content, RenderCtx, Widget};
 use std::time::Duration;
-use textual_render::{Span, Strip, Style, Text};
+use textual_render::{Gradient, Span, Strip, Style, Text};
 use tokio::time::Instant;
 
 const PROGRESS_BAR_CSS: &str = "
@@ -97,6 +97,12 @@ impl BarRenderable {
     }
 
     pub fn render(&self) -> Strip {
+        self.render_with_gradient(None)
+    }
+
+    /// Render, coloring the highlighted portion with `gradient` (replaces the highlight color),
+    /// like Textual's `Bar(gradient=...)`.
+    pub fn render_with_gradient(&self, gradient: Option<&Gradient>) -> Strip {
         let width = self.width.max(0) as f64;
         let bg = &self.background_style;
         let hl = &self.highlight_style;
@@ -129,16 +135,33 @@ impl BarRenderable {
         }
         // The highlighted portion.
         let bar_width = end.trunc() - start.trunc();
-        if half_start {
-            push(
-                format!("{}{}", Self::HALF_BAR_LEFT, rep(Self::BAR, bar_width - 1.0)),
-                hl,
-            );
+        let mut highlight = if half_start {
+            format!("{}{}", Self::HALF_BAR_LEFT, rep(Self::BAR, bar_width - 1.0))
         } else {
-            push(rep(Self::BAR, bar_width), hl);
-        }
+            rep(Self::BAR, bar_width)
+        };
         if half_end {
-            push(Self::HALF_BAR_RIGHT.to_string(), hl);
+            highlight.push_str(Self::HALF_BAR_RIGHT);
+        }
+        match gradient {
+            None => push(highlight, hl),
+            Some(g) => {
+                // Textual's `_apply_gradient`.
+                let max_width = width - 1.0;
+                let n = highlight.chars().count();
+                for (offset, ch) in highlight.chars().enumerate() {
+                    let color = if max_width <= 0.0 {
+                        g.get_color(0.0)
+                    } else {
+                        g.get_color((n - offset) as f64 / max_width)
+                    };
+                    let style = Style {
+                        fg: Some(color),
+                        ..hl.clone()
+                    };
+                    push(ch.to_string(), &style);
+                }
+            }
         }
         // The non-highlighted tail.
         if !half_end && end - width != 0.0 {
@@ -264,6 +287,7 @@ pub struct ProgressBar {
     display_eta: Option<i64>,
     clock_start: Instant,
     anim_timer: Option<TimerId>,
+    gradient: Option<Gradient>,
 }
 
 impl Default for ProgressBar {
@@ -285,7 +309,22 @@ impl ProgressBar {
             display_eta: None,
             clock_start: Instant::now(),
             anim_timer: None,
+            gradient: None,
         }
+    }
+
+    /// Color the bar with a gradient instead of the CSS highlight color (Textual: `gradient=`).
+    pub fn gradient(mut self, gradient: Gradient) -> Self {
+        self.gradient = Some(gradient);
+        self
+    }
+
+    pub fn set_gradient(&mut self, gradient: Option<Gradient>) {
+        self.gradient = gradient;
+    }
+
+    pub fn get_gradient(&self) -> Option<&Gradient> {
+        self.gradient.as_ref()
     }
 
     pub fn show_bar(mut self, show: bool) -> Self {
@@ -452,6 +491,7 @@ fn parent_progress_bar<'a>(ctx: &RenderCtx<'a>) -> Option<&'a ProgressBar> {
 pub struct Bar {
     percentage: Option<f64>,
     clock_start: Instant,
+    gradient: Option<Gradient>,
 }
 
 impl Default for Bar {
@@ -465,7 +505,15 @@ impl Bar {
         Bar {
             percentage: None,
             clock_start: Instant::now(),
+            gradient: None,
         }
+    }
+
+    /// Color the bar with a gradient (standalone bars; inside a `ProgressBar` the parent's
+    /// gradient is used).
+    pub fn gradient(mut self, gradient: Option<Gradient>) -> Self {
+        self.gradient = gradient;
+        self
     }
 
     pub fn set_percentage(&mut self, percentage: Option<f64>) {
@@ -474,6 +522,16 @@ impl Bar {
 
     /// Render a bar for `percentage` (or the indeterminate animation frame at `time` seconds).
     pub fn render_bar(ctx: &RenderCtx, percentage: Option<f64>, time: f64) -> Strip {
+        Self::render_bar_with_gradient(ctx, percentage, time, None)
+    }
+
+    /// Like [`Bar::render_bar`], coloring the highlight with an optional gradient.
+    pub fn render_bar_with_gradient(
+        ctx: &RenderCtx,
+        percentage: Option<f64>,
+        time: f64,
+        gradient: Option<&Gradient>,
+    ) -> Strip {
         let width = ctx.size.width;
         let w = width as f64;
         match percentage {
@@ -495,7 +553,7 @@ impl Bar {
                     },
                     width,
                 )
-                .render()
+                .render_with_gradient(gradient)
             }
             None => {
                 let highlighted = 0.25 * w;
@@ -524,7 +582,7 @@ impl Bar {
                     },
                     width,
                 )
-                .render()
+                .render_with_gradient(gradient)
             }
         }
     }
@@ -544,11 +602,17 @@ impl Widget for Bar {
     }
 
     fn render(&self, ctx: &RenderCtx) -> Content {
-        let (percentage, time) = match parent_progress_bar(ctx) {
-            Some(pb) => (pb.percentage(), pb.clock()),
-            None => (self.percentage, self.clock_start.elapsed().as_secs_f64()),
+        let (percentage, time, gradient) = match parent_progress_bar(ctx) {
+            Some(pb) => (pb.percentage(), pb.clock(), pb.gradient.as_ref()),
+            None => (
+                self.percentage,
+                self.clock_start.elapsed().as_secs_f64(),
+                self.gradient.as_ref(),
+            ),
         };
-        Content::Lines(vec![Self::render_bar(ctx, percentage, time)])
+        Content::Lines(vec![Self::render_bar_with_gradient(
+            ctx, percentage, time, gradient,
+        )])
     }
 }
 
