@@ -29,10 +29,10 @@ impl KeyEvent {
 /// Normalize a key name (lowercase modifiers, canonical modifier order, aliases such as
 /// `"return"`→`"enter"`, `"esc"`→`"escape"`, `"ctrl+i"`→`"tab"`, `" "`→`"space"`).
 pub fn normalize_key(key: &str) -> String {
-    let key = key.trim();
     if key == " " {
         return "space".into();
     }
+    let key = key.trim();
     if key == "+" {
         return "+".into();
     }
@@ -77,6 +77,8 @@ pub fn normalize_key(key: &str) -> String {
     if base.chars().count() == 1 && !ctrl && !alt {
         shift = false;
     }
+    // with ctrl/alt, letters are reported lowercase (`ctrl+c`, not `ctrl+C`)
+    let base = if base.chars().count() == 1 && (ctrl || alt) { base.to_lowercase() } else { base };
     let mut out = String::new();
     if ctrl {
         out.push_str("ctrl+");
