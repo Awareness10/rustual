@@ -7,7 +7,6 @@ use textual::widgets::text_area::{self, TextAreaTheme};
 
 const CSS: &str = "
 #status {
-    dock: bottom;
     height: 1;
     width: 1fr;
     padding: 0 1;
