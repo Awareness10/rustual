@@ -254,6 +254,8 @@ pub struct RenderEnv {
     /// in display order. Used by `Footer`.
     pub active_bindings: Vec<Binding>,
     pub dark: bool,
+    /// Active notifications (oldest first), for toast widgets.
+    pub notifications: Vec<crate::app::Notification>,
 }
 
 /// Read-only context for [`Widget::render`] and measurement.

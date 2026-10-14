@@ -1317,6 +1317,7 @@ impl AppState {
     pub(crate) fn layout(&mut self) {
         self.update_styles();
         self.update_active_bindings();
+        self.env.notifications = self.notifications.clone();
         let size = self.size;
         self.arrangements.clear();
         for s in self.visible_screens() {
