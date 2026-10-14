@@ -97,6 +97,13 @@ impl Pilot {
         }
     }
 
+    /// Simulate a bracketed paste of `text` (an [`crate::Event::Paste`] to the focused widget).
+    pub async fn paste(&mut self, text: &str) {
+        self.state
+            .handle_driver_event(DriverEvent::Paste(text.to_string()));
+        self.pause().await;
+    }
+
     fn mouse(&mut self, kind: MouseKind, x: i32, y: i32, button: Option<MouseButton>) {
         let m = MouseEvent {
             x,
