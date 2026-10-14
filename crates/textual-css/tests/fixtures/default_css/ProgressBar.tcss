@@ -1,0 +1,7 @@
+
+    ProgressBar {
+        width: auto;
+        height: 1;
+        layout: horizontal;
+    }
+    

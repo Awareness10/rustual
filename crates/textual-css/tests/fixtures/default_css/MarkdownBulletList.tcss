@@ -1,0 +1,16 @@
+
+    MarkdownBulletList {
+        margin: 0 0 1 0;
+        padding: 0 0;
+    }
+
+    MarkdownBulletList Horizontal {
+        height: auto;
+        width: 1fr;
+    }
+
+    MarkdownBulletList Vertical {
+        height: auto;
+        width: 1fr;
+    }
+    

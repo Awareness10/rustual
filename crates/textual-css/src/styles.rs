@@ -1,8 +1,24 @@
 //! Typed style properties. Every field is `Option`: `None` = not set by any rule.
 //! Getter methods return the effective value with Textual's defaults applied.
 
+use crate::properties::{inherit_text_style, split_declarations, strip_important};
 use crate::scalar::Scalar;
 use textual_render::{BorderKind, Color, Spacing, Style};
+
+/// `if other.f.is_some() { self.f = other.f.clone() }` for each field (fields are bound by
+/// the destructuring in `merge`).
+macro_rules! overlay {
+    ($self:ident; $($f:ident),* $(,)?) => {
+        $( if $f.is_some() { $self.$f = $f.clone(); } )*
+    };
+}
+
+/// Fill unset fields from the parent.
+macro_rules! fill {
+    ($self:ident, $parent:ident; $($f:ident),* $(,)?) => {
+        $( if $self.$f.is_none() { $self.$f = $parent.$f.clone(); } )*
+    };
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Display {
@@ -144,7 +160,8 @@ pub struct Styles {
     pub margin: Option<Spacing>,
     pub padding: Option<Spacing>,
 
-    /// `border: <kind> <color>`, `border-top: ...` etc. Missing color defaults to `$foreground`-ish (green in Textual's default) — the parser uses WHITE when not given.
+    /// `border: <kind> [<color>] [<alpha>%]`, `border-top: ...` etc. Missing color: the stylesheet parser
+    /// uses the `$foreground` variable when defined, otherwise WHITE (Textual itself uses green).
     pub border_top: Option<BorderEdge>,
     pub border_right: Option<BorderEdge>,
     pub border_bottom: Option<BorderEdge>,
@@ -188,7 +205,9 @@ pub struct Styles {
     pub overflow_x: Option<Overflow>,
     pub overflow_y: Option<Overflow>,
     pub scrollbar_gutter: Option<ScrollbarGutter>,
+    /// Width of the vertical scrollbar. `scrollbar-size: <horizontal> <vertical>` (Textual order).
     pub scrollbar_size_vertical: Option<i32>,
+    /// Height of the horizontal scrollbar (first value of `scrollbar-size`).
     pub scrollbar_size_horizontal: Option<i32>,
     pub scrollbar_color: Option<Color>,
     pub scrollbar_color_hover: Option<Color>,
@@ -202,7 +221,12 @@ pub struct Styles {
     pub grid_size_rows: Option<i32>,
     pub grid_columns: Option<Vec<Scalar>>,
     pub grid_rows: Option<Vec<Scalar>>,
+    /// Textual semantics: the gutter *between rows* (a horizontal band). Set by the FIRST
+    /// value of `grid-gutter: <horizontal> [<vertical>]` (see `_styles_builder.py`
+    /// `process_grid_gutter` and `layouts/grid.py`, which resolves rows with this value).
     pub grid_gutter_horizontal: Option<i32>,
+    /// Textual semantics: the gutter *between columns* (a vertical band). Second value of
+    /// `grid-gutter` (defaults to the first when only one value is given).
     pub grid_gutter_vertical: Option<i32>,
     pub column_span: Option<i32>,
     pub row_span: Option<i32>,
@@ -222,14 +246,97 @@ impl Styles {
 
     /// Overlay: every `Some` field in `other` replaces the field in `self`.
     pub fn merge(&mut self, other: &Styles) {
-        todo!("{other:?}")
+        // Exhaustive destructuring: adding a field to `Styles` without handling it here
+        // is a compile error.
+        let Styles {
+            display,
+            visibility,
+            layout,
+            position,
+            width,
+            height,
+            min_width,
+            min_height,
+            max_width,
+            max_height,
+            box_sizing,
+            margin,
+            padding,
+            border_top,
+            border_right,
+            border_bottom,
+            border_left,
+            outline_top,
+            outline_right,
+            outline_bottom,
+            outline_left,
+            border_title_align,
+            border_subtitle_align,
+            border_title_color,
+            border_title_background,
+            border_title_style,
+            border_subtitle_color,
+            border_subtitle_background,
+            border_subtitle_style,
+            color,
+            background,
+            background_tint,
+            tint,
+            opacity,
+            text_opacity,
+            text_style,
+            text_align,
+            text_wrap,
+            text_overflow,
+            content_align_horizontal,
+            content_align_vertical,
+            align_horizontal,
+            align_vertical,
+            dock,
+            offset_x,
+            offset_y,
+            layer,
+            layers,
+            overflow_x,
+            overflow_y,
+            scrollbar_gutter,
+            scrollbar_size_vertical,
+            scrollbar_size_horizontal,
+            scrollbar_color,
+            scrollbar_color_hover,
+            scrollbar_color_active,
+            scrollbar_background,
+            scrollbar_background_hover,
+            scrollbar_background_active,
+            scrollbar_corner_color,
+            grid_size_columns,
+            grid_size_rows,
+            grid_columns,
+            grid_rows,
+            grid_gutter_horizontal,
+            grid_gutter_vertical,
+            column_span,
+            row_span,
+            link_color,
+            link_background,
+            link_style,
+            link_color_hover,
+            link_background_hover,
+            link_style_hover,
+        } = other;
+        overlay!(self; display, visibility, layout, position, width, height, min_width, min_height, max_width, max_height, box_sizing, margin, padding, border_top, border_right, border_bottom, border_left, outline_top, outline_right, outline_bottom, outline_left, border_title_align, border_subtitle_align, border_title_color, border_title_background, border_title_style, border_subtitle_color, border_subtitle_background, border_subtitle_style, color, background, background_tint, tint, opacity, text_opacity, text_style, text_align, text_wrap, text_overflow, content_align_horizontal, content_align_vertical, align_horizontal, align_vertical, dock, offset_x, offset_y, layer, layers, overflow_x, overflow_y, scrollbar_gutter, scrollbar_size_vertical, scrollbar_size_horizontal, scrollbar_color, scrollbar_color_hover, scrollbar_color_active, scrollbar_background, scrollbar_background_hover, scrollbar_background_active, scrollbar_corner_color, grid_size_columns, grid_size_rows, grid_columns, grid_rows, grid_gutter_horizontal, grid_gutter_vertical, column_span, row_span, link_color, link_background, link_style, link_color_hover, link_background_hover, link_style_hover);
     }
 
     /// Fill unset *inherited* properties from the parent's computed styles. Inherited:
     /// color, text_style, text_align, text_wrap, text_overflow, text_opacity? (no — not inherited),
     /// link_* properties. Everything else is not inherited.
     pub fn inherit_from(&mut self, parent: &Styles) {
-        todo!("{parent:?}")
+        fill!(self, parent; color, text_align, text_wrap, text_overflow, link_color,
+            link_background, link_color_hover, link_background_hover);
+        self.text_style = inherit_text_style(self.text_style.take(), &parent.text_style);
+        self.link_style = inherit_text_style(self.link_style.take(), &parent.link_style);
+        self.link_style_hover =
+            inherit_text_style(self.link_style_hover.take(), &parent.link_style_hover);
     }
 
     // ---- effective-value getters (Textual defaults) ----
@@ -344,11 +451,23 @@ impl Styles {
     /// `content-align`, `overflow`, `offset`, `grid-size`, `grid-gutter`, `scrollbar-size`,
     /// `outline`) set several fields.
     pub fn set_declaration(&mut self, name: &str, value: &str) -> Result<(), String> {
-        todo!("{name}{value}")
+        self.set_declaration_with(name, value, Color::WHITE)
     }
 
     /// Parse inline-style text like `"width: 10; color: red"`.
     pub fn parse_inline(css: &str) -> Result<Styles, String> {
-        todo!("{css}")
+        let mut styles = Styles::new();
+        for part in split_declarations(css) {
+            let part = part.trim();
+            if part.is_empty() {
+                continue;
+            }
+            let (name, value) = part
+                .split_once(':')
+                .ok_or_else(|| format!("expected 'name: value', found {part:?}"))?;
+            let (value, _important) = strip_important(value);
+            styles.set_declaration(name.trim(), value)?;
+        }
+        Ok(styles)
     }
 }

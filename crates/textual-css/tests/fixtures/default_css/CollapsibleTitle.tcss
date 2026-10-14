@@ -1,0 +1,20 @@
+
+    CollapsibleTitle {
+        width: auto;
+        height: auto;        
+        padding: 0 1;        
+        text-style: $block-cursor-blurred-text-style;
+        color: $block-cursor-blurred-foreground;
+        pointer: pointer;
+
+        &:hover {
+            background: $block-hover-background;
+            color: $foreground;
+        }
+        &:focus {
+            text-style: $block-cursor-text-style;
+            background: $block-cursor-background;
+            color: $block-cursor-foreground;
+        }
+    }
+    

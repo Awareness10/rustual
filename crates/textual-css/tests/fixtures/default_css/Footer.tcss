@@ -1,0 +1,52 @@
+
+    Footer {
+        layout: horizontal;        
+        color: $footer-foreground;
+        background: $footer-background;
+        dock: bottom;
+        height: 1;
+        scrollbar-size: 0 0;
+        &.-compact {
+            FooterLabel {
+                margin: 0;
+            }
+            FooterKey {
+                margin-right: 1;
+            }
+            FooterKey.-grouped {
+                margin: 0 1;            
+            }
+            FooterKey.-command-palette  {
+                padding-right: 0;
+            }
+        }
+        FooterKey.-command-palette  {
+            dock: right;
+            padding-right: 1;
+            border-left: vkey $foreground 20%;
+        }
+        HorizontalGroup.binding-group {            
+            width: auto;
+            height: 1;
+            layout: horizontal;
+        }
+        KeyGroup.-compact {            
+            FooterKey.-grouped {
+                margin: 0;
+            }
+            margin: 0 1 0 0;
+            padding-left: 1;
+        }
+
+        FooterKey.-grouped {
+            margin: 0 1;            
+        }
+        FooterLabel {
+            margin: 0 1 0 0;            
+            color: $footer-description-foreground;
+            background: $footer-description-background;
+        }
+
+       
+    }
+    

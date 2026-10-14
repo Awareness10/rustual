@@ -1,0 +1,16 @@
+
+    MarkdownOrderedList {
+        margin: 0 0 1 0;
+        padding: 0 0;
+    }
+
+    MarkdownOrderedList Horizontal {
+        height: auto;
+        width: 1fr;
+    }
+
+    MarkdownOrderedList Vertical {
+        height: auto;
+        width: 1fr;
+    }
+    

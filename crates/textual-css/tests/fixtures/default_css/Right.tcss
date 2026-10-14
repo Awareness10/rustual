@@ -1,0 +1,7 @@
+
+    Right {
+        align-horizontal: right;
+        width: 1fr;
+        height: auto;
+    }
+    

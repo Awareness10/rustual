@@ -1,0 +1,8 @@
+
+    MarkdownH4 {
+        color: $markdown-h4-color;
+        background: $markdown-h4-background;
+        text-style: $markdown-h4-text-style;
+        margin: 1 0;
+    }
+    

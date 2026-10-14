@@ -1,0 +1,44 @@
+
+    SelectCurrent {
+        border: tall $border-blurred;
+        color: $foreground;
+        background: $surface;
+        width: 1fr;
+        height: auto;
+        padding: 0 2;
+        pointer: pointer;
+
+        &.-textual-compact {
+            border: none !important;
+        }
+
+        &:ansi {
+            border: tall $border-blurred;
+            color: ansi_default;
+            background: ansi_default;
+            &:focus {
+                border: tall $border;
+            }
+        }
+
+        Static#label {
+            width: 1fr;
+            height: auto;
+            color: $foreground 50%;
+            background: transparent;
+        }
+
+        &.-has-value Static#label {
+            color: $foreground;
+        }
+
+        .arrow {
+            box-sizing: content-box;
+            width: 1;
+            height: 1;
+            padding: 0 0 0 1;
+            color: $foreground 50%;
+            background: transparent;
+        }
+    }
+    

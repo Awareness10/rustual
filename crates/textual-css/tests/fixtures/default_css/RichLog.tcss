@@ -1,0 +1,10 @@
+
+    RichLog{
+        background: $surface;
+        color: $foreground;
+        overflow-y: scroll;
+        &:focus {
+            background-tint: $foreground 5%;
+        }
+    }
+    

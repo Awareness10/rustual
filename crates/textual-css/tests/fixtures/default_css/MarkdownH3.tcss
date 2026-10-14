@@ -1,0 +1,9 @@
+
+    MarkdownH3 {
+        color: $markdown-h3-color;
+        background: $markdown-h3-background;
+        text-style: $markdown-h3-text-style;
+        margin: 1 0;
+        width: auto;
+    }
+    

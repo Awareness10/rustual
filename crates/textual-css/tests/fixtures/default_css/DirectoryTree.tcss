@@ -1,0 +1,38 @@
+
+    DirectoryTree {
+        
+        & > .directory-tree--folder {
+            text-style: bold;
+        }
+
+        & > .directory-tree--extension {
+            text-style: italic;
+        }
+
+        & > .directory-tree--hidden {
+            text-style: dim;
+        }
+
+        &:ansi {
+        
+            & > .tree--guides {
+               color: ansi_bright_black;              
+            }
+        
+            & > .directory-tree--folder {
+                text-style: bold;
+            }
+
+            & > .directory-tree--extension {
+                text-style: italic;
+            }
+
+            & > .directory-tree--hidden {
+                color: ansi_default;
+                text-style: dim;
+            }
+        }
+
+    }
+
+    

@@ -1,0 +1,12 @@
+
+    HeaderIcon {
+        dock: left;
+        padding: 0 1;
+        width: 8;
+        content-align: left middle;
+    }
+
+    HeaderIcon:hover {
+        background: $foreground 10%;
+    }
+    

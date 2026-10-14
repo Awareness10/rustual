@@ -1,0 +1,16 @@
+
+    MarkdownTableOfContents {
+        width: auto;
+        height: 1fr;
+        background: $panel;
+        &:focus-within {
+            background-tint: $foreground 5%;
+        }
+    }
+    MarkdownTableOfContents > Tree {
+        padding: 1;
+        width: auto;
+        height: 1fr;
+        background: $panel;
+    }
+    

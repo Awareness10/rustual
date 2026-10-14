@@ -1,0 +1,8 @@
+
+    ToastHolder {
+        align-horizontal: right;
+        width: 1fr;
+        height: auto;
+        visibility: hidden;        
+    }
+    

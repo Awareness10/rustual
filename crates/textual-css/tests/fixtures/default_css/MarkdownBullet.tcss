@@ -1,0 +1,9 @@
+
+    MarkdownBullet {
+        width: auto;
+        color: $text-primary;
+        &:light {
+            color: $text-secondary;
+        }
+    }
+    

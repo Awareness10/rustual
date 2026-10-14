@@ -1,0 +1,11 @@
+
+    Sparkline {
+        height: 1;
+    }
+    Sparkline > .sparkline--max-color {
+        color: $primary;
+    }
+    Sparkline > .sparkline--min-color {
+        color: $primary 30%;
+    }
+    

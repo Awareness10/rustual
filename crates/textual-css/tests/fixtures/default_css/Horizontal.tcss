@@ -1,0 +1,8 @@
+
+    Horizontal {
+        width: 1fr;
+        height: 1fr;
+        layout: horizontal;
+        overflow: hidden hidden;
+    }
+    

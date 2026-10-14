@@ -1,0 +1,12 @@
+
+    Header {
+        dock: top;
+        width: 100%;
+        background: $panel;
+        color: $foreground;
+        height: 1;
+    }
+    Header.-tall {
+        height: 3;
+    }
+    

@@ -1,0 +1,32 @@
+
+    Label {
+        width: auto;
+        height: auto;
+        min-height: 1;
+
+        &.success {
+            color: $text-success;
+            background: $success-muted;
+        }
+        &.error {
+            color: $text-error;
+            background: $error-muted;
+        }
+        &.warning {
+            color: $text-warning;
+            background: $warning-muted;
+        }
+        &.primary {
+            color: $text-primary;
+            background: $primary-muted;
+        }
+        &.secondary {
+            color: $text-secondary;
+            background: $secondary-muted;
+        }
+        &.accent {
+            color: $text-accent;
+            background: $accent-muted;
+        }
+    }
+    

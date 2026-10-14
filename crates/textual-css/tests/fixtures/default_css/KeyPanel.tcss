@@ -1,0 +1,37 @@
+
+    KeyPanel {
+        split: right;
+        width: 33%;
+        min-width: 30;
+        max-width: 60;
+        border-left: vkey $foreground 30%;
+        padding: 0 1;
+        height: 1fr;
+        padding-right: 1;
+        align: center top;
+
+        &> BindingsTable > .bindings-table--key {
+            color: $text-accent;
+            text-style: bold;
+            padding: 0 1;
+        }
+
+        &> BindingsTable > .bindings-table--description {
+            color: $foreground;
+        }
+
+        &> BindingsTable > .bindings-table--divider {
+            color: transparent;
+        }
+
+        &> BindingsTable > .bindings-table--header {        
+            color: $text-primary;
+            text-style: underline;
+        }
+
+        #bindings-table {
+            width: auto;
+            height: auto;
+        }
+    }
+    

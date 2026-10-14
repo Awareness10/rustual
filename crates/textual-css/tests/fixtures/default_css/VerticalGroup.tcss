@@ -1,0 +1,8 @@
+
+    VerticalGroup {
+        width: 1fr;
+        height: auto;
+        layout: vertical;
+        overflow: hidden hidden;
+    }
+    

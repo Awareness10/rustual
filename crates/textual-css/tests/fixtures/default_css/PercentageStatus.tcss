@@ -1,0 +1,6 @@
+
+    PercentageStatus {
+        width: 5;
+        content-align-horizontal: right;
+    }
+    

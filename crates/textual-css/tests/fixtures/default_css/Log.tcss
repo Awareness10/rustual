@@ -1,0 +1,10 @@
+
+    Log {
+        background: $surface;
+        color: $text;
+        overflow: scroll;
+        &:focus {
+            background-tint: $foreground 5%;
+        }
+    }
+    

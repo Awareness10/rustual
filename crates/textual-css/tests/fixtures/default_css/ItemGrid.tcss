@@ -1,0 +1,7 @@
+
+    ItemGrid {
+        width: 1fr;
+        height: auto;
+        layout: grid;
+    }
+    

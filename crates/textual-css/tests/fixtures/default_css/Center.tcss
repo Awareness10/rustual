@@ -1,0 +1,7 @@
+
+    Center {
+        align-horizontal: center;
+        width: 1fr;
+        height: auto;
+    }
+    

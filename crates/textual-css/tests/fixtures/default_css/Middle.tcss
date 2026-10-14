@@ -1,0 +1,7 @@
+
+    Middle {
+        align-vertical: middle;
+        width: auto;
+        height: 1fr;
+    }
+    

@@ -1,0 +1,32 @@
+
+    Tab {
+        width: auto;
+        height: 1;
+        padding: 0 1;
+        text-align: center;
+        color: $foreground 50%;
+        pointer: pointer;
+
+        &:ansi {
+            text-style: dim;
+            &.-active {
+                text-style: not dim bold;
+            }
+        }
+
+        
+        &:hover {
+            color: $foreground;
+        }
+        &:disabled {
+            color: $foreground 25%;
+        }
+
+        &.-active {
+            color: $foreground;
+        }
+        &.-hidden {
+            display: none;
+        }
+    }
+    

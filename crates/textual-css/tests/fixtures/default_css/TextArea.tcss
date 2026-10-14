@@ -1,0 +1,81 @@
+TextArea {
+    width: 1fr;
+    height: 1fr;
+    border: tall $border-blurred;
+    padding: 0 1;
+    color: $foreground;
+    background: $surface;
+    pointer: text;
+    &.-textual-compact {
+        border: none !important;
+    }
+    & .text-area--cursor {
+        text-style: $input-cursor-text-style;
+    }
+    & .text-area--gutter {
+        color: $foreground 40%;
+    }
+
+    & .text-area--cursor-gutter {
+        color: $foreground 60%;
+        background: $boost;
+        text-style: bold;
+    }
+
+    & .text-area--cursor-line {
+       background: $boost;
+    }
+
+    & .text-area--selection {
+        background: $input-selection-background;
+        color: $input-selection-foreground;
+    }
+
+    & .text-area--matching-bracket {
+        background: $foreground 30%;
+    }
+
+    & .text-area--suggestion {
+        color: $text-muted;
+    }
+
+    & .text-area--placeholder {
+        color: $text 40%;
+    }
+
+    &:focus {
+        border: tall $border;
+    }
+
+    &:ansi {
+        .text-area--cursor {
+            color: $input-cursor-foreground;
+            background: $input-cursor-background;
+            text-style: reverse;
+        }
+        & .text-area--selection {
+            background: transparent;
+            text-style: reverse;
+        }
+    }
+
+    &:dark {
+        .text-area--cursor {
+            color: $input-cursor-foreground;
+            background: $input-cursor-background;
+        }
+        &.-read-only .text-area--cursor {
+            background: $warning-darken-1;
+        }
+    }
+
+    &:light {
+        .text-area--cursor {
+            color: $text 90%;
+            background: $foreground 70%;
+        }
+        &.-read-only .text-area--cursor {
+            background: $warning-darken-1;
+        }
+    }    
+}

@@ -1,0 +1,15 @@
+
+    MarkdownBlockQuote {
+        background: $boost;
+        border-left: outer $text-primary 50%;
+        margin: 1 0;
+        padding: 0 1;
+    }
+    MarkdownBlockQuote:light {
+        border-left: outer $text-secondary;
+    }
+    MarkdownBlockQuote > BlockQuote {
+        margin-left: 2;
+        margin-top: 1;
+    }
+    
