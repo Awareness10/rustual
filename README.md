@@ -34,7 +34,17 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-Run the examples: `cargo run -p textual --example hello` (more in `crates/textual/examples/`).
+Run the examples: `cargo run -p textual --example <name>` with `hello`, `form`, `dashboard`,
+`table`, `navigator` or `readme`. Quit with `ctrl+q`.
+
+## Widgets
+
+Static, Label, Button, Input, Checkbox, RadioButton/RadioSet, Switch, Header, Footer, Placeholder,
+Rule, ProgressBar, LoadingIndicator, Sparkline, Digits, Toasts (`ctx.notify`), ListView, OptionList,
+DataTable, Log, RichLog, Tabs, TabbedContent/TabPane, ContentSwitcher, Tree, Collapsible, Select,
+and containers (Container, Vertical, Horizontal, Grid, Center, Middle, VerticalScroll, ...).
+
+Not yet: TextArea, Markdown, command palette, animations, text selection, tooltips, inline mode.
 
 ## Concepts (Textual → textual-rs)
 
