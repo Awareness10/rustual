@@ -141,14 +141,14 @@ fn resolve_fg(styles: &Styles, bg: Color) -> Color {
 /// Style for one border cell given Textual's location code (see `_border.py::get_box`).
 fn border_cell_style(loc: BorderCellStyle, color: Color, inner: Color, outer: Color) -> Style {
     match loc {
-        // 0: inner + style
+        // Textual location 0: inner + style
         BorderCellStyle::Normal => Style::new().fg(inner.composite(color)).bg(inner),
         // 1: outer + style
-        BorderCellStyle::Reverse => Style::new().fg(outer.composite(color)).bg(outer),
+        BorderCellStyle::Outer => Style::new().fg(outer.composite(color)).bg(outer),
         // 2: Style(outer.bg, inner.fg, reverse) → visual fg = outer bg, visual bg = border color
-        BorderCellStyle::Outer => Style::new().fg(outer).bg(inner.composite(color)),
+        BorderCellStyle::OuterReverse => Style::new().fg(outer).bg(inner.composite(color)),
         // 3: Style(inner.bg, outer.fg, reverse) → visual fg = inner bg, visual bg = border color
-        BorderCellStyle::OuterReverse => Style::new().fg(inner).bg(outer.composite(color)),
+        BorderCellStyle::Reverse => Style::new().fg(inner).bg(outer.composite(color)),
     }
 }
 
@@ -261,8 +261,12 @@ fn paint_labels(
         let loc = edge.kind.locations()[row][1];
         let mut base = border_cell_style(loc, edge.color, inner, outer);
         // Labels default to the widget's text color on the border's background.
-        if matches!(loc, BorderCellStyle::Normal | BorderCellStyle::Reverse) {
+        if matches!(loc, BorderCellStyle::Normal | BorderCellStyle::Outer) {
             base.fg = Some(fg);
+        }
+        let (flip_top, flip_bottom) = edge.kind.title_flip();
+        if (row == 0 && flip_top) || (row == 2 && flip_bottom) {
+            std::mem::swap(&mut base.fg, &mut base.bg);
         }
         if let Some(c) = color {
             base.fg = Some(base.bg.unwrap_or(inner).composite(*c));
