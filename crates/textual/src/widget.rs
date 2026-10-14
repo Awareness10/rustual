@@ -132,6 +132,12 @@ pub trait Widget: Any {
     fn run_action(&mut self, _action: &str, _args: &[String], _ctx: &mut Ctx) -> bool {
         false
     }
+
+    /// Commands offered in the command palette when this widget is the app root or the
+    /// active screen (like Textual's `App.get_system_commands` / `Screen.COMMANDS`).
+    fn commands(&self) -> Vec<crate::command::Command> {
+        Vec::new()
+    }
 }
 
 /// A widget plus the node attributes to mount it with (id, classes, inline styles, children).
@@ -144,6 +150,8 @@ pub struct Child {
     pub border_title: Option<String>,
     pub border_subtitle: Option<String>,
     pub children: Vec<Child>,
+    /// Tooltip text (markup), see [`Child::tooltip`].
+    pub tooltip: Option<String>,
 }
 
 impl Child {
@@ -157,7 +165,14 @@ impl Child {
             border_title: None,
             border_subtitle: None,
             children: Vec::new(),
+            tooltip: None,
         }
+    }
+
+    /// A tooltip (markup) shown when the mouse rests over the widget (Textual's `tooltip`).
+    pub fn tooltip(mut self, text: &str) -> Child {
+        self.tooltip = Some(text.to_string());
+        self
     }
 
     pub fn id(mut self, id: &str) -> Child {
@@ -232,6 +247,9 @@ pub trait WidgetExt: Widget + Sized {
     fn with(self, children: impl IntoIterator<Item = Child>) -> Child {
         self.child().with(children)
     }
+    fn tooltip(self, text: &str) -> Child {
+        self.child().tooltip(text)
+    }
 }
 
 impl<W: Widget + Sized> WidgetExt for W {}
@@ -256,6 +274,9 @@ pub struct RenderEnv {
     pub dark: bool,
     /// Active notifications (oldest first), for toast widgets.
     pub notifications: Vec<crate::app::Notification>,
+    /// Every binding of the focus chain (including hidden ones), grouped per node, app first;
+    /// a key bound by an inner node hides outer bindings of the same key. Used by `KeyPanel`.
+    pub all_bindings: Vec<Vec<Binding>>,
 }
 
 /// Read-only context for [`Widget::render`] and measurement.

@@ -165,8 +165,8 @@ impl Widget for Header {
     }
 }
 
-/// The icon on the left of the header. (Textual opens the command palette on click;
-/// textual-rs has no command palette, so clicks fall through to the header.)
+/// The icon on the left of the header. Clicking it opens the command palette (the icon is
+/// disabled when the palette is disabled).
 #[derive(Debug, Clone)]
 pub struct HeaderIcon {
     icon: String,
@@ -195,6 +195,25 @@ impl Widget for HeaderIcon {
 
     fn default_css(&self) -> &'static str {
         HEADER_ICON_CSS
+    }
+
+    fn on_mount(&mut self, ctx: &mut Ctx) {
+        if ctx.app.ux.palette_enabled {
+            ctx.set_tooltip(Some("Open the command palette"));
+        } else {
+            let me = ctx.id();
+            ctx.set_disabled(me, true);
+        }
+    }
+
+    fn on_event(&mut self, event: &Event, ctx: &mut Ctx) -> Flow {
+        if let Event::Click(_) = event {
+            if !ctx.is_disabled() {
+                ctx.run_action("app.command_palette");
+                return Flow::Stop;
+            }
+        }
+        Flow::Continue
     }
 
     fn render(&self, _ctx: &RenderCtx) -> Content {

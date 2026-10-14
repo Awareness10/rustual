@@ -66,6 +66,8 @@ pub struct Node {
     pub can_focus: bool,
     /// Cached `Widget::can_focus_children`.
     pub can_focus_children: bool,
+    /// Tooltip text (markup) shown when the mouse rests over the widget (see `crate::tooltip`).
+    pub tooltip: Option<String>,
 }
 
 impl Node {
@@ -95,6 +97,7 @@ impl Node {
             is_modal: false,
             can_focus,
             can_focus_children,
+            tooltip: None,
         }
     }
 

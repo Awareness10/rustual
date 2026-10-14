@@ -67,3 +67,13 @@ pub use list_view::{ListItem, ListView};
 pub use log::Log;
 pub use option_list::{OptionItem, OptionList};
 pub use rich_log::RichLog;
+
+// Core UX widgets: command palette, tooltip, link, key panel.
+pub mod command_palette;
+pub mod key_panel;
+pub mod link;
+pub mod tooltip;
+pub use command_palette::{CommandList, CommandPalette};
+pub use key_panel::{BindingsTable, KeyPanel};
+pub use link::Link;
+pub use tooltip::Tooltip;
