@@ -175,6 +175,25 @@ impl Pilot {
         self.pause().await;
     }
 
+    /// Press the left button at screen coordinates (start of a drag).
+    pub async fn mouse_down(&mut self, x: i32, y: i32) {
+        self.mouse(MouseKind::Move, x, y, None);
+        self.mouse(MouseKind::Down, x, y, Some(MouseButton::Left));
+        self.pause().await;
+    }
+
+    /// Move the mouse with the left button held (a drag step).
+    pub async fn mouse_drag_to(&mut self, x: i32, y: i32) {
+        self.mouse(MouseKind::Move, x, y, Some(MouseButton::Left));
+        self.pause().await;
+    }
+
+    /// Release the left button at screen coordinates.
+    pub async fn mouse_up(&mut self, x: i32, y: i32) {
+        self.mouse(MouseKind::Up, x, y, Some(MouseButton::Left));
+        self.pause().await;
+    }
+
     /// Click the first widget matching `selector` at the center of its visible area. Returns false if not found / not visible.
     pub async fn click(&mut self, selector: &str) -> bool {
         let Some((x, y)) = self.center_of(selector) else {

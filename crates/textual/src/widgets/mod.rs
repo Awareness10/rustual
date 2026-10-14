@@ -80,3 +80,6 @@ pub use command_palette::{CommandList, CommandPalette};
 pub use key_panel::{BindingsTable, KeyPanel};
 pub use link::Link;
 pub use tooltip::Tooltip;
+// Multi-line editor. (`text_area::Selection` is not re-exported: it would clash with Input's.)
+pub mod text_area;
+pub use text_area::{IndentType, TabBehavior, TextArea, TextAreaTheme};
