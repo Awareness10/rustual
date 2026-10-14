@@ -23,7 +23,7 @@ use crate::dom::{Dom, Node, NodeId};
 use crate::layout::Arrangement;
 use crate::scrollbar;
 use crate::widget::{style_from_styles, Content, RenderCtx, RenderEnv};
-use textual_css::{AlignH, AlignV, BorderEdge, ColorValue, Styles};
+use textual_css::{AlignH, AlignV, BorderEdge, ColorValue, Styles, Visibility};
 use textual_render::border::BorderCellStyle;
 use textual_render::{
     BorderKind, Canvas, Cell, Color, Justify, Region, Size, Strip, Style, Text, TextOverflow,
@@ -85,6 +85,12 @@ fn paint_node(canvas: &mut Canvas, dom: &Dom, env: &RenderEnv, id: NodeId, node:
     let outer_bg = sample_bg(canvas, clip);
 
     // 1. background
+    // Hidden ancestors aren't painted, but (as in Textual, which derives backgrounds from the
+    // ancestor chain) their backgrounds still show behind their visible descendants.
+    let hidden_bg = hidden_ancestor_background(dom, id);
+    if !hidden_bg.is_transparent() {
+        canvas.fill(region, clip, hidden_bg);
+    }
     let bg = styles.get_background();
     if node.is_screen && bg.a < 1.0 && !bg.is_transparent() {
         // A translucent screen (e.g. ModalScreen's `$background 60%`) dims the screen beneath
@@ -157,6 +163,37 @@ fn paint_node(canvas: &mut Canvas, dom: &Dom, env: &RenderEnv, id: NodeId, node:
             }
         }
     }
+}
+
+/// Composite background of the unbroken run of `visibility: hidden` ancestors directly above `id`
+/// (transparent if the parent is visible).
+fn hidden_ancestor_background(dom: &Dom, id: NodeId) -> Color {
+    let mut chain = Vec::new();
+    for anc in dom.ancestors(id) {
+        let Some(n) = dom.get(anc) else { break };
+        if !effectively_hidden(dom, anc) {
+            break;
+        }
+        chain.push(n.styles.get_background());
+    }
+    chain.iter().rev().fold(Color::TRANSPARENT, |acc, bg| {
+        if acc.is_transparent() {
+            *bg
+        } else {
+            acc.composite(*bg)
+        }
+    })
+}
+
+/// `visibility` is inherited unless set explicitly (Textual semantics).
+fn effectively_hidden(dom: &Dom, id: NodeId) -> bool {
+    for n in dom.ancestors_with_self(id) {
+        match dom.get(n).and_then(|n| n.styles.visibility) {
+            Some(v) => return v == Visibility::Hidden,
+            None => continue,
+        }
+    }
+    false
 }
 
 /// The widget's text color over `bg` (resolving `auto`); WHITE if unset.
