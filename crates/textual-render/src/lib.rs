@@ -7,6 +7,7 @@ pub mod border;
 pub mod canvas;
 pub mod cells;
 pub mod color;
+mod color_names;
 pub mod geometry;
 pub mod markup;
 pub mod strip;

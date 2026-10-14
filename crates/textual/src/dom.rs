@@ -225,7 +225,10 @@ impl Dom {
     }
 
     pub fn children(&self, id: NodeId) -> &[NodeId] {
-        self.nodes.get(id).map(|n| n.children.as_slice()).unwrap_or(&[])
+        self.nodes
+            .get(id)
+            .map(|n| n.children.as_slice())
+            .unwrap_or(&[])
     }
 
     /// Ancestors from parent up to the root (excluding `id`).
@@ -399,16 +402,30 @@ impl<'a> SelectorNode for NodeRef<'a> {
                 .map(|w| w.can_focus())
                 .unwrap_or(false),
             "empty" => dom.children(self.id).is_empty(),
-            "first-child" | "first-of-type" => self.sibling_index().map(|(i, _)| i == 0).unwrap_or(false),
-            "last-child" | "last-of-type" => self.sibling_index().map(|(i, n)| i + 1 == n).unwrap_or(false),
+            "first-child" | "first-of-type" => {
+                self.sibling_index().map(|(i, _)| i == 0).unwrap_or(false)
+            }
+            "last-child" | "last-of-type" => self
+                .sibling_index()
+                .map(|(i, n)| i + 1 == n)
+                .unwrap_or(false),
             // Textual counts from 1: the first child is odd.
-            "odd" => self.sibling_index().map(|(i, _)| i % 2 == 0).unwrap_or(false),
-            "even" => self.sibling_index().map(|(i, _)| i % 2 == 1).unwrap_or(false),
+            "odd" => self
+                .sibling_index()
+                .map(|(i, _)| i % 2 == 0)
+                .unwrap_or(false),
+            "even" => self
+                .sibling_index()
+                .map(|(i, _)| i % 2 == 1)
+                .unwrap_or(false),
             _ => false,
         }
     }
 
     fn parent(&self) -> Option<Self> {
-        self.dom.parent(self.id).map(|p| NodeRef { dom: self.dom, id: p })
+        self.dom.parent(self.id).map(|p| NodeRef {
+            dom: self.dom,
+            id: p,
+        })
     }
 }

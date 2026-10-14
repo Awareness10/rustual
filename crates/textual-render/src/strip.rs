@@ -16,12 +16,16 @@ impl Strip {
     }
 
     pub fn from_str(s: &str, style: Style) -> Self {
-        Strip { spans: vec![Span::new(s, style)] }
+        Strip {
+            spans: vec![Span::new(s, style)],
+        }
     }
 
     /// `width` spaces in `style`.
     pub fn blank(width: i32, style: Style) -> Self {
-        Strip { spans: vec![Span::new(" ".repeat(width.max(0) as usize), style)] }
+        Strip {
+            spans: vec![Span::new(" ".repeat(width.max(0) as usize), style)],
+        }
     }
 
     pub fn push(&mut self, span: Span) {

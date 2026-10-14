@@ -167,7 +167,8 @@ impl Child {
 
     /// Space-separated classes.
     pub fn classes(mut self, classes: &str) -> Child {
-        self.classes.extend(classes.split_whitespace().map(String::from));
+        self.classes
+            .extend(classes.split_whitespace().map(String::from));
         self
     }
 
@@ -269,7 +270,13 @@ pub struct RenderCtx<'a> {
 impl<'a> RenderCtx<'a> {
     pub fn new(dom: &'a Dom, env: &'a RenderEnv, node: NodeId, size: Size) -> Self {
         let scroll_offset = dom.get(node).map(|n| n.scroll_offset).unwrap_or_default();
-        RenderCtx { dom, env, node, size, scroll_offset }
+        RenderCtx {
+            dom,
+            env,
+            node,
+            size,
+            scroll_offset,
+        }
     }
 
     /// Computed styles of this widget.
@@ -294,7 +301,10 @@ impl<'a> RenderCtx<'a> {
     }
 
     pub fn has_class(&self, c: &str) -> bool {
-        self.dom.get(self.node).map(|n| n.has_class(c)).unwrap_or(false)
+        self.dom
+            .get(self.node)
+            .map(|n| n.has_class(c))
+            .unwrap_or(false)
     }
 
     pub fn has_pseudo_class(&self, p: &str) -> bool {
@@ -326,7 +336,10 @@ impl<'a> RenderCtx<'a> {
     /// virtual child of this widget with the given class, e.g. `"datatable--header"`.
     /// Only `color`, `background` and `text-style` are used. Colors are composited over this widget's background.
     pub fn component_style(&self, class: &str) -> Style {
-        let virt = EitherNode::Component(ComponentNode { parent: self.dom.node_ref(self.node), class });
+        let virt = EitherNode::Component(ComponentNode {
+            parent: self.dom.node_ref(self.node),
+            class,
+        });
         let mut styles = self.env.stylesheet.compute(virt);
         styles.inherit_from(self.styles());
         style_from_styles(&styles, self.background())
@@ -345,7 +358,10 @@ impl<'a> RenderCtx<'a> {
             TextOverflowKind::Clip => TextOverflow::Clip,
             TextOverflowKind::Ellipsis => TextOverflow::Ellipsis,
         };
-        (overflow, s.text_wrap.unwrap_or_default() == TextWrap::NoWrap)
+        (
+            overflow,
+            s.text_wrap.unwrap_or_default() == TextWrap::NoWrap,
+        )
     }
 }
 
@@ -374,7 +390,9 @@ pub fn parse_color_value(v: &str) -> Option<Color> {
     }
     let (color, alpha) = v.rsplit_once(char::is_whitespace)?;
     let alpha: f32 = alpha.strip_suffix('%')?.parse().ok()?;
-    Color::parse(color.trim()).ok().map(|c| c.multiply_alpha(alpha / 100.0))
+    Color::parse(color.trim())
+        .ok()
+        .map(|c| c.multiply_alpha(alpha / 100.0))
 }
 
 /// Composite backgrounds from the root down to `node`.

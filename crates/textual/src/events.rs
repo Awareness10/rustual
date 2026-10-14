@@ -38,7 +38,11 @@ pub fn normalize_key(key: &str) -> String {
     }
     let mut parts: Vec<&str> = key.split('+').collect();
     let base_raw = parts.pop().unwrap_or("");
-    let base_raw = if base_raw.is_empty() && key.ends_with('+') { "+" } else { base_raw };
+    let base_raw = if base_raw.is_empty() && key.ends_with('+') {
+        "+"
+    } else {
+        base_raw
+    };
     let (mut ctrl, mut alt, mut shift) = (false, false, false);
     for m in parts {
         match m.to_ascii_lowercase().as_str() {
@@ -64,7 +68,11 @@ pub fn normalize_key(key: &str) -> String {
             other => other.to_string(),
         }
     };
-    let base = if base == " " { "space".to_string() } else { base };
+    let base = if base == " " {
+        "space".to_string()
+    } else {
+        base
+    };
     // shift is implied by the character for single printable keys
     if base.chars().count() == 1 && !ctrl && !alt {
         shift = false;

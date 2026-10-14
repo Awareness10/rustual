@@ -36,11 +36,25 @@ pub struct Message {
 
 impl Message {
     pub fn new<T: Any + Send>(sender: NodeId, sender_css_id: Option<String>, payload: T) -> Self {
-        Message { sender, sender_css_id, bubble: true, payload: Box::new(payload) }
+        Message {
+            sender,
+            sender_css_id,
+            bubble: true,
+            payload: Box::new(payload),
+        }
     }
 
-    pub fn from_boxed(sender: NodeId, sender_css_id: Option<String>, payload: Box<dyn Any + Send>) -> Self {
-        Message { sender, sender_css_id, bubble: true, payload }
+    pub fn from_boxed(
+        sender: NodeId,
+        sender_css_id: Option<String>,
+        payload: Box<dyn Any + Send>,
+    ) -> Self {
+        Message {
+            sender,
+            sender_css_id,
+            bubble: true,
+            payload,
+        }
     }
 
     pub fn get<T: Any>(&self) -> Option<&T> {

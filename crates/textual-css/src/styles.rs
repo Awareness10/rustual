@@ -5,43 +5,105 @@ use crate::scalar::Scalar;
 use textual_render::{BorderKind, Color, Spacing, Style};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum Display { #[default] Block, None }
+pub enum Display {
+    #[default]
+    Block,
+    None,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum Visibility { #[default] Visible, Hidden }
+pub enum Visibility {
+    #[default]
+    Visible,
+    Hidden,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum LayoutKind { #[default] Vertical, Horizontal, Grid }
+pub enum LayoutKind {
+    #[default]
+    Vertical,
+    Horizontal,
+    Grid,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum BoxSizing { #[default] BorderBox, ContentBox }
+pub enum BoxSizing {
+    #[default]
+    BorderBox,
+    ContentBox,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum Overflow { #[default] Hidden, Auto, Scroll }
+pub enum Overflow {
+    #[default]
+    Hidden,
+    Auto,
+    Scroll,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum AlignH { #[default] Left, Center, Right }
+pub enum AlignH {
+    #[default]
+    Left,
+    Center,
+    Right,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum AlignV { #[default] Top, Middle, Bottom }
+pub enum AlignV {
+    #[default]
+    Top,
+    Middle,
+    Bottom,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum TextAlign { #[default] Start, End, Left, Center, Right, Justify }
+pub enum TextAlign {
+    #[default]
+    Start,
+    End,
+    Left,
+    Center,
+    Right,
+    Justify,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Dock { Top, Right, Bottom, Left }
+pub enum Dock {
+    Top,
+    Right,
+    Bottom,
+    Left,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum ScrollbarGutter { #[default] Auto, Stable }
+pub enum ScrollbarGutter {
+    #[default]
+    Auto,
+    Stable,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum TextWrap { #[default] Wrap, NoWrap }
+pub enum TextWrap {
+    #[default]
+    Wrap,
+    NoWrap,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum TextOverflowKind { #[default] Fold, Clip, Ellipsis }
+pub enum TextOverflowKind {
+    #[default]
+    Fold,
+    Clip,
+    Ellipsis,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum Position { #[default] Relative, Absolute }
+pub enum Position {
+    #[default]
+    Relative,
+    Absolute,
+}
 
 /// One border edge: kind + color.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -171,44 +233,98 @@ impl Styles {
     }
 
     // ---- effective-value getters (Textual defaults) ----
-    pub fn get_display(&self) -> Display { self.display.unwrap_or_default() }
-    pub fn get_visibility(&self) -> Visibility { self.visibility.unwrap_or_default() }
-    pub fn get_layout(&self) -> LayoutKind { self.layout.unwrap_or_default() }
-    pub fn get_box_sizing(&self) -> BoxSizing { self.box_sizing.unwrap_or_default() }
-    pub fn get_margin(&self) -> Spacing { self.margin.unwrap_or_default() }
-    pub fn get_padding(&self) -> Spacing { self.padding.unwrap_or_default() }
-    pub fn get_background(&self) -> Color { self.background.unwrap_or(Color::TRANSPARENT) }
-    pub fn get_opacity(&self) -> f32 { self.opacity.unwrap_or(1.0) }
-    pub fn get_text_opacity(&self) -> f32 { self.text_opacity.unwrap_or(1.0) }
-    pub fn get_overflow_x(&self) -> Overflow { self.overflow_x.unwrap_or_default() }
-    pub fn get_overflow_y(&self) -> Overflow { self.overflow_y.unwrap_or_default() }
-    pub fn get_scrollbar_size_vertical(&self) -> i32 { self.scrollbar_size_vertical.unwrap_or(2) }
-    pub fn get_scrollbar_size_horizontal(&self) -> i32 { self.scrollbar_size_horizontal.unwrap_or(1) }
-    pub fn get_text_align(&self) -> TextAlign { self.text_align.unwrap_or_default() }
+    pub fn get_display(&self) -> Display {
+        self.display.unwrap_or_default()
+    }
+    pub fn get_visibility(&self) -> Visibility {
+        self.visibility.unwrap_or_default()
+    }
+    pub fn get_layout(&self) -> LayoutKind {
+        self.layout.unwrap_or_default()
+    }
+    pub fn get_box_sizing(&self) -> BoxSizing {
+        self.box_sizing.unwrap_or_default()
+    }
+    pub fn get_margin(&self) -> Spacing {
+        self.margin.unwrap_or_default()
+    }
+    pub fn get_padding(&self) -> Spacing {
+        self.padding.unwrap_or_default()
+    }
+    pub fn get_background(&self) -> Color {
+        self.background.unwrap_or(Color::TRANSPARENT)
+    }
+    pub fn get_opacity(&self) -> f32 {
+        self.opacity.unwrap_or(1.0)
+    }
+    pub fn get_text_opacity(&self) -> f32 {
+        self.text_opacity.unwrap_or(1.0)
+    }
+    pub fn get_overflow_x(&self) -> Overflow {
+        self.overflow_x.unwrap_or_default()
+    }
+    pub fn get_overflow_y(&self) -> Overflow {
+        self.overflow_y.unwrap_or_default()
+    }
+    pub fn get_scrollbar_size_vertical(&self) -> i32 {
+        self.scrollbar_size_vertical.unwrap_or(2)
+    }
+    pub fn get_scrollbar_size_horizontal(&self) -> i32 {
+        self.scrollbar_size_horizontal.unwrap_or(1)
+    }
+    pub fn get_text_align(&self) -> TextAlign {
+        self.text_align.unwrap_or_default()
+    }
     pub fn get_content_align(&self) -> (AlignH, AlignV) {
-        (self.content_align_horizontal.unwrap_or_default(), self.content_align_vertical.unwrap_or_default())
+        (
+            self.content_align_horizontal.unwrap_or_default(),
+            self.content_align_vertical.unwrap_or_default(),
+        )
     }
     pub fn get_align(&self) -> (AlignH, AlignV) {
-        (self.align_horizontal.unwrap_or_default(), self.align_vertical.unwrap_or_default())
+        (
+            self.align_horizontal.unwrap_or_default(),
+            self.align_vertical.unwrap_or_default(),
+        )
     }
     pub fn get_grid_size(&self) -> (i32, i32) {
-        (self.grid_size_columns.unwrap_or(1), self.grid_size_rows.unwrap_or(0))
+        (
+            self.grid_size_columns.unwrap_or(1),
+            self.grid_size_rows.unwrap_or(0),
+        )
     }
     pub fn get_grid_gutter(&self) -> (i32, i32) {
-        (self.grid_gutter_horizontal.unwrap_or(0), self.grid_gutter_vertical.unwrap_or(0))
+        (
+            self.grid_gutter_horizontal.unwrap_or(0),
+            self.grid_gutter_vertical.unwrap_or(0),
+        )
     }
 
     /// Border edges as (top, right, bottom, left); unset edges are `BorderKind::None`.
     pub fn get_border(&self) -> [BorderEdge; 4] {
-        let none = BorderEdge { kind: BorderKind::None, color: Color::TRANSPARENT };
-        [self.border_top.unwrap_or(none), self.border_right.unwrap_or(none),
-         self.border_bottom.unwrap_or(none), self.border_left.unwrap_or(none)]
+        let none = BorderEdge {
+            kind: BorderKind::None,
+            color: Color::TRANSPARENT,
+        };
+        [
+            self.border_top.unwrap_or(none),
+            self.border_right.unwrap_or(none),
+            self.border_bottom.unwrap_or(none),
+            self.border_left.unwrap_or(none),
+        ]
     }
 
     pub fn get_outline(&self) -> [BorderEdge; 4] {
-        let none = BorderEdge { kind: BorderKind::None, color: Color::TRANSPARENT };
-        [self.outline_top.unwrap_or(none), self.outline_right.unwrap_or(none),
-         self.outline_bottom.unwrap_or(none), self.outline_left.unwrap_or(none)]
+        let none = BorderEdge {
+            kind: BorderKind::None,
+            color: Color::TRANSPARENT,
+        };
+        [
+            self.outline_top.unwrap_or(none),
+            self.outline_right.unwrap_or(none),
+            self.outline_bottom.unwrap_or(none),
+            self.outline_left.unwrap_or(none),
+        ]
     }
 
     /// Cells taken by borders: 1 per edge whose kind has width.

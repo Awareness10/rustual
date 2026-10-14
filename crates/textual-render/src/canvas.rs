@@ -19,7 +19,13 @@ pub struct Cell {
 
 impl Cell {
     pub fn blank(bg: Color) -> Cell {
-        Cell { symbol: " ".into(), fg: Color::WHITE, bg, attrs: Attrs::NONE, link: None }
+        Cell {
+            symbol: " ".into(),
+            fg: Color::WHITE,
+            bg,
+            attrs: Attrs::NONE,
+            link: None,
+        }
     }
 }
 
@@ -99,6 +105,10 @@ impl Canvas {
 
     /// Rows with trailing whitespace trimmed, joined with `\n`. Handy for snapshot tests.
     pub fn to_text(&self) -> String {
-        self.to_lines().iter().map(|l| l.trim_end()).collect::<Vec<_>>().join("\n")
+        self.to_lines()
+            .iter()
+            .map(|l| l.trim_end())
+            .collect::<Vec<_>>()
+            .join("\n")
     }
 }

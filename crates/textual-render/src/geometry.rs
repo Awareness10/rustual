@@ -58,7 +58,10 @@ pub struct Size {
 }
 
 impl Size {
-    pub const ZERO: Size = Size { width: 0, height: 0 };
+    pub const ZERO: Size = Size {
+        width: 0,
+        height: 0,
+    };
 
     pub const fn new(width: i32, height: i32) -> Self {
         Self { width, height }
@@ -111,10 +114,20 @@ pub struct Region {
 }
 
 impl Region {
-    pub const ZERO: Region = Region { x: 0, y: 0, width: 0, height: 0 };
+    pub const ZERO: Region = Region {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+    };
 
     pub const fn new(x: i32, y: i32, width: i32, height: i32) -> Self {
-        Self { x, y, width, height }
+        Self {
+            x,
+            y,
+            width,
+            height,
+        }
     }
 
     pub fn from_offset_size(o: Offset, s: Size) -> Self {
@@ -279,10 +292,20 @@ pub struct Spacing {
 }
 
 impl Spacing {
-    pub const ZERO: Spacing = Spacing { top: 0, right: 0, bottom: 0, left: 0 };
+    pub const ZERO: Spacing = Spacing {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+    };
 
     pub const fn new(top: i32, right: i32, bottom: i32, left: i32) -> Self {
-        Self { top, right, bottom, left }
+        Self {
+            top,
+            right,
+            bottom,
+            left,
+        }
     }
 
     pub const fn all(n: i32) -> Self {
@@ -336,14 +359,24 @@ impl Spacing {
 impl Add for Spacing {
     type Output = Spacing;
     fn add(self, o: Spacing) -> Spacing {
-        Spacing::new(self.top + o.top, self.right + o.right, self.bottom + o.bottom, self.left + o.left)
+        Spacing::new(
+            self.top + o.top,
+            self.right + o.right,
+            self.bottom + o.bottom,
+            self.left + o.left,
+        )
     }
 }
 
 impl Sub for Spacing {
     type Output = Spacing;
     fn sub(self, o: Spacing) -> Spacing {
-        Spacing::new(self.top - o.top, self.right - o.right, self.bottom - o.bottom, self.left - o.left)
+        Spacing::new(
+            self.top - o.top,
+            self.right - o.right,
+            self.bottom - o.bottom,
+            self.left - o.left,
+        )
     }
 }
 
@@ -371,9 +404,18 @@ mod tests {
     #[test]
     fn scroll_to_visible() {
         let vp = Region::new(0, 10, 20, 5);
-        assert_eq!(vp.get_scroll_to_visible(&Region::new(0, 16, 1, 1)), Offset::new(0, 2));
-        assert_eq!(vp.get_scroll_to_visible(&Region::new(0, 8, 1, 1)), Offset::new(0, -2));
-        assert_eq!(vp.get_scroll_to_visible(&Region::new(0, 11, 1, 1)), Offset::ZERO);
+        assert_eq!(
+            vp.get_scroll_to_visible(&Region::new(0, 16, 1, 1)),
+            Offset::new(0, 2)
+        );
+        assert_eq!(
+            vp.get_scroll_to_visible(&Region::new(0, 8, 1, 1)),
+            Offset::new(0, -2)
+        );
+        assert_eq!(
+            vp.get_scroll_to_visible(&Region::new(0, 11, 1, 1)),
+            Offset::ZERO
+        );
     }
 
     #[test]

@@ -104,7 +104,10 @@ impl Style {
     /// Words: attribute names (b/bold, d/dim, i/italic, u/underline, s/strike, r/reverse, blink),
     /// `not <attr>`, a color, `on <color>`, `none`. Colors use [`Color::parse`] and `$name`
     /// is looked up with `vars`.
-    pub fn parse_with(s: &str, vars: &dyn Fn(&str) -> Option<Color>) -> Result<Style, StyleParseError> {
+    pub fn parse_with(
+        s: &str,
+        vars: &dyn Fn(&str) -> Option<Color>,
+    ) -> Result<Style, StyleParseError> {
         todo!("{s}{:?}", vars("x"))
     }
 

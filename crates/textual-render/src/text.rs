@@ -1,8 +1,8 @@
 //! Styled text (like `rich.text.Text`) with wrapping and justification.
 
+use crate::color::Color;
 use crate::strip::Strip;
 use crate::style::Style;
-use crate::color::Color;
 
 /// A run of text with a single style. May contain `\n` inside a [`Text`]; never inside a [`Strip`].
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -13,10 +13,16 @@ pub struct Span {
 
 impl Span {
     pub fn new(text: impl Into<String>, style: Style) -> Self {
-        Span { text: text.into(), style }
+        Span {
+            text: text.into(),
+            style,
+        }
     }
     pub fn raw(text: impl Into<String>) -> Self {
-        Span { text: text.into(), style: Style::default() }
+        Span {
+            text: text.into(),
+            style: Style::default(),
+        }
     }
     pub fn cell_len(&self) -> i32 {
         crate::cells::cell_len(&self.text)
@@ -58,11 +64,15 @@ impl Text {
     }
 
     pub fn plain(s: impl Into<String>) -> Self {
-        Text { spans: vec![Span::raw(s)] }
+        Text {
+            spans: vec![Span::raw(s)],
+        }
     }
 
     pub fn styled(s: impl Into<String>, style: Style) -> Self {
-        Text { spans: vec![Span::new(s, style)] }
+        Text {
+            spans: vec![Span::new(s, style)],
+        }
     }
 
     /// Parse Textual content markup leniently: on a markup error the input is returned as plain text.
@@ -115,13 +125,20 @@ impl Text {
     /// `no_wrap` disables wrapping (lines are then cropped per `overflow`).
     /// Justify Center/Right pads on the left with unstyled spaces; no right padding is added
     /// except for `Full`. Every returned strip has `cell_len() <= width`.
-    pub fn wrap(&self, width: i32, justify: Justify, overflow: TextOverflow, no_wrap: bool) -> Vec<Strip> {
+    pub fn wrap(
+        &self,
+        width: i32,
+        justify: Justify,
+        overflow: TextOverflow,
+        no_wrap: bool,
+    ) -> Vec<Strip> {
         todo!("{width}{justify:?}{overflow:?}{no_wrap}")
     }
 
     /// Number of lines after wrapping to `width` (Left justify, Fold overflow).
     pub fn height_for_width(&self, width: i32) -> i32 {
-        self.wrap(width, Justify::Left, TextOverflow::Fold, false).len() as i32
+        self.wrap(width, Justify::Left, TextOverflow::Fold, false)
+            .len() as i32
     }
 }
 

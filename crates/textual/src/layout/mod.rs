@@ -36,11 +36,11 @@ pub struct Arrangement {
 impl Arrangement {
     /// Topmost node whose clip contains (x, y).
     pub fn node_at(&self, dom: &Dom, x: i32, y: i32) -> Option<NodeId> {
-        self.order
-            .iter()
-            .rev()
-            .copied()
-            .find(|id| dom.get(*id).map(|n| n.layout.visible && n.layout.clip.contains(x, y)).unwrap_or(false))
+        self.order.iter().rev().copied().find(|id| {
+            dom.get(*id)
+                .map(|n| n.layout.visible && n.layout.clip.contains(x, y))
+                .unwrap_or(false)
+        })
     }
 }
 

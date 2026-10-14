@@ -22,7 +22,11 @@ pub struct Binding {
 impl Binding {
     pub fn new(keys: &str, action: &str, description: &str) -> Self {
         Binding {
-            keys: keys.split(',').map(|k| normalize_key(k)).filter(|k| !k.is_empty()).collect(),
+            keys: keys
+                .split(',')
+                .map(|k| normalize_key(k))
+                .filter(|k| !k.is_empty())
+                .collect(),
             action: action.to_string(),
             description: description.to_string(),
             show: true,
@@ -103,7 +107,11 @@ impl Action {
             None => (None, head.trim().to_string()),
         };
         let args = split_args(args);
-        Action { namespace, name, args }
+        Action {
+            namespace,
+            name,
+            args,
+        }
     }
 }
 

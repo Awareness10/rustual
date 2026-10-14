@@ -31,16 +31,28 @@ pub struct Scalar {
 }
 
 impl Scalar {
-    pub const AUTO: Scalar = Scalar { value: 1.0, unit: Unit::Auto };
+    pub const AUTO: Scalar = Scalar {
+        value: 1.0,
+        unit: Unit::Auto,
+    };
 
     pub const fn cells(v: f32) -> Self {
-        Scalar { value: v, unit: Unit::Cells }
+        Scalar {
+            value: v,
+            unit: Unit::Cells,
+        }
     }
     pub const fn fr(v: f32) -> Self {
-        Scalar { value: v, unit: Unit::Fraction }
+        Scalar {
+            value: v,
+            unit: Unit::Fraction,
+        }
     }
     pub const fn percent(v: f32) -> Self {
-        Scalar { value: v, unit: Unit::Percent }
+        Scalar {
+            value: v,
+            unit: Unit::Percent,
+        }
     }
 
     pub fn is_auto(&self) -> bool {
@@ -60,7 +72,13 @@ impl Scalar {
     /// - `Percent` resolves against `container` along `dim`.
     /// - `Fraction` multiplies by `fraction_unit` (cells per 1fr).
     /// - `Auto` resolves to 0 — callers must handle auto themselves.
-    pub fn resolve(&self, dim: Dimension, container: Size, viewport: Size, fraction_unit: f32) -> f32 {
+    pub fn resolve(
+        &self,
+        dim: Dimension,
+        container: Size,
+        viewport: Size,
+        fraction_unit: f32,
+    ) -> f32 {
         let along = |s: Size| match dim {
             Dimension::Width => s.width as f32,
             Dimension::Height => s.height as f32,
@@ -86,12 +104,21 @@ impl FromStr for Scalar {
         if s.eq_ignore_ascii_case("auto") {
             return Ok(Scalar::AUTO);
         }
-        let (num, unit) = [("fr", Unit::Fraction), ("%", Unit::Percent), ("vw", Unit::ViewWidth),
-            ("vh", Unit::ViewHeight), ("w", Unit::Width), ("h", Unit::Height)]
-            .iter()
-            .find_map(|(suffix, unit)| s.strip_suffix(suffix).map(|n| (n, *unit)))
-            .unwrap_or((s, Unit::Cells));
-        let value: f32 = num.trim().parse().map_err(|_| format!("invalid scalar: {s}"))?;
+        let (num, unit) = [
+            ("fr", Unit::Fraction),
+            ("%", Unit::Percent),
+            ("vw", Unit::ViewWidth),
+            ("vh", Unit::ViewHeight),
+            ("w", Unit::Width),
+            ("h", Unit::Height),
+        ]
+        .iter()
+        .find_map(|(suffix, unit)| s.strip_suffix(suffix).map(|n| (n, *unit)))
+        .unwrap_or((s, Unit::Cells));
+        let value: f32 = num
+            .trim()
+            .parse()
+            .map_err(|_| format!("invalid scalar: {s}"))?;
         Ok(Scalar { value, unit })
     }
 }
