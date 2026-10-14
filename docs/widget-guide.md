@@ -119,3 +119,15 @@ Pilot API: `press(&[keys])`, `type_text(s)`, `click(selector)`, `click_at(x, y)`
 (cell-level: `canvas.get(x, y).unwrap().bg`).
 
 Also check `pilot.css_errors()` is empty in at least one test per widget (your DEFAULT_CSS must parse).
+
+## Visual QA
+
+Render any example to an image and look at it:
+
+```sh
+TEXTUAL_SCREENSHOT=/tmp/shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=tab,down,enter \
+    cargo run -q -p textual --example table
+rsvg-convert /tmp/shot.svg -o /tmp/shot.png   # then view the PNG
+```
+
+In tests: `pilot.export_svg()` / `pilot.export_ansi()`.
