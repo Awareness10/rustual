@@ -67,3 +67,7 @@ pub use list_view::{ListItem, ListView};
 pub use log::Log;
 pub use option_list::{OptionItem, OptionList};
 pub use rich_log::RichLog;
+
+// Markdown.
+pub mod markdown;
+pub use markdown::{Markdown, MarkdownTableOfContents, MarkdownViewer};

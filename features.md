@@ -108,7 +108,7 @@ _Last updated: 2026-10-14._
 | Rule | ✅ | 100 | |
 | Toast / ToastRack | ✅ | 90 | |
 | Containers (Container, Vertical, Horizontal, Grid, Center, Middle, ScrollableContainer, ...) | ✅ | 95 | |
-| Markdown / MarkdownViewer | ❌ | 0 | essential |
+| Markdown / MarkdownViewer | 🟡 | 75 | pulldown-cmark (GFM tables, strikethrough, task lists); all block types, inline styles, clickable links, TOC + goto_anchor, viewer with TOC tree and file history; no syntax highlighting (hook only), no streaming / incremental append, no `open_url` |
 | Link | ❌ | 0 | |
 | Pretty | ❌ | 0 | |
 | Tooltip | ❌ | 0 | needs core tooltip support |
