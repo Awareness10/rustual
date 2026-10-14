@@ -7,3 +7,17 @@ mod static_;
 pub use button::{Button, ButtonVariant};
 pub use containers::*;
 pub use static_::{Label, Static, StaticContent};
+
+// Form controls: Input, ToggleButton/Checkbox, RadioButton/RadioSet, Switch.
+pub mod checkbox;
+pub mod input;
+pub mod radio_button;
+pub mod radio_set;
+pub mod switch;
+pub mod toggle_button;
+pub use checkbox::Checkbox;
+pub use input::{Input, InputType, Selection};
+pub use radio_button::RadioButton;
+pub use radio_set::RadioSet;
+pub use switch::Switch;
+pub use toggle_button::ToggleButton;
