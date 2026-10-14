@@ -19,11 +19,12 @@ pub mod pilot;
 pub mod screen;
 pub mod scrollbar;
 pub mod tooltip;
+pub mod transition;
 mod ux;
 pub mod widget;
 pub mod widgets;
 
-pub use animation::{AnimationId, AnimationLevel, Easing, OnComplete, StyleProp};
+pub use animation::{AnimateOptions, AnimationId, AnimationLevel, Easing, OnComplete, StyleProp};
 pub use app::{App, AppHandle, Notified, ScreenDismissed, Severity, TimerId, WorkerHandle};
 pub use binding::{Action, Binding};
 pub use command::{Command, CommandAction, CommandProvider, Matcher};
@@ -41,7 +42,7 @@ pub use textual_render::{Color, Offset, Region, Size, Spacing, Strip, Style, Tex
 
 /// Everything needed to write an app: `use textual::prelude::*;`
 pub mod prelude {
-    pub use crate::animation::{AnimationLevel, Easing, StyleProp};
+    pub use crate::animation::{AnimateOptions, AnimationLevel, Easing, StyleProp};
     pub use crate::app::{
         App, AppHandle, Notified, ScreenDismissed, Severity, TimerId, WorkerHandle,
     };

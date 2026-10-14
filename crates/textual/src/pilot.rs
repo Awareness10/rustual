@@ -74,6 +74,11 @@ impl Pilot {
         self.state.animator.len()
     }
 
+    /// Number of running (or delayed) CSS transitions.
+    pub fn transitions_running(&self) -> usize {
+        self.state.animator.transitions.len()
+    }
+
     /// Wait until worker results arrive (up to `timeout`), processing them.
     pub async fn wait_for_signal(&mut self, timeout: Duration) -> bool {
         match tokio::time::timeout(timeout, self.rx.recv()).await {

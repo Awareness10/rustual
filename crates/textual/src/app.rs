@@ -1362,6 +1362,7 @@ impl AppState {
 
     /// Recompute styles for the whole tree (cascade + inline + inheritance).
     pub(crate) fn update_styles(&mut self) {
+        let now = Instant::now();
         let mut stack = vec![(self.root, None::<NodeId>)];
         while let Some((id, parent)) = stack.pop() {
             let mut styles = self.env.stylesheet.compute(self.dom.node_ref(id));
@@ -1369,6 +1370,15 @@ impl AppState {
                 continue;
             };
             styles.merge(&node.inline_styles);
+            // CSS transitions: overlay interpolated values (see `crate::transition`).
+            crate::transition::apply(
+                &mut self.animator,
+                &self.dom,
+                id,
+                &mut styles,
+                self.size,
+                now,
+            );
             if let Some(p) = parent.and_then(|p| self.dom.get(p)) {
                 styles.inherit_from(&p.styles);
             }
@@ -1380,6 +1390,7 @@ impl AppState {
                 stack.push((c, Some(id)));
             }
         }
+        crate::transition::end_frame(&mut self.animator, &self.dom, now);
     }
 
     /// Compute bindings shown in the footer: focus chain inner → outer, first binding per key wins.

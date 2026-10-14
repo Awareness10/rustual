@@ -3,7 +3,7 @@
 Parity tracker against Python Textual 8.2.8. Percentages are rough estimates of how much of
 Textual's behaviour for that item is implemented here. Status: ✅ done (≥ 90%) · 🟡 partial · ❌ missing.
 
-**Overall: milestones 1–2 complete. ~85% of commonly used Textual functionality, ~65% of full parity.** 509 tests.
+**Overall: milestones 1–2 complete. ~85% of commonly used Textual functionality, ~65% of full parity.** 526 tests.
 
 _Last updated: 2026-10-14._
 
@@ -24,7 +24,7 @@ _Last updated: 2026-10-14._
 | Workers (async + blocking) | ✅ | 80 | result posted as message; no worker state events / groups / exclusive |
 | Screens: push/pop/dismiss, modal | ✅ | 85 | modal dims the screen below; no `switch_screen`, no named screens / `MODES` |
 | Notifications (toasts) | ✅ | 90 | `ctx.notify`, severity, timeout, click to dismiss |
-| Animation (`animate`, easing, transitions) | 🟡 | 75 | all 33 easings, `ctx.animate_value`, `animate_style` (opacity/offset/width/height), smooth scroll, animation levels, Tabs/Switch animate; no CSS `transition`, no color animation, no `delay`/`speed` |
+| Animation (`animate`, easing, transitions) | ✅ | 90 | all 33 easings, `ctx.animate_value`, `animate_style` (opacity/offset/width/height), `animate_color` (background/color/tint/background-tint, `Color::blend`), `AnimateOptions` (`delay`, `speed`, easing, level) via `*_opts`, smooth scroll, animation levels, CSS transitions, Tabs/Switch animate; delayed style animations read their start value at request time |
 | Tooltips | ✅ | 85 | `Child::tooltip`, `ctx.set_tooltip`; 0.5s delay, ancestor inheritance, flip above / keep on screen; no Rich renderables, no `_disable_tooltips` |
 | Command palette | ✅ | 80 | `ctrl+p`, fuzzy `Matcher` port, `CommandProvider` / `App::command_provider` / `Widget::commands`, system commands, theme picker, header icon; synchronous providers (no async search / busy indicator) |
 | Text selection & copy (screen selection) | ❌ | 0 | Input has its own selection + internal clipboard |
@@ -57,7 +57,8 @@ _Last updated: 2026-10-14._
 | dock, layers, layer, offset, position: absolute | ✅ | 85 | |
 | overflow, scrollbar-size, scrollbar colors, scrollbar-gutter | ✅ | 95 | hover/active colors, ⅛-cell thumb ends (`ScrollBarRender`), theme scrollbar variables |
 | Grid: grid-size, grid-columns/rows, gutter, spans | ✅ | 90 | |
-| hatch, keyline, pointer, constrain, overlay, expand, line-pad, transitions | ❌ | 0 | parsed and ignored |
+| CSS `transition` | ✅ | 90 | `transition: <prop> <duration> [<easing>] [<delay>], ...` → `Styles::transitions`; runtime overlay in `transition.rs` (deterministic under Pilot `wait`, skipped below `AnimationLevel::Full`); opacity, text-opacity, offset, width/height, min/max-*, margin, padding, color, background, tint, background-tint, border(-edge) colors, scrollbar-*, link-* colors; `_`/`-` both accepted in names; mismatched units resolve to cells (`auto` → cells from the layout; to `auto`/`fr` jumps); inline-styled properties are not transitioned |
+| hatch, keyline, pointer, constrain, overlay, expand, line-pad | ❌ | 0 | parsed and ignored |
 | CSS hot reload / `CSS_PATH` file watching | 🟡 | 30 | `App::css_path` loads once |
 
 ## Layout & rendering
@@ -120,7 +121,7 @@ _Last updated: 2026-10-14._
 1. **Next low-hanging fruit (core):** `switch_screen` + named screens / `MODES`, maximize (`ctrl+m`), `loading`
    overlay (LoadingIndicator over a widget), OSC 52 system clipboard, suspend (`ctrl+z`), screenshot key binding,
    HelpPanel, Markdown `open_url` for external links.
-2. **Medium:** CSS `transition`, colour animation, text selection & copy across widgets, worker state events,
+2. **Medium:** text selection & copy across widgets, worker state events,
    keymaps (binding overrides), DataTable cell alignment, RichLog highlighter.
 3. **Larger:** tree-sitter syntax highlighting (TextArea / Markdown fences), inline mode, ANSI / no-color themes,
    devtools console, stream layout, Rich-style renderables.

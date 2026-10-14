@@ -3,6 +3,7 @@
 
 use crate::properties::{inherit_text_style, split_declarations, strip_important};
 use crate::scalar::Scalar;
+use crate::transition::Transition;
 use textual_render::{BorderKind, Color, Spacing, Style};
 
 /// `if other.f.is_some() { self.f = other.f.clone() }` for each field (fields are bound by
@@ -237,6 +238,9 @@ pub struct Styles {
     pub link_color_hover: Option<Color>,
     pub link_background_hover: Option<Color>,
     pub link_style_hover: Option<TextStyle>,
+
+    /// `transition: <property> <duration> [<easing>] [<delay>], ...` (not inherited).
+    pub transitions: Option<Vec<Transition>>,
 }
 
 impl Styles {
@@ -323,8 +327,9 @@ impl Styles {
             link_color_hover,
             link_background_hover,
             link_style_hover,
+            transitions,
         } = other;
-        overlay!(self; display, visibility, layout, position, width, height, min_width, min_height, max_width, max_height, box_sizing, margin, padding, border_top, border_right, border_bottom, border_left, outline_top, outline_right, outline_bottom, outline_left, border_title_align, border_subtitle_align, border_title_color, border_title_background, border_title_style, border_subtitle_color, border_subtitle_background, border_subtitle_style, color, background, background_tint, tint, opacity, text_opacity, text_style, text_align, text_wrap, text_overflow, content_align_horizontal, content_align_vertical, align_horizontal, align_vertical, dock, offset_x, offset_y, layer, layers, overflow_x, overflow_y, scrollbar_gutter, scrollbar_size_vertical, scrollbar_size_horizontal, scrollbar_color, scrollbar_color_hover, scrollbar_color_active, scrollbar_background, scrollbar_background_hover, scrollbar_background_active, scrollbar_corner_color, grid_size_columns, grid_size_rows, grid_columns, grid_rows, grid_gutter_horizontal, grid_gutter_vertical, column_span, row_span, link_color, link_background, link_style, link_color_hover, link_background_hover, link_style_hover);
+        overlay!(self; display, visibility, layout, position, width, height, min_width, min_height, max_width, max_height, box_sizing, margin, padding, border_top, border_right, border_bottom, border_left, outline_top, outline_right, outline_bottom, outline_left, border_title_align, border_subtitle_align, border_title_color, border_title_background, border_title_style, border_subtitle_color, border_subtitle_background, border_subtitle_style, color, background, background_tint, tint, opacity, text_opacity, text_style, text_align, text_wrap, text_overflow, content_align_horizontal, content_align_vertical, align_horizontal, align_vertical, dock, offset_x, offset_y, layer, layers, overflow_x, overflow_y, scrollbar_gutter, scrollbar_size_vertical, scrollbar_size_horizontal, scrollbar_color, scrollbar_color_hover, scrollbar_color_active, scrollbar_background, scrollbar_background_hover, scrollbar_background_active, scrollbar_corner_color, grid_size_columns, grid_size_rows, grid_columns, grid_rows, grid_gutter_horizontal, grid_gutter_vertical, column_span, row_span, link_color, link_background, link_style, link_color_hover, link_background_hover, link_style_hover, transitions);
     }
 
     /// Fill unset *inherited* properties from the parent's computed styles. Inherited:
@@ -337,6 +342,17 @@ impl Styles {
         self.link_style = inherit_text_style(self.link_style.take(), &parent.link_style);
         self.link_style_hover =
             inherit_text_style(self.link_style_hover.take(), &parent.link_style_hover);
+    }
+
+    /// The transition for CSS property `property` (`"offset"`, `"text-opacity"`; `_` is
+    /// accepted for `-`), if any.
+    pub fn get_transition(&self, property: &str) -> Option<&Transition> {
+        let property = property.replace('_', "-");
+        self.transitions
+            .as_ref()?
+            .iter()
+            .rev()
+            .find(|t| t.property == property)
     }
 
     // ---- effective-value getters (Textual defaults) ----

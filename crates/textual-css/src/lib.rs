@@ -10,6 +10,7 @@ pub mod styles;
 pub mod stylesheet;
 pub mod theme;
 pub mod tokenizer;
+pub mod transition;
 
 pub use model::{CssError, Declaration, Rule, RuleSet};
 pub use properties::{
@@ -20,3 +21,4 @@ pub use selector::{SelectorList, SelectorNode, Specificity};
 pub use styles::*;
 pub use stylesheet::{Origin, Stylesheet};
 pub use theme::Theme;
+pub use transition::{parse_duration, parse_transitions, Transition, EASING_NAMES};

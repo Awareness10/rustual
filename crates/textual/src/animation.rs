@@ -25,9 +25,14 @@
 //! - [`AnimationLevel`]: with `none`, every animation jumps to its final value on the next frame;
 //!   with `basic`, only animations whose level is `full` do.
 //!
+//! Colors animate with [`Ctx::animate_color`] (interpolated with [`Color::blend`]). Delays and
+//! speeds (Textual's `animate(.., delay=, speed=)`) are set with [`AnimateOptions`] and the
+//! `*_opts` methods. CSS `transition`s are implemented in [`crate::transition`] on top of the
+//! same frame clock.
+//!
 //! Deviations: the first frame is applied one frame after the animation starts (as in Textual),
-//! so widgets should render their start state themselves; there is no `delay` / `speed` API on
-//! `animate_value` (scrolling uses Textual's default speed of 50 cells/s).
+//! so widgets should render their start state themselves. A delayed style/color animation reads
+//! its start value when it is requested, not when the delay ends.
 
 use crate::app::AppState;
 use crate::context::Ctx;
@@ -38,7 +43,7 @@ use std::collections::HashMap;
 use std::f64::consts::PI;
 use std::time::Duration;
 use textual_css::{Scalar, Unit};
-use textual_render::Offset;
+use textual_render::{Color, Offset};
 use tokio::time::Instant;
 
 /// Time between animation frames (60 fps).
@@ -382,6 +387,14 @@ pub enum StyleProp {
     Width,
     /// `height`, in cells.
     Height,
+    /// `background` (color: use [`Ctx::animate_color`]).
+    Background,
+    /// `color` (text color: use [`Ctx::animate_color`]).
+    Color,
+    /// `tint` (color: use [`Ctx::animate_color`]).
+    Tint,
+    /// `background-tint` (color: use [`Ctx::animate_color`]).
+    BackgroundTint,
 }
 
 impl StyleProp {
@@ -394,6 +407,91 @@ impl StyleProp {
             StyleProp::OffsetY => "style:offset-y",
             StyleProp::Width => "style:width",
             StyleProp::Height => "style:height",
+            StyleProp::Background => "style:background",
+            StyleProp::Color => "style:color",
+            StyleProp::Tint => "style:tint",
+            StyleProp::BackgroundTint => "style:background-tint",
+        }
+    }
+
+    /// Whether this is a color property (animated with [`Ctx::animate_color`]).
+    pub fn is_color(&self) -> bool {
+        matches!(
+            self,
+            StyleProp::Background | StyleProp::Color | StyleProp::Tint | StyleProp::BackgroundTint
+        )
+    }
+}
+
+/// Options for the `*_opts` animation methods (Textual's `animate(..)` keyword arguments).
+///
+/// ```ignore
+/// ctx.animate_value_opts::<W>("x", 0.0, 100.0,
+///     AnimateOptions::default().speed(50.0).delay(Duration::from_millis(200)),
+///     |w, v, _| w.x = v, None);
+/// ```
+#[derive(Debug, Clone, Copy)]
+pub struct AnimateOptions {
+    /// Duration (used when `speed` is `None`). Default 1s.
+    pub duration: Duration,
+    /// Speed in units per second: the duration becomes `|to - from| / speed`.
+    pub speed: Option<f32>,
+    /// Wait this long before the animation starts.
+    pub delay: Duration,
+    pub easing: Easing,
+    /// Minimum app [`AnimationLevel`] for the animation to run (else it jumps to the end).
+    pub level: AnimationLevel,
+}
+
+impl Default for AnimateOptions {
+    fn default() -> Self {
+        AnimateOptions {
+            duration: Duration::from_secs(1),
+            speed: None,
+            delay: Duration::ZERO,
+            easing: Easing::DEFAULT,
+            level: AnimationLevel::Full,
+        }
+    }
+}
+
+impl AnimateOptions {
+    /// Options with this duration (other fields default).
+    pub fn new(duration: Duration) -> Self {
+        AnimateOptions {
+            duration,
+            ..Default::default()
+        }
+    }
+    pub fn duration(mut self, duration: Duration) -> Self {
+        self.duration = duration;
+        self
+    }
+    /// Animate at `speed` units per second instead of a fixed duration.
+    pub fn speed(mut self, speed: f32) -> Self {
+        self.speed = Some(speed);
+        self
+    }
+    pub fn delay(mut self, delay: Duration) -> Self {
+        self.delay = delay;
+        self
+    }
+    pub fn easing(mut self, easing: Easing) -> Self {
+        self.easing = easing;
+        self
+    }
+    pub fn level(mut self, level: AnimationLevel) -> Self {
+        self.level = level;
+        self
+    }
+
+    /// The effective duration of an animation from `from` to `to`.
+    pub fn duration_for(&self, from: f32, to: f32) -> Duration {
+        match self.speed {
+            Some(speed) if speed > 0.0 => {
+                Duration::from_secs_f64(((to - from).abs() / speed) as f64)
+            }
+            _ => self.duration,
         }
     }
 }
@@ -412,7 +510,15 @@ pub(crate) type CompleteCallback = Box<dyn FnOnce(&mut dyn Widget, &mut Ctx)>;
 pub(crate) enum Target {
     Widget(ValueCallback),
     Style(StyleProp),
-    Scroll { vertical: bool },
+    /// A color style property; the animated value is the blend factor (0 → `from`, 1 → `to`).
+    Color {
+        prop: StyleProp,
+        from: Color,
+        to: Color,
+    },
+    Scroll {
+        vertical: bool,
+    },
 }
 
 pub(crate) struct Animation {
@@ -440,6 +546,8 @@ pub(crate) struct Spec {
     pub level: AnimationLevel,
     pub target: Target,
     pub on_complete: Option<CompleteCallback>,
+    /// Wait before starting (Textual's `delay=`).
+    pub delay: Duration,
 }
 
 /// The app's animator (Textual's `Animator`).
@@ -456,6 +564,8 @@ pub(crate) struct Animator {
     pub level: AnimationLevel,
     /// When the next frame is due (None = idle).
     pub next_frame: Option<Instant>,
+    /// Running CSS transitions (see [`crate::transition`]).
+    pub transitions: crate::transition::Transitions,
 }
 
 impl Animator {
@@ -475,7 +585,7 @@ impl Animator {
             id,
             node: spec.node,
             key: spec.key,
-            start: now,
+            start: now + spec.delay,
             duration: spec.duration,
             from: spec.from,
             to: spec.to,
@@ -498,7 +608,7 @@ impl Animator {
         }
     }
 
-    fn schedule(&mut self, now: Instant) {
+    pub(crate) fn schedule(&mut self, now: Instant) {
         if self.next_frame.is_none() {
             self.next_frame = Some(now + FRAME);
         }
@@ -590,6 +700,11 @@ impl AppState {
                 self.animator.live.remove(&(a.node, a.key.clone()));
                 continue;
             }
+            if now < a.start {
+                // Delayed: nothing happens until the delay is over.
+                keep.push(a);
+                continue;
+            }
             let factor = if a.duration.is_zero() || level < a.level {
                 1.0
             } else {
@@ -649,6 +764,26 @@ impl AppState {
                     StyleProp::OffsetY => s.offset_y = Some(Scalar::cells(value.round())),
                     StyleProp::Width => s.width = Some(Scalar::cells(value.round().max(0.0))),
                     StyleProp::Height => s.height = Some(Scalar::cells(value.round().max(0.0))),
+                    // Color properties animate through `Target::Color`.
+                    StyleProp::Background
+                    | StyleProp::Color
+                    | StyleProp::Tint
+                    | StyleProp::BackgroundTint => {}
+                }
+                self.dirty = true;
+            }
+            Target::Color { prop, from, to } => {
+                let Some(n) = self.dom.get_mut(node) else {
+                    return;
+                };
+                let c = from.blend(*to, value);
+                let s = &mut n.inline_styles;
+                match prop {
+                    StyleProp::Background => s.background = Some(c),
+                    StyleProp::Color => s.color = Some(textual_css::ColorValue::Color(c)),
+                    StyleProp::Tint => s.tint = Some(c),
+                    StyleProp::BackgroundTint => s.background_tint = Some(c),
+                    _ => {}
                 }
                 self.dirty = true;
             }
@@ -682,7 +817,32 @@ impl AppState {
             StyleProp::OffsetY => cells(inl.offset_y).or(cells(st.offset_y)).unwrap_or(0.0),
             StyleProp::Width => n.layout.region.width as f32,
             StyleProp::Height => n.layout.region.height as f32,
+            StyleProp::Background
+            | StyleProp::Color
+            | StyleProp::Tint
+            | StyleProp::BackgroundTint => 0.0,
         }
+    }
+
+    /// Current value of a color style property of `node` (inline style, else computed style;
+    /// transparent when unset or `auto`).
+    fn color_value(&self, node: NodeId, prop: StyleProp) -> Color {
+        let Some(n) = self.dom.get(node) else {
+            return Color::TRANSPARENT;
+        };
+        let (inl, st) = (&n.inline_styles, &n.styles);
+        let fg = |c: Option<textual_css::ColorValue>| match c {
+            Some(textual_css::ColorValue::Color(c)) => Some(c),
+            _ => None,
+        };
+        match prop {
+            StyleProp::Background => inl.background.or(st.background),
+            StyleProp::Color => fg(inl.color).or(fg(st.color)),
+            StyleProp::Tint => inl.tint.or(st.tint),
+            StyleProp::BackgroundTint => inl.background_tint.or(st.background_tint),
+            _ => None,
+        }
+        .unwrap_or(Color::TRANSPARENT)
     }
 
     /// The offset `node` is scrolling to: the target of a running scroll animation, else the
@@ -728,6 +888,7 @@ impl AppState {
                 level: AnimationLevel::Basic,
                 target: Target::Scroll { vertical },
                 on_complete: None,
+                delay: Duration::ZERO,
             });
         }
     }
@@ -776,6 +937,7 @@ impl<'a> Ctx<'a> {
             level: AnimationLevel::Full,
             target: Target::Widget(downcast_value(f)),
             on_complete: None,
+            delay: Duration::ZERO,
         })
     }
 
@@ -804,6 +966,7 @@ impl<'a> Ctx<'a> {
             level,
             target: Target::Widget(downcast_value(f)),
             on_complete: on_complete.map(|c| downcast_complete::<W>(c)),
+            delay: Duration::ZERO,
         })
     }
 
@@ -841,6 +1004,96 @@ impl<'a> Ctx<'a> {
             level: AnimationLevel::Full,
             target: Target::Style(prop),
             on_complete: None,
+            delay: Duration::ZERO,
+        })
+    }
+
+    /// [`Ctx::animate_value_with`] with [`AnimateOptions`] (duration or speed, delay, easing,
+    /// level). (Textual: `self.animate("attr", value, speed=.., delay=..)`.)
+    pub fn animate_value_opts<W: Widget>(
+        &mut self,
+        key: &str,
+        from: f32,
+        to: f32,
+        opts: AnimateOptions,
+        f: impl FnMut(&mut W, f32, &mut Ctx) + 'static,
+        on_complete: Option<OnComplete<W>>,
+    ) -> AnimationId {
+        let node = self.node;
+        self.app.start_animation(Spec {
+            node,
+            key: key.to_string(),
+            from,
+            to,
+            duration: opts.duration_for(from, to),
+            easing: opts.easing,
+            level: opts.level,
+            target: Target::Widget(downcast_value(f)),
+            on_complete: on_complete.map(|c| downcast_complete::<W>(c)),
+            delay: opts.delay,
+        })
+    }
+
+    /// [`Ctx::animate_style`] with [`AnimateOptions`]. For color properties use
+    /// [`Ctx::animate_color_opts`].
+    pub fn animate_style_opts(
+        &mut self,
+        id: NodeId,
+        prop: StyleProp,
+        to: f32,
+        opts: AnimateOptions,
+    ) -> AnimationId {
+        let from = self.app.style_value(id, prop);
+        self.app.start_animation(Spec {
+            node: id,
+            key: prop.key().to_string(),
+            from,
+            to,
+            duration: opts.duration_for(from, to),
+            easing: opts.easing,
+            level: opts.level,
+            target: Target::Style(prop),
+            on_complete: None,
+            delay: opts.delay,
+        })
+    }
+
+    /// Animate a color style property (`Background`, `Color`, `Tint`, `BackgroundTint`) of
+    /// node `id` from its current value to `to`, blending with [`Color::blend`]. The value is
+    /// written to the node's inline styles. Non-color properties are ignored.
+    /// (Textual: `widget.styles.animate("background", Color(..), duration=..)`.)
+    pub fn animate_color(
+        &mut self,
+        id: NodeId,
+        prop: StyleProp,
+        to: Color,
+        duration: Duration,
+        easing: Easing,
+    ) -> AnimationId {
+        self.animate_color_opts(id, prop, to, AnimateOptions::new(duration).easing(easing))
+    }
+
+    /// [`Ctx::animate_color`] with [`AnimateOptions`] (`speed` is ignored: colors have no
+    /// distance).
+    pub fn animate_color_opts(
+        &mut self,
+        id: NodeId,
+        prop: StyleProp,
+        to: Color,
+        opts: AnimateOptions,
+    ) -> AnimationId {
+        let from = self.app.color_value(id, prop);
+        self.app.start_animation(Spec {
+            node: id,
+            key: prop.key().to_string(),
+            from: 0.0,
+            to: 1.0,
+            duration: opts.duration,
+            easing: opts.easing,
+            level: opts.level,
+            target: Target::Color { prop, from, to },
+            on_complete: None,
+            delay: opts.delay,
         })
     }
 

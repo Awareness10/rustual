@@ -16,7 +16,6 @@ pub const IGNORED_PROPERTIES: &[&str] = &[
     "constrain-y",
     "overlay",
     "expand",
-    "transition",
     "line-pad",
     "split",
     "scrollbar-visibility",
@@ -259,6 +258,10 @@ impl Styles {
             "link-color-hover" => self.link_color_hover = Some(plain_color(name, t)?),
             "link-background-hover" => self.link_background_hover = Some(plain_color(name, t)?),
             "link-style-hover" => self.link_style_hover = Some(text_style(t)?),
+
+            "transition" => {
+                self.transitions = Some(crate::transition::parse_transitions(&t.join(" "))?)
+            }
 
             _ => return Err(format!("{UNKNOWN} '{name}'")),
         }
