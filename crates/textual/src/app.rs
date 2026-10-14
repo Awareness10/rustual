@@ -17,7 +17,7 @@ use std::collections::{HashMap, VecDeque};
 use std::hash::{Hash, Hasher};
 use std::io;
 use std::time::Duration;
-use textual_css::{Display, Origin, Styles, Theme};
+use textual_css::{Display, Overflow, Origin, Styles, Theme};
 use textual_render::{Canvas, Offset, Region, Size};
 use tokio::sync::mpsc;
 use tokio::time::Instant;
@@ -1001,7 +1001,7 @@ impl AppState {
             .unwrap_or_default();
         if id == self.root {
             b.push(Binding::new("ctrl+q", "quit", "Quit").hidden().priority());
-            b.push(Binding::new("ctrl+c", "quit", "Quit").hidden().priority());
+            b.push(Binding::new("ctrl+c", "quit", "Quit").hidden());
         }
         if self.dom.get(id).map(|n| n.is_screen).unwrap_or(false) {
             b.push(Binding::new("tab", "app.focus_next", "Focus next").hidden());
@@ -1132,7 +1132,7 @@ impl AppState {
             let Some(node) = self.dom.get(id) else {
                 continue;
             };
-            let max = node.layout.max_scroll();
+            let max = scrollable_max(node);
             let cur = node.scroll_offset;
             let next = Offset::new(cur.x + dx, cur.y + dy).clamp(max.x, max.y);
             if next != cur {
@@ -1344,7 +1344,7 @@ impl AppState {
             let Some(node) = self.dom.get(anc) else {
                 continue;
             };
-            let max = node.layout.max_scroll();
+            let max = scrollable_max(node);
             if max == Offset::ZERO {
                 continue;
             }
@@ -1386,6 +1386,15 @@ impl AppState {
             .map(|n| n.layout.region)
             .unwrap_or_default()
     }
+}
+
+/// Max scroll offset on the axes a user/focus may scroll: only axes with `overflow: auto | scroll`
+/// (like Textual's `allow_horizontal_scroll` / `allow_vertical_scroll`).
+fn scrollable_max(node: &Node) -> Offset {
+    let max = node.layout.max_scroll();
+    let x = if node.styles.get_overflow_x() == Overflow::Hidden { 0 } else { max.x };
+    let y = if node.styles.get_overflow_y() == Overflow::Hidden { 0 } else { max.y };
+    Offset::new(x, y)
 }
 
 /// Kinds of mouse input from the driver.
