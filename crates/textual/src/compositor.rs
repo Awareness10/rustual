@@ -84,7 +84,19 @@ fn paint_node(canvas: &mut Canvas, dom: &Dom, env: &RenderEnv, id: NodeId, node:
 
     // 1. background
     let bg = styles.get_background();
-    if !bg.is_transparent() {
+    if node.is_screen && bg.a < 1.0 && !bg.is_transparent() {
+        // A translucent screen (e.g. ModalScreen's `$background 60%`) dims the screen beneath
+        // rather than erasing it: composite the color over every cell, keeping the glyphs.
+        let area = region.intersection(&clip);
+        for y in area.y..area.bottom() {
+            for x in area.x..area.right() {
+                if let Some(c) = canvas.get_mut(x, y) {
+                    c.bg = c.bg.composite(bg);
+                    c.fg = c.fg.composite(bg);
+                }
+            }
+        }
+    } else if !bg.is_transparent() {
         canvas.fill(region, clip, bg);
     }
     if let Some(tint) = styles.background_tint {
