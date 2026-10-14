@@ -3,7 +3,7 @@
 Parity tracker against Python Textual 8.2.8. Percentages are rough estimates of how much of
 Textual's behaviour for that item is implemented here. Status: ✅ done (≥ 90%) · 🟡 partial · ❌ missing.
 
-**Overall: milestone 1 complete. ~70% of commonly used Textual functionality, ~45% of full parity.**
+**Overall: milestones 1–2 complete. ~85% of commonly used Textual functionality, ~65% of full parity.** 509 tests.
 
 _Last updated: 2026-10-14._
 
@@ -80,18 +80,18 @@ _Last updated: 2026-10-14._
 | Label | ✅ | 95 | variants via classes |
 | Button | ✅ | 95 | variants, flat, action, active effect |
 | Input | ✅ | 85 | password, restrict (char predicate), max length, integer/number, selection; no suggester/validators API |
-| MaskedInput | ❌ | 0 | |
-| TextArea | 🟡 | 80 | editing, selection (keys/mouse drag/double+triple click), undo/redo batching, soft wrap, line numbers, themes (css/monokai/dracula/vscode_dark/github_light), bracket matching, read-only, placeholder; no tree-sitter (simple per-line keyword highlighter for python/rust/js/json/toml), no suggestions, no OSC 52 clipboard, no mouse capture |
+| MaskedInput | ✅ | 90 | full template engine (`A a N n X x 9 0 D d # H h B b`, case, escapes, blank char), validity classes; no `validators=` |
+| TextArea | 🟡 | 80 | editing, selection (keys/mouse drag/double+triple click), undo/redo batching, soft wrap, line numbers, themes (css/monokai/dracula/vscode_dark/github_light), bracket matching, read-only, placeholder; no tree-sitter (simple per-line keyword highlighter for python/rust/js/json/toml), no suggestions, no OSC 52 clipboard |
 | Checkbox / ToggleButton | ✅ | 95 | |
 | RadioButton / RadioSet | ✅ | 95 | |
 | Switch | ✅ | 95 | slides over 0.3s |
 | Select | ✅ | 85 | dropdown via a transparent modal screen; type-to-search |
-| SelectionList | ❌ | 0 | |
+| SelectionList | ✅ | 90 | generic values, toggle/select/deselect (all), typed messages; no separators |
 | OptionList | ✅ | 90 | |
 | ListView / ListItem | ✅ | 90 | |
 | DataTable | ✅ | 85 | cursors, sorting, fixed rows/cols, zebra, hover; cells always left-aligned |
 | Tree | ✅ | 90 | generic data payload, guides, keyboard + mouse |
-| DirectoryTree | ❌ | 0 | |
+| DirectoryTree | 🟡 | 85 | lazy loading, sorting, icons, filter predicate, reload keeping expansion; synchronous I/O |
 | Tabs / Tab | ✅ | 95 | underline slides over 0.3s |
 | TabbedContent / TabPane | ✅ | 90 | |
 | ContentSwitcher | ✅ | 95 | |
@@ -100,7 +100,7 @@ _Last updated: 2026-10-14._
 | Footer | ✅ | 85 | click replays the key; no binding groups |
 | Log | ✅ | 90 | |
 | RichLog | ✅ | 80 | no highlighter |
-| ProgressBar | ✅ | 90 | ETA, indeterminate; no gradient |
+| ProgressBar | ✅ | 95 | ETA, indeterminate, gradients |
 | LoadingIndicator | ✅ | 90 | no `loading` overlay integration |
 | Sparkline | ✅ | 85 | no gradient |
 | Digits | ✅ | 95 | |
@@ -110,16 +110,17 @@ _Last updated: 2026-10-14._
 | Containers (Container, Vertical, Horizontal, Grid, Center, Middle, ScrollableContainer, ...) | ✅ | 95 | |
 | Markdown / MarkdownViewer | 🟡 | 75 | pulldown-cmark (GFM tables, strikethrough, task lists); all block types, inline styles, clickable links, TOC + goto_anchor, viewer with TOC tree and file history; no syntax highlighting (hook only), no streaming / incremental append, no `open_url` |
 | Link | ✅ | 90 | opener stubbable via `link::set_url_opener`; posts `link::Opened` |
-| Pretty | ❌ | 0 | |
+| Pretty | 🟡 | 75 | `Debug` repr, one-line or expanded, hand-written repr highlighter; all-or-nothing expansion, no indent guides |
 | Tooltip | ✅ | 90 | runtime-positioned (no `constrain` CSS) |
-| KeyPanel / HelpPanel | 🟡 | 60 | KeyPanel ✅ (~85%, `dock: right` instead of `split`); no HelpPanel (needs Markdown / `HELP`) |
-| Welcome | ❌ | 0 | |
+| KeyPanel / HelpPanel | 🟡 | 60 | KeyPanel ✅ (~85%, `dock: right` instead of `split`); HelpPanel missing (now unblocked: Markdown exists) |
+| Welcome | 🟡 | 85 | welcome text built from Statics (not the Markdown widget); OK exits |
 
 ## Roadmap
 
-1. **Essential widgets:** TextArea, Markdown/MarkdownViewer.
-2. **Core:** animation (easing, `animate`, smooth scroll, Tabs/Switch/ProgressBar motion),
-   scrollbar dragging + mouse capture, OSC 52 clipboard.
-3. **Low-hanging fruit:** Pretty, SelectionList, MaskedInput, DirectoryTree, HelpPanel, Welcome,
-   SVG/text screenshots, `switch_screen` + named screens/modes, scrollbar hover colors, maximize, `loading` overlay,
-   suspend (`ctrl+z`).
+1. **Next low-hanging fruit (core):** `switch_screen` + named screens / `MODES`, maximize (`ctrl+m`), `loading`
+   overlay (LoadingIndicator over a widget), OSC 52 system clipboard, suspend (`ctrl+z`), screenshot key binding,
+   HelpPanel, Markdown `open_url` for external links.
+2. **Medium:** CSS `transition`, colour animation, text selection & copy across widgets, worker state events,
+   keymaps (binding overrides), DataTable cell alignment, RichLog highlighter.
+3. **Larger:** tree-sitter syntax highlighting (TextArea / Markdown fences), inline mode, ANSI / no-color themes,
+   devtools console, stream layout, Rich-style renderables.
