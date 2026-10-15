@@ -1,6 +1,22 @@
-# rustual-py
+<div align="center">
 
-A **Textual-compatible Python API** running on the [rustual](../../README.md) engine.
+<img src="https://raw.githubusercontent.com/Awareness10/rustual/master/docs/assets/logo.svg" alt="rustual" width="360">
+
+### rustual-py: Textual's Python API on a Rust engine
+
+[![CI](https://github.com/Awareness10/rustual/actions/workflows/ci.yml/badge.svg)](https://github.com/Awareness10/rustual/actions/workflows/ci.yml)
+[![Python tests](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Fpython-tests.json)](https://github.com/Awareness10/rustual#testing)
+[![Python coverage](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Fpython-coverage.json)](https://github.com/Awareness10/rustual#testing)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://github.com/Awareness10/rustual/tree/master/crates/rustual-py)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/Awareness10/rustual/blob/master/LICENSE)
+
+<img src="https://raw.githubusercontent.com/Awareness10/rustual/master/docs/assets/screenshots/py_stopwatch.svg" alt="Textual's stopwatch tutorial running on rustual" width="720">
+
+<sub>Textual's stopwatch tutorial, unchanged except for its imports.</sub>
+
+</div>
+
+A **Textual-compatible Python API** running on the [rustual](https://github.com/Awareness10/rustual) engine.
 Write apps exactly as with [Textual](https://textual.textualize.io): same classes, `compose()`,
 CSS, reactive attributes, messages, `@on`, screens, workers and `run_test()`. Layout, styling,
 rendering, input handling and the built-in widgets run in Rust.
@@ -119,7 +135,7 @@ Each rustual step includes rendering a full frame. Run it yourself with
 - An exception in a handler exits the app cleanly (terminal restored) and is re-raised from
   `run()`, or from the next `Pilot` call in tests.
 
-See [`docs/python-bindings.md`](../../docs/python-bindings.md) for the design.
+See [`docs/python-bindings.md`](https://github.com/Awareness10/rustual/blob/master/docs/python-bindings.md) for the design.
 
 ## Differences from Textual
 
