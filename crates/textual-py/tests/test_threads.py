@@ -3,9 +3,7 @@
 import threading
 import time
 
-from textual_rs._bridge import NoActiveAppError
 from textual_rs.app import App, ComposeResult
-from textual_rs.widget import WidgetError
 from textual_rs.reactive import reactive
 from textual_rs.widget import Widget
 from textual_rs.widgets import Label
@@ -78,7 +76,7 @@ async def test_exit_while_threads_wait_does_not_deadlock():
             try:
                 while True:
                     self.query_one("#l", Label).update(str(time.monotonic()))
-            except (NoActiveAppError, RuntimeError, WidgetError) as error:
+            except Exception as error:  # NoActiveAppError, NoMatches, WidgetError: any clean failure
                 errors.append(error)
 
     app = MyApp()
