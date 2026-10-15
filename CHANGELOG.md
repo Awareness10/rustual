@@ -7,6 +7,8 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+## 0.3.0 - 2026-10-15
+
 ### Added
 - `rustual-py` command and `python -m rustual`: a launcher for the bundled example apps
   (stopwatch, counter, forms, data, content, workers). Try it without installing: `uvx rustual-py`.

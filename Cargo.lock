@@ -397,7 +397,7 @@ dependencies = [
 
 [[package]]
 name = "rustual"
-version = "0.3.0-dev.0"
+version = "0.3.0"
 dependencies = [
  "crossterm",
  "futures",
@@ -411,14 +411,14 @@ dependencies = [
 
 [[package]]
 name = "rustual-css"
-version = "0.3.0-dev.0"
+version = "0.3.0"
 dependencies = [
  "rustual-render",
 ]
 
 [[package]]
 name = "rustual-py"
-version = "0.3.0-dev.0"
+version = "0.3.0"
 dependencies = [
  "pyo3",
  "rustual",
@@ -428,7 +428,7 @@ dependencies = [
 
 [[package]]
 name = "rustual-render"
-version = "0.3.0-dev.0"
+version = "0.3.0"
 dependencies = [
  "unicode-segmentation",
  "unicode-width",
