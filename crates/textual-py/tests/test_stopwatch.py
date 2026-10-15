@@ -20,7 +20,7 @@ async def test_stopwatch_tutorial():
         assert not first.has_class("started")
         elapsed = first.query_one(TimeDisplay).time
         assert 0.1 < elapsed < 1.0
-        assert "00:00:00.00" not in str(first.query_one(TimeDisplay).content)
+        assert first.query_one(TimeDisplay).value != "00:00:00.00"
         await pilot.click(first.query_one("#reset"))
         assert first.query_one(TimeDisplay).time == 0
         await pilot.press("a")
