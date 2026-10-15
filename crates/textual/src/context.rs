@@ -510,6 +510,12 @@ impl<'a> Ctx<'a> {
         self.app.env.stylesheet.has_source(key)
     }
 
+    /// Register (or replace) a theme at runtime (Textual's `App.register_theme`).
+    pub fn register_theme(&mut self, theme: textual_css::Theme) {
+        self.app.themes.retain(|t| t.name != theme.name);
+        self.app.themes.push(theme);
+    }
+
     /// Switch theme by name. Returns false if unknown.
     pub fn set_theme(&mut self, name: &str) -> bool {
         self.app.apply_theme(name)

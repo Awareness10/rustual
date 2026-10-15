@@ -364,3 +364,30 @@ async def test_pre_mount_configuration_and_border_title():
         s = app.query_one("#s")
         assert s.has_class("extra")
         assert "Title" in pilot.screen_text()
+
+
+async def test_push_screen_wait_from_worker():
+    got = []
+
+    class Ask(ModalScreen[bool]):
+        def compose(self) -> ComposeResult:
+            yield Button("OK", id="ok")
+
+        def on_button_pressed(self) -> None:
+            self.dismiss(True)
+
+    class MyApp(App):
+        def on_mount(self) -> None:
+            self.ask()
+
+        @work
+        async def ask(self) -> None:
+            got.append(await self.push_screen_wait(Ask()))
+
+    app = MyApp()
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        assert isinstance(app.screen, Ask)
+        await pilot.click("#ok")
+        await pilot.pause()
+    assert got == [True]

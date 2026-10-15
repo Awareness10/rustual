@@ -49,7 +49,10 @@ impl ClassInfo {
     }
 }
 
-static CLASS_INFO: Mutex<Option<HashMap<usize, Arc<ClassInfo>>>> = Mutex::new(None);
+/// Keyed by the type's address; the entry holds a strong reference to the type, so the
+/// address can't be reused by another class while it's cached.
+type ClassCache = HashMap<usize, (Py<PyAny>, Arc<ClassInfo>)>;
+static CLASS_INFO: Mutex<Option<ClassCache>> = Mutex::new(None);
 
 fn leak(s: String) -> &'static str {
     Box::leak(s.into_boxed_str())
@@ -58,7 +61,7 @@ fn leak(s: String) -> &'static str {
 pub(crate) fn class_info(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Arc<ClassInfo>> {
     let ty = obj.get_type();
     let key = ty.as_ptr() as usize;
-    if let Some(info) = CLASS_INFO
+    if let Some((_, info)) = CLASS_INFO
         .lock()
         .unwrap()
         .get_or_insert_with(HashMap::new)
@@ -109,7 +112,7 @@ pub(crate) fn class_info(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Arc
         .lock()
         .unwrap()
         .get_or_insert_with(HashMap::new)
-        .insert(key, info.clone());
+        .insert(key, (ty.clone().into_any().unbind(), info.clone()));
     Ok(info)
 }
 
@@ -392,11 +395,9 @@ impl Widget for PyWidget {
             }
         } else if let Some(conv) = crate::widgets::convert_message(message) {
             if self.handles(conv.handler) {
-                let sender = message.sender;
                 bits = self
                     .call_ctx(ctx, |py, obj| {
-                        let m = (conv.build)(py, message)?;
-                        m.setattr("_sender", node_to_int(sender))?;
+                        let m = converted_message(py, message, conv)?;
                         obj.call_method1("_rs_message", (m,))?.extract::<u32>()
                     })
                     .unwrap_or(0);
@@ -504,6 +505,32 @@ impl Widget for PyWidget {
     }
 }
 
+thread_local! {
+    /// The Python object for the message currently bubbling (by message id), so every handler
+    /// along the chain sees the same object (attributes set by one handler persist).
+    static CONVERTED: std::cell::RefCell<Option<(u64, Py<PyAny>)>> = const { std::cell::RefCell::new(None) };
+}
+
+fn converted_message<'py>(
+    py: Python<'py>,
+    message: &Message,
+    conv: crate::widgets::MessageConv,
+) -> PyResult<Bound<'py, PyAny>> {
+    let cached = CONVERTED.with(|c| {
+        c.borrow()
+            .as_ref()
+            .filter(|(id, _)| *id == message.id)
+            .map(|(_, obj)| obj.clone_ref(py))
+    });
+    if let Some(obj) = cached {
+        return Ok(obj.into_bound(py));
+    }
+    let m = (conv.build)(py, message)?;
+    m.setattr("_sender", node_to_int(message.sender))?;
+    CONVERTED.with(|c| *c.borrow_mut() = Some((message.id, m.clone().unbind())));
+    Ok(m)
+}
+
 /// Convert a Python `render()` result to [`Content`].
 /// `str` is Textual markup (with `$variables`); objects with `__rs_markup__` (our `Content`)
 /// or `markup` (Rich `Text`) are converted through their markup; anything else via `str()`.
@@ -522,6 +549,9 @@ pub(crate) fn content_from_py(ctx: &RenderCtx, r: &Bound<'_, PyAny>) -> PyResult
         if let Ok(s) = m.extract::<String>() {
             return Ok(Content::Text(ctx.markup(&s)));
         }
+    }
+    if r.hasattr("__rich_console__")? || r.hasattr("__rich__")? {
+        return crate::widgets::rich::rich_content(r.py(), ctx, r);
     }
     let s = r.str()?;
     Ok(Content::Text(textual::Text::plain(s.to_cow()?.as_ref())))

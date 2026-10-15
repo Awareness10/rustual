@@ -18,6 +18,7 @@ use std::sync::OnceLock;
 use textual::{Ctx, Message, Widget};
 
 mod basic;
+pub(crate) mod rich;
 
 /// Builds a base widget from the Python constructor kwargs. May consume `children` (e.g.
 /// tab panes) — whatever is left is mounted as ordinary children.
@@ -199,13 +200,14 @@ pub(crate) fn kw<'py, T: FromPyObjectOwned<'py>>(
     }
 }
 
-/// Downcast helpers for getter/setter/caller functions.
+/// Downcast helpers for getter/setter/caller functions (they look through wrappers such as
+/// [`rich::RichHost`]).
 pub(crate) fn as_ref<W: Widget>(w: &dyn Widget) -> Option<&W> {
-    (w as &dyn std::any::Any).downcast_ref::<W>()
+    textual::widget::downcast_ref::<W>(w)
 }
 
 pub(crate) fn as_mut<W: Widget>(w: &mut dyn Widget) -> Option<&mut W> {
-    (w as &mut dyn std::any::Any).downcast_mut::<W>()
+    textual::widget::downcast_mut::<W>(w)
 }
 
 pub(crate) fn to_py<'py, T: IntoPyObject<'py>>(py: Python<'py>, v: T) -> PyResult<Py<PyAny>> {

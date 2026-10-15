@@ -148,6 +148,7 @@ impl Selection {
 }
 
 type Restrict = Rc<dyn Fn(char) -> bool>;
+type RestrictValue = Rc<dyn Fn(&str) -> bool>;
 
 /// A single-line text input.
 #[derive(Clone)]
@@ -157,6 +158,7 @@ pub struct Input {
     password: bool,
     max_length: usize,
     restrict: Option<Restrict>,
+    restrict_value: Option<RestrictValue>,
     input_type: InputType,
     selection: Selection,
     select_on_focus: bool,
@@ -333,6 +335,7 @@ impl Input {
             password: false,
             max_length: 0,
             restrict: None,
+            restrict_value: None,
             input_type: InputType::Text,
             selection: Selection::default(),
             select_on_focus: true,
@@ -376,6 +379,13 @@ impl Input {
     /// (Textual's `restrict` takes a regex; a character predicate is used here).
     pub fn restrict(mut self, allowed: impl Fn(char) -> bool + 'static) -> Self {
         self.restrict = Some(Rc::new(allowed));
+        self
+    }
+
+    /// Only allow values for which `allowed` returns true (checked on every edit against the
+    /// whole new value, like Textual's `restrict` regex full match).
+    pub fn restrict_value(mut self, allowed: impl Fn(&str) -> bool + 'static) -> Self {
+        self.restrict_value = Some(Rc::new(allowed));
         self
     }
 
@@ -550,6 +560,11 @@ impl Input {
         }
         if let Some(r) = &self.restrict {
             if !value.chars().all(|c| r(c)) {
+                return false;
+            }
+        }
+        if let Some(r) = &self.restrict_value {
+            if !r(value) {
                 return false;
             }
         }

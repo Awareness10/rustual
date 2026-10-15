@@ -295,7 +295,9 @@ pub fn focus(node: Node) -> PyResult<()> {
 #[pyfunction]
 pub fn blur() -> PyResult<()> {
     with_ctx(|ctx| {
-        ctx.blur();
+        if let Some(focused) = ctx.focused() {
+            ctx.for_node(focused, |c| c.blur());
+        }
         Ok(())
     })
 }
@@ -707,4 +709,13 @@ pub fn report_error(error: &Bound<'_, PyAny>) {
 #[pyfunction]
 pub fn take_error(py: Python<'_>) -> Option<Py<PyAny>> {
     bridge::take_error().map(|e| e.into_value(py).into_any())
+}
+
+/// Register a theme at runtime.
+#[pyfunction]
+pub fn register_theme(theme: crate::runner::ThemeSpec) -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.register_theme(theme.into_theme());
+        Ok(())
+    })
 }
