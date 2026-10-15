@@ -34,17 +34,30 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-Run the examples: `cargo run -p textual --example <name>` with `hello`, `form`, `dashboard`,
-`table`, `navigator` or `readme`. Quit with `ctrl+q`.
+Run the examples with `cargo run -p textual --example <name>`: `hello`, `form`, `dashboard`, `table`,
+`navigator`, `editor`, `markdown`, `palette`, `widgets_extra`, `readme`. Quit with `ctrl+q`;
+`ctrl+p` opens the command palette.
 
-## Widgets
+## What's included
 
-Static, Label, Button, Input, Checkbox, RadioButton/RadioSet, Switch, Header, Footer, Placeholder,
-Rule, ProgressBar, LoadingIndicator, Sparkline, Digits, Toasts (`ctx.notify`), ListView, OptionList,
-DataTable, Log, RichLog, Tabs, TabbedContent/TabPane, ContentSwitcher, Tree, Collapsible, Select,
-and containers (Container, Vertical, Horizontal, Grid, Center, Middle, VerticalScroll, ...).
+- **Widgets:** Static, Label, Button, Input, MaskedInput, TextArea, Checkbox, RadioButton/RadioSet, Switch,
+  Select, SelectionList, OptionList, ListView, DataTable, Tree, DirectoryTree, Tabs, TabbedContent,
+  ContentSwitcher, Collapsible, Header, Footer, Markdown, MarkdownViewer, Log, RichLog, ProgressBar,
+  LoadingIndicator, Sparkline, Digits, Placeholder, Rule, Pretty, Link, Tooltip, Toasts, KeyPanel, Welcome,
+  plus containers (Container, Vertical, Horizontal, Grid, Center, Middle, VerticalScroll, ...).
+- **Core:** Textual CSS with themes, vertical/horizontal/grid/dock layouts, layers, scrolling, screens and
+  modals, command palette, tooltips, animations with easing, CSS transitions, timers, async workers,
+  notifications, SVG screenshots, and a headless `Pilot` for tests.
 
-Not yet: TextArea, Markdown, command palette, animations, text selection, tooltips, inline mode.
+See [`features.md`](features.md) for per-feature parity with Textual and [`ToDo.md`](ToDo.md) for what's left.
+
+## Screenshots
+
+Render any app to SVG without a terminal (handy for docs and visual checks):
+
+```sh
+TEXTUAL_SCREENSHOT=shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=tab,down cargo run -p textual --example table
+```
 
 ## Concepts (Textual → textual-rs)
 
