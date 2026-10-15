@@ -654,9 +654,9 @@ fn insert_index(
     what: &str,
 ) -> PyResult<Option<usize>> {
     let find = |id: &str| {
-        ids.iter().position(|i| i == id).ok_or_else(|| {
-            PyValueError::new_err(format!("there is no {what} with id {id:?}"))
-        })
+        ids.iter()
+            .position(|i| i == id)
+            .ok_or_else(|| PyValueError::new_err(format!("there is no {what} with id {id:?}")))
     };
     match (before, after) {
         (Some(_), Some(_)) => Err(PyValueError::new_err(
@@ -816,12 +816,7 @@ fn tabs_call(
         "active" => to_py(py, t.active_id()),
         // add_tab(tab, before_id, after_id)
         "add_tab" => (|| {
-            let index = insert_index(
-                &t.tab_ids(ctx),
-                opt_arg(args, 1)?,
-                opt_arg(args, 2)?,
-                "tab",
-            )?;
+            let index = insert_index(&t.tab_ids(ctx), opt_arg(args, 1)?, opt_arg(args, 2)?, "tab")?;
             let child = build_child(py, &args.get_item(0)?)?;
             to_py(py, t.mount_tab(child, index, ctx))
         })(),
