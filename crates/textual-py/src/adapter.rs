@@ -49,7 +49,10 @@ impl ClassInfo {
     }
 }
 
-static CLASS_INFO: Mutex<Option<HashMap<usize, Arc<ClassInfo>>>> = Mutex::new(None);
+/// Keyed by the type's address; the entry holds a strong reference to the type, so the
+/// address can't be reused by another class while it's cached.
+type ClassCache = HashMap<usize, (Py<PyAny>, Arc<ClassInfo>)>;
+static CLASS_INFO: Mutex<Option<ClassCache>> = Mutex::new(None);
 
 fn leak(s: String) -> &'static str {
     Box::leak(s.into_boxed_str())
@@ -58,7 +61,7 @@ fn leak(s: String) -> &'static str {
 pub(crate) fn class_info(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Arc<ClassInfo>> {
     let ty = obj.get_type();
     let key = ty.as_ptr() as usize;
-    if let Some(info) = CLASS_INFO
+    if let Some((_, info)) = CLASS_INFO
         .lock()
         .unwrap()
         .get_or_insert_with(HashMap::new)
@@ -109,7 +112,7 @@ pub(crate) fn class_info(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Arc
         .lock()
         .unwrap()
         .get_or_insert_with(HashMap::new)
-        .insert(key, info.clone());
+        .insert(key, (ty.clone().into_any().unbind(), info.clone()));
     Ok(info)
 }
 

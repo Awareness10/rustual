@@ -710,3 +710,12 @@ pub fn report_error(error: &Bound<'_, PyAny>) {
 pub fn take_error(py: Python<'_>) -> Option<Py<PyAny>> {
     bridge::take_error().map(|e| e.into_value(py).into_any())
 }
+
+/// Register a theme at runtime.
+#[pyfunction]
+pub fn register_theme(theme: crate::runner::ThemeSpec) -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.register_theme(theme.into_theme());
+        Ok(())
+    })
+}

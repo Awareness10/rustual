@@ -81,6 +81,7 @@ class App(Widget, Generic[ReturnType]):
         self._return_value: ReturnType | None = None
         self._return_code: int | None = None
         self._running = False
+        self._themes: dict[str, Any] = {}
 
     # -- configuration ------------------------------------------------------------------------
 
@@ -114,6 +115,7 @@ class App(Widget, Generic[ReturnType]):
             "screens": screens,
             "modes": modes,
             "default_mode": self.DEFAULT_MODE,
+            "themes": [t._native() for t in self._themes.values()],
         }
 
     # -- running ------------------------------------------------------------------------------
@@ -264,7 +266,17 @@ class App(Widget, Generic[ReturnType]):
 
     @property
     def available_themes(self) -> dict[str, Any]:
-        return {name: name for name in native.theme_names()}
+        names = native.theme_names() if self._running else list(self._themes)
+        return {name: self._themes.get(name, name) for name in names}
+
+    def register_theme(self, theme: Any) -> None:
+        """Register a :class:`~textual_rs.theme.Theme` (before or while running)."""
+        self._themes[theme.name] = theme
+        if self._running:
+            native.register_theme(theme._native())
+
+    def get_theme(self, theme_name: str) -> Any:
+        return self._themes.get(theme_name)
 
     @property
     def size(self) -> Size:

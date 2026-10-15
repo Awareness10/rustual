@@ -24,6 +24,50 @@ pub struct AppConfig {
     /// `(name, factory)` from `MODES`.
     modes: Vec<(String, Py<PyAny>)>,
     default_mode: Option<String>,
+    themes: Vec<ThemeSpec>,
+}
+
+/// A theme from Python (`textual_rs.theme.Theme`, passed as a dict).
+#[derive(FromPyObject)]
+#[pyo3(from_item_all)]
+pub struct ThemeSpec {
+    name: String,
+    primary: String,
+    secondary: Option<String>,
+    warning: Option<String>,
+    error: Option<String>,
+    success: Option<String>,
+    accent: Option<String>,
+    foreground: Option<String>,
+    background: Option<String>,
+    surface: Option<String>,
+    panel: Option<String>,
+    boost: Option<String>,
+    dark: bool,
+    luminosity_spread: f32,
+    text_alpha: f32,
+    variables: std::collections::HashMap<String, String>,
+}
+
+impl ThemeSpec {
+    pub fn into_theme(self) -> textual::css::Theme {
+        let mut t = textual::css::Theme::new(&self.name, &self.primary);
+        t.secondary = self.secondary;
+        t.warning = self.warning;
+        t.error = self.error;
+        t.success = self.success;
+        t.accent = self.accent;
+        t.foreground = self.foreground;
+        t.background = self.background;
+        t.surface = self.surface;
+        t.panel = self.panel;
+        t.boost = self.boost;
+        t.dark = self.dark;
+        t.luminosity_spread = self.luminosity_spread;
+        t.text_alpha = self.text_alpha;
+        t.variables = self.variables;
+        t
+    }
 }
 
 /// A screen factory: calls the Python factory (a class or callable) and builds the screen.
@@ -42,6 +86,9 @@ fn factory(f: Py<PyAny>) -> impl Fn() -> Child + 'static {
 fn build_app(py: Python<'_>, app: &Bound<'_, PyAny>, cfg: AppConfig) -> PyResult<App> {
     let root = build_root(py, app)?;
     let mut a = App::new(root).title(&cfg.title).sub_title(&cfg.sub_title);
+    for theme in cfg.themes {
+        a = a.register_theme(theme.into_theme());
+    }
     for (name, css) in &cfg.css {
         a = a.css(css);
         let _ = name;
@@ -106,7 +153,9 @@ pub fn run_app(py: Python<'_>, app: &Bound<'_, PyAny>, config: AppConfig) -> PyR
 #[pyclass(unsendable)]
 pub struct PilotHandle {
     pilot: *mut Pilot,
-    rt: tokio::runtime::Runtime,
+    /// `None` after `close`. Shut down without blocking: the handle may be garbage-collected
+    /// while another app's runtime is running on this thread.
+    rt: Option<tokio::runtime::Runtime>,
 }
 
 impl PilotHandle {
@@ -121,7 +170,11 @@ impl PilotHandle {
 
     /// Run a pilot step on the runtime with the GIL released, then re-raise handler errors.
     fn step<R>(&self, py: Python<'_>, f: impl AsyncFnOnce(&mut Pilot) -> R) -> PyResult<R> {
-        let job = AssertSend((self.pilot()?, &self.rt, f));
+        let rt = self
+            .rt
+            .as_ref()
+            .ok_or_else(|| PyRuntimeError::new_err("the test app has been closed"))?;
+        let job = AssertSend((self.pilot()?, rt, f));
         let r = py.detach(move || {
             let job = job;
             let (pilot, rt, f) = job.0;
@@ -157,7 +210,7 @@ pub fn start_test(
     });
     let handle = PilotHandle {
         pilot: Box::into_raw(Box::new(pilot.0)),
-        rt,
+        rt: Some(rt),
     };
     bridge::set_pilot(Some(handle.pilot));
     if let Some(e) = bridge::take_error() {
@@ -187,6 +240,9 @@ impl PilotHandle {
         self.pilot = std::ptr::null_mut();
         // Dropping the DOM drops Python objects; we hold the GIL here.
         drop(pilot);
+        if let Some(rt) = self.rt.take() {
+            rt.shutdown_background();
+        }
     }
 
     fn press(&self, py: Python<'_>, keys: Vec<String>) -> PyResult<()> {
@@ -316,6 +372,9 @@ impl Drop for PilotHandle {
             // SAFETY: see `close`.
             drop(unsafe { Box::from_raw(self.pilot) });
             self.pilot = std::ptr::null_mut();
+        }
+        if let Some(rt) = self.rt.take() {
+            rt.shutdown_background();
         }
     }
 }

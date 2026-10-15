@@ -199,8 +199,16 @@ class Styles:
         widget._apply_inline(css)
 
     def animate(self, attribute: str, value: Any, **kwargs: Any) -> None:
-        """Set the final value (animation of inline styles isn't supported yet)."""
-        setattr(self, attribute, value)
+        """Animate a numeric style (e.g. ``opacity``, ``offset-x``, ``width``) to ``value``."""
+        widget: Widget = object.__getattribute__(self, "_widget")
+
+        def get(target: Any, attr: str) -> Any:
+            current = widget._inline.get(attr.replace("_", "-"))
+            if isinstance(current, (int, float)):
+                return current
+            return 1.0 if attr == "opacity" else 0
+
+        _context_animator().animate(self, attribute, value, getter=get, **kwargs)
 
     def refresh(self, layout: bool = False) -> None:
         native.refresh()
@@ -1078,6 +1086,33 @@ class Widget:
     def bell(self) -> None:
         native.bell()
 
+    def animate(
+        self,
+        attribute: str,
+        value: Any,
+        *,
+        final_value: Any = ...,
+        duration: float | None = None,
+        speed: float | None = None,
+        delay: float = 0.0,
+        easing: Any = "in_out_cubic",
+        on_complete: Callable[[], Any] | None = None,
+        level: str = "full",
+    ) -> AwaitComplete:
+        """Animate a numeric attribute (e.g. a reactive) to ``value``."""
+        _context_animator().animate(
+            self,
+            attribute,
+            value,
+            final_value=final_value,
+            duration=duration,
+            speed=speed,
+            delay=delay,
+            easing=easing,
+            on_complete=on_complete,
+        )
+        return AwaitComplete()
+
     def watch(self, obj: Any, attribute_name: str, callback: Callable[..., Any], init: bool = True) -> None:
         from .reactive import watch
 
@@ -1170,6 +1205,16 @@ class Timer:
     def reset(self) -> None:
         self.stop()
         self._start()
+
+
+def _context_animator() -> Any:
+    app = _context.active_app()
+    animator = app.__dict__.get("_animator")
+    if animator is None:
+        from ._animator import Animator
+
+        animator = app.__dict__["_animator"] = Animator()
+    return animator
 
 
 def _flow_bits(message: Message) -> int:
