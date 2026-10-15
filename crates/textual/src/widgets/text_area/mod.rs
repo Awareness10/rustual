@@ -33,7 +33,7 @@ use crate::context::Ctx;
 use crate::events::{Event, MouseButton, MouseEvent};
 use crate::message::Flow;
 use crate::widget::{Content, RenderCtx, Widget};
-use crate::widgets::input::{clipboard_text, set_clipboard_text};
+use crate::widgets::input::set_clipboard_text;
 use document::{display_char, line_cells};
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -1271,7 +1271,8 @@ impl TextArea {
             self.delete_via_keyboard(start, end, ctx)
         };
         if let Some(r) = result {
-            set_clipboard_text(&r.replaced_text);
+            // Local clipboard + OSC 52 system clipboard (Textual: `app.copy_to_clipboard`).
+            ctx.copy_to_clipboard(&r.replaced_text);
         }
     }
 
@@ -1289,7 +1290,7 @@ impl TextArea {
         if self.read_only {
             return;
         }
-        let text = clipboard_text();
+        let text = crate::terminal::paste_text(ctx.app);
         let Selection { start, end } = self.selection;
         if let Some(r) = self.replace_via_keyboard(&text, start, end, ctx) {
             self.move_cursor(r.end_location, false, ctx);
@@ -1740,7 +1741,13 @@ impl Widget for TextArea {
             "delete_word_right" => self.action_delete_word_right(ctx),
             "cut" => self.action_cut(ctx),
             // Like Textual's SkipAction: let the key fall through when nothing is selected.
-            "copy" => return self.action_copy(),
+            "copy" => {
+                let copied = self.action_copy();
+                if copied {
+                    ctx.copy_to_clipboard(&self.selected_text());
+                }
+                return copied;
+            }
             "paste" => self.action_paste(ctx),
             "delete_to_start_of_line" => self.action_delete_to_start_of_line(ctx),
             "delete_to_end_of_line" => self.action_delete_to_end_of_line(ctx),

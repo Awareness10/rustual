@@ -104,8 +104,15 @@ impl<'a> LayoutCx<'a> {
             .unwrap_or_else(|| EMPTY_STYLES.get_or_init(Styles::default))
     }
 
-    /// Children with `display != none`.
+    /// Children with `display != none`. A screen with a maximized widget arranges only that
+    /// widget plus the children allowed in the maximized view (see `crate::screens`).
     pub fn displayed_children(&self, id: NodeId) -> Vec<NodeId> {
+        if let Some(children) = crate::screens::maximized_view_children(self.dom, id) {
+            return children
+                .into_iter()
+                .filter(|c| self.styles(*c).get_display() != Display::None)
+                .collect();
+        }
         self.dom
             .children(id)
             .iter()

@@ -1,6 +1,7 @@
 //! Key bindings and action strings.
 
 use crate::events::normalize_key;
+use std::collections::HashMap;
 
 /// A key binding: one or more comma-separated keys mapped to an action string.
 ///
@@ -17,22 +18,28 @@ pub struct Binding {
     pub priority: bool,
     /// Override how the key is displayed in the footer.
     pub key_display: Option<String>,
+    /// Identifier for keymaps ([`App::keymap`](crate::App::keymap) / `Ctx::set_keymap`
+    /// replace the keys of bindings by id). Textual: `Binding.id`.
+    pub id: Option<String>,
 }
 
 impl Binding {
     pub fn new(keys: &str, action: &str, description: &str) -> Self {
         Binding {
-            keys: keys
-                .split(',')
-                .map(normalize_key)
-                .filter(|k| !k.is_empty())
-                .collect(),
+            keys: parse_keys(keys),
             action: action.to_string(),
             description: description.to_string(),
             show: true,
             priority: false,
             key_display: None,
+            id: None,
         }
+    }
+
+    /// Set the binding id used by keymaps (Textual: `Binding(..., id=...)`).
+    pub fn id(mut self, id: &str) -> Self {
+        self.id = Some(id.to_string());
+        self
     }
 
     pub fn hidden(mut self) -> Self {
@@ -61,6 +68,83 @@ impl Binding {
         }
         let key = self.keys.first().map(String::as_str).unwrap_or("");
         format_key(key)
+    }
+}
+
+/// Parse a keymap key string (`"ctrl+s,f2"`) into normalized keys.
+pub(crate) fn parse_keys(keys: &str) -> Vec<String> {
+    keys.split(',')
+        .map(normalize_key)
+        .filter(|k| !k.is_empty())
+        .collect()
+}
+
+/// A keymap: binding id → keys (normalized).
+pub(crate) type Keymap = HashMap<String, Vec<String>>;
+
+/// Apply a keymap to one node's bindings (Textual: `BindingsMap.apply_keymap`): bindings whose
+/// id is in the keymap get its keys; other bindings lose keys that clash with a remapped one
+/// (and disappear when no key is left).
+pub(crate) fn apply_keymap(bindings: &mut Vec<Binding>, keymap: &Keymap) {
+    if keymap.is_empty() {
+        return;
+    }
+    let mut claimed: Vec<String> = Vec::new();
+    for b in bindings.iter_mut() {
+        if let Some(keys) = b.id.as_ref().and_then(|id| keymap.get(id)) {
+            b.keys = keys.clone();
+            claimed.extend(keys.iter().cloned());
+        }
+    }
+    if claimed.is_empty() {
+        return;
+    }
+    bindings.retain_mut(|b| {
+        if b.id.as_ref().is_some_and(|id| keymap.contains_key(id)) {
+            return true;
+        }
+        b.keys.retain(|k| !claimed.contains(k));
+        !b.keys.is_empty()
+    });
+}
+
+impl crate::app::App {
+    /// Override the keys of bindings by id (Textual: `App.set_keymap`), e.g.
+    /// `[("app.quit", "ctrl+x")]` for `Binding::new("q", "quit", "Quit").id("app.quit")`.
+    pub fn keymap<K: Into<String>, V: AsRef<str>>(
+        mut self,
+        keymap: impl IntoIterator<Item = (K, V)>,
+    ) -> Self {
+        self.state.keymap = keymap
+            .into_iter()
+            .map(|(k, v)| (k.into(), parse_keys(v.as_ref())))
+            .collect();
+        self
+    }
+}
+
+impl crate::context::Ctx<'_> {
+    /// Replace the keymap (Textual: `App.set_keymap`).
+    pub fn set_keymap<K: Into<String>, V: AsRef<str>>(
+        &mut self,
+        keymap: impl IntoIterator<Item = (K, V)>,
+    ) {
+        self.app.keymap = keymap
+            .into_iter()
+            .map(|(k, v)| (k.into(), parse_keys(v.as_ref())))
+            .collect();
+        self.app.dirty = true;
+    }
+
+    /// Merge entries into the keymap (Textual: `App.update_keymap`).
+    pub fn update_keymap<K: Into<String>, V: AsRef<str>>(
+        &mut self,
+        keymap: impl IntoIterator<Item = (K, V)>,
+    ) {
+        for (k, v) in keymap {
+            self.app.keymap.insert(k.into(), parse_keys(v.as_ref()));
+        }
+        self.app.dirty = true;
     }
 }
 

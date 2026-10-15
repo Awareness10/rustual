@@ -413,13 +413,7 @@ impl<'a> Ctx<'a> {
         F: Future<Output = T> + Send + 'static,
         T: Any + Send,
     {
-        let handle = self.app.handle();
-        let target = self.node;
-        let join = tokio::spawn(async move {
-            let out = fut.await;
-            handle.post_message(target, out);
-        });
-        WorkerHandle { join }
+        crate::workers::run_plain(self, fut)
     }
 
     /// Run a blocking closure on tokio's blocking pool; its output is posted to this widget.
@@ -428,14 +422,7 @@ impl<'a> Ctx<'a> {
         F: FnOnce() -> T + Send + 'static,
         T: Any + Send,
     {
-        let handle = self.app.handle();
-        let target = self.node;
-        let join = tokio::spawn(async move {
-            if let Ok(out) = tokio::task::spawn_blocking(f).await {
-                handle.post_message(target, out);
-            }
-        });
-        WorkerHandle { join }
+        crate::workers::run_plain_blocking(self, f)
     }
 
     // ------------------------------------------------------------------ app-level

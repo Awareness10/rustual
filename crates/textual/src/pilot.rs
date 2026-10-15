@@ -336,6 +336,37 @@ impl Pilot {
             .collect()
     }
 
+    /// Text last copied to the system clipboard (`ctx.copy_to_clipboard`, Input / TextArea copy).
+    pub fn clipboard(&self) -> &str {
+        &self.state.terminal.clipboard
+    }
+
+    /// OSC 52 (and other raw) sequences queued for the terminal and not yet written.
+    pub fn pending_terminal_writes(&self) -> &[String] {
+        &self.state.terminal.pending_writes
+    }
+
+    /// Whether `suspend_process` was requested (headless apps never suspend).
+    pub fn suspend_requested(&self) -> bool {
+        self.state.terminal.suspend_requested
+    }
+
+    /// The current mode (see `App::mode`).
+    pub fn current_mode(&self) -> &str {
+        &self.state.screens_ext.current_mode
+    }
+
+    /// The maximized widget of the active screen.
+    pub fn maximized(&self) -> Option<NodeId> {
+        let screen = self.state.active_screen()?;
+        crate::screens::maximized_of(&self.state.dom, screen)
+    }
+
+    /// The active (top) screen.
+    pub fn active_screen(&self) -> Option<NodeId> {
+        self.state.active_screen()
+    }
+
     /// Render the current frame.
     pub fn canvas(&mut self) -> Canvas {
         self.state.render_frame()

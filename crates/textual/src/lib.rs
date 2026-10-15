@@ -17,12 +17,15 @@ pub mod layout;
 pub mod message;
 pub mod pilot;
 pub mod screen;
+pub mod screens;
 pub mod scrollbar;
+pub mod terminal;
 pub mod tooltip;
 pub mod transition;
 mod ux;
 pub mod widget;
 pub mod widgets;
+pub mod workers;
 
 pub use animation::{AnimateOptions, AnimationId, AnimationLevel, Easing, OnComplete, StyleProp};
 pub use app::{App, AppHandle, Notified, ScreenDismissed, Severity, TimerId, WorkerHandle};
@@ -34,7 +37,9 @@ pub use events::{Event, KeyEvent, MouseButton, MouseEvent};
 pub use message::{Flow, Message};
 pub use pilot::Pilot;
 pub use screen::Screen;
+pub use screens::DEFAULT_MODE;
 pub use widget::{Child, Content, RenderCtx, RenderEnv, Widget, WidgetExt};
+pub use workers::{WorkerId, WorkerOptions, WorkerState};
 
 pub use textual_css as css;
 pub use textual_render as render;
@@ -56,5 +61,6 @@ pub mod prelude {
     pub use crate::pilot::Pilot;
     pub use crate::widget::{Child, Content, RenderCtx, Widget, WidgetExt};
     pub use crate::widgets::*;
+    pub use crate::workers::{self as worker, WorkerId, WorkerOptions, WorkerState};
     pub use textual_render::{Color, Offset, Region, Size, Spacing, Strip, Style, Text};
 }

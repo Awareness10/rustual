@@ -40,18 +40,22 @@ fn restore_terminal() {
     let _ = terminal::disable_raw_mode();
 }
 
+fn enter_application_mode() -> io::Result<()> {
+    terminal::enable_raw_mode()?;
+    let mut out = io::stdout();
+    execute!(
+        out,
+        terminal::EnterAlternateScreen,
+        EnableMouseCapture,
+        EnableBracketedPaste,
+        cursor::Hide,
+        terminal::Clear(terminal::ClearType::All)
+    )
+}
+
 impl CrosstermDriver {
     pub fn start() -> io::Result<Self> {
-        terminal::enable_raw_mode()?;
-        let mut out = io::stdout();
-        execute!(
-            out,
-            terminal::EnterAlternateScreen,
-            EnableMouseCapture,
-            EnableBracketedPaste,
-            cursor::Hide,
-            terminal::Clear(terminal::ClearType::All)
-        )?;
+        enter_application_mode()?;
         let prev = std::panic::take_hook();
         std::panic::set_hook(Box::new(move |info| {
             restore_terminal();
@@ -66,6 +70,25 @@ impl CrosstermDriver {
         self.out.flush()?;
         restore_terminal();
         Ok(())
+    }
+
+    /// Leave application mode (alt screen, raw mode, mouse) before suspending the process.
+    pub fn suspend(&mut self) -> io::Result<()> {
+        self.out.flush()?;
+        restore_terminal();
+        Ok(())
+    }
+
+    /// Re-enter application mode after [`CrosstermDriver::suspend`] (the screen is cleared;
+    /// redraw everything).
+    pub fn resume(&mut self) -> io::Result<()> {
+        enter_application_mode()
+    }
+
+    /// Write raw bytes (e.g. an OSC 52 escape sequence) to the terminal.
+    pub fn write_raw(&mut self, s: &str) -> io::Result<()> {
+        self.out.write_all(s.as_bytes())?;
+        self.out.flush()
     }
 
     pub fn size(&self) -> Size {

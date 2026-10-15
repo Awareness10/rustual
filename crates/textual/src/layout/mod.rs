@@ -251,9 +251,22 @@ impl Pass<'_> {
         let content_origin = layout.content_region.offset();
         let sub_clip = node_clip.intersection(&layout.content_region);
         let visible = layout.visible;
+        // A cover (loading indicator) replaces a leaf widget's visuals, or a container's
+        // children (Textual: `_compositor.py`, `Widget._cover_widget`).
+        let cover = node.cover.filter(|c| cx.dom.contains(*c));
+        let is_container = arrangement.is_some();
         self.results.push((id, layout, scroll));
-        if visible {
+        if visible && (cover.is_none() || is_container) {
             self.order.push(id);
+        }
+        if let Some(cover) = cover {
+            let cover_region = if is_container {
+                container_region
+            } else {
+                region
+            };
+            self.place(cover, cover_region, clip, shown);
+            return;
         }
 
         let Some(arr) = arrangement else { return };
