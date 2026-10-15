@@ -6,17 +6,14 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
 
 ## 1. Releases & production readiness
 
-Released so far: **v0.1.0** on [GitHub releases](https://github.com/Awareness10/rustual/releases)
-(rustual-py wheels + sdist, built and smoke-tested by `.github/workflows/release.yml` on `v*` tags).
+Released so far: **v0.2.0** on [PyPI](https://pypi.org/project/rustual-py/),
+[crates.io](https://crates.io/crates/rustual) and [GitHub releases](https://github.com/Awareness10/rustual/releases).
+Releases follow [`RELEASING.md`](RELEASING.md) (`dev` → `main`, `scripts/release.py`).
 
-- [ ] **Publish to PyPI** (S): add a `pypi` job to `release.yml` after the smoke tests, using PyPI trusted
-  publishing (`pypa/gh-action-pypi-publish`, `permissions: id-token: write`, a `pypi` environment), and register
-  the GitHub workflow as a trusted publisher for `rustual-py` on pypi.org. The release artifacts are already in
-  the right shape (abi3 wheels + sdist).
-- [ ] **Publish to crates.io** (S): ready: `rustual-render`, `rustual-css` and `rustual` have metadata, READMEs
-  and LICENSE, and `cargo publish --workspace --dry-run` passes in CI (`rustual-py` is `publish = false`). To
-  publish: `cargo login` with a crates.io token, then `cargo publish --workspace`. Later: a `crates-io` job in
-  `release.yml` using a `CARGO_REGISTRY_TOKEN` secret.
+- [ ] **crates.io trusted publishing** (S, one-time, on crates.io): for `rustual`, `rustual-render` and
+  `rustual-css`, Settings → Trusted Publishing → GitHub (`Awareness10/rustual`, `release.yml`, environment
+  `crates-io`). Until then the release workflow's crates.io job fails; publish with `cargo publish --workspace`
+  from the tag instead.
 - [ ] **More wheel targets** (S): Linux aarch64 (manylinux + musllinux) and Windows arm64 in `release.yml`.
 - [ ] **Real-terminal QA pass** (M): mouse, resize, true color, wide characters, and performance across kitty,
   WezTerm, Alacritty, GNOME Terminal, tmux, Windows Terminal. So far, all checks were headless (Pilot, a pyte
