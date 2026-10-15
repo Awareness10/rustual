@@ -434,6 +434,10 @@ impl Widget for ListView {
         &["ListView", "VerticalScroll", "ScrollableContainer"]
     }
 
+    fn allow_maximize(&self) -> Option<bool> {
+        Some(true)
+    }
+
     fn default_css(&self) -> &'static str {
         DEFAULT_CSS
     }

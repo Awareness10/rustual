@@ -111,20 +111,7 @@ impl AppHandle {
     }
 }
 
-/// Handle to a running worker; dropping it does not cancel the worker.
-pub struct WorkerHandle {
-    pub(crate) join: tokio::task::JoinHandle<()>,
-}
-
-impl WorkerHandle {
-    pub fn cancel(&self) {
-        self.join.abort();
-    }
-
-    pub fn is_finished(&self) -> bool {
-        self.join.is_finished()
-    }
-}
+pub use crate::workers::WorkerHandle;
 
 /// Posted (to the pusher) when a screen is dismissed without a result.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -174,6 +161,14 @@ pub(crate) struct AppState {
     pub mouse: crate::scrollbar::MouseState,
     /// Command palette, tooltip and key panel state (see `crate::ux`).
     pub ux: crate::ux::UxState,
+    /// Named screens, modes, maximize and loading state (see `crate::screens`).
+    pub screens_ext: crate::screens::ScreenState,
+    /// Worker registry (see `crate::workers`).
+    pub workers: crate::workers::Workers,
+    /// Clipboard / suspend / pending terminal writes (see `crate::terminal`).
+    pub terminal: crate::terminal::TerminalState,
+    /// Binding id → keys (see `crate::binding::apply_keymap`).
+    pub keymap: crate::binding::Keymap,
 }
 
 /// The application: build with [`App::new`], configure, then [`App::run`] (or [`App::test`]).
@@ -241,6 +236,10 @@ impl App {
             animator: Default::default(),
             mouse: Default::default(),
             ux: Default::default(),
+            screens_ext: Default::default(),
+            workers: Default::default(),
+            terminal: Default::default(),
+            keymap: Default::default(),
         };
         App {
             state: Box::new(state),
@@ -367,11 +366,17 @@ async fn run_loop(
         if state.exit_requested {
             break;
         }
+        if crate::terminal::service_suspend(state, driver)? {
+            events = driver.event_stream();
+            state.resize(state.size);
+            state.process_queue();
+        }
         if state.dirty {
             let frame = state.render_frame();
             driver.draw(&frame, state.last_frame.as_ref())?;
             state.last_frame = Some(frame);
         }
+        crate::terminal::flush(state, driver)?;
         let deadline = state
             .next_deadline()
             .unwrap_or_else(|| Instant::now() + Duration::from_secs(3600));
@@ -436,6 +441,7 @@ impl AppState {
         self.queue.push_back(Pending::Mount(root));
         self.process_queue();
         self.auto_focus(screen);
+        crate::screens::startup(self);
         self.dirty = true;
     }
 
@@ -496,7 +502,7 @@ impl AppState {
         id
     }
 
-    fn build_node(&mut self, child: Child) -> NodeId {
+    pub(crate) fn build_node(&mut self, child: Child) -> NodeId {
         let Child {
             widget,
             id,
@@ -599,7 +605,11 @@ impl AppState {
         }
         let screen = self.screens.pop().expect("screen");
         let pusher = self.screen_pushers.remove(&screen);
-        self.remove_now(screen);
+        if crate::screens::is_installed(self, screen) {
+            crate::screens::suspend_screen(self, screen);
+        } else {
+            self.remove_now(screen);
+        }
         if let Some(top) = self.active_screen() {
             let f = self
                 .screen_focus
@@ -805,7 +815,7 @@ impl AppState {
                     m.y = m.screen_y - region.y;
                 }
             }
-            let disabled = self.dom.is_disabled(id);
+            let disabled = self.dom.is_disabled(id) || self.dom.is_loading(id);
             let flow = if disabled && (event.mouse().is_some() || event.key().is_some()) {
                 Flow::Continue
             } else {
@@ -941,12 +951,12 @@ impl AppState {
             return Vec::new();
         };
         let mut out = Vec::new();
-        let mut stack = vec![screen];
+        let mut stack = vec![crate::screens::focus_root(self, screen)];
         while let Some(id) = stack.pop() {
             let Some(node) = self.dom.get(id) else {
                 continue;
             };
-            if node.styles.get_display() == Display::None || node.disabled {
+            if node.styles.get_display() == Display::None || node.disabled || node.loading {
                 continue;
             }
             if node.can_focus && id != screen {
@@ -1064,11 +1074,15 @@ impl AppState {
             b.push(Binding::new("tab", "app.focus_next", "Focus next").hidden());
             b.push(Binding::new("shift+tab", "app.focus_previous", "Focus previous").hidden());
         }
+        crate::binding::apply_keymap(&mut b, &self.keymap);
         b
     }
 
     pub(crate) fn handle_key(&mut self, key: KeyEvent) {
         crate::tooltip::clear(self);
+        if crate::screens::handle_key(self, &key) {
+            return;
+        }
         let chain = self.binding_chain();
         // 1. priority bindings (app first, like Textual)
         for id in chain.iter().rev() {
@@ -1319,7 +1333,11 @@ impl AppState {
                     crate::animation::Easing::DEFAULT_SCROLL,
                 );
             }
-            _ => return crate::ux::builtin_action(self, action),
+            _ => {
+                return crate::ux::builtin_action(self, action)
+                    || crate::screens::builtin_action(self, target, action)
+                    || crate::terminal::builtin_action(self, action)
+            }
         }
         self.dirty = true;
         true
@@ -1420,6 +1438,7 @@ impl AppState {
 
     pub(crate) fn layout(&mut self) {
         self.update_styles();
+        crate::screens::adjust_styles(self);
         self.update_active_bindings();
         self.env.notifications = self.notifications.clone();
         let size = self.size;

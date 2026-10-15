@@ -68,6 +68,16 @@ pub struct Node {
     pub can_focus_children: bool,
     /// Tooltip text (markup) shown when the mouse rests over the widget (see `crate::tooltip`).
     pub tooltip: Option<String>,
+    /// In a loading state ([`Ctx::set_loading`](crate::Ctx::set_loading)): covered by
+    /// [`cover`](Self::cover), excluded from the focus chain, input blocked.
+    pub loading: bool,
+    /// Widget painted over this one in its place (the loading indicator). Its `parent` is this
+    /// node, but it is not in `children`; [`Dom::descendants`] includes it after the children.
+    pub cover: Option<NodeId>,
+    /// This node is another node's [`cover`](Self::cover).
+    pub is_cover: bool,
+    /// Screens only: the maximized widget ([`Ctx::maximize`](crate::Ctx::maximize)).
+    pub maximized: Option<NodeId>,
 }
 
 impl Node {
@@ -98,6 +108,10 @@ impl Node {
             can_focus,
             can_focus_children,
             tooltip: None,
+            loading: false,
+            cover: None,
+            is_cover: false,
+            maximized: None,
         }
     }
 
@@ -209,6 +223,9 @@ impl Dom {
         let parent = self.nodes.get(child).and_then(|c| c.parent);
         if let Some(p) = parent.and_then(|p| self.nodes.get_mut(p)) {
             p.children.retain(|c| *c != child);
+            if p.cover == Some(child) {
+                p.cover = None;
+            }
         }
         if let Some(c) = self.nodes.get_mut(child) {
             c.parent = None;
@@ -271,13 +288,14 @@ impl Dom {
         false
     }
 
-    /// Pre-order DFS including `id`.
+    /// Pre-order DFS including `id` (a node's [`cover`](Node::cover) follows its children).
     pub fn descendants(&self, id: NodeId) -> Vec<NodeId> {
         let mut out = Vec::new();
         let mut stack = vec![id];
         while let Some(n) = stack.pop() {
             if let Some(node) = self.nodes.get(n) {
                 out.push(n);
+                stack.extend(node.cover);
                 stack.extend(node.children.iter().rev());
             }
         }
@@ -338,6 +356,22 @@ impl Dom {
         self.ancestors_with_self(id)
             .iter()
             .any(|n| self.nodes.get(*n).map(|n| n.disabled).unwrap_or(false))
+    }
+
+    /// Whether input to `id` is blocked by a loading ancestor (or itself). Nodes inside a
+    /// cover (the loading indicator) are not blocked.
+    pub fn is_loading(&self, id: NodeId) -> bool {
+        let mut cur = Some(id);
+        while let Some(n) = cur.and_then(|c| self.nodes.get(c)) {
+            if n.is_cover {
+                return false;
+            }
+            if n.loading {
+                return true;
+            }
+            cur = n.parent;
+        }
+        false
     }
 
     pub fn iter(&self) -> impl Iterator<Item = (NodeId, &Node)> {

@@ -327,6 +327,10 @@ impl Widget for TabbedContent {
         &["TabbedContent"]
     }
 
+    fn allow_maximize(&self) -> Option<bool> {
+        Some(true)
+    }
+
     fn default_css(&self) -> &'static str {
         TABBED_CONTENT_CSS
     }

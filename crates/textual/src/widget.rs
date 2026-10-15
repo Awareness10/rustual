@@ -138,6 +138,12 @@ pub trait Widget: Any {
     fn commands(&self) -> Vec<crate::command::Command> {
         Vec::new()
     }
+
+    /// Whether the widget may be maximized (Textual's `ALLOW_MAXIMIZE`): `None` (default)
+    /// means "if it can focus".
+    fn allow_maximize(&self) -> Option<bool> {
+        None
+    }
 }
 
 /// A widget plus the node attributes to mount it with (id, classes, inline styles, children).

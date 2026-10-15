@@ -769,7 +769,8 @@ impl Input {
     }
 
     pub fn action_cut(&mut self, ctx: &mut Ctx) {
-        Self::set_clipboard(self.selected_text());
+        // Local clipboard + OSC 52 system clipboard (Textual: `app.copy_to_clipboard`).
+        ctx.copy_to_clipboard(self.selected_text());
         self.delete_selection(ctx);
     }
 
@@ -783,7 +784,7 @@ impl Input {
     }
 
     pub fn action_paste(&mut self, ctx: &mut Ctx) {
-        let text = clipboard_text();
+        let text = crate::terminal::paste_text(ctx.app);
         let Selection { start, end } = self.selection;
         self.replace(&text, start, end, ctx);
     }
@@ -923,7 +924,13 @@ impl Widget for Input {
             "submit" => self.action_submit(ctx),
             "cut" => self.action_cut(ctx),
             // Like Textual's SkipAction: let the key fall through when nothing is selected.
-            "copy" => return self.action_copy(),
+            "copy" => {
+                let copied = self.action_copy();
+                if copied {
+                    ctx.copy_to_clipboard(self.selected_text());
+                }
+                return copied;
+            }
             "paste" => self.action_paste(ctx),
             _ => return false,
         }

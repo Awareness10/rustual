@@ -283,6 +283,10 @@ impl Widget for Collapsible {
         &["Collapsible"]
     }
 
+    fn allow_maximize(&self) -> Option<bool> {
+        Some(true)
+    }
+
     fn default_css(&self) -> &'static str {
         COLLAPSIBLE_CSS
     }

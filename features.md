@@ -3,9 +3,9 @@
 Parity tracker against Python Textual 8.2.8. Percentages are rough estimates of how much of
 Textual's behaviour for that item is implemented here. Status: ✅ done (≥ 90%) · 🟡 partial · ❌ missing.
 
-**Overall: milestones 1–2 complete. ~85% of commonly used Textual functionality, ~65% of full parity.** 509 tests.
+**Overall: milestones 1–2 complete. ~85% of commonly used Textual functionality, ~65% of full parity.** 538 tests.
 
-_Last updated: 2026-10-14._
+_Last updated: 2026-10-15._
 
 ## Core runtime
 
@@ -18,21 +18,21 @@ _Last updated: 2026-10-14._
 | Mouse capture / drag | ✅ | 85 | `ctx.capture_mouse/release_mouse`; drags go to the MouseDown widget; scrollbar thumb drag + track paging; no `MouseCapture`/`MouseRelease` events |
 | Focus chain, tab/shift+tab, auto-focus | ✅ | 90 | `can_focus_children`, focus on click, restore on screen pop |
 | Messages (bubbling) | ✅ | 95 | typed payloads, `Flow::Stop`, `sender_id()` |
-| Bindings & actions | ✅ | 85 | priority, namespaces `app.`/`screen.`/`focused.`, args; no keymap overrides, no `check_action` |
-| Builtin actions | 🟡 | 70 | quit, bell, toggle_dark, set_theme, focus, focus_next/previous, pop_screen, add/remove/toggle_class, notify, scroll_* |
+| Bindings & actions | ✅ | 90 | priority, namespaces `app.`/`screen.`/`focused.`, args; keymaps (`Binding::id`, `App::keymap`, `ctx.set_keymap/update_keymap`, clashing keys dropped); no `check_action` |
+| Builtin actions | ✅ | 85 | quit, bell, toggle_dark, set_theme, focus, focus_next/previous, pop_screen, push_screen/switch_screen/switch_mode('name'), maximize, minimize, screenshot, suspend_process, add/remove/toggle_class, notify, scroll_* |
 | Timers (`set_timer`, `set_interval`) | ✅ | 95 | |
-| Workers (async + blocking) | ✅ | 80 | result posted as message; no worker state events / groups / exclusive |
-| Screens: push/pop/dismiss, modal | ✅ | 85 | modal dims the screen below; no `switch_screen`, no named screens / `MODES` |
+| Workers (async + blocking) | ✅ | 90 | result posted as message; `run_worker_with`/`run_blocking_with` + `WorkerOptions { name, group, exclusive }` post `worker::StateChanged` (Pending/Running/Success/Error=panic/Cancelled); `cancel_workers(group)`, `WorkerHandle::state()`; errors don't exit the app; plain `run_worker` posts no state events |
+| Screens: push/pop/dismiss, modal, switch, named, modes | ✅ | 90 | modal dims the screen below; `ctx.switch_screen`, `App::screen/modal_screen` (installed, kept when popped) + `push_screen_named/switch_screen_named/install_screen`; `App::mode` + `default_mode` + `ctx.switch_mode` (per-mode stacks); no ScreenSuspend/Resume events, no `remove_mode` |
 | Notifications (toasts) | ✅ | 90 | `ctx.notify`, severity, timeout, click to dismiss |
 | Animation (`animate`, easing, transitions) | 🟡 | 75 | all 33 easings, `ctx.animate_value`, `animate_style` (opacity/offset/width/height), smooth scroll, animation levels, Tabs/Switch animate; no CSS `transition`, no color animation, no `delay`/`speed` |
 | Tooltips | ✅ | 85 | `Child::tooltip`, `ctx.set_tooltip`; 0.5s delay, ancestor inheritance, flip above / keep on screen; no Rich renderables, no `_disable_tooltips` |
 | Command palette | ✅ | 80 | `ctrl+p`, fuzzy `Matcher` port, `CommandProvider` / `App::command_provider` / `Widget::commands`, system commands, theme picker, header icon; synchronous providers (no async search / busy indicator) |
 | Text selection & copy (screen selection) | ❌ | 0 | Input has its own selection + internal clipboard |
-| Clipboard (OSC 52) | ❌ | 0 | |
+| Clipboard (OSC 52) | ✅ | 90 | `ctx.copy_to_clipboard` queues OSC 52, flushed after the next frame; Input/TextArea copy/cut use it; paste reads the app clipboard; `pilot.clipboard()` |
 | `@click` markup links | 🟡 | 75 | click runs the action with the widget as owner; no `link-*-hover` styles, no `@mouse.down`/`@mouse.up` |
-| Screenshots (SVG / ANSI / text export) | ✅ | 85 | `canvas.to_svg()`, `to_ansi()`, `pilot.export_svg()`, `TEXTUAL_SCREENSHOT=out.svg` env mode (+ `TEXTUAL_SIZE`, `TEXTUAL_PRESS`); no screenshot key binding yet |
-| Maximize (`ctrl+m`), `loading` overlay, `disabled` | 🟡 | 40 | `disabled` done; no maximize; no `loading` reactive |
-| Suspend (`ctrl+z`), inline mode, no-color / ANSI themes | ❌ | 0 | |
+| Screenshots (SVG / ANSI / text export) | ✅ | 90 | `canvas.to_svg()`, `to_ansi()`, `pilot.export_svg()`, `TEXTUAL_SCREENSHOT=out.svg` env mode (+ `TEXTUAL_SIZE`, `TEXTUAL_PRESS`); `screenshot(filename?, path?)` action + "Screenshot" palette command (CWD, Textual filename scheme, UTC timestamp), `ctx.save_screenshot` |
+| Maximize, `loading` overlay, `disabled` | ✅ | 85 | `ctx.maximize/maximize_exact/minimize`, `maximize`/`minimize` actions + palette commands, escape minimizes, `Widget::allow_maximize`, Footer/toasts kept; `ctx.set_loading(id, bool)` covers with a LoadingIndicator (blocks input, leaves focus chain); no hatch background, no custom loading widget |
+| Suspend (`ctrl+z`), inline mode, no-color / ANSI themes | 🟡 | 30 | `suspend_process` action / `ctx.suspend_process` (unix SIGTSTP via `kill`, terminal restored + full redraw on resume; not bound by default, like Textual 8); no inline mode, no ANSI themes |
 | Devtools console / logging | ❌ | 0 | |
 | Testing: Pilot | ✅ | 90 | press, type, click, hover, scroll, resize, wait (paused time), query, canvas |
 | Snapshot testing (SVG compare) | ❌ | 0 | text snapshots via `screen_text()` |
@@ -81,7 +81,7 @@ _Last updated: 2026-10-14._
 | Button | ✅ | 95 | variants, flat, action, active effect |
 | Input | ✅ | 85 | password, restrict (char predicate), max length, integer/number, selection; no suggester/validators API |
 | MaskedInput | ✅ | 90 | full template engine (`A a N n X x 9 0 D d # H h B b`, case, escapes, blank char), validity classes; no `validators=` |
-| TextArea | 🟡 | 80 | editing, selection (keys/mouse drag/double+triple click), undo/redo batching, soft wrap, line numbers, themes (css/monokai/dracula/vscode_dark/github_light), bracket matching, read-only, placeholder; no tree-sitter (simple per-line keyword highlighter for python/rust/js/json/toml), no suggestions, no OSC 52 clipboard |
+| TextArea | 🟡 | 80 | editing, selection (keys/mouse drag/double+triple click), undo/redo batching, soft wrap, line numbers, themes (css/monokai/dracula/vscode_dark/github_light), bracket matching, read-only, placeholder; no tree-sitter (simple per-line keyword highlighter for python/rust/js/json/toml), no suggestions; copy/cut use the OSC 52 clipboard |
 | Checkbox / ToggleButton | ✅ | 95 | |
 | RadioButton / RadioSet | ✅ | 95 | |
 | Switch | ✅ | 95 | slides over 0.3s |
@@ -101,7 +101,7 @@ _Last updated: 2026-10-14._
 | Log | ✅ | 90 | |
 | RichLog | ✅ | 80 | no highlighter |
 | ProgressBar | ✅ | 95 | ETA, indeterminate, gradients |
-| LoadingIndicator | ✅ | 90 | no `loading` overlay integration |
+| LoadingIndicator | ✅ | 95 | used by the `loading` overlay |
 | Sparkline | ✅ | 85 | no gradient |
 | Digits | ✅ | 95 | |
 | Placeholder | ✅ | 95 | |
@@ -117,10 +117,9 @@ _Last updated: 2026-10-14._
 
 ## Roadmap
 
-1. **Next low-hanging fruit (core):** `switch_screen` + named screens / `MODES`, maximize (`ctrl+m`), `loading`
-   overlay (LoadingIndicator over a widget), OSC 52 system clipboard, suspend (`ctrl+z`), screenshot key binding,
-   HelpPanel, Markdown `open_url` for external links.
-2. **Medium:** CSS `transition`, colour animation, text selection & copy across widgets, worker state events,
-   keymaps (binding overrides), DataTable cell alignment, RichLog highlighter.
+1. **Next low-hanging fruit:** HelpPanel, Markdown `open_url` for external links, ScreenSuspend/ScreenResume
+   events, `check_action`.
+2. **Medium:** CSS `transition`, colour animation, text selection & copy across widgets, DataTable cell
+   alignment, RichLog highlighter.
 3. **Larger:** tree-sitter syntax highlighting (TextArea / Markdown fences), inline mode, ANSI / no-color themes,
    devtools console, stream layout, Rich-style renderables.

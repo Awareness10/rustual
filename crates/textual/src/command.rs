@@ -5,7 +5,8 @@
 //! [`CommandPalette`](crate::widgets::command_palette::CommandPalette) screen listing the
 //! commands of every source:
 //!
-//! - [`SystemCommandsProvider`] (theme, quit, keys panel, ...), always first registered;
+//! - [`SystemCommandsProvider`] (theme, quit, keys panel, maximize, screenshot, ...), always
+//!   first registered;
 //! - providers added with [`App::command_provider`];
 //! - [`Widget::commands`](crate::Widget::commands) of the app root and of the active screen.
 //!
@@ -345,6 +346,27 @@ impl CommandProvider for SystemCommandsProvider {
                 "app.hide_help_panel",
             ));
         }
+        if ctx.maximized().is_some() {
+            commands.push(Command::new(
+                "Minimize",
+                "Minimize the widget and restore to normal size",
+                "app.minimize",
+            ));
+        } else if ctx
+            .focused()
+            .is_some_and(|f| crate::screens::allow_maximize(ctx.dom(), f))
+        {
+            commands.push(Command::new(
+                "Maximize",
+                "Maximize the focused widget",
+                "app.maximize",
+            ));
+        }
+        commands.push(Command::new(
+            "Screenshot",
+            "Save an SVG 'screenshot' of the current screen",
+            "app.screenshot",
+        ));
         // Not in Textual 8 (which dropped `toggle_dark` in favour of themes), kept for convenience.
         commands.push(Command::new(
             "Toggle dark mode",

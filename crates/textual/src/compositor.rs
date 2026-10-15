@@ -456,8 +456,14 @@ fn paint_content(
     let (align_h, align_v) = node.styles.get_content_align();
     // Justified text (text-align center/right/justify) spans the full content width, as in
     // Textual, so horizontal content-align only moves left-aligned blocks.
-    let justified = is_text && node.styles.get_text_align() != TextAlign::Start && node.styles.get_text_align() != TextAlign::Left;
-    let block_w = if justified { cr.width } else { lines.iter().map(|l| l.cell_len()).max().unwrap_or(0) };
+    let justified = is_text
+        && node.styles.get_text_align() != TextAlign::Start
+        && node.styles.get_text_align() != TextAlign::Left;
+    let block_w = if justified {
+        cr.width
+    } else {
+        lines.iter().map(|l| l.cell_len()).max().unwrap_or(0)
+    };
     let block_h = lines.len() as i32;
     let off_x = match align_h {
         AlignH::Left => 0,
@@ -476,7 +482,11 @@ fn paint_content(
         }
         // Justification padding is layout, not text: skip it so text styles such as `reverse`
         // only apply to the actual text (as in Textual).
-        let (pad, line) = if justified { split_leading_pad(line) } else { (0, line.clone()) };
+        let (pad, line) = if justified {
+            split_leading_pad(line)
+        } else {
+            (0, line.clone())
+        };
         canvas.put_strip(cr.x + off_x + pad, y, &line, content_clip, &base);
     }
     let text_opacity = node.styles.get_text_opacity();
