@@ -322,6 +322,12 @@ class App(Widget, Generic[ReturnType]):
     def bell(self) -> None:
         native.bell()
 
+    def open_url(self, url: str, *, new_tab: bool = True) -> None:
+        """Open a URL in the browser (override to customise; used by ``Link`` and ``Markdown``)."""
+        import webbrowser
+
+        webbrowser.open(url, new=2 if new_tab else 0)
+
     # -- queries: the active screen first, then everything ---------------------------------------
 
     def _query_nodes(self, selector: str) -> list[Any]:
