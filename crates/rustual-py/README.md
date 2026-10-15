@@ -67,7 +67,23 @@ if __name__ == "__main__":
 The distribution is called `rustual-py`; the import package is `rustual`. Porting a Textual app
 usually means replacing `textual` with `rustual` in the imports.
 
-## Install / build
+## Install
+
+Prebuilt wheels (CPython 3.10+, one per platform) are attached to the
+[GitHub releases](https://github.com/Awareness10/rustual/releases/latest):
+
+| Wheel | Platform |
+|---|---|
+| `*manylinux_2_28_x86_64.whl` | Linux x86_64 (glibc 2.28+) |
+| `*musllinux_1_2_x86_64.whl` | Linux x86_64 with musl (Alpine) |
+| `*win_amd64.whl` | Windows x86_64 |
+| `*universal2.whl` | macOS (Intel and Apple silicon) |
+
+```sh
+pip install https://github.com/Awareness10/rustual/releases/download/v0.1.0/rustual_py-0.1.0-cp310-abi3-manylinux_2_28_x86_64.whl
+```
+
+## Build from source
 
 Requires Rust (stable) and [uv](https://docs.astral.sh/uv/).
 

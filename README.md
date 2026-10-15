@@ -13,6 +13,7 @@
 [![Rust coverage](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Frust-coverage.json)](#testing)
 [![Python coverage](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Fpython-coverage.json)](#testing)
 <br>
+[![Release](https://img.shields.io/github/v/release/Awareness10/rustual?style=flat-square&label=release)](https://github.com/Awareness10/rustual/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Rust 1.86+](https://img.shields.io/badge/rust-1.86%2B-CE422B?style=flat-square&logo=rust)](https://www.rust-lang.org)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](crates/rustual-py)
@@ -88,7 +89,8 @@ Render any app to SVG without a terminal: one environment variable, handy for do
 
 ## Quick start
 
-rustual isn't on crates.io / PyPI yet; use it from this repository.
+rustual isn't on crates.io / PyPI yet. Python wheels for Linux (glibc and musl), Windows and macOS
+are on [GitHub releases](https://github.com/Awareness10/rustual/releases); the Rust crates are used from this repository.
 
 <details open>
 <summary><b>Rust</b></summary>
@@ -138,6 +140,14 @@ Or try the bundled examples: `cargo run -p rustual --example dashboard`
 
 <details open>
 <summary><b>Python</b></summary>
+
+Install a prebuilt wheel from the [latest release](https://github.com/Awareness10/rustual/releases/latest) (CPython 3.10+), for example:
+
+```sh
+pip install https://github.com/Awareness10/rustual/releases/download/v0.1.0/rustual_py-0.1.0-cp310-abi3-manylinux_2_28_x86_64.whl
+```
+
+Or build from source (needs Rust):
 
 ```sh
 git clone https://github.com/Awareness10/rustual && cd rustual/crates/rustual-py

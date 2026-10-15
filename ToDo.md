@@ -86,7 +86,8 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
 - [ ] **`render_line` / Line API** (M): Python `ScrollView` subclasses rendering strips per line.
 - [ ] **`styles` read access** (S): expose computed styles (currently write-only, plus display/visibility).
 - [ ] **`App.suspend()`, devtools `log()`** (S each).
-- [ ] **Wheels & CI** (S): build abi3 wheels for Linux/macOS/Windows with maturin in CI; publish.
+- [ ] **PyPI / crates.io** (S): wheels are already built and smoke-tested by `.github/workflows/release.yml`
+  and attached to GitHub releases on `v*` tags; add a PyPI publish step (trusted publishing) and `cargo publish`.
 - [ ] **Type stubs** (S): `py.typed` + stubs for `_native`.
 
 ## 5. Docs & examples
