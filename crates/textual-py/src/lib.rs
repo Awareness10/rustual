@@ -100,6 +100,7 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
         has_css,
         report_error,
         take_error,
+        register_theme,
     );
     Ok(())
 }

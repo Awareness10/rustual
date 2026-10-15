@@ -81,6 +81,7 @@ class App(Widget, Generic[ReturnType]):
         self._return_value: ReturnType | None = None
         self._return_code: int | None = None
         self._running = False
+        self._themes: dict[str, Any] = {}
 
     # -- configuration ------------------------------------------------------------------------
 
@@ -114,6 +115,7 @@ class App(Widget, Generic[ReturnType]):
             "screens": screens,
             "modes": modes,
             "default_mode": self.DEFAULT_MODE,
+            "themes": [t._native() for t in self._themes.values()],
         }
 
     # -- running ------------------------------------------------------------------------------
@@ -264,7 +266,17 @@ class App(Widget, Generic[ReturnType]):
 
     @property
     def available_themes(self) -> dict[str, Any]:
-        return {name: name for name in native.theme_names()}
+        names = native.theme_names() if self._running else list(self._themes)
+        return {name: self._themes.get(name, name) for name in names}
+
+    def register_theme(self, theme: Any) -> None:
+        """Register a :class:`~textual_rs.theme.Theme` (before or while running)."""
+        self._themes[theme.name] = theme
+        if self._running:
+            native.register_theme(theme._native())
+
+    def get_theme(self, theme_name: str) -> Any:
+        return self._themes.get(theme_name)
 
     @property
     def size(self) -> Size:
@@ -332,9 +344,19 @@ class App(Widget, Generic[ReturnType]):
         screen: Screen[Any] | str,
         callback: Callable[..., Any] | None = None,
         wait_for_dismiss: bool = False,
-    ) -> AwaitMount:
+    ) -> Any:
+        """Push a screen; ``callback`` gets the ``dismiss()`` result.
+
+        With ``wait_for_dismiss=True`` (from a worker or other async code), returns a future
+        that resolves to the result.
+        """
+        future: asyncio.Future[Any] | None = None
         if wait_for_dismiss:
-            raise NotImplementedError("push_screen(wait_for_dismiss=True) isn't supported yet; use a callback")
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                raise RuntimeError("push_screen(wait_for_dismiss=True) must be awaited from a worker or async handler") from None
+            future = loop.create_future()
         if isinstance(screen, str):
             node = native.named_screen("push", screen)
             target = _widget_for(node)
@@ -344,12 +366,20 @@ class App(Widget, Generic[ReturnType]):
             screen._register_css()
             native.push_screen(native.root(), screen, screen.is_modal)
             target = screen
-        if callback is not None:
-            target._result_callback = callback
-        return AwaitMount([target])
+        if callback is not None or future is not None:
 
-    def push_screen_wait(self, screen: Screen[Any] | str) -> Any:
-        raise NotImplementedError("push_screen_wait isn't supported yet; use a callback")
+            def on_result(result: Any) -> None:
+                if callback is not None:
+                    _invoke(callback, result)
+                if future is not None and not future.done():
+                    future.set_result(result)
+
+            target._result_callback = on_result
+        return future if future is not None else AwaitMount([target])
+
+    async def push_screen_wait(self, screen: Screen[Any] | str) -> Any:
+        """Push a screen and wait for its ``dismiss()`` result (call from a worker)."""
+        return await self.push_screen(screen, wait_for_dismiss=True)
 
     def pop_screen(self) -> AwaitComplete:
         native.pop_screen()

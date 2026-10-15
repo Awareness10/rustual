@@ -8,13 +8,18 @@ description = "A Textual-compatible Python API backed by the textual-rs Rust eng
 version = "0.1.0"
 requires-python = ">=3.10"
 license = "MIT"
+readme = "README.md"
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
 
+[project.optional-dependencies]
+# Rich renderables (Table, Syntax, Panel, ...) in Static / render(); only needed if you use them.
+rich = ["rich>=13"]
+
 [dependency-groups]
-dev = ["pytest>=8", "pytest-asyncio>=0.24", "maturin>=1.8,<2"]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "maturin>=1.8,<2", "rich>=13"]
 
 [tool.maturin]
 python-source = "python"

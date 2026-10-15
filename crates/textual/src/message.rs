@@ -25,6 +25,8 @@ pub enum Flow {
 /// }
 /// ```
 pub struct Message {
+    /// Unique id (per process), so observers can recognise the same message while it bubbles.
+    pub id: u64,
     /// The node that posted the message.
     pub sender: NodeId,
     /// The CSS id of the sender at post time, if it had one.
@@ -34,9 +36,15 @@ pub struct Message {
     payload: Box<dyn Any + Send>,
 }
 
+fn next_id() -> u64 {
+    static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+    NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+}
+
 impl Message {
     pub fn new<T: Any + Send>(sender: NodeId, sender_css_id: Option<String>, payload: T) -> Self {
         Message {
+            id: next_id(),
             sender,
             sender_css_id,
             bubble: true,
@@ -50,6 +58,7 @@ impl Message {
         payload: Box<dyn Any + Send>,
     ) -> Self {
         Message {
+            id: next_id(),
             sender,
             sender_css_id,
             bubble: true,

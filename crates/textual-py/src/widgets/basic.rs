@@ -1,5 +1,6 @@
 //! Containers, Screen, Static, Label, Button, Input, Header, Footer.
 
+use super::rich::RichHost;
 use super::{arg, as_mut, as_ref, kw, new_py, none, to_py, Registry};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -32,19 +33,21 @@ pub(crate) fn register(r: &mut Registry) {
     r.kind("Screen", |_, _, _| Ok(Box::new(textual::Screen::new())));
     r.kind("Static", |_, k, _| {
         let content: String = kw(k, "content")?.unwrap_or_default();
-        Ok(Box::new(if kw::<bool>(k, "markup")?.unwrap_or(true) {
+        let inner = if kw::<bool>(k, "markup")?.unwrap_or(true) {
             w::Static::new(content)
         } else {
             w::Static::plain(content)
-        }))
+        };
+        Ok(Box::new(RichHost::new(Box::new(inner), kw(k, "rich")?)))
     });
     r.kind("Label", |_, k, _| {
         let content: String = kw(k, "content")?.unwrap_or_default();
-        Ok(Box::new(if kw::<bool>(k, "markup")?.unwrap_or(true) {
+        let inner = if kw::<bool>(k, "markup")?.unwrap_or(true) {
             w::Label::new(content)
         } else {
             w::Label::plain(content)
-        }))
+        };
+        Ok(Box::new(RichHost::new(Box::new(inner), kw(k, "rich")?)))
     });
     r.kind("Button", |_, k, _| {
         let label: String = kw(k, "label")?.unwrap_or_default();
@@ -75,8 +78,17 @@ pub(crate) fn register(r: &mut Registry) {
                 i = i.max_length(n);
             }
         }
-        if let Some(chars) = kw::<String>(k, "restrict")? {
-            i = i.restrict_chars(&chars);
+        if let Some(fullmatch) = kw::<Py<PyAny>>(k, "restrict")? {
+            // `restrict` is a regex; Python passes the compiled pattern's `fullmatch`.
+            i = i.restrict_value(move |value| {
+                Python::attach(|py| {
+                    fullmatch
+                        .bind(py)
+                        .call1((value,))
+                        .map(|m| !m.is_none())
+                        .unwrap_or(false)
+                })
+            });
         }
         if let Some(b) = kw(k, "select_on_focus")? {
             i = i.select_on_focus(b);
@@ -262,6 +274,19 @@ fn call(
     method: &str,
     args: &Bound<'_, PyTuple>,
 ) -> Option<PyResult<Py<PyAny>>> {
+    if let Some(h) = (wd as &mut dyn std::any::Any).downcast_mut::<RichHost>() {
+        match method {
+            "update_rich" => {
+                return Some((|| {
+                    h.set_rich(Some(args.get_item(0)?.unbind()));
+                    none(py)
+                })())
+            }
+            // A text update replaces any Rich renderable (then falls through to the widget).
+            "update" => h.set_rich(None),
+            _ => {}
+        }
+    }
     if let Some(s) = as_mut::<w::Static>(wd) {
         return match method {
             // update(content, markup)
