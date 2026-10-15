@@ -12,6 +12,8 @@ use textual_render::{cells::cell_len, Size, Strip, Style};
 
 const DEFAULT_CSS: &str = r#"
 Log {
+    width: 1fr;
+    height: 1fr;
     background: $surface;
     color: $text;
     overflow: scroll;

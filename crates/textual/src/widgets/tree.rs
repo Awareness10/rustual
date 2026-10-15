@@ -33,6 +33,8 @@ use textual_render::{cells::cell_len, Region, Size, Span, Strip, Style, Text};
 
 const DEFAULT_CSS: &str = r#"
 Tree {
+    width: 1fr;
+    height: 1fr;
     background: $surface;
     color: $foreground;
     overflow: auto auto;

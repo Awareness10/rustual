@@ -17,6 +17,8 @@ use textual_render::{Justify, Size, Span, Strip, Text, TextOverflow};
 
 const DEFAULT_CSS: &str = r#"
 RichLog {
+    width: 1fr;
+    height: 1fr;
     overflow-y: auto;
     overflow-x: auto;
 }

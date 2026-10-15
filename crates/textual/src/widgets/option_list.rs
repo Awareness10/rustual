@@ -23,6 +23,8 @@ macro_rules! option_list_css {
     () => {
         r#"
 OptionList {
+    width: 1fr;
+    height: 1fr;
     overflow-y: auto;
     overflow-x: auto;
 }

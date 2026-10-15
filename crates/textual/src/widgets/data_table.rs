@@ -28,6 +28,8 @@ use textual_render::{Region, Size, Span, Strip, Style, Text, TextOverflow};
 
 const DEFAULT_CSS: &str = r#"
 DataTable {
+    width: 1fr;
+    height: 1fr;
     overflow-y: auto;
     overflow-x: auto;
 }
