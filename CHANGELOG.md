@@ -12,6 +12,9 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
   (stopwatch, counter, forms, data, content, workers). Try it without installing: `uvx rustual-py`.
   The examples moved from `crates/rustual-py/examples/` into the package (`rustual.demo`).
 
+### Changed
+- `ToDo.md` is now [`docs/roadmap.md`](docs/roadmap.md), with a "Next up" section.
+
 ### Fixed
 - A worker that outlives its app (e.g. a thread still running after exit) no longer reports its
   failure into the next app.

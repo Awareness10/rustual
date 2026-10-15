@@ -1,20 +1,30 @@
-# ToDo
+# Roadmap
 
-What remains for rustual to reach full parity with Python Textual 8.2.8 and to be production-ready.
-Status per feature lives in [`features.md`](features.md); this file is the actionable backlog.
-Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **L** (several days).
+Where rustual is heading: full parity with Python Textual 8.2.8, and production readiness.
+Per-feature status lives in [`features.md`](../features.md); releases follow
+[`RELEASING.md`](../RELEASING.md). Items are sized **S** (hours), **M** (a day) or **L** (several days).
 
-## 1. Releases & production readiness
+Latest release: **v0.3.0** on [PyPI](https://pypi.org/project/rustual-py/),
+[crates.io](https://crates.io/crates/rustual) and [GitHub](https://github.com/Awareness10/rustual/releases).
 
-Released so far: **v0.2.0** on [PyPI](https://pypi.org/project/rustual-py/),
-[crates.io](https://crates.io/crates/rustual) and [GitHub releases](https://github.com/Awareness10/rustual/releases).
-Releases follow [`RELEASING.md`](RELEASING.md) (`dev` → `main`, `scripts/release.py`); the tag publishes
-to PyPI and crates.io through trusted publishing (configured for all three crates and `rustual-py`).
+## Next up (0.4)
+
+Make every one of Textual's own example apps run unchanged with only the imports swapped (11 of the 15
+run today), then Textual's demo:
+
+- [ ] **`hatch` CSS** (S): hatched backgrounds (`code_browser` uses one).
+- [ ] **ANSI themes** (M): `textual-ansi` / `ansi-dark` / `ansi-light`, `ansi_default`, `:ansi` / `:nocolor`,
+  `NO_COLOR` (`theme_sandbox` lists them).
+- [ ] **Command palette providers from Python** (M): `Provider` classes and `COMMANDS` (`color_command`).
+- [ ] **Breakpoints** (S): `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS` classes on resize (`breakpoints`).
+- [ ] **Textual's demo** (L): run `python -m textual`'s `DemoApp` with the imports swapped; fix what it exposes.
+- [ ] **Real-terminal QA pass** (M): mouse, resize, true color, wide characters and performance in kitty,
+  WezTerm, Alacritty, GNOME Terminal, tmux and Windows Terminal (so far: headless, a pyte emulator, SVG
+  screenshots, and the side-by-side examples).
+
+## Releases & production readiness
 
 - [ ] **More wheel targets** (S): Linux aarch64 (manylinux + musllinux) and Windows arm64 in `release.yml`.
-- [ ] **Real-terminal QA pass** (M): mouse, resize, true color, wide characters, and performance across kitty,
-  WezTerm, Alacritty, GNOME Terminal, tmux, Windows Terminal. So far, all checks were headless (Pilot, a pyte
-  terminal emulator, SVG screenshots).
 - [ ] **Kitty keyboard protocol** (S): enable crossterm's keyboard enhancement flags where supported, so keys
   like `ctrl+enter`, `shift+enter` and key releases are distinguishable.
 - [ ] **Windows support check** (S): the test suite passes on Windows in CI; still run the examples in a real
@@ -28,16 +38,14 @@ to PyPI and crates.io through trusted publishing (configured for all three crate
   falls back to a process-global clipboard shared by Input/TextArea; remove the global so parallel tests
   can't race.
 
-## 2. Core gaps
+## Core
 
 - [ ] **Text selection & copy across widgets** (L): Textual's screen-wide mouse selection (`ALLOW_SELECT`,
   `text_select_all`, `selection` component styles), copy via OSC 52.
 - [ ] **Inline mode** (L): `App.run(inline=True)` rendering below the prompt without the alternate screen.
-- [ ] **ANSI / no-color themes** (M): `textual-ansi` theme, `ansi_default` color, `:ansi` / `:nocolor`
-  pseudo-classes, `NO_COLOR` env support.
 - [ ] **Devtools** (L): `textual console`-style log sink, `log()` API, DOM inspector.
 - [ ] **CSS hot reload** (S): watch `css_path` files and re-apply on change (Textual `--dev`).
-- [ ] **Unsupported CSS properties** (M): `hatch`, `keyline`, `constrain`, `overlay: screen` (would simplify
+- [ ] **Unsupported CSS properties** (M): `keyline`, `constrain`, `overlay: screen` (would simplify
   Select and the command palette), `expand`, `line-pad`, `pointer` (mouse cursor shapes via OSC 22),
   `layout: stream`.
 - [ ] **Snapshot testing** (M): SVG snapshot compare helper (`pilot.assert_snapshot("name")` storing
@@ -61,7 +69,7 @@ to PyPI and crates.io through trusted publishing (configured for all three crate
 - [ ] **Performance** (M): incremental restyle/relayout (dirty flags) for very large DOMs; currently the
   whole tree is restyled every frame (~2 ms per frame at 1000 widgets in release, acceptable for now).
 
-## 3. Widget gaps
+## Widgets
 
 - [ ] **TextArea** (M): autocomplete suggestions, more themes, 3-cell scroll margin.
 - [ ] **Syntax highlighting** (L): Markdown fences and TextArea use a line-based keyword highlighter (python,
@@ -83,12 +91,11 @@ to PyPI and crates.io through trusted publishing (configured for all three crate
   package).
 - [ ] **Placeholder** (S): per-app color cycling counter like Textual.
 
-## 4. Python bindings (`rustual`)
+## Python bindings
 
-- [ ] **Widget API gaps** (M): see the per-widget notes in `features.md` (e.g. TextArea `register_language`,
+- [ ] **Widget API gaps** (M): see the per-widget notes in [`features.md`](../features.md) (e.g. TextArea `register_language`,
   DataTable per-row updates, Tree label styling, reactive-style watchers on widget properties such as
   `Checkbox.value`, TabPane `Disabled`/`Enabled` messages).
-- [ ] **Command palette providers** (M): Python `Provider` classes (`COMMANDS`) on the core `CommandProvider`.
 - [ ] **`render_line` / Line API** (M): Python `ScrollView` subclasses rendering strips per line.
 - [ ] **`styles` read access** (S): expose computed styles (currently write-only, plus display/visibility).
 - [ ] **`App.suspend()`, devtools `log()`** (S each).
@@ -96,11 +103,11 @@ to PyPI and crates.io through trusted publishing (configured for all three crate
 - [ ] **Python CI on Windows/macOS** (S): the Python test suite runs on Linux only (release wheels are
   smoke-tested on all platforms).
 
-## 5. Docs & examples
+## Docs & examples
 
 - [ ] **Guide** (M): port the essential parts of Textual's guide (app basics, CSS, layout, events, actions,
   screens, workers, testing) to Rust idioms.
 - [ ] **Gallery script** (S): a script that regenerates `docs/assets/screenshots/` from every example via
   `TEXTUAL_SCREENSHOT` (the README gallery currently uses hand-made captures of 10 examples).
-- [ ] **Port Textual's example apps** (M): calculator, code browser, five-by-five, dictionary — good
-  end-to-end validation (the stopwatch tutorial already runs unchanged in Python, with a test).
+- [ ] **Bundled examples** (S): more demos in `rustual.demo` (the `rustual-py` launcher), e.g. ports of
+  Textual's calculator and five-by-five.

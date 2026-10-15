@@ -24,7 +24,7 @@
 **[Gallery](#gallery)** ·
 **[Benchmarks](#benchmarks)** ·
 **[Architecture](#architecture)** ·
-**[Roadmap](ToDo.md)**
+**[Roadmap](docs/roadmap.md)**
 
 <br>
 
@@ -387,7 +387,7 @@ Latest results on `main`, published by CI on every push:
 ## Status
 
 rustual covers roughly 90% of the Textual features apps commonly use (about 70% of full parity);
-[`features.md`](features.md) tracks every feature and [`ToDo.md`](ToDo.md) is the roadmap.
+[`features.md`](features.md) tracks every feature and [`docs/roadmap.md`](docs/roadmap.md) is the roadmap.
 It's young: CI runs the test suite on Linux, macOS and Windows, but interactive use in real terminals
 (especially on Windows) has had little testing so far.
 
