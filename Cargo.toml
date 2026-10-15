@@ -5,7 +5,7 @@ members = ["crates/rustual-render", "crates/rustual-css", "crates/rustual", "cra
 default-members = ["crates/rustual-render", "crates/rustual-css", "crates/rustual"]
 
 [workspace.package]
-version = "0.2.1-dev.0"
+version = "0.3.0-dev.0"
 edition = "2021"
 license = "MIT"
 rust-version = "1.86"
@@ -14,8 +14,8 @@ homepage = "https://github.com/Awareness10/rustual"
 authors = ["The rustual authors"]
 
 [workspace.dependencies]
-rustual-render = { path = "crates/rustual-render", version = "0.2.1-dev.0" }
-rustual-css = { path = "crates/rustual-css", version = "0.2.1-dev.0" }
+rustual-render = { path = "crates/rustual-render", version = "0.3.0-dev.0" }
+rustual-css = { path = "crates/rustual-css", version = "0.3.0-dev.0" }
 unicode-width = "0.2"
 unicode-segmentation = "1.12"
 crossterm = { version = "0.29", features = ["event-stream"] }
