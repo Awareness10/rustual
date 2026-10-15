@@ -378,8 +378,8 @@ Latest results on `master`, published by CI on every push:
 
 rustual covers roughly 90% of the Textual features apps commonly use (about 70% of full parity);
 [`features.md`](features.md) tracks every feature and [`ToDo.md`](ToDo.md) is the roadmap.
-It's young: so far it has been tested headlessly and in terminal emulators, and Windows hasn't been
-verified yet.
+It's young: CI runs the test suite on Linux, macOS and Windows, but interactive use in real terminals
+(especially on Windows) has had little testing so far.
 
 ## Contributing
 

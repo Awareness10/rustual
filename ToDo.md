@@ -11,14 +11,15 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
   terminal emulator, SVG screenshots).
 - [ ] **Kitty keyboard protocol** (S): enable crossterm's keyboard enhancement flags where supported, so keys
   like `ctrl+enter`, `shift+enter` and key releases are distinguishable.
-- [ ] **Windows support check** (M): build and run examples on Windows; suspend is unix-only.
+- [ ] **Windows support check** (S): the test suite passes on Windows in CI; still run the examples in a real
+  Windows terminal (suspend is unix-only).
 - [ ] **Public API review** (M): naming consistency (`get_value` vs `value`, builder vs setter patterns,
   which methods take `ctx`), `#[non_exhaustive]` on public enums, hide internals that leaked as `pub`.
 - [ ] **Rustdoc pass** (M): crate-level docs with a tutorial, docs on every public widget, doc-tests for
   the main APIs; `cargo doc` without warnings.
 - [ ] **Publishable crates** (S): crates.io / PyPI metadata and a README per crate. Done: LICENSE (MIT),
   CI workflow (lint, tests on Linux/macOS, MSRV 1.86, Python 3.10 + 3.14, coverage), MSRV declared.
-  Remaining: publish, abi3 wheels, Windows in CI (after the Windows check above).
+  Windows tests in CI. Remaining: publish, abi3 wheels.
 - [ ] **Clipboard fallback** (S): copy now goes through the app (OSC 52 + per-app clipboard), but paste still
   falls back to a process-global clipboard shared by Input/TextArea; remove the global so parallel tests
   can't race.
