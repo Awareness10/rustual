@@ -1103,7 +1103,11 @@ impl AppState {
         // 1. priority bindings (app first, like Textual)
         for id in chain.iter().rev() {
             for b in self.node_bindings(*id) {
-                if b.priority && b.matches(&key.key) && self.run_action(*id, &b.action) {
+                if b.priority
+                    && b.matches(&key.key)
+                    && self.action_state(*id, &b.action) == Some(true)
+                    && self.run_action(*id, &b.action)
+                {
                     return;
                 }
             }
@@ -1121,7 +1125,11 @@ impl AppState {
         let chain = self.binding_chain();
         for id in chain {
             for b in self.node_bindings(id) {
-                if !b.priority && b.matches(&key.key) && self.run_action(id, &b.action) {
+                if !b.priority
+                    && b.matches(&key.key)
+                    && self.action_state(id, &b.action) == Some(true)
+                    && self.run_action(id, &b.action)
+                {
                     return;
                 }
             }
@@ -1249,6 +1257,25 @@ impl AppState {
     // ------------------------------------------------------------------ actions
 
     /// Run an action string on behalf of `owner` (the node whose binding triggered it).
+    /// `Widget::check_action` of the widget an action string resolves to (from `owner`).
+    pub(crate) fn action_state(&self, owner: NodeId, action: &str) -> Option<bool> {
+        let parsed = Action::parse(action);
+        let target = match parsed.namespace.as_deref() {
+            Some("app") => self.root,
+            Some("screen") => self.active_screen().unwrap_or(self.root),
+            Some("focused") => match self.dom.focused {
+                Some(f) => f,
+                None => return Some(true),
+            },
+            _ => owner,
+        };
+        self.dom
+            .get(target)
+            .and_then(|n| n.widget())
+            .map(|w| w.check_action(&parsed.name, &parsed.args))
+            .unwrap_or(Some(true))
+    }
+
     pub(crate) fn run_action(&mut self, owner: NodeId, action: &str) -> bool {
         let parsed = Action::parse(action);
         let target = match parsed.namespace.as_deref() {
@@ -1437,7 +1464,12 @@ impl AppState {
         for id in chain {
             let mut group = Vec::new();
             let mut all_group = Vec::new();
-            for b in self.node_bindings(id) {
+            for mut b in self.node_bindings(id) {
+                match self.action_state(id, &b.action) {
+                    Some(false) => continue,
+                    None => b.disabled = true,
+                    Some(true) => {}
+                }
                 let k = b.keys.first().cloned().unwrap_or_default();
                 if !seen_all.contains(&k) {
                     seen_all.push(k.clone());
