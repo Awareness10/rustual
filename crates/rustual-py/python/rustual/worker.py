@@ -103,6 +103,8 @@ class Worker(Generic[ResultType]):
         self._cancelled = False
         self._task: asyncio.Task[Any] | None = None
         self._done = threading.Event()
+        # The app that started the worker: errors are only reported to it, while it runs.
+        self._app = _context._active_app
 
     def __repr__(self) -> str:
         return f"<Worker {self._state.name.lower()} name={self.name!r}>"
@@ -147,10 +149,16 @@ class Worker(Generic[ResultType]):
             self._done.set()
             WorkerManager._remove(self)
 
+    def _app_running(self) -> bool:
+        app = self._app
+        return app is not None and _context._active_app is app and getattr(app, "_running", False)
+
     def _fail(self, error: BaseException) -> None:
         self._error = error
         self._set_state(WorkerState.ERROR)
-        if self.exit_on_error:
+        # A worker that outlives its app (e.g. a thread still running after exit) fails quietly
+        # instead of reporting into whatever app runs next.
+        if self.exit_on_error and self._app_running():
             _native.report_error(WorkerFailed(error)) if _native.on_app_thread() else _native.post_call(
                 partial(_native.report_error, WorkerFailed(error))
             )

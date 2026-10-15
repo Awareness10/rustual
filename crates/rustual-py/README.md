@@ -70,8 +70,12 @@ usually means replacing `textual` with `rustual` in the imports.
 ## Install
 
 ```sh
+uvx rustual-py                # try it first: a launcher for the bundled example apps
 pip install rustual-py        # or: uv add rustual-py
 ```
+
+Once installed, `rustual-py` (or `python -m rustual`) opens the same launcher;
+`rustual-py stopwatch` runs one example directly and `rustual-py --list` lists them.
 
 Prebuilt wheels (CPython 3.10+, one per platform: Linux x86_64 glibc and musl, Windows x86_64,
 macOS Intel + Apple silicon) are on [PyPI](https://pypi.org/project/rustual-py/) and attached to
@@ -84,7 +88,7 @@ Requires Rust (stable) and [uv](https://docs.astral.sh/uv/).
 ```sh
 cd crates/rustual-py
 uv sync                                   # builds the extension with maturin
-uv run python examples/counter.py
+uv run rustual-py counter            # or just `uv run rustual-py` for the launcher
 uv run pytest                             # headless tests
 uv sync --reinstall-package rustual-py    # rebuild after changing Rust code
 ```

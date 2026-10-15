@@ -154,4 +154,4 @@ Python widget coverage (gaps vs Textual's Python API; the Rust widget's own gaps
 
 ## Roadmap
 
-See [`ToDo.md`](ToDo.md) for the prioritized backlog.
+See [`docs/roadmap.md`](docs/roadmap.md) for what's next and the backlog.

@@ -1,11 +1,6 @@
 """Textual's stopwatch tutorial, run against rustual."""
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent / "examples"))
-
-from stopwatch import Stopwatch, StopwatchApp, TimeDisplay  # noqa: E402
+from rustual.demo.stopwatch import Stopwatch, StopwatchApp, TimeDisplay
 
 
 async def test_stopwatch_tutorial():
