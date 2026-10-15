@@ -271,9 +271,9 @@ async def test_tree():
         text = pilot.screen_text()
         assert "Paul" in text and "Places" in text
 
-        await pilot.press("down")
+        # Like Textual, the cursor starts on the first line (highlighting it on mount).
         assert tree.cursor_line == 0
-        assert app.events[-1] == ("h", "Dune")
+        assert ("h", "Dune") in app.events
         await pilot.press("down", "down")
         assert tree.cursor_node is paul
         await pilot.press("enter")

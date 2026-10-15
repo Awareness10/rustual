@@ -236,6 +236,10 @@ class TreeNode(Generic[TreeDataType]):
 class Tree(DetachedNative, Widget, Generic[TreeDataType]):
     """A tree of expandable nodes with a cursor."""
 
+    def __class_getitem__(cls, item: object) -> type:
+        """``Tree[CellType]`` works as in Textual (generic over the cell / data type)."""
+        return cls
+
     _rs_kind: ClassVar[str] = "Tree"
     _rs_framework: ClassVar[bool] = True
     can_focus = True

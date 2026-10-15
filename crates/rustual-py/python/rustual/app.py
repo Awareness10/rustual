@@ -20,6 +20,10 @@ ReturnType = TypeVar("ReturnType")
 
 ComposeResult = Iterable[Widget]
 RenderResult = Any
+try:
+    from rich.console import RenderableType
+except ImportError:  # rich is optional
+    RenderableType = Any  # type: ignore[misc,assignment]
 CSSPathType = Union[str, Path, list[Union[str, Path]]]
 
 
@@ -116,6 +120,7 @@ class App(Widget, Generic[ReturnType]):
             "modes": modes,
             "default_mode": self.DEFAULT_MODE,
             "themes": [t._native() for t in self._themes.values()],
+            "command_palette": bool(self.ENABLE_COMMAND_PALETTE),
         }
 
     # -- running ------------------------------------------------------------------------------
@@ -236,11 +241,18 @@ class App(Widget, Generic[ReturnType]):
     def title(self) -> str:
         return self._title
 
+    def _set_app_text(self, which: str, value: str) -> None:
+        if not self._running:
+            return
+        try:
+            native.set_app_text(which, value)
+        except RuntimeError:  # e.g. set from compose(); apply as soon as possible
+            _context.defer(lambda: native.set_app_text(which, value))
+
     @title.setter
     def title(self, value: str) -> None:
         self._title = str(value)
-        if self._running:
-            native.set_app_text("title", self._title)
+        self._set_app_text("title", self._title)
 
     @property
     def sub_title(self) -> str:
@@ -249,20 +261,40 @@ class App(Widget, Generic[ReturnType]):
     @sub_title.setter
     def sub_title(self, value: str) -> None:
         self._sub_title = str(value)
-        if self._running:
-            native.set_app_text("sub_title", self._sub_title)
+        self._set_app_text("sub_title", self._sub_title)
 
     @property
     def theme(self) -> str:
         if self._running:
-            return native.theme()
+            try:
+                return native.theme()
+            except RuntimeError:  # e.g. in compose()
+                pass
         return self._theme or "textual-dark"
 
     @theme.setter
     def theme(self, name: str) -> None:
         self._theme = name
-        if self._running and not native.set_theme(name):
+        if not self._running:
+            return
+        try:
+            ok = native.set_theme(name)
+        except RuntimeError:  # e.g. set from compose(); apply as soon as possible
+            _context.defer(lambda: native.set_theme(name))
+            return
+        if not ok:
             raise ValueError(f"unknown theme {name!r}")
+        self.theme_changed_signal.publish(self._themes.get(name, name))
+
+    @property
+    def theme_changed_signal(self) -> Any:
+        """Published with the new theme whenever ``theme`` changes (Textual's ``theme_changed_signal``)."""
+        signal = self.__dict__.get("_theme_changed_signal")
+        if signal is None:
+            from .signal import Signal
+
+            signal = self.__dict__["_theme_changed_signal"] = Signal(self, "theme-changed")
+        return signal
 
     @property
     def available_themes(self) -> dict[str, Any]:
@@ -276,7 +308,19 @@ class App(Widget, Generic[ReturnType]):
             native.register_theme(theme._native())
 
     def get_theme(self, theme_name: str) -> Any:
-        return self._themes.get(theme_name)
+        """The :class:`~rustual.theme.Theme` named ``theme_name`` (registered or built in), or ``None``."""
+        theme = self._themes.get(theme_name)
+        if theme is None:
+            from .theme import Theme
+
+            fields = _native.builtin_theme(theme_name)
+            theme = Theme(**fields) if fields is not None else None
+        return theme
+
+    @property
+    def current_theme(self) -> Any:
+        """The active :class:`~rustual.theme.Theme`."""
+        return self.get_theme(self.theme)
 
     @property
     def size(self) -> Size:

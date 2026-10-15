@@ -59,6 +59,8 @@ pub struct FooterItem {
 pub struct Footer {
     compact: bool,
     hover: Option<usize>,
+    /// Don't show the command palette key on the right (Textual: `show_command_palette=False`).
+    hide_palette: bool,
 }
 
 impl Footer {
@@ -74,6 +76,35 @@ impl Footer {
 
     pub fn is_compact(&self) -> bool {
         self.compact
+    }
+
+    /// Show the command palette key (`^p palette`) docked on the right, as Textual does when the
+    /// palette is enabled. On by default.
+    pub fn show_command_palette(mut self, show: bool) -> Self {
+        self.hide_palette = !show;
+        self
+    }
+
+    pub fn is_showing_command_palette(&self) -> bool {
+        !self.hide_palette
+    }
+
+    pub fn set_show_command_palette(&mut self, show: bool) {
+        self.hide_palette = !show;
+    }
+
+    /// The command palette binding shown on the right (Textual: `FooterKey.-command-palette`).
+    fn palette_binding<'a>(&self, all: &'a [Vec<Binding>]) -> Option<&'a Binding> {
+        if self.hide_palette {
+            return None;
+        }
+        all.iter().flatten().find(|b| b.action == "command_palette")
+    }
+
+    /// Width of the palette item: `▏` border, key, space, description, right padding
+    /// (`padding-right: 0` when compact).
+    fn palette_width(&self, b: &Binding) -> i32 {
+        1 + cell_len(&b.display_key()) + 1 + cell_len(&b.description) + i32::from(!self.compact)
     }
 
     pub fn set_compact(&mut self, compact: bool, ctx: &mut Ctx) {
@@ -204,6 +235,15 @@ impl Widget for Footer {
             }
             Event::MouseDown(m) => {
                 let x = Self::content_x(ctx, m.x);
+                if let Some(b) = self.palette_binding(&ctx.app.env.all_bindings) {
+                    let width = ctx.content_region().width;
+                    if x >= width - self.palette_width(b) {
+                        if let Some(key) = b.keys.first().cloned() {
+                            ctx.app.handle_key(KeyEvent::new(key.as_str()));
+                        }
+                        return Flow::Stop;
+                    }
+                }
                 let items = self.layout_items(&ctx.app.env.active_bindings);
                 let Some(item) = items
                     .into_iter()
@@ -258,7 +298,28 @@ impl Widget for Footer {
             }
             x = item.end;
         }
-        let strip = Strip::new(spans).set_cell_len(ctx.size.width, &Style::new());
+        let width = ctx.size.width;
+        let palette = self
+            .palette_binding(&ctx.env.all_bindings)
+            .map(|b| (b, self.palette_width(b)))
+            .filter(|(_, w)| *w < width);
+        let Some((b, pw)) = palette else {
+            return Content::Lines(vec![Strip::new(spans).set_cell_len(width, &Style::new())]);
+        };
+        // Regular items are cut where the palette key (docked right) starts.
+        let mut strip = Strip::new(spans).set_cell_len(width - pw, &Style::new());
+        // `border-left: vkey $foreground 20%`
+        let footer_bg = ctx.background();
+        let fg = ctx
+            .var_color("foreground")
+            .unwrap_or(rustual_render::Color::rgb(224, 224, 224));
+        let border = Style::new().fg(footer_bg.composite(fg.with_alpha(0.2)));
+        strip.push(Span::new("▏", border));
+        strip.push(Span::new(b.display_key(), key_style.clone()));
+        strip.push(Span::new(format!(" {}", b.description), desc_style.clone()));
+        if !self.compact {
+            strip.push(Span::new(" ", desc_style.clone()));
+        }
         Content::Lines(vec![strip])
     }
 }

@@ -230,3 +230,31 @@ async fn default_mode_is_entered_at_startup() {
     assert_eq!(pilot.current_mode(), "one");
     assert!(pilot.css_errors().is_empty());
 }
+
+/// A screen pushed from the app's `on_mount` keeps the focus it sets in its own `on_mount`
+/// (startup auto-focus of the default screen must not override it).
+#[tokio::test]
+async fn screen_pushed_on_startup_keeps_its_focus() {
+    struct Game;
+    impl Widget for Game {
+        fn compose(&mut self) -> Vec<Child> {
+            compose![Button::new("a").id("a"), Button::new("b").id("b")]
+        }
+        fn on_mount(&mut self, ctx: &mut Ctx) {
+            if let Some(b) = ctx.query_id("#b") {
+                ctx.focus(b);
+            }
+        }
+    }
+    struct Root;
+    impl Widget for Root {
+        fn compose(&mut self) -> Vec<Child> {
+            compose![Button::new("default").id("default")]
+        }
+        fn on_mount(&mut self, ctx: &mut Ctx) {
+            ctx.push_screen(Game);
+        }
+    }
+    let pilot = App::new(Root).test(Size::new(40, 10)).await;
+    assert_eq!(pilot.focused_id().as_deref(), Some("b"));
+}

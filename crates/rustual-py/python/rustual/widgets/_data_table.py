@@ -123,6 +123,10 @@ def _ck(key: ColumnKey | str) -> str:
 class DataTable(DetachedNative, Widget):
     """A tabular widget with a cell / row / column cursor."""
 
+    def __class_getitem__(cls, item: object) -> type:
+        """``DataTable[CellType]`` works as in Textual (generic over the cell / data type)."""
+        return cls
+
     _rs_kind: ClassVar[str] = "DataTable"
     _rs_framework: ClassVar[bool] = True
     can_focus = True

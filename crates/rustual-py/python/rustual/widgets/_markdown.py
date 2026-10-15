@@ -154,6 +154,27 @@ class MarkdownTableOfContents(Widget):
         return [tuple(entry) for entry in self._native_get("table_of_contents", [])]  # type: ignore[misc]
 
 
+class _Navigator:
+    """Read-only view of a MarkdownViewer's history."""
+
+    def __init__(self, viewer: MarkdownViewer) -> None:
+        self._viewer = viewer
+
+    @property
+    def location(self) -> PurePath:
+        return PurePath(self._viewer._native_get("location", "."))
+
+    @property
+    def start(self) -> bool:
+        """Is the current location the first in the history?"""
+        return bool(self._viewer._native_get("navigator_start", True))
+
+    @property
+    def end(self) -> bool:
+        """Is the current location the last in the history?"""
+        return bool(self._viewer._native_get("navigator_end", True))
+
+
 class MarkdownViewer(Widget):
     """A scrolling Markdown document with a table of contents and link navigation."""
 
@@ -197,6 +218,11 @@ class MarkdownViewer(Widget):
     @show_table_of_contents.setter
     def show_table_of_contents(self, value: bool) -> None:
         self._native_set("show_table_of_contents", bool(value))
+
+    @property
+    def navigator(self) -> _Navigator:
+        """The viewer's history (``start`` / ``end`` / ``location``), like Textual's ``Navigator``."""
+        return _Navigator(self)
 
     def go(self, location: str | PurePath) -> AwaitComplete:
         """Navigate to a document (``file.md``, ``file.md#anchor`` or ``#anchor``)."""

@@ -165,6 +165,16 @@ pub(crate) fn call(
     )))
 }
 
+/// Payload types of the native messages whose Python handler name is in `handlers`.
+pub(crate) fn message_types_for(handlers: &[String]) -> Vec<TypeId> {
+    registry()
+        .messages
+        .iter()
+        .filter(|(_, conv)| handlers.iter().any(|h| h == conv.handler))
+        .map(|(ty, _)| *ty)
+        .collect()
+}
+
 pub(crate) fn convert_message(msg: &Message) -> Option<MessageConv> {
     registry().messages.get(&msg.payload_type_id()).copied()
 }

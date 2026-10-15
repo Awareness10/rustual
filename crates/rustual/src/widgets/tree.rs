@@ -1127,6 +1127,15 @@ impl<T: 'static> Widget for Tree<T> {
         &["Tree"]
     }
 
+    fn on_mount(&mut self, ctx: &mut Ctx) {
+        // Like Textual (`watch_show_root` → `cursor_line = -1`, clamped to 0): the cursor starts
+        // on the first line, posting `NodeHighlighted` for it.
+        if self.cursor_line == -1 {
+            self.build();
+            self.set_cursor_line(0, ctx);
+        }
+    }
+
     fn default_css(&self) -> &'static str {
         DEFAULT_CSS
     }

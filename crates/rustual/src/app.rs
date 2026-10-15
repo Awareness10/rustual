@@ -169,6 +169,8 @@ pub(crate) struct AppState {
     pub terminal: crate::terminal::TerminalState,
     /// Binding id → keys (see `crate::binding::apply_keymap`).
     pub keymap: crate::binding::Keymap,
+    /// Message types currently suppressed (Textual's `prevent`), innermost scope last.
+    pub prevented: Vec<Vec<std::any::TypeId>>,
 }
 
 /// The application: build with [`App::new`], configure, then [`App::run`] (or [`App::test`]).
@@ -244,6 +246,7 @@ impl App {
             workers: Default::default(),
             terminal: Default::default(),
             keymap: Default::default(),
+            prevented: Vec::new(),
         };
         App {
             state: Box::new(state),
@@ -667,11 +670,14 @@ impl AppState {
     }
 
     fn auto_focus(&mut self, screen: NodeId) {
-        if self
-            .dom
-            .focused
-            .map(|f| self.dom.screen_of(f) == Some(screen))
-            .unwrap_or(false)
+        // Only the active screen auto-focuses (the app's `on_mount` may already have pushed
+        // another screen on top of the default one), and never over a focus set on it.
+        if self.active_screen() != Some(screen)
+            || self
+                .dom
+                .focused
+                .map(|f| self.dom.screen_of(f) == Some(screen))
+                .unwrap_or(false)
         {
             return;
         }
@@ -784,7 +790,13 @@ impl AppState {
                     self.run_action(target, &action);
                 }
                 Pending::AutoFocus(screen) => {
-                    if self.active_screen() == Some(screen) {
+                    // Like Textual (`AUTO_FOCUS` on resume): only when nothing on the screen has
+                    // focus yet, so a focus set in the screen's `on_mount` wins.
+                    let has_focus = self
+                        .dom
+                        .focused
+                        .is_some_and(|f| self.dom.screen_of(f) == Some(screen));
+                    if self.active_screen() == Some(screen) && !has_focus {
                         self.auto_focus(screen);
                     }
                 }
@@ -798,6 +810,10 @@ impl AppState {
     }
 
     pub(crate) fn post(&mut self, target: NodeId, msg: Message) {
+        let ty = msg.payload_type_id();
+        if self.prevented.iter().any(|scope| scope.contains(&ty)) {
+            return;
+        }
         self.queue.push_back(Pending::Message { target, msg });
     }
 
@@ -1096,6 +1112,7 @@ impl AppState {
     }
 
     pub(crate) fn handle_key(&mut self, key: KeyEvent) {
+        self.dom.active_screen = self.active_screen();
         crate::tooltip::clear(self);
         if crate::screens::handle_key(self, &key) {
             return;
@@ -1273,7 +1290,7 @@ impl AppState {
         self.dom
             .get(target)
             .and_then(|n| n.widget())
-            .map(|w| w.check_action(&parsed.name, &parsed.args))
+            .map(|w| w.check_action(&parsed.name, &parsed.args, &self.dom))
             .unwrap_or(Some(true))
     }
 
@@ -1488,15 +1505,16 @@ impl AppState {
             groups.push(group);
             all_groups.push(all_group);
         }
-        // Like Textual's `Screen.active_bindings`: app first (chain order reversed), each node's
-        // bindings in declaration order.
-        groups.reverse();
+        // Like Textual's `Screen.active_bindings` (8.x): the focused widget's bindings first, then
+        // its ancestors', the screen's and the app's; each node's in declaration order.
+        // (The key panel lists the app first.)
         all_groups.reverse();
         self.env.active_bindings = groups.into_iter().flatten().collect();
         self.env.all_bindings = all_groups;
     }
 
     pub(crate) fn layout(&mut self) {
+        self.dom.active_screen = self.active_screen();
         self.update_styles();
         crate::screens::adjust_styles(self);
         self.update_active_bindings();

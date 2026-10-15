@@ -106,7 +106,9 @@ pub(crate) fn register(r: &mut Registry) {
     });
     r.kind("Footer", |_, k, _| {
         Ok(Box::new(
-            w::Footer::new().compact(kw(k, "compact")?.unwrap_or(false)),
+            w::Footer::new()
+                .compact(kw(k, "compact")?.unwrap_or(false))
+                .show_command_palette(kw(k, "show_command_palette")?.unwrap_or(true)),
         ))
     });
 

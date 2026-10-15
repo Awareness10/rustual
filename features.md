@@ -91,14 +91,14 @@ _Last updated: 2026-10-15._
 | OptionList | ✅ | 90 | |
 | ListView / ListItem | ✅ | 90 | |
 | DataTable | ✅ | 88 | cursors, sorting, fixed rows/cols, zebra, hover; per-cell alignment (`CellValue::right/center/justify`; numbers left by default, as Textual) |
-| Tree | ✅ | 90 | generic data payload, guides, keyboard + mouse |
+| Tree | ✅ | 92 | generic data payload, guides, keyboard + mouse; cursor starts on the first line (as Textual) |
 | DirectoryTree | 🟡 | 85 | lazy loading, sorting, icons, filter predicate, reload keeping expansion; synchronous I/O |
 | Tabs / Tab | ✅ | 95 | underline slides over 0.3s |
 | TabbedContent / TabPane | ✅ | 90 | |
 | ContentSwitcher | ✅ | 95 | |
 | Collapsible | ✅ | 95 | |
 | Header | ✅ | 90 | clock in UTC (offset configurable); icon opens the command palette |
-| Footer | ✅ | 90 | click replays the key; binding groups (`Binding::group(BindingGroup)`, compact groups) |
+| Footer | ✅ | 92 | Textual 8 order (focused widget → screen → app); `^p palette` key docked right (`show_command_palette`); click replays the key; binding groups (`Binding::group(BindingGroup)`, compact groups) |
 | Log | ✅ | 90 | |
 | RichLog | ✅ | 90 | `highlight(true)`: Rich `ReprHighlighter` port (`pretty::tokenize_text`), ANSI-theme colors at write time; no custom highlighter object |
 | ProgressBar | ✅ | 95 | ETA, indeterminate, gradients |
@@ -133,6 +133,7 @@ See [`docs/python-bindings.md`](docs/python-bindings.md).
 | Bindings | ✅ | 90 | `BINDINGS` (tuples / `Binding`), MRO merge, `check_action` / `refresh_bindings` |
 | Built-in widgets | ✅ | 85 | every built-in widget is bound (see below) |
 | Packaging | ✅ | 90 | abi3 wheels (CPython 3.10+) for manylinux_2_28 / musllinux_1_2 x86_64, Windows x86_64, macOS universal2 + sdist on GitHub releases; not on PyPI yet |
+| Textual helper modules | ✅ | 80 | `rustual.color` (Color, Gradient), `renderables.gradient` (LinearGradient, VerticalGradient), `highlight` (Pygments, theme-aware), `signal`, `widget.prevent()`, `auto_refresh`, `App.current_theme` / `theme_changed_signal` |
 | Not yet | ❌ | 0 | command palette providers, devtools/`log`, `App.suspend`, `render_line`, inline mode |
 
 Python widget coverage (gaps vs Textual's Python API; the Rust widget's own gaps are listed above):

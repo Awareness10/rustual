@@ -106,6 +106,14 @@ fn paint_node(canvas: &mut Canvas, dom: &Dom, env: &RenderEnv, id: NodeId, node:
         }
     } else if !bg.is_transparent() {
         canvas.fill(region, clip, bg);
+    } else if !node.is_screen {
+        // Like Textual, a widget is an opaque rectangle: with a transparent background it shows
+        // its ancestors' background *color*, not what they drew (e.g. a parent's `render()`).
+        let parent_bg = dom
+            .parent(id)
+            .map(|p| crate::widget::effective_background(dom, p))
+            .unwrap_or(Color::BLACK);
+        canvas.fill(region, clip, parent_bg);
     }
     if let Some(tint) = styles.background_tint {
         if !tint.is_transparent() {

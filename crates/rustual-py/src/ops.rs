@@ -90,7 +90,10 @@ pub fn screen_of(node: Node) -> PyResult<Option<Node>> {
 
 #[pyfunction]
 pub fn active_screen() -> PyResult<Node> {
-    with_ctx(|ctx| Ok(node_to_int(ctx.screen())))
+    with_ctx(|ctx| Ok(node_to_int(ctx.screen()))).or_else(|err| {
+        // Read-only frames (render, check_action) see the screen recorded by the last layout.
+        with_dom(|dom| dom.active_screen.map(node_to_int).ok_or(err))
+    })
 }
 
 #[pyfunction]
@@ -718,4 +721,56 @@ pub fn register_theme(theme: crate::runner::ThemeSpec) -> PyResult<()> {
         ctx.register_theme(theme.into_theme());
         Ok(())
     })
+}
+
+/// Suppress native messages handled by `handlers` (e.g. `"on_switch_changed"`) until
+/// `prevent_pop` (Textual's `with self.prevent(...)`).
+#[pyfunction]
+pub fn prevent_push(handlers: Vec<String>) -> PyResult<()> {
+    let types = crate::widgets::message_types_for(&handlers);
+    with_ctx(|ctx| {
+        ctx.prevent_messages(types);
+        Ok(())
+    })
+}
+
+#[pyfunction]
+pub fn prevent_pop() -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.allow_messages();
+        Ok(())
+    })
+}
+
+/// The fields of a built-in theme (no app needed), or `None`.
+#[pyfunction]
+pub fn builtin_theme(py: Python<'_>, name: &str) -> PyResult<Option<Py<pyo3::types::PyDict>>> {
+    let Some(t) = rustual::css::Theme::builtin()
+        .into_iter()
+        .find(|t| t.name == name)
+    else {
+        return Ok(None);
+    };
+    let d = pyo3::types::PyDict::new(py);
+    d.set_item("name", &t.name)?;
+    d.set_item("primary", &t.primary)?;
+    for (k, v) in [
+        ("secondary", &t.secondary),
+        ("warning", &t.warning),
+        ("error", &t.error),
+        ("success", &t.success),
+        ("accent", &t.accent),
+        ("foreground", &t.foreground),
+        ("background", &t.background),
+        ("surface", &t.surface),
+        ("panel", &t.panel),
+        ("boost", &t.boost),
+    ] {
+        d.set_item(k, v)?;
+    }
+    d.set_item("dark", t.dark)?;
+    d.set_item("luminosity_spread", t.luminosity_spread)?;
+    d.set_item("text_alpha", t.text_alpha)?;
+    d.set_item("variables", t.variables.clone())?;
+    Ok(Some(d.unbind()))
 }

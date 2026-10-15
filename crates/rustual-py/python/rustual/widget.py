@@ -411,13 +411,17 @@ class Widget:
         return compose(self)
 
     def _rs_on_mount(self) -> None:
+        _context.flush_deferred()
         Reactive._initialize_object(self)
         self._dispatch(events.Mount())
+        if self.__dict__.get("_auto_refresh") and self.__dict__.get("_auto_refresh_timer") is None:
+            self.auto_refresh = self.__dict__["_auto_refresh"]
 
     def _rs_on_unmount(self) -> None:
         self._dispatch(events.Unmount())
 
     def _rs_event(self, data: tuple) -> int:
+        _context.flush_deferred()
         event = events.from_native(data)
         self._dispatch(event)
         if isinstance(event, events.Key) and not event._stop_propagation and not event._no_default_action:
@@ -429,6 +433,7 @@ class Widget:
         return _flow_bits(event)
 
     def _rs_message(self, message: Message) -> int:
+        _context.flush_deferred()
         self._dispatch(message)
         return _flow_bits(message)
 
@@ -478,6 +483,7 @@ class Widget:
         return self.get_content_height(Size(width, height), Size(width, height), content_width)
 
     def _rs_invoke(self, callback: Callable[..., Any]) -> None:
+        _context.flush_deferred()
         result = callback()
         if inspect.isawaitable(result):
             _run_awaitable(self, result)
@@ -804,6 +810,20 @@ class Widget:
         if self.is_mounted:
             native.set_loading(self._node, bool(value))
 
+    @property
+    def auto_refresh(self) -> float | None:
+        """Refresh the widget every ``auto_refresh`` seconds (``None`` to stop), e.g. for animations."""
+        return self.__dict__.get("_auto_refresh")
+
+    @auto_refresh.setter
+    def auto_refresh(self, interval: float | None) -> None:
+        self.__dict__["_auto_refresh"] = interval
+        timer = self.__dict__.pop("_auto_refresh_timer", None)
+        if timer is not None:
+            timer.stop()
+        if interval and self.is_mounted:
+            self.__dict__["_auto_refresh_timer"] = self.set_interval(interval, self.refresh)
+
     def set_loading(self, loading: bool) -> AwaitComplete:
         self.loading = loading
         return AwaitComplete()
@@ -1056,6 +1076,8 @@ class Widget:
     def post_message(self, message: Message) -> bool:
         if not self.is_mounted:
             return False
+        if _context.is_prevented(message):
+            return False
         if message._sender is None:
             message._sender = self
         native.post_message(self._node, self._node, message, type(message).bubble)
@@ -1141,8 +1163,9 @@ class Widget:
     def log(self, *args: Any, **kwargs: Any) -> None:
         """Devtools logging isn't supported; this is a no-op."""
 
-    def prevent(self, *message_types: type[Message]) -> _NullContext:
-        return _NullContext()
+    def prevent(self, *message_types: type[Message]) -> _PreventContext:
+        """Suppress messages of these types posted inside the ``with`` block (by any widget)."""
+        return _PreventContext(message_types)
 
     def batch_update(self) -> _NullContext:
         return _NullContext()
@@ -1163,6 +1186,29 @@ class _NullContext:
 
     def __exit__(self, *exc: Any) -> None:
         return None
+
+
+class _PreventContext:
+    def __init__(self, message_types: tuple[type[Message], ...]) -> None:
+        self._types = message_types
+        self._native = False
+
+    def __enter__(self) -> None:
+        _context.prevented.append(self._types)
+        handlers = [t.handler_name for t in self._types]
+        try:
+            native.prevent_push(handlers)
+            self._native = True
+        except RuntimeError:  # no app (e.g. before mount): only Python messages are affected
+            self._native = False
+
+    def __exit__(self, *exc: Any) -> None:
+        _context.prevented.pop()
+        if self._native:
+            try:
+                native.prevent_pop()
+            except RuntimeError:
+                pass
 
 
 class Timer:

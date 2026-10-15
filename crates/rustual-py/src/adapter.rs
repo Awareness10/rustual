@@ -186,6 +186,24 @@ impl PyWidget {
         })
     }
 
+    /// For measuring auto sizes: if `render()` returns a Rich renderable (not text), its lines
+    /// at `width` with no height (so e.g. a `Panel` takes its natural height rather than
+    /// filling the available space, as it does when painted).
+    fn measure_rich(&self, ctx: &RenderCtx, width: i32) -> Option<Vec<rustual::render::Strip>> {
+        if !self.info.has_render {
+            return None;
+        }
+        self.call_render(ctx, |py, obj| {
+            let r = obj.call_method0("_rs_render")?;
+            if is_rich_renderable(&r)? {
+                Ok(Some(crate::widgets::rich::rich_lines(py, &r, width, None)?))
+            } else {
+                Ok(None)
+            }
+        })
+        .flatten()
+    }
+
     /// Run a Python callable (timer callback) with a frame for this widget.
     pub(crate) fn run_callback(&mut self, ctx: &mut Ctx, callback: &Py<PyAny>) {
         self.call_ctx(ctx, |py, obj| {
@@ -430,6 +448,9 @@ impl Widget for PyWidget {
 
     fn content_width(&self, ctx: &RenderCtx) -> Option<i32> {
         if !self.info.has_content_width {
+            if let Some(lines) = self.measure_rich(ctx, ctx.size.width) {
+                return Some(lines.iter().map(|l| l.cell_len()).max().unwrap_or(0));
+            }
             return self.base.content_width(ctx);
         }
         self.call_render(ctx, |_, obj| {
@@ -441,6 +462,9 @@ impl Widget for PyWidget {
 
     fn content_height(&self, ctx: &RenderCtx, width: i32) -> Option<i32> {
         if !self.info.has_content_height {
+            if let Some(lines) = self.measure_rich(ctx, width) {
+                return Some(lines.len() as i32);
+            }
             return self.base.content_height(ctx, width);
         }
         self.call_render(ctx, |_, obj| {
@@ -486,13 +510,13 @@ impl Widget for PyWidget {
         self.base.run_action(action, args, ctx)
     }
 
-    fn check_action(&self, action: &str, args: &[String]) -> Option<bool> {
+    fn check_action(&self, action: &str, args: &[String], dom: &rustual::Dom) -> Option<bool> {
         if !self.info.has_check_action {
-            return self.base.check_action(action, args);
+            return self.base.check_action(action, args, dom);
         }
-        // Called during layout (no handler context): Python may read its own state only.
+        // Called during layout: Python gets read-only access to the DOM (queries, attributes).
         call_py(|py| {
-            let _guard = bridge::push(bridge::blocked_frame());
+            let _guard = bridge::push(bridge::read_frame(dom));
             let r = self
                 .obj
                 .bind(py)
@@ -551,6 +575,17 @@ fn converted_message<'py>(
     m.setattr("_sender", node_to_int(message.sender))?;
     CONVERTED.with(|c| *c.borrow_mut() = Some((message.id, m.clone().unbind())));
     Ok(m)
+}
+
+/// A Rich renderable that isn't text (text goes through markup, see [`content_from_py`]).
+fn is_rich_renderable(r: &Bound<'_, PyAny>) -> PyResult<bool> {
+    if r.is_none() || r.cast::<PyString>().is_ok() || r.hasattr("__rs_markup__")? {
+        return Ok(false);
+    }
+    if r.hasattr("markup")? && r.hasattr("plain")? {
+        return Ok(false); // Rich `Text`
+    }
+    Ok(r.hasattr("__rich_console__")? || r.hasattr("__rich__")?)
 }
 
 /// Convert a Python `render()` result to [`Content`].

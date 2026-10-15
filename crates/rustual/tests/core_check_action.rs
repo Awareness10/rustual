@@ -18,7 +18,7 @@ impl Widget for Root {
             Binding::new("x", "secret", "Secret"),
         ]
     }
-    fn check_action(&self, action: &str, _args: &[String]) -> Option<bool> {
+    fn check_action(&self, action: &str, _args: &[String], _dom: &Dom) -> Option<bool> {
         match action {
             "prev" if self.page == 0 => None,
             "secret" => Some(false),

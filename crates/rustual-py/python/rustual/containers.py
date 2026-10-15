@@ -7,6 +7,29 @@ from typing import ClassVar
 from .widget import Widget, _NATIVE_CLASSES
 
 
+class _ContainerBase(Widget):
+    """Base of the containers: like Textual 8's, they accept ``can_focus`` / ``can_focus_children``."""
+
+    _rs_framework = True
+
+    def __init__(
+        self,
+        *children: Widget,
+        name: str | None = None,
+        id: str | None = None,
+        classes: str | None = None,
+        disabled: bool = False,
+        can_focus: bool | None = None,
+        can_focus_children: bool | None = None,
+        can_maximize: bool | None = None,
+    ) -> None:
+        super().__init__(*children, name=name, id=id, classes=classes, disabled=disabled)
+        if can_focus is not None:
+            self.can_focus = can_focus
+        if can_focus_children is not None:
+            self.can_focus_children = can_focus_children
+
+
 def _container(name: str, doc: str, can_focus: bool | None = None) -> type[Widget]:
     namespace: dict[str, object] = {
         "__doc__": doc,
@@ -14,7 +37,7 @@ def _container(name: str, doc: str, can_focus: bool | None = None) -> type[Widge
         "_rs_framework": True,
         "__module__": __name__,
     }
-    cls = type(name, (Widget,), namespace)
+    cls = type(name, (_ContainerBase,), namespace)
     _NATIVE_CLASSES[name] = cls
     return cls
 

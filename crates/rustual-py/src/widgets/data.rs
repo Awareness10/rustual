@@ -1255,7 +1255,7 @@ fn rich_log_call(
                 w.max(l.get_min_width())
             });
             let mut text = Text::new();
-            for (i, strip) in super::rich::rich_lines(py, &renderable, width)?
+            for (i, strip) in super::rich::rich_lines(py, &renderable, width, None)?
                 .into_iter()
                 .enumerate()
             {

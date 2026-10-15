@@ -42,6 +42,8 @@ pyo3::create_exception!(
 pub(crate) enum FrameKind {
     Ctx(*mut Ctx<'static>),
     Render(*const RenderCtx<'static>),
+    /// Read-only DOM access without a render context (e.g. `check_action`).
+    Read(*const Dom),
     Blocked,
 }
 
@@ -116,6 +118,15 @@ pub(crate) fn render_frame(rctx: &RenderCtx, base: &dyn Widget, obj: Option<Py<P
     }
 }
 
+pub(crate) fn read_frame(dom: &Dom) -> Frame {
+    Frame {
+        kind: FrameKind::Read(dom as *const Dom),
+        node: None,
+        base: None,
+        obj: None,
+    }
+}
+
 pub(crate) fn blocked_frame() -> Frame {
     Frame {
         kind: FrameKind::Blocked,
@@ -148,7 +159,9 @@ fn no_access_error() -> PyErr {
 }
 
 fn render_error() -> PyErr {
-    PyRuntimeError::new_err("this operation can't be used while rendering")
+    PyRuntimeError::new_err(
+        "this operation can't be used while rendering or in check_action (read-only access)",
+    )
 }
 
 fn blocked_error() -> PyErr {
@@ -163,7 +176,7 @@ pub(crate) fn with_ctx<R>(f: impl FnOnce(&mut Ctx) -> PyResult<R>) -> PyResult<R
             let ctx = unsafe { &mut *p };
             f(ctx)
         }
-        Some(FrameKind::Render(_)) => Err(render_error()),
+        Some(FrameKind::Render(_)) | Some(FrameKind::Read(_)) => Err(render_error()),
         Some(FrameKind::Blocked) => Err(blocked_error()),
         None => match PILOT.with(|c| c.get()) {
             // SAFETY: the pilot is registered only while its owner is alive and not
@@ -179,6 +192,8 @@ pub(crate) fn with_dom<R>(f: impl FnOnce(&Dom) -> PyResult<R>) -> PyResult<R> {
     match top_kind() {
         Some(FrameKind::Ctx(p)) => f(unsafe { &*p }.dom()),
         Some(FrameKind::Render(p)) => f(unsafe { &*p }.dom),
+        // SAFETY: the DOM outlives the frame (shared borrow held by the caller).
+        Some(FrameKind::Read(p)) => f(unsafe { &*p }),
         Some(FrameKind::Blocked) => Err(blocked_error()),
         None => match PILOT.with(|c| c.get()) {
             Some(p) => f(unsafe { &*p }.dom()),

@@ -510,6 +510,17 @@ impl<'a> Ctx<'a> {
         self.app.env.stylesheet.has_source(key)
     }
 
+    /// Suppress messages whose payload type is in `types` until [`Ctx::allow_messages`]
+    /// (Textual's `with self.prevent(...)`): posting them is a no-op. Scopes nest.
+    pub fn prevent_messages(&mut self, types: Vec<std::any::TypeId>) {
+        self.app.prevented.push(types);
+    }
+
+    /// End the innermost [`Ctx::prevent_messages`] scope.
+    pub fn allow_messages(&mut self) {
+        self.app.prevented.pop();
+    }
+
     /// Register (or replace) a theme at runtime (Textual's `App.register_theme`).
     pub fn register_theme(&mut self, theme: rustual_css::Theme) {
         self.app.themes.retain(|t| t.name != theme.name);

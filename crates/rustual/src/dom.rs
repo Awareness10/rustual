@@ -169,6 +169,9 @@ pub struct Dom {
     pub focused: Option<NodeId>,
     pub hovered: Option<NodeId>,
     pub dark: bool,
+    /// The active (top) screen as of the last layout / key dispatch, for read-only observers
+    /// (the runtime itself uses its screen stack).
+    pub active_screen: Option<NodeId>,
 }
 
 impl Dom {

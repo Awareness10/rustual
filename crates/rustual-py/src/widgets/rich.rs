@@ -10,6 +10,9 @@ use std::cell::RefCell;
 
 static RENDER_LINES: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
 
+/// Cache key for rendered lines: `(width, height)` (no height when measuring).
+type LinesKey = (i32, Option<i32>);
+
 fn opt(b: bool) -> Option<bool> {
     b.then_some(true)
 }
@@ -19,6 +22,7 @@ pub(crate) fn rich_lines(
     py: Python<'_>,
     renderable: &Bound<'_, PyAny>,
     width: i32,
+    height: Option<i32>,
 ) -> PyResult<Vec<Strip>> {
     let f = RENDER_LINES.get_or_try_init(py, || -> PyResult<Py<PyAny>> {
         Ok(py
@@ -28,7 +32,7 @@ pub(crate) fn rich_lines(
     })?;
     // Rich code may call back into user code: no DOM access from there.
     let _guard = crate::bridge::push(crate::bridge::blocked_frame());
-    let lines = f.bind(py).call1((renderable, width.max(1)))?;
+    let lines = f.bind(py).call1((renderable, width.max(1), height))?;
     let mut out = Vec::new();
     for line in lines.cast::<PyList>()?.iter() {
         let mut spans = Vec::new();
@@ -75,7 +79,7 @@ pub(crate) fn rich_lines(
 pub(crate) struct RichHost {
     pub inner: Box<dyn Widget>,
     rich: Option<Py<PyAny>>,
-    cache: RefCell<Option<(i32, Vec<Strip>)>>,
+    cache: RefCell<Option<(LinesKey, Vec<Strip>)>>,
 }
 
 impl RichHost {
@@ -92,15 +96,16 @@ impl RichHost {
         self.cache.replace(None);
     }
 
-    fn lines(&self, width: i32) -> Option<Vec<Strip>> {
+    /// Lines at `width` (and `height` when rendering into an area; `None` when measuring).
+    fn lines(&self, width: i32, height: Option<i32>) -> Option<Vec<Strip>> {
         let rich = self.rich.as_ref()?;
-        if let Some((w, lines)) = &*self.cache.borrow() {
-            if *w == width {
+        if let Some((key, lines)) = &*self.cache.borrow() {
+            if *key == (width, height) {
                 return Some(lines.clone());
             }
         }
-        let lines = crate::bridge::call_py(|py| rich_lines(py, rich.bind(py), width))?;
-        self.cache.replace(Some((width, lines.clone())));
+        let lines = crate::bridge::call_py(|py| rich_lines(py, rich.bind(py), width, height))?;
+        self.cache.replace(Some(((width, height), lines.clone())));
         Some(lines)
     }
 }
@@ -131,7 +136,7 @@ impl Widget for RichHost {
         self.inner.on_message(m, ctx)
     }
     fn render(&self, ctx: &RenderCtx) -> Content {
-        match self.lines(ctx.size.width) {
+        match self.lines(ctx.size.width, Some(ctx.size.height)) {
             Some(lines) => Content::Lines(lines),
             None => self.inner.render(ctx),
         }
@@ -139,14 +144,14 @@ impl Widget for RichHost {
     fn content_width(&self, ctx: &RenderCtx) -> Option<i32> {
         match self.rich {
             Some(_) => self
-                .lines(ctx.size.width)
+                .lines(ctx.size.width, None)
                 .map(|l| l.iter().map(Strip::cell_len).max().unwrap_or(0)),
             None => self.inner.content_width(ctx),
         }
     }
     fn content_height(&self, ctx: &RenderCtx, width: i32) -> Option<i32> {
         match self.rich {
-            Some(_) => self.lines(width).map(|l| l.len() as i32),
+            Some(_) => self.lines(width, None).map(|l| l.len() as i32),
             None => self.inner.content_height(ctx, width),
         }
     }
@@ -173,5 +178,10 @@ pub(crate) fn rich_content(
     ctx: &RenderCtx,
     r: &Bound<'_, PyAny>,
 ) -> PyResult<Content> {
-    Ok(Content::Lines(rich_lines(py, r, ctx.size.width)?))
+    Ok(Content::Lines(rich_lines(
+        py,
+        r,
+        ctx.size.width,
+        Some(ctx.size.height),
+    )?))
 }

@@ -22,7 +22,7 @@ class Footer(Widget):
         compact: bool = False,
     ) -> None:
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
-        self._rs_kw = {"compact": compact}
+        self._rs_kw = {"compact": compact, "show_command_palette": show_command_palette}
 
     @property
     def compact(self) -> bool:

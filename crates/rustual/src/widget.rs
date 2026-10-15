@@ -139,8 +139,9 @@ pub trait Widget: Any {
 
     /// Whether an action may run now (Textual's `check_action`): `Some(true)` runs it,
     /// `Some(false)` hides its bindings (they don't fire), `None` shows them disabled (dimmed
-    /// in the footer, not triggered). Re-evaluated on every layout.
-    fn check_action(&self, _action: &str, _args: &[String]) -> Option<bool> {
+    /// in the footer, not triggered). Re-evaluated on every layout. `dom` gives read-only access
+    /// to the rest of the app (e.g. to look at another widget's state).
+    fn check_action(&self, _action: &str, _args: &[String], _dom: &Dom) -> Option<bool> {
         Some(true)
     }
 

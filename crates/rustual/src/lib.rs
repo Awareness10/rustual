@@ -55,7 +55,7 @@ pub mod prelude {
     pub use crate::command::{Command, CommandProvider};
     pub use crate::compose;
     pub use crate::context::Ctx;
-    pub use crate::dom::NodeId;
+    pub use crate::dom::{Dom, NodeId};
     pub use crate::events::{Event, KeyEvent, MouseButton, MouseEvent};
     pub use crate::message::{Flow, Message};
     pub use crate::pilot::Pilot;

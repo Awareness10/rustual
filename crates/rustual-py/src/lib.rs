@@ -101,6 +101,9 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
         report_error,
         take_error,
         register_theme,
+        prevent_push,
+        prevent_pop,
+        builtin_theme,
     );
     Ok(())
 }

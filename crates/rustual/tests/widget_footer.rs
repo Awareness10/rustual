@@ -69,7 +69,12 @@ async fn footer_renders_bindings() {
     let mut pilot = App::new(T::default()).test(Size::new(60, 5)).await;
     assert!(pilot.css_errors().is_empty(), "{:?}", pilot.css_errors());
     let line = footer_line(&mut pilot);
-    assert_eq!(line, " q Quit  d Mark  x Hit me", "{line:?}");
+    // Focused widget first, then the app (Textual 8 `Screen.active_bindings` order).
+    // The command palette key is docked on the right after a `▏` divider (as in Textual).
+    assert_eq!(
+        line, " x Hit me  q Quit  d Mark                       ▏^p palette",
+        "{line:?}"
+    );
     // Key is bold in $footer-key-foreground, the description is not.
     let c = pilot.canvas();
     let key = c.get(1, 4).unwrap();
@@ -90,22 +95,26 @@ async fn compact_footer_has_less_whitespace() {
     })
     .test(Size::new(60, 5))
     .await;
-    assert_eq!(footer_line(&mut pilot), "q Quit d Mark x Hit me");
+    assert_eq!(
+        footer_line(&mut pilot),
+        "x Hit me q Quit d Mark                           ▏^p palette"
+    );
 }
 
 #[tokio::test]
 async fn clicking_items_runs_bindings() {
     let mut pilot = App::new(T::default()).test(Size::new(60, 5)).await;
-    // " d Mark " spans x = 8..16 → non-namespaced app action.
-    pilot.click_at(10, 4).await;
+    // Items: " x Hit me " (0..10), " q Quit " (10..18), " d Mark " (18..26).
+    // " d Mark " → non-namespaced app action.
+    pilot.click_at(20, 4).await;
     assert_eq!(pilot.app::<T>().unwrap().log, vec!["mark"]);
     // A binding of the focused widget.
-    pilot.click_at(20, 4).await;
-    assert_eq!(pilot.query_one::<Focusable>("#f").unwrap().hits, 1);
-    // Past the last item: nothing.
-    pilot.click_at(50, 4).await;
-    assert!(!pilot.has_exited());
     pilot.click_at(2, 4).await;
+    assert_eq!(pilot.query_one::<Focusable>("#f").unwrap().hits, 1);
+    // Between the last item and the palette key: nothing.
+    pilot.click_at(40, 4).await;
+    assert!(!pilot.has_exited());
+    pilot.click_at(12, 4).await;
     assert!(pilot.has_exited());
 }
 
@@ -172,4 +181,19 @@ async fn binding_groups() {
     let minus_x = line.find('-').unwrap() as i32;
     p.click_at(minus_x, 4).await;
     assert_eq!(p.app::<G>().unwrap().moved, vec!["l", "-"]);
+}
+
+#[tokio::test]
+async fn palette_key_can_be_hidden() {
+    struct NoPalette;
+    impl Widget for NoPalette {
+        fn compose(&mut self) -> Vec<Child> {
+            compose![Footer::new().show_command_palette(false)]
+        }
+        fn bindings(&self) -> Vec<Binding> {
+            vec![Binding::new("q", "quit", "Quit")]
+        }
+    }
+    let mut pilot = App::new(NoPalette).test(Size::new(60, 3)).await;
+    assert_eq!(footer_line(&mut pilot), " q Quit");
 }

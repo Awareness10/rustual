@@ -24,6 +24,7 @@ class Theme:
     luminosity_spread: float = 0.15
     text_alpha: float = 0.95
     variables: dict[str, str] = field(default_factory=dict)
+    ansi: bool = False
 
     def _native(self) -> dict[str, Any]:
         return {

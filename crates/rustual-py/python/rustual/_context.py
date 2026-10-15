@@ -123,6 +123,34 @@ async def _wrap(awaitable: Awaitable[Any]) -> Any:
 
 _runner: AsyncRunner | None = None
 
+# Native calls attempted where the DOM isn't accessible (e.g. `self.title = ...` in `compose()`),
+# applied at the next handler call.
+_deferred: list[Any] = []
+
+
+# Message types suppressed by `Widget.prevent(...)`, innermost scope last.
+prevented: list[tuple[type, ...]] = []
+
+
+def is_prevented(message: Any) -> bool:
+    return any(isinstance(message, types) for types in prevented if types)
+
+
+def defer(call: Any) -> None:
+    _deferred.append(call)
+
+
+def flush_deferred() -> None:
+    if not _deferred:
+        return
+    pending = list(_deferred)
+    _deferred.clear()
+    for call in pending:
+        try:
+            call()
+        except RuntimeError:
+            _deferred.append(call)
+
 
 def runner() -> AsyncRunner:
     global _runner

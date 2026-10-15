@@ -58,11 +58,13 @@ def _style(style: Any) -> StyleTuple | None:
     )
 
 
-def render_lines(renderable: Any, width: int) -> list[list[tuple[str, StyleTuple | None]]]:
-    """Render ``renderable`` at ``width`` cells: a list of lines of ``(text, style)`` segments."""
+def render_lines(renderable: Any, width: int, height: int | None = None) -> list[list[tuple[str, StyleTuple | None]]]:
+    """Render ``renderable`` at ``width`` cells (and ``height`` lines, when filling an area)."""
     width = max(1, int(width))
     console = _console(width)
     options = console.options.update_width(width)
+    if height is not None and height > 0:
+        options = options.update(height=int(height))
     lines = console.render_lines(renderable, options, pad=False, new_lines=False)
     out: list[list[tuple[str, StyleTuple | None]]] = []
     for line in lines:

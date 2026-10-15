@@ -25,6 +25,7 @@ pub struct AppConfig {
     modes: Vec<(String, Py<PyAny>)>,
     default_mode: Option<String>,
     themes: Vec<ThemeSpec>,
+    command_palette: bool,
 }
 
 /// A theme from Python (`rustual.theme.Theme`, passed as a dict).
@@ -86,6 +87,7 @@ fn factory(f: Py<PyAny>) -> impl Fn() -> Child + 'static {
 fn build_app(py: Python<'_>, app: &Bound<'_, PyAny>, cfg: AppConfig) -> PyResult<App> {
     let root = build_root(py, app)?;
     let mut a = App::new(root).title(&cfg.title).sub_title(&cfg.sub_title);
+    a = a.enable_command_palette(cfg.command_palette);
     for theme in cfg.themes {
         a = a.register_theme(theme.into_theme());
     }

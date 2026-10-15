@@ -88,7 +88,8 @@ async fn renders_with_guides() {
     assert_eq!(l[4], "└── ▶ Veg");
     assert_eq!(l.len(), 5);
     assert_eq!(tree(&p).line_count(), 5);
-    assert_eq!(tree(&p).cursor_line(), -1);
+    // Like Textual, the cursor starts on the first line.
+    assert_eq!(tree(&p).cursor_line(), 0);
 }
 
 #[tokio::test]
@@ -105,12 +106,17 @@ async fn hidden_root_and_guide_depth() {
 async fn cursor_navigation_and_highlight_messages() {
     let mut p = pilot(sample()).await;
     assert_eq!(p.focused_id().as_deref(), Some("tree"));
+    assert_eq!(
+        tree(&p).cursor_line(),
+        0,
+        "starts on the first line, like Textual"
+    );
     p.press(&["down"]).await;
-    assert_eq!(tree(&p).cursor_line(), 0);
-    p.press(&["down", "down"]).await;
-    assert_eq!(tree(&p).cursor_line(), 2);
-    p.press(&["up"]).await;
     assert_eq!(tree(&p).cursor_line(), 1);
+    p.press(&["down", "down"]).await;
+    assert_eq!(tree(&p).cursor_line(), 3);
+    p.press(&["up"]).await;
+    assert_eq!(tree(&p).cursor_line(), 2);
     p.press(&["end"]).await;
     assert_eq!(tree(&p).cursor_line(), 4);
     p.press(&["down"]).await;
@@ -119,10 +125,11 @@ async fn cursor_navigation_and_highlight_messages() {
     assert_eq!(
         log(&p),
         vec![
-            "highlighted Root",
+            "highlighted Root", // on mount
             "highlighted Fruit",
             "highlighted Apple",
-            "highlighted Fruit",
+            "highlighted Banana",
+            "highlighted Apple",
             "highlighted Veg",
             "highlighted Root",
         ]
@@ -156,7 +163,7 @@ async fn enter_selects_and_toggles() {
 #[tokio::test]
 async fn left_right_collapse_expand_and_move() {
     let mut p = pilot(sample()).await;
-    p.press(&["down", "down"]).await; // Fruit
+    p.press(&["down"]).await; // Fruit (the cursor starts on Root)
     p.press(&["left"]).await;
     assert!(!tree(&p).node(TreeNodeId(1)).unwrap().is_expanded());
     p.press(&["left"]).await;
@@ -180,8 +187,8 @@ async fn click_toggle_icon_and_label() {
     let mut p = pilot(sample()).await;
     // Click the ▶ of "Veg" (guide width 4) — toggles without selecting.
     p.click_at(4, 4).await;
-    assert_eq!(log(&p), vec!["expanded Veg"]);
-    assert_eq!(tree(&p).cursor_line(), -1);
+    assert_eq!(log(&p), vec!["highlighted Root", "expanded Veg"]);
+    assert_eq!(tree(&p).cursor_line(), 0, "cursor stays on Root");
     // Click the label of "Apple": moves the cursor and selects.
     p.click_at(9, 2).await;
     assert_eq!(tree(&p).cursor_line(), 2);
