@@ -16,13 +16,17 @@ pub enum Flow {
 
 /// A message: `payload` is any `Send + 'static` value. Handlers match with [`Message::get`].
 ///
-/// ```ignore
+/// ```
+/// # use rustual::prelude::*;
+/// # struct MyApp;
+/// # impl Widget for MyApp {
 /// fn on_message(&mut self, msg: &Message, ctx: &mut Ctx) -> Flow {
-///     if let Some(_) = msg.get::<button::Pressed>() {
-///         if msg.sender_id() == Some("ok") { ctx.exit(); }
+///     if msg.get::<button::Pressed>().is_some() && msg.sender_id() == Some("ok") {
+///         ctx.exit();
 ///     }
 ///     Flow::Continue
 /// }
+/// # }
 /// ```
 pub struct Message {
     /// Unique id (per process), so observers can recognise the same message while it bubbles.

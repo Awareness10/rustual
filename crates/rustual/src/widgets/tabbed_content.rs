@@ -1,12 +1,13 @@
 //! `TabbedContent` and `TabPane` (port of `textual/widgets/_tabbed_content.py`).
 //!
-//! ```ignore
-//! TabbedContent::new().initial("b").with(compose![
+//! ```
+//! # use rustual::prelude::*;
+//! let tabs = TabbedContent::new().initial("b").with(compose![
 //!     TabPane::new("Alpha").id("a").with(compose![Label::new("first")]),
 //!     TabPane::new("Beta").id("b").with(compose![Label::new("second")]),
-//! ])
+//! ]);
 //! // or, like `TabbedContent("Alpha", "Beta")` in Textual, plain children wrapped in panes:
-//! TabbedContent::new().titles(["Alpha", "Beta"]).with(compose![Label::new("1"), Label::new("2")])
+//! let titled = TabbedContent::new().titles(["Alpha", "Beta"]).with(compose![Label::new("1"), Label::new("2")]);
 //! ```
 //!
 //! How children arrive: children given with `.with(...)` are mounted as direct children of

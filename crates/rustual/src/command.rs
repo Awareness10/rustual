@@ -10,12 +10,17 @@
 //! - providers added with [`App::command_provider`];
 //! - [`Widget::commands`](crate::Widget::commands) of the app root and of the active screen.
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
+//! # struct MyApp;
+//! # impl Widget for MyApp {}
+//! # let _app =
 //! App::new(MyApp)
 //!     .command_provider(|_ctx: &mut Ctx| vec![
 //!         Command::new("Save", "Save the document", "save"),
 //!         Command::callback("Hello", "Say hello", |ctx| ctx.notify("Hello!")),
 //!     ])
+//! # ;
 //! ```
 //!
 //! Deviations from Textual: providers return all their commands up front (synchronously) and

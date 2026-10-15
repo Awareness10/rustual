@@ -2,12 +2,17 @@
 //! (port of `textual/_animator.py`).
 //!
 //! The animator lives in the app state and is driven by the event loop: while any animation is
-//! active, [`AppState::next_deadline`] includes the next frame time (~60 fps) and every frame
+//! active, `AppState::next_deadline` includes the next frame time (~60 fps) and every frame
 //! sets each animation's value for the current time. Under tokio's paused clock,
 //! [`crate::Pilot::wait`] advances animations deterministically (and finishes with a frame at
 //! exactly the target time).
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
+//! # use std::time::Duration;
+//! # struct MyWidget { glow: f32 }
+//! # impl Widget for MyWidget {}
+//! # fn demo(ctx: &mut Ctx, id: NodeId) {
 //! // Generic, callback-driven animation of any widget value (Textual: `self.animate("x", ..)`):
 //! ctx.animate_value::<MyWidget>("glow", 0.0, 1.0, Duration::from_millis(300), Easing::InOutCubic,
 //!     |w, value, _ctx| w.glow = value);
@@ -15,6 +20,7 @@
 //! ctx.animate_style(id, StyleProp::Opacity, 0.0, Duration::from_millis(500), Easing::Linear);
 //! // Smooth scrolling:
 //! ctx.scroll_to_animated(0, 40, Some(Duration::from_millis(200)));
+//! # }
 //! ```
 //!
 //! Semantics follow Textual:
@@ -424,10 +430,16 @@ impl StyleProp {
 
 /// Options for the `*_opts` animation methods (Textual's `animate(..)` keyword arguments).
 ///
-/// ```ignore
+/// ```
+/// # use rustual::prelude::*;
+/// # use std::time::Duration;
+/// # struct W { x: f32 }
+/// # impl Widget for W {}
+/// # fn demo(ctx: &mut Ctx) {
 /// ctx.animate_value_opts::<W>("x", 0.0, 100.0,
 ///     AnimateOptions::default().speed(50.0).delay(Duration::from_millis(200)),
 ///     |w, v, _| w.x = v, None);
+/// # }
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct AnimateOptions {

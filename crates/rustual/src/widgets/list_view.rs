@@ -3,11 +3,14 @@
 //! A `ListView` is a vertical scrolling container of [`ListItem`] children; each item wraps
 //! arbitrary widgets:
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
+//! # let _ =
 //! ListView::new().id("menu").with([
 //!     ListItem::new().with(compose![Label::new("One")]),
 //!     ListItem::label("Two"),
 //! ])
+//! # ;
 //! ```
 //!
 //! The highlighted item gets the `-highlight` class. Operations that change the children

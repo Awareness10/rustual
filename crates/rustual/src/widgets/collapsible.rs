@@ -1,7 +1,10 @@
 //! `Collapsible` and `CollapsibleTitle` (port of `textual/widgets/_collapsible.py`).
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
+//! # let _ =
 //! Collapsible::new("Details").collapsed(false).with(compose![Label::new("hidden stuff")])
+//! # ;
 //! ```
 //!
 //! Children given with `.with(...)` are moved into the inner `Contents` container when the

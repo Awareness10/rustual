@@ -1,9 +1,14 @@
 //! `Markdown` and `MarkdownViewer` (port of `textual/widgets/_markdown.py`).
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
+//! # fn compose() -> Vec<Child> {
 //! compose![Markdown::new("# Hello\n\nSome *markdown*.").id("md")]
+//! # }
+//! # fn handler(ctx: &mut Ctx) {
 //! // later, from a handler:
 //! ctx.with::<Markdown, _>("#md", |md, ctx| md.update("# New document", ctx));
+//! # }
 //! ```
 //!
 //! The document is parsed with `pulldown-cmark` (CommonMark + GFM tables, strikethrough and

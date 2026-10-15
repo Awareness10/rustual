@@ -1,9 +1,10 @@
 //! `Tabs`, `Tab` and the tab `Underline` (port of `textual/widgets/_tabs.py`).
 //!
-//! ```ignore
-//! Tabs::new(["Home", "Settings"])                          // auto ids `tab-1`, `tab-2`
-//! Tabs::new([Tab::new("Home").tab_id("home"), Tab::new("About").tab_id("about")]).active("about")
-//! Tabs::default().with(compose![Tab::new("A").id("a"), Tab::new("B").id("b")])  // like `Tabs(Tab(..), ..)`
+//! ```
+//! # use rustual::prelude::*;
+//! let auto = Tabs::new(["Home", "Settings"]); // auto ids `tab-1`, `tab-2`
+//! let explicit = Tabs::new([Tab::new("Home").tab_id("home"), Tab::new("About").tab_id("about")]).active("about");
+//! let composed = Tabs::default().with(compose![Tab::new("A").id("a"), Tab::new("B").id("b")]); // like `Tabs(Tab(..), ..)`
 //! ```
 //!
 //! Structure (as in Textual): `Tabs > Container#tabs-scroll > Vertical#tabs-list-bar >

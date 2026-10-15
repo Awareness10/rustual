@@ -1,10 +1,13 @@
 //! `DirectoryTree` (port of `textual/widgets/_directory_tree.py`): a [`Tree`] of files and
 //! folders that loads directory contents lazily when a folder is expanded.
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
+//! # let _ =
 //! DirectoryTree::new("./")
 //!     .filter_paths(|p| !p.file_name().is_some_and(|n| n.to_string_lossy().starts_with('.')))
 //!     .id("files")
+//! # ;
 //! ```
 //!
 //! The tree API is available through `Deref` to `Tree<DirEntry>` (`cursor_node()`, `data(id)`,

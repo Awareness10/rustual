@@ -3,7 +3,7 @@
 //! A widget's tooltip is set with [`Child::tooltip`](crate::Child::tooltip) /
 //! [`WidgetExt::tooltip`](crate::WidgetExt::tooltip) or [`Ctx::set_tooltip`]. When the mouse
 //! rests over a widget (or a descendant of one) with a tooltip for [`TOOLTIP_DELAY`], a
-//! [`Tooltip`](crate::widgets::Tooltip) is shown near the pointer: centered horizontally on
+//! [`Tooltip`] is shown near the pointer: centered horizontally on
 //! it, one row below, flipped above when there is no room, and kept on screen (Textual's
 //! `margin: 1 0; offset-x: -50%; constrain: inside inflect`).
 //!

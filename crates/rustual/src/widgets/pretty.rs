@@ -1,8 +1,11 @@
 //! `Pretty` (port of `textual/widgets/_pretty.py`): pretty-prints a value's `Debug`
 //! representation with syntax highlighting.
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
+//! # let _ =
 //! Pretty::new(&vec![("a", 1), ("b", 2)])
+//! # ;
 //! ```
 //!
 //! Like Rich's `Pretty`, the value is shown on one line (`{:?}`) when it fits the width and

@@ -2,10 +2,11 @@
 //! one is pressed. The set takes focus itself (its buttons don't) and moves a `-selected`
 //! highlight with the arrow keys; `enter` / `space` press the highlighted button.
 //!
-//! ```ignore
-//! RadioSet::new(["Red", "Green", "Blue"]).id("colors")
+//! ```
+//! # use rustual::prelude::*;
+//! let colors = RadioSet::new(["Red", "Green", "Blue"]).id("colors");
 //! // or with explicit buttons:
-//! RadioSet::default().with(compose![RadioButton::new("A"), RadioButton::new("B").value(true)])
+//! let ab = RadioSet::default().with(compose![RadioButton::new("A"), RadioButton::new("B").value(true)]);
 //! ```
 
 use super::radio_button::{self, RadioButton};

@@ -26,9 +26,9 @@ Released so far: **v0.1.0** on [GitHub releases](https://github.com/Awareness10/
   Windows terminal (suspend is unix-only).
 - [ ] **Public API review** (M): naming consistency (`get_value` vs `value`, builder vs setter patterns,
   which methods take `ctx`), `#[non_exhaustive]` on public enums, hide internals that leaked as `pub`.
-- [ ] **Rustdoc pass** (M): crate-level docs with a tutorial, docs on every public widget; turn the 23
-  `ignore`d doc examples into compiled doc-tests (`no_run` where they start a terminal); `cargo doc` without
-  warnings (and add it to CI).
+- [ ] **Rustdoc pass** (M): a crate-level tutorial and docs on every public widget. Done: all doc examples
+  are compiled doc-tests (25, `no_run` only where they start a terminal) and `cargo doc` runs warning-free in
+  CI.
 - [ ] **Clipboard fallback** (S): copy now goes through the app (OSC 52 + per-app clipboard), but paste still
   falls back to a process-global clipboard shared by Input/TextArea; remove the global so parallel tests
   can't race.

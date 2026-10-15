@@ -6,10 +6,16 @@
 //! [`StateChanged`] messages as the worker moves through [`WorkerState`]s:
 //! `Pending` (when created) → `Running` → `Success` | `Error` (panicked) | `Cancelled`.
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
+//! # async fn fetch() -> String { String::new() }
+//! # fn demo(ctx: &mut Ctx, msg: &Message) {
 //! ctx.run_worker_with(async { fetch().await }, WorkerOptions::new().name("fetch").group("net").exclusive());
 //! // in on_message:
-//! if let Some(e) = msg.get::<worker::StateChanged>() { ... e.state ... }
+//! if let Some(e) = msg.get::<worker::StateChanged>() {
+//!     println!("worker is now {:?}", e.state);
+//! }
+//! # }
 //! ```
 //!
 //! Deviations from Textual: a worker error does not exit the app (Textual's `exit_on_error`);

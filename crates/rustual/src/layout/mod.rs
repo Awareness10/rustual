@@ -1,5 +1,5 @@
 //! Layout: resolves the box model and arranges widgets (vertical, horizontal, grid, dock),
-//! writing [`NodeLayout`](crate::dom::NodeLayout) for every node of a screen.
+//! writing [`NodeLayout`] for every node of a screen.
 //!
 //! Semantics follow Textual (`reference/textual-src/textual/_arrange.py`, `layouts/*.py`,
 //! `widget.py::_get_box_model`):

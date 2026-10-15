@@ -1,11 +1,17 @@
 //! `SelectionList` (port of `textual/widgets/_selection_list.py`): an option list where each
 //! option has a check button (`▐X▌`) and a value; any number of options can be selected.
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
+//! // `Selection` here is the list item type (the prelude's `Selection` is Input's text selection).
+//! use rustual::widgets::selection_list::Selection;
+//!
+//! # let _ =
 //! SelectionList::new()
 //!     .selection(("Falken's Maze", "secret_back_door"))
-//!     .selection(("Black Jack", "black_jack", true))   // initially selected
+//!     .selection(("Black Jack", "black_jack", true)) // initially selected
 //!     .selection(Selection::new("Gin Rummy", "gin_rummy").id("gin"))
+//! # ;
 //! ```
 //!
 //! `space` / `enter` / a click toggle the highlighted selection. Messages are generic over the

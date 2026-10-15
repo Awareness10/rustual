@@ -19,9 +19,10 @@
 //! unfilled positions (default space). Any other character is a literal separator, which the
 //! cursor skips and which is inserted automatically while typing.
 //!
-//! ```ignore
-//! MaskedInput::new("9999-9999-9999-9999;0").id("card")   // credit card, blanks shown as 0
-//! MaskedInput::new(">AAA-999")                           // upper-cased letters
+//! ```
+//! # use rustual::prelude::*;
+//! let card = MaskedInput::new("9999-9999-9999-9999;0").id("card"); // credit card, blanks shown as 0
+//! let code = MaskedInput::new(">AAA-999"); // upper-cased letters
 //! ```
 //!
 //! The inner `Input` posts `input::Changed` / `input::Submitted` / `input::Blurred`.

@@ -1,12 +1,15 @@
 //! `OptionList` (port of `textual/widgets/_option_list.py`): a self-scrolling list of
 //! options with markup prompts, separators and disabled options.
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
+//! # let _ =
 //! OptionList::new()
 //!     .option("One")
 //!     .option(OptionItem::new("[b]Two[/]").id("two"))
 //!     .separator()
 //!     .option(OptionItem::new("Three").disabled(true))
+//! # ;
 //! ```
 
 use crate::binding::Binding;

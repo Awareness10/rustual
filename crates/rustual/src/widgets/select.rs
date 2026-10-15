@@ -1,8 +1,9 @@
 //! `Select` (port of `textual/widgets/_select.py`).
 //!
-//! ```ignore
-//! Select::new([("Red", 1), ("Green", 2)]).prompt("Colour").id("colour")
-//! Select::from_values(["a", "b"])            // prompts from `to_string()`
+//! ```
+//! # use rustual::prelude::*;
+//! let colour = Select::new([("Red", 1), ("Green", 2)]).prompt("Colour").id("colour");
+//! let letters = Select::from_values(["a", "b"]); // prompts from `to_string()`
 //! // on_message: if let Some(c) = msg.get::<select::Changed<i32>>() { .. }
 //! ```
 //!

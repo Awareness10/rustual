@@ -1,10 +1,13 @@
 //! `ContentSwitcher` (port of `textual/widgets/_content_switcher.py`).
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
+//! # let _ =
 //! ContentSwitcher::new().initial("a").with(compose![
 //!     Label::new("A").id("a"),
 //!     Label::new("B").id("b"),
 //! ])
+//! # ;
 //! ```
 //!
 //! Only the child whose CSS id equals [`ContentSwitcher::current`] is displayed; the others

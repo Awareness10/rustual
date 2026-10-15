@@ -1,13 +1,33 @@
 //! [`Pilot`]: drive an app headlessly in tests (like Textual's `App.run_test()` pilot).
 //!
-//! ```ignore
-//! #[tokio::test]
-//! async fn press_button() {
-//!     let mut pilot = App::new(MyApp::default()).test(Size::new(80, 24)).await;
-//!     pilot.click("#ok").await;
-//!     pilot.press(&["tab", "enter"]).await;
-//!     assert!(pilot.screen_text().contains("Pressed"));
+//! ```
+//! use rustual::prelude::*;
+//!
+//! #[derive(Default)]
+//! struct MyApp;
+//!
+//! impl Widget for MyApp {
+//!     fn compose(&mut self) -> Vec<Child> {
+//!         compose![Button::new("OK").id("ok"), Label::new("").id("status")]
+//!     }
+//!
+//!     fn on_message(&mut self, msg: &Message, ctx: &mut Ctx) -> Flow {
+//!         if msg.get::<button::Pressed>().is_some() {
+//!             if let Some(status) = ctx.query_one::<Label>("#status") {
+//!                 status.update("Pressed");
+//!             }
+//!         }
+//!         Flow::Continue
+//!     }
 //! }
+//!
+//! // In a test: `#[tokio::test] async fn press_button() { ... }`
+//! # #[tokio::main(flavor = "current_thread")]
+//! # async fn main() {
+//! let mut pilot = App::new(MyApp::default()).test(Size::new(80, 24)).await;
+//! pilot.click("#ok").await;
+//! assert!(pilot.screen_text().contains("Pressed"));
+//! # }
 //! ```
 
 use crate::app::{AppState, MouseKind, Signal};

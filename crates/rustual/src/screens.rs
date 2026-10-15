@@ -5,17 +5,32 @@
 //! (`textual/app.py`), `Screen.maximize` / `minimize` (`textual/screen.py`) and
 //! `Widget.loading` / `set_loading` (`textual/widget.py`).
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
+//! # struct MyApp;
+//! # impl Widget for MyApp {}
+//! # #[derive(Default)] struct DashboardScreen;
+//! # impl Widget for DashboardScreen {}
+//! # #[derive(Default)] struct SettingsScreen;
+//! # impl Widget for SettingsScreen {}
+//! # struct HelpScreen;
+//! # impl Widget for HelpScreen {}
+//! # fn build() -> App {
 //! App::new(MyApp)
-//!     .mode("dashboard", || DashboardScreen::new().into())
-//!     .mode("settings", || SettingsScreen::new().into())
+//!     .mode("dashboard", DashboardScreen::default)
+//!     .mode("settings", SettingsScreen::default)
 //!     .default_mode("dashboard")
-//!     .screen("help", || HelpScreen.into())
+//!     .screen("help", || HelpScreen)
+//! # }
+//! # fn handler(ctx: &mut Ctx, table_id: NodeId) {
 //! // in a handler:
 //! ctx.switch_mode("settings");
 //! ctx.push_screen_named("help");
-//! ctx.maximize(ctx.focused().unwrap());
+//! if let Some(focused) = ctx.focused() {
+//!     ctx.maximize(focused);
+//! }
 //! ctx.set_loading(table_id, true);
+//! # }
 //! ```
 //!
 //! The runtime calls the hooks here from `app.rs` (startup, pop, layout, focus chain, keys,

@@ -1,12 +1,13 @@
 //! `Tree` (port of `textual/widgets/_tree.py`): a self-scrolling tree control.
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
 //! let mut tree: Tree<u32> = Tree::new("Root");
 //! let root = tree.root();
 //! tree.set_expanded(root, true);
 //! let fruit = tree.add(root, "Fruit", None);
 //! tree.add_leaf(fruit, "[red]Apple[/]", Some(1));
-//! compose![tree.id("tree")]
+//! let children = compose![tree.id("tree")];
 //! ```
 //!
 //! Nodes live inside the widget and are addressed by [`TreeNodeId`]. Messages are not generic:

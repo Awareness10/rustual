@@ -173,7 +173,8 @@ pub(crate) struct AppState {
 
 /// The application: build with [`App::new`], configure, then [`App::run`] (or [`App::test`]).
 ///
-/// ```ignore
+/// ```no_run
+/// # use rustual::prelude::*;
 /// struct Hello;
 /// impl Widget for Hello {
 ///     fn compose(&mut self) -> Vec<Child> { compose![Label::new("Hello, World!")] }

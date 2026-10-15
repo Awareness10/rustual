@@ -2,6 +2,17 @@
 //!
 //! This crate plays the role that `rich` plays for Python Textual: colors, styles,
 //! styled text with markup, line strips, and a 2D cell canvas with diffing.
+//!
+//! ```
+//! use rustual_render::{Color, Text};
+//!
+//! // Textual markup → styled text; widths are measured in terminal cells.
+//! let text = Text::from_markup("[b red]Hello[/] 世界");
+//! assert_eq!(text.plain_text(), "Hello 世界");
+//! assert_eq!(text.cell_len(), 10); // CJK characters are two cells wide
+//!
+//! assert_eq!(Color::parse("#ff8800").unwrap(), Color::rgb(255, 136, 0));
+//! ```
 
 pub mod border;
 pub mod canvas;

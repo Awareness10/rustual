@@ -7,7 +7,7 @@
 //! the `Toast`s themselves are visible.
 //!
 //! The rack syncs its toasts with the app's notifications when it mounts and whenever a
-//! notification is added (the runtime posts [`Notified`](crate::app::Notified) to every rack).
+//! notification is added (the runtime posts [`Notified`] to every rack).
 //! A toast removes itself when its notification times out, or when clicked (which also
 //! dismisses the notification).
 

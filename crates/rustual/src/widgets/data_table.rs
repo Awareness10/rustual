@@ -1,7 +1,8 @@
 //! `DataTable` (port of `textual/widgets/_data_table.py`): a self-scrolling table with a fixed
 //! header, optional row labels, fixed rows / columns, zebra stripes and a cell / row / column cursor.
 //!
-//! ```ignore
+//! ```
+//! # use rustual::prelude::*;
 //! let mut table = DataTable::new().zebra_stripes(true).cursor_type(CursorType::Row);
 //! table.add_columns(&["Name", "Age"]);
 //! table.add_row(["Ada", "36"]);
