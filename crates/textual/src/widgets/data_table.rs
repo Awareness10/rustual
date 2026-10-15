@@ -661,6 +661,24 @@ impl DataTable {
     pub fn get_show_cursor(&self) -> bool {
         self.show_cursor
     }
+    pub fn get_show_header(&self) -> bool {
+        self.show_header
+    }
+    pub fn get_show_row_labels(&self) -> bool {
+        self.show_row_labels
+    }
+    pub fn get_fixed_rows(&self) -> usize {
+        self.fixed_rows
+    }
+    pub fn get_fixed_columns(&self) -> usize {
+        self.fixed_columns
+    }
+    pub fn get_header_height(&self) -> i32 {
+        self.header_height
+    }
+    pub fn get_cell_padding(&self) -> i32 {
+        self.cell_padding
+    }
 
     /// Change the cursor type, posting the matching `*Highlighted` message.
     pub fn set_cursor_type(&mut self, cursor_type: CursorType, ctx: &mut Ctx) {

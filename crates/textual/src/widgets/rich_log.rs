@@ -135,6 +135,41 @@ impl RichLog {
         self.auto_scroll = auto_scroll;
     }
 
+    pub fn get_auto_scroll(&self) -> bool {
+        self.auto_scroll
+    }
+
+    pub fn get_wrap(&self) -> bool {
+        self.wrap
+    }
+
+    pub fn set_markup(&mut self, markup: bool) {
+        self.markup = markup;
+    }
+
+    pub fn is_markup(&self) -> bool {
+        self.markup
+    }
+
+    pub fn get_min_width(&self) -> i32 {
+        self.min_width
+    }
+
+    pub fn set_min_width(&mut self, min_width: i32) {
+        self.min_width = min_width.max(1);
+        *self.cache.borrow_mut() = WrapCache::default();
+    }
+
+    pub fn get_max_lines(&self) -> Option<usize> {
+        self.max_lines
+    }
+
+    /// Change the maximum number of lines (oldest lines are discarded now if needed).
+    pub fn set_max_lines(&mut self, max_lines: Option<usize>) {
+        self.max_lines = max_lines;
+        self.prune();
+    }
+
     /// Number of logical lines.
     pub fn line_count(&self) -> usize {
         self.entries.len()
@@ -183,6 +218,10 @@ impl RichLog {
             self.widest = self.widest.max(line.cell_len());
             self.entries.push_back(line);
         }
+        self.prune();
+    }
+
+    fn prune(&mut self) {
         if let Some(max) = self.max_lines {
             while self.entries.len() > max {
                 self.entries.pop_front();

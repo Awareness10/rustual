@@ -340,6 +340,18 @@ impl<T: 'static> Tree<T> {
         self.show_root
     }
 
+    pub fn is_show_guides(&self) -> bool {
+        self.show_guides
+    }
+
+    pub fn get_guide_depth(&self) -> i32 {
+        self.guide_depth
+    }
+
+    pub fn is_auto_expand(&self) -> bool {
+        self.auto_expand
+    }
+
     // ------------------------------------------------------------ nodes
 
     fn new_node(

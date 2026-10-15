@@ -139,6 +139,18 @@ impl Log {
         self.auto_scroll
     }
 
+    pub fn get_max_lines(&self) -> Option<usize> {
+        self.max_lines
+    }
+
+    pub fn is_highlight(&self) -> bool {
+        self.highlight
+    }
+
+    pub fn set_highlight(&mut self, highlight: bool) {
+        self.highlight = highlight;
+    }
+
     /// The raw lines (a trailing partial line from [`Log::write`] is included).
     pub fn lines(&self) -> impl Iterator<Item = &str> {
         self.lines.iter().map(String::as_str)
@@ -167,6 +179,15 @@ impl Log {
 
     /// Like [`Log::write`]; `scroll_end` overrides `auto_scroll` when `Some`.
     pub fn write_with(&mut self, data: &str, scroll_end: Option<bool>, ctx: &mut Ctx) {
+        self.push(data);
+        if scroll_end.unwrap_or(self.auto_scroll) {
+            self::scroll_end(ctx);
+        }
+    }
+
+    /// Append raw data like [`Log::write`] without a ctx (no auto-scroll), e.g. before the
+    /// widget is mounted.
+    pub fn push(&mut self, data: &str) {
         if !data.is_empty() {
             if self.lines.is_empty() {
                 self.lines.push_back(String::new());
@@ -181,9 +202,6 @@ impl Log {
             }
         }
         self.prune();
-        if scroll_end.unwrap_or(self.auto_scroll) {
-            self::scroll_end(ctx);
-        }
     }
 
     /// Write a single line.

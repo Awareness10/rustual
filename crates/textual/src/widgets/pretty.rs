@@ -629,6 +629,15 @@ impl Pretty {
         }
     }
 
+    /// Display precomputed representations: `compact` (used when it fits on one line) and
+    /// `expanded` (multi-line), e.g. from another language's `repr`.
+    pub fn from_reprs(compact: impl Into<String>, expanded: impl Into<String>) -> Self {
+        Pretty {
+            compact: compact.into(),
+            expanded: expanded.into(),
+        }
+    }
+
     /// Replace the displayed value.
     pub fn update<T: Debug + ?Sized>(&mut self, value: &T) {
         *self = Pretty::new(value);
