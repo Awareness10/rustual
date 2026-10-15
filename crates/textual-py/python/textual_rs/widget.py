@@ -237,9 +237,21 @@ class Widget:
     _border_subtitle: str | None = None
     _tooltip: str | None = None
 
-    def __init_subclass__(cls, inherit_bindings: bool = True, **kwargs: Any) -> None:
+    def __init_subclass__(
+        cls,
+        can_focus: bool | None = None,
+        can_focus_children: bool | None = None,
+        inherit_css: bool = True,
+        inherit_bindings: bool = True,
+        inherit_component_classes: bool = True,
+        **kwargs: Any,
+    ) -> None:
         super().__init_subclass__(**kwargs)
         cls._inherit_bindings = inherit_bindings
+        if can_focus is not None:
+            cls.can_focus = can_focus
+        if can_focus_children is not None:
+            cls.can_focus_children = can_focus_children
         if "_rs_framework" not in cls.__dict__:
             cls._rs_framework = False
         # Collect @on handlers declared in this class.

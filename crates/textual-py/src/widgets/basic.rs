@@ -78,8 +78,17 @@ pub(crate) fn register(r: &mut Registry) {
                 i = i.max_length(n);
             }
         }
-        if let Some(chars) = kw::<String>(k, "restrict")? {
-            i = i.restrict_chars(&chars);
+        if let Some(fullmatch) = kw::<Py<PyAny>>(k, "restrict")? {
+            // `restrict` is a regex; Python passes the compiled pattern's `fullmatch`.
+            i = i.restrict_value(move |value| {
+                Python::attach(|py| {
+                    fullmatch
+                        .bind(py)
+                        .call1((value,))
+                        .map(|m| !m.is_none())
+                        .unwrap_or(false)
+                })
+            });
         }
         if let Some(b) = kw(k, "select_on_focus")? {
             i = i.select_on_focus(b);

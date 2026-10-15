@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, ClassVar, Literal
+import re
+from typing import Any, ClassVar, Iterable, Literal
 
 from .._bridge import _native
 from ..message import Message
+from ..validation import ValidationResult, Validator
 from ..widget import Widget, _NATIVE_CLASSES
 
 InputType = Literal["integer", "number", "text"]
@@ -16,7 +18,7 @@ class Input(Widget):
     _rs_framework: ClassVar[bool] = True
 
     class _InputMessage(Message):
-        def __init__(self, input: Input | None = None, value: str = "", validation_result: Any = None) -> None:
+        def __init__(self, input: Input | None = None, value: str = "", validation_result: ValidationResult | None = None) -> None:
             super().__init__()
             self._input = input
             self.value = value
@@ -62,8 +64,15 @@ class Input(Widget):
         compact: bool = False,
     ) -> None:
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
+        if isinstance(validators, Validator):
+            validators = [validators]
+        self.validators: list[Validator] = list(validators or [])
+        self.validate_on = set(validate_on) if validate_on is not None else {"blur", "changed", "submitted"}
+        self.valid_empty = valid_empty
+        self.restrict = restrict
         self._rs_kw = {
             "value": value or "",
+            "restrict": re.compile(restrict).fullmatch if restrict else None,
             "placeholder": placeholder,
             "password": password,
             "type": type,
@@ -143,8 +152,35 @@ class Input(Widget):
     def select_all(self) -> None:
         self._native_call("select_all")
 
-    def validate(self, value: str | None = None) -> Any:
-        return self._native_call("validate")
+    def validate(self, value: str | None = None) -> ValidationResult | None:
+        """Run the validators (or the built-in type validation) and set ``-valid``/``-invalid``."""
+        if value is None:
+            value = self.value
+        if not self.validators:
+            if self.is_mounted:
+                ok = self._native_call("validate")
+                return ValidationResult.success() if ok else ValidationResult.failure([])
+            return None
+        if self.valid_empty and value == "":
+            result = ValidationResult.success()
+        else:
+            result = ValidationResult.merge([v.validate(value) for v in self.validators])
+        self.set_class(not result.is_valid, "-invalid")
+        self.set_class(result.is_valid, "-valid")
+        return result
+
+    def _validate_message(self, event: Input._InputMessage, trigger: str) -> None:
+        if self.validators and trigger in self.validate_on and event.validation_result is None:
+            event.validation_result = self.validate(event.value)
+
+    def _on_input_changed(self, event: Input.Changed) -> None:
+        self._validate_message(event, "changed")
+
+    def _on_input_submitted(self, event: Input.Submitted) -> None:
+        self._validate_message(event, "submitted")
+
+    def _on_input_blurred(self, event: Input.Blurred) -> None:
+        self._validate_message(event, "blur")
 
     async def action_submit(self) -> None:
         self._native_call("action_submit")

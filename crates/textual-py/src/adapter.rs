@@ -392,11 +392,9 @@ impl Widget for PyWidget {
             }
         } else if let Some(conv) = crate::widgets::convert_message(message) {
             if self.handles(conv.handler) {
-                let sender = message.sender;
                 bits = self
                     .call_ctx(ctx, |py, obj| {
-                        let m = (conv.build)(py, message)?;
-                        m.setattr("_sender", node_to_int(sender))?;
+                        let m = converted_message(py, message, conv)?;
                         obj.call_method1("_rs_message", (m,))?.extract::<u32>()
                     })
                     .unwrap_or(0);
@@ -502,6 +500,32 @@ impl Widget for PyWidget {
     fn delegate_mut(&mut self) -> Option<&mut dyn Widget> {
         Some(self.base.as_mut())
     }
+}
+
+thread_local! {
+    /// The Python object for the message currently bubbling (by message id), so every handler
+    /// along the chain sees the same object (attributes set by one handler persist).
+    static CONVERTED: std::cell::RefCell<Option<(u64, Py<PyAny>)>> = const { std::cell::RefCell::new(None) };
+}
+
+fn converted_message<'py>(
+    py: Python<'py>,
+    message: &Message,
+    conv: crate::widgets::MessageConv,
+) -> PyResult<Bound<'py, PyAny>> {
+    let cached = CONVERTED.with(|c| {
+        c.borrow()
+            .as_ref()
+            .filter(|(id, _)| *id == message.id)
+            .map(|(_, obj)| obj.clone_ref(py))
+    });
+    if let Some(obj) = cached {
+        return Ok(obj.into_bound(py));
+    }
+    let m = (conv.build)(py, message)?;
+    m.setattr("_sender", node_to_int(message.sender))?;
+    CONVERTED.with(|c| *c.borrow_mut() = Some((message.id, m.clone().unbind())));
+    Ok(m)
 }
 
 /// Convert a Python `render()` result to [`Content`].

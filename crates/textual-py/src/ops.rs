@@ -295,7 +295,9 @@ pub fn focus(node: Node) -> PyResult<()> {
 #[pyfunction]
 pub fn blur() -> PyResult<()> {
     with_ctx(|ctx| {
-        ctx.blur();
+        if let Some(focused) = ctx.focused() {
+            ctx.for_node(focused, |c| c.blur());
+        }
         Ok(())
     })
 }
