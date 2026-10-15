@@ -1,16 +1,16 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Awareness10/rustual/master/docs/assets/logo.svg" alt="rustual" width="360">
+<img src="https://raw.githubusercontent.com/Awareness10/rustual/main/docs/assets/logo.svg" alt="rustual" width="360">
 
 ### rustual-py: Textual's Python API on a Rust engine
 
 [![CI](https://github.com/Awareness10/rustual/actions/workflows/ci.yml/badge.svg)](https://github.com/Awareness10/rustual/actions/workflows/ci.yml)
 [![Python tests](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Fpython-tests.json)](https://github.com/Awareness10/rustual#testing)
 [![Python coverage](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Fpython-coverage.json)](https://github.com/Awareness10/rustual#testing)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://github.com/Awareness10/rustual/tree/master/crates/rustual-py)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/Awareness10/rustual/blob/master/LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://github.com/Awareness10/rustual/tree/main/crates/rustual-py)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/Awareness10/rustual/blob/main/LICENSE)
 
-<img src="https://raw.githubusercontent.com/Awareness10/rustual/master/docs/assets/screenshots/py_stopwatch.svg" alt="Textual's stopwatch tutorial running on rustual" width="720">
+<img src="https://raw.githubusercontent.com/Awareness10/rustual/main/docs/assets/screenshots/py_stopwatch.svg" alt="Textual's stopwatch tutorial running on rustual" width="720">
 
 <sub>Textual's stopwatch tutorial, unchanged except for its imports.</sub>
 
@@ -69,19 +69,13 @@ usually means replacing `textual` with `rustual` in the imports.
 
 ## Install
 
-Prebuilt wheels (CPython 3.10+, one per platform) are attached to the
-[GitHub releases](https://github.com/Awareness10/rustual/releases/latest):
-
-| Wheel | Platform |
-|---|---|
-| `*manylinux_2_28_x86_64.whl` | Linux x86_64 (glibc 2.28+) |
-| `*musllinux_1_2_x86_64.whl` | Linux x86_64 with musl (Alpine) |
-| `*win_amd64.whl` | Windows x86_64 |
-| `*universal2.whl` | macOS (Intel and Apple silicon) |
-
 ```sh
-pip install https://github.com/Awareness10/rustual/releases/download/v0.1.0/rustual_py-0.1.0-cp310-abi3-manylinux_2_28_x86_64.whl
+pip install rustual-py        # or: uv add rustual-py
 ```
+
+Prebuilt wheels (CPython 3.10+, one per platform: Linux x86_64 glibc and musl, Windows x86_64,
+macOS Intel + Apple silicon) are on [PyPI](https://pypi.org/project/rustual-py/) and attached to
+the [GitHub releases](https://github.com/Awareness10/rustual/releases).
 
 ## Build from source
 
@@ -151,7 +145,7 @@ Each rustual step includes rendering a full frame. Run it yourself with
 - An exception in a handler exits the app cleanly (terminal restored) and is re-raised from
   `run()`, or from the next `Pilot` call in tests.
 
-See [`docs/python-bindings.md`](https://github.com/Awareness10/rustual/blob/master/docs/python-bindings.md) for the design.
+See [`docs/python-bindings.md`](https://github.com/Awareness10/rustual/blob/main/docs/python-bindings.md) for the design.
 
 ## Differences from Textual
 

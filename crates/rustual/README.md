@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Awareness10/rustual/master/docs/assets/logo.svg" alt="rustual" width="360">
+<img src="https://raw.githubusercontent.com/Awareness10/rustual/main/docs/assets/logo.svg" alt="rustual" width="360">
 
 **Textual's TUI framework, rebuilt in Rust.**
 
-[Repository](https://github.com/Awareness10/rustual) · [Features](https://github.com/Awareness10/rustual/blob/master/features.md) · [Python bindings](https://github.com/Awareness10/rustual/tree/master/crates/rustual-py)
+[Repository](https://github.com/Awareness10/rustual) · [Features](https://github.com/Awareness10/rustual/blob/main/features.md) · [Python bindings](https://github.com/Awareness10/rustual/tree/main/crates/rustual-py)
 
 </div>
 
