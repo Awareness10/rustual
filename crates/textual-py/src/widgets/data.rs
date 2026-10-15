@@ -40,11 +40,23 @@ pub(crate) fn register(r: &mut Registry) {
     // DataTable
     r.message::<dt::CellHighlighted>("on_data_table_cell_highlighted", |py, m: &Message| {
         let p = m.get::<dt::CellHighlighted>().expect("CellHighlighted");
-        cell_message(py, "DataTable.CellHighlighted", &p.value, p.coordinate, &p.cell_key)
+        cell_message(
+            py,
+            "DataTable.CellHighlighted",
+            &p.value,
+            p.coordinate,
+            &p.cell_key,
+        )
     });
     r.message::<dt::CellSelected>("on_data_table_cell_selected", |py, m: &Message| {
         let p = m.get::<dt::CellSelected>().expect("CellSelected");
-        cell_message(py, "DataTable.CellSelected", &p.value, p.coordinate, &p.cell_key)
+        cell_message(
+            py,
+            "DataTable.CellSelected",
+            &p.value,
+            p.coordinate,
+            &p.cell_key,
+        )
     });
     r.message::<dt::RowHighlighted>("on_data_table_row_highlighted", |py, m: &Message| {
         let p = m.get::<dt::RowHighlighted>().expect("RowHighlighted");
@@ -111,7 +123,9 @@ pub(crate) fn register(r: &mut Registry) {
     r.message::<directory_tree::FileSelected>(
         "on_directory_tree_file_selected",
         |py, m: &Message| {
-            let p = m.get::<directory_tree::FileSelected>().expect("FileSelected");
+            let p = m
+                .get::<directory_tree::FileSelected>()
+                .expect("FileSelected");
             path_message(py, "DirectoryTree.FileSelected", p.node, &p.path)
         },
     );
@@ -209,7 +223,7 @@ fn create(py: Python<'_>, kind: &str, k: &Bound<'_, PyDict>) -> PyResult<Box<dyn
     build(py, kind, k)
 }
 
-fn build(py: Python<'_>, kind: &str, k: &Bound<'_, PyDict>) -> PyResult<Box<dyn Widget>> {
+fn build(_py: Python<'_>, kind: &str, k: &Bound<'_, PyDict>) -> PyResult<Box<dyn Widget>> {
     Ok(match kind {
         "DataTable" => {
             let mut t = w::DataTable::new()
@@ -240,7 +254,6 @@ fn build(py: Python<'_>, kind: &str, k: &Bound<'_, PyDict>) -> PyResult<Box<dyn 
             let path: PathBuf = kw(k, "path")?.unwrap_or_else(|| PathBuf::from("."));
             let mut d = w::DirectoryTree::new(path);
             if let Some(filter) = kw::<Py<PyAny>>(k, "filter")? {
-                let _ = py;
                 d = d.filter_paths(move |p| {
                     Python::attach(|py| {
                         filter
@@ -290,7 +303,7 @@ fn build(py: Python<'_>, kind: &str, k: &Bound<'_, PyDict>) -> PyResult<Box<dyn 
                 s = s.summary_function(move |values| {
                     Python::attach(|py| {
                         f.call1(py, (values.to_vec(),))
-                            .and_then(|r| r.extract::<f64>(py).map_err(Into::into))
+                            .and_then(|r| r.extract::<f64>(py))
                             .unwrap_or(0.0)
                     })
                 });
@@ -702,9 +715,7 @@ fn table_call(
         "get_column" => cells_to_py(py, t.get_column(arg::<String>(args, 0)?).map_err(e)?),
         "get_column_at" => cells_to_py(py, t.get_column_at(arg(args, 0)?).map_err(e)?),
         "get_row_index" => to_py(py, t.get_row_index(arg::<String>(args, 0)?).map_err(e)?),
-        "get_column_index" => {
-            to_py(py, t.get_column_index(arg::<String>(args, 0)?).map_err(e)?)
-        }
+        "get_column_index" => to_py(py, t.get_column_index(arg::<String>(args, 0)?).map_err(e)?),
         "get_row_height" => to_py(py, t.get_row_height(arg::<String>(args, 0)?).map_err(e)?),
         "get_cell_coordinate" => {
             let c = t
@@ -804,7 +815,7 @@ fn table_call(
         }
         _ => Err(PyAttributeError::new_err("")),
     })())
-    .filter(|r| !matches!(r, Err(err) if err.is_instance_of::<PyAttributeError>(py) && err.value(py).to_string().is_empty()))
+    .filter(|r| !is_unknown(py, r))
 }
 
 /// Sort with a Python key function (as Textual: the key receives the values of `columns` —
@@ -826,7 +837,10 @@ fn sort_with_key(
     for row in 0..t.row_count() {
         let cells = t.get_row_at(row).map_err(|e| table_err(py, e))?;
         let values: Vec<Py<PyAny>> = if idx.is_empty() {
-            cells.iter().map(|c| cell_to_py(py, c)).collect::<PyResult<_>>()?
+            cells
+                .iter()
+                .map(|c| cell_to_py(py, c))
+                .collect::<PyResult<_>>()?
         } else {
             idx.iter()
                 .map(|i| cell_to_py(py, &cells[*i]))
@@ -841,8 +855,10 @@ fn sort_with_key(
     }
     let mut error: Option<PyErr> = None;
     let mut compare = |a: &[CellValue], b: &[CellValue]| -> Ordering {
-        let (Some(ka), Some(kb)) = (keys.get(&(a.as_ptr() as usize)), keys.get(&(b.as_ptr() as usize)))
-        else {
+        let (Some(ka), Some(kb)) = (
+            keys.get(&(a.as_ptr() as usize)),
+            keys.get(&(b.as_ptr() as usize)),
+        ) else {
             return Ordering::Equal;
         };
         let (ka, kb) = (ka.bind(py), kb.bind(py));
@@ -892,11 +908,7 @@ fn path_message<'py>(
     new_py(py, key, &d)
 }
 
-fn tree_get<T: 'static>(
-    py: Python<'_>,
-    t: &w::Tree<T>,
-    attr: &str,
-) -> Option<PyResult<Py<PyAny>>> {
+fn tree_get<T: 'static>(py: Python<'_>, t: &w::Tree<T>, attr: &str) -> Option<PyResult<Py<PyAny>>> {
     Some(match attr {
         "root" => to_py(py, t.root().0),
         "cursor_line" => to_py(py, t.cursor_line()),
@@ -925,10 +937,18 @@ fn subtree<T: 'static>(t: &w::Tree<T>, id: tree::TreeNodeId) -> Vec<usize> {
 }
 
 /// Expand / collapse without posting messages (detached trees).
-fn set_expanded_rec<T: 'static>(t: &mut w::Tree<T>, id: tree::TreeNodeId, expanded: bool, all: bool) {
+fn set_expanded_rec<T: 'static>(
+    t: &mut w::Tree<T>,
+    id: tree::TreeNodeId,
+    expanded: bool,
+    all: bool,
+) {
     t.set_expanded(id, expanded);
     if all {
-        let children = t.node(id).map(|n| n.children().to_vec()).unwrap_or_default();
+        let children = t
+            .node(id)
+            .map(|n| n.children().to_vec())
+            .unwrap_or_default();
         for c in children {
             set_expanded_rec(t, c, expanded, true);
         }
@@ -1218,6 +1238,33 @@ fn rich_log_call(
             if mode != "text" && l.is_highlighting() {
                 let dark = ctx.as_ref().is_none_or(|c| c.is_dark());
                 text = pretty::highlight_text(&text, &|t| pretty::repr_style(t, dark));
+            }
+            match ctx {
+                Some(ctx) => l.write_text_with(text, scroll_end, ctx),
+                None => l.push_text(text),
+            }
+            none(py)
+        }
+        // write_rich(renderable, width, scroll_end): a Rich renderable rendered through Rich.
+        "write_rich" => {
+            let renderable = args.get_item(0)?;
+            let width: Option<i32> = arg(args, 1)?;
+            let scroll_end: Option<bool> = arg(args, 2)?;
+            let width = width.unwrap_or_else(|| {
+                let w = ctx.as_ref().map_or(0, |c| c.size().width);
+                w.max(l.get_min_width())
+            });
+            let mut text = Text::new();
+            for (i, strip) in super::rich::rich_lines(py, &renderable, width)?
+                .into_iter()
+                .enumerate()
+            {
+                if i > 0 {
+                    text.push("\n", Default::default());
+                }
+                for span in strip.spans {
+                    text.push(span.text, span.style);
+                }
             }
             match ctx {
                 Some(ctx) => l.write_text_with(text, scroll_end, ctx),

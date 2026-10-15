@@ -18,6 +18,7 @@ use std::sync::OnceLock;
 use textual::{Ctx, Message, Widget};
 
 mod basic;
+mod data;
 pub(crate) mod rich;
 
 /// Builds a base widget from the Python constructor kwargs. May consume `children` (e.g.
@@ -81,8 +82,14 @@ fn registry() -> &'static Registry {
     R.get_or_init(|| {
         let mut r = Registry::default();
         basic::register(&mut r);
+        data::register(&mut r);
         r
     })
+}
+
+/// Register module-level functions and classes of the widget groups.
+pub(crate) fn add_to_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    data::add_to_module(m)
 }
 
 /// A widget with no behaviour of its own (base of pure-Python widgets and of the app).
