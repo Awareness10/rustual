@@ -587,6 +587,14 @@ impl Input {
                 BLINK_INTERVAL,
                 true,
                 Box::new(move |w, _ctx| {
+                    let w: &mut dyn crate::Widget = if access(w as &mut dyn Any).is_some() {
+                        w
+                    } else {
+                        match w.delegate_mut() {
+                            Some(d) => d,
+                            None => return,
+                        }
+                    };
                     if let Some(input) = access(w as &mut dyn Any) {
                         input.cursor_visible = !input.cursor_visible;
                     }

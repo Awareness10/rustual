@@ -1,6 +1,8 @@
 [workspace]
 resolver = "2"
-members = ["crates/textual-render", "crates/textual-css", "crates/textual"]
+members = ["crates/textual-render", "crates/textual-css", "crates/textual", "crates/textual-py"]
+# The Python extension is built with maturin (see crates/textual-py/README.md), not by `cargo test`.
+default-members = ["crates/textual-render", "crates/textual-css", "crates/textual"]
 
 [workspace.package]
 version = "0.1.0"

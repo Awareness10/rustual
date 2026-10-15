@@ -16,7 +16,6 @@ use crate::dom::{Dom, NodeId};
 use crate::driver::DriverEvent;
 use crate::events::{KeyEvent, MouseButton, MouseEvent};
 use crate::widget::Widget;
-use std::any::Any;
 use std::time::Duration;
 use textual_render::{Canvas, Size};
 use tokio::sync::mpsc;
@@ -275,11 +274,47 @@ impl Pilot {
         let r = self
             .state
             .call_widget(id, |w, ctx| {
-                (w as &mut dyn Any).downcast_mut::<W>().map(|w| f(w, ctx))
+                crate::widget::downcast_mut::<W>(w).map(|w| f(w, ctx))
             })
             .flatten();
         self.pause().await;
         r
+    }
+
+    /// Run `f` with a `Ctx` targeting `node` (default: the root) without checking out its widget
+    /// and without processing the consequences (call [`Pilot::pause`] for that).
+    pub fn with_ctx<R>(&mut self, node: Option<NodeId>, f: impl FnOnce(&mut Ctx) -> R) -> R {
+        let node = node.unwrap_or(self.state.root);
+        let mut ctx = Ctx {
+            app: &mut self.state,
+            node,
+        };
+        f(&mut ctx)
+    }
+
+    /// A `Send` handle for posting messages to the app.
+    pub fn handle(&self) -> crate::app::AppHandle {
+        self.state.handle()
+    }
+
+    /// Process pending work without awaiting (no runtime needed): the queue, posted signals and
+    /// due timers, then layout. Returns whether anything was processed.
+    pub fn pump(&mut self) -> bool {
+        let mut any = false;
+        for _ in 0..1000 {
+            let mut did = self.state.process_queue();
+            while let Ok(sig) = self.rx.try_recv() {
+                self.state.handle_signal(sig);
+                did = true;
+            }
+            did |= self.state.fire_due_timers();
+            any |= did;
+            if !did {
+                break;
+            }
+        }
+        self.state.layout();
+        any
     }
 
     /// The app root widget.

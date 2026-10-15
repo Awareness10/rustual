@@ -1,3 +1,9 @@
 /target
 /reference
 /.claude
+# Python bindings
+.venv/
+__pycache__/
+*.so
+*.pyc
+.pytest_cache/

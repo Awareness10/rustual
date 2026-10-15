@@ -76,6 +76,10 @@ pub trait Widget: Any {
         ""
     }
 
+    /// Called once when the widget is inserted into the DOM, before [`Widget::compose`],
+    /// with the node id it was given.
+    fn on_attach(&mut self, _id: NodeId) {}
+
     /// Child widgets created when this widget is mounted.
     fn compose(&mut self) -> Vec<Child> {
         Vec::new()
@@ -150,6 +154,34 @@ pub trait Widget: Any {
     fn help(&self) -> Option<&str> {
         None
     }
+
+    /// For wrapper widgets (such as language-binding adapters) that delegate to an inner widget:
+    /// the inner widget, so typed lookups (`dom.widget::<W>()`, `ctx.with::<W>()`, timers)
+    /// see through the wrapper.
+    fn delegate(&self) -> Option<&dyn Widget> {
+        None
+    }
+
+    /// Mutable counterpart of [`Widget::delegate`].
+    fn delegate_mut(&mut self) -> Option<&mut dyn Widget> {
+        None
+    }
+}
+
+/// Downcast a widget to `W`, looking through [`Widget::delegate`] wrappers.
+pub fn downcast_ref<W: Widget>(w: &dyn Widget) -> Option<&W> {
+    match (w as &dyn Any).downcast_ref::<W>() {
+        Some(w) => Some(w),
+        None => w.delegate().and_then(downcast_ref::<W>),
+    }
+}
+
+/// Mutable counterpart of [`downcast_ref`].
+pub fn downcast_mut<W: Widget>(w: &mut dyn Widget) -> Option<&mut W> {
+    if (w as &dyn Any).is::<W>() {
+        return (w as &mut dyn Any).downcast_mut::<W>();
+    }
+    w.delegate_mut().and_then(downcast_mut::<W>)
 }
 
 /// A widget plus the node attributes to mount it with (id, classes, inline styles, children).

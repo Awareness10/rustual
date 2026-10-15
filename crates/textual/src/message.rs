@@ -61,6 +61,11 @@ impl Message {
         self.payload.downcast_ref::<T>()
     }
 
+    /// The `TypeId` of the payload (for dispatch tables keyed by message type).
+    pub fn payload_type_id(&self) -> std::any::TypeId {
+        (*self.payload).type_id()
+    }
+
     pub fn is<T: Any>(&self) -> bool {
         self.payload.is::<T>()
     }

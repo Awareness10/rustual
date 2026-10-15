@@ -199,6 +199,9 @@ impl App {
         node.type_names.insert(node.type_names.len() - 1, "App");
         let root_id = dom.insert(node);
         dom.root = Some(root_id);
+        if let Some(w) = dom.get_mut(root_id).and_then(|n| n.widget.as_mut()) {
+            w.on_attach(root_id);
+        }
         let (tx, rx) = mpsc::unbounded_channel();
         let env = RenderEnv {
             title,
@@ -281,6 +284,16 @@ impl App {
         self.state.themes.retain(|t| t.name != theme.name);
         self.state.themes.push(theme);
         self
+    }
+
+    /// A `Send` handle for posting messages to the app (valid once it runs).
+    pub fn handle(&self) -> AppHandle {
+        self.state.handle()
+    }
+
+    /// The root node (the widget passed to [`App::new`]).
+    pub fn root(&self) -> NodeId {
+        self.state.root
     }
 
     /// CSS parse errors encountered so far (as display strings).
@@ -533,7 +546,10 @@ impl AppState {
             .dom
             .get_mut(nid)
             .and_then(|n| n.widget.as_mut())
-            .map(|w| w.compose())
+            .map(|w| {
+                w.on_attach(nid);
+                w.compose()
+            })
             .unwrap_or_default();
         for c in children.into_iter().chain(composed) {
             let cid = self.build_node(c);

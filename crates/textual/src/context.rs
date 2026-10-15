@@ -108,7 +108,7 @@ impl<'a> Ctx<'a> {
         self.app.dom.widget::<W>(id)?;
         self.app
             .call_widget(id, |w, ctx| {
-                (w as &mut dyn Any).downcast_mut::<W>().map(|w| f(w, ctx))
+                crate::widget::downcast_mut::<W>(w).map(|w| f(w, ctx))
             })
             .flatten()
     }
@@ -126,6 +126,26 @@ impl<'a> Ctx<'a> {
             .into_iter()
             .find(|id| self.app.dom.widget::<W>(*id).is_some())?;
         self.with_id(id, f)
+    }
+
+    /// Run `f` on another widget (untyped) with a `Ctx` of its own. Returns `None` if the node
+    /// doesn't exist or its widget is checked out (a handler of it is running).
+    pub fn with_widget<R>(
+        &mut self,
+        id: NodeId,
+        f: impl FnOnce(&mut dyn Widget, &mut Ctx) -> R,
+    ) -> Option<R> {
+        self.app.call_widget(id, f)
+    }
+
+    /// Run `f` with a `Ctx` targeting another node, without checking its widget out
+    /// (for node-level operations such as timers, scrolling or classes on that node).
+    pub fn for_node<R>(&mut self, id: NodeId, f: impl FnOnce(&mut Ctx) -> R) -> R {
+        let mut ctx = Ctx {
+            app: &mut *self.app,
+            node: id,
+        };
+        f(&mut ctx)
     }
 
     // ------------------------------------------------------------------ messages & actions
@@ -377,7 +397,7 @@ impl<'a> Ctx<'a> {
             delay,
             false,
             Box::new(move |w, ctx| {
-                if let Some(w) = (w as &mut dyn Any).downcast_mut::<W>() {
+                if let Some(w) = crate::widget::downcast_mut::<W>(w) {
                     f(w, ctx)
                 }
             }),
@@ -396,7 +416,7 @@ impl<'a> Ctx<'a> {
             interval,
             true,
             Box::new(move |w, ctx| {
-                if let Some(w) = (w as &mut dyn Any).downcast_mut::<W>() {
+                if let Some(w) = crate::widget::downcast_mut::<W>(w) {
                     f(w, ctx)
                 }
             }),
@@ -467,6 +487,27 @@ impl<'a> Ctx<'a> {
     pub fn set_sub_title(&mut self, sub_title: &str) {
         self.app.env.sub_title = sub_title.to_string();
         self.app.dirty = true;
+    }
+
+    /// Add (or replace) app-level CSS at runtime under `key` (e.g. a screen's `CSS`).
+    /// Returns the parse errors.
+    pub fn add_css(&mut self, key: &str, css: &str) -> Vec<String> {
+        let errors: Vec<String> = self
+            .app
+            .env
+            .stylesheet
+            .add_source(key, css, textual_css::Origin::App)
+            .into_iter()
+            .map(|e| format!("{key}:{e}"))
+            .collect();
+        self.app.css_errors.extend(errors.iter().cloned());
+        self.app.dirty = true;
+        errors
+    }
+
+    /// Whether CSS was added under `key` (see [`Ctx::add_css`]).
+    pub fn has_css(&self, key: &str) -> bool {
+        self.app.env.stylesheet.has_source(key)
     }
 
     /// Switch theme by name. Returns false if unknown.

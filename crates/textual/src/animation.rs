@@ -38,7 +38,6 @@ use crate::app::AppState;
 use crate::context::Ctx;
 use crate::dom::NodeId;
 use crate::widget::Widget;
-use std::any::Any;
 use std::collections::HashMap;
 use std::f64::consts::PI;
 use std::time::Duration;
@@ -896,7 +895,7 @@ impl AppState {
 
 fn downcast_value<W: Widget>(mut f: impl FnMut(&mut W, f32, &mut Ctx) + 'static) -> ValueCallback {
     Box::new(move |w, v, ctx| {
-        if let Some(w) = (w as &mut dyn Any).downcast_mut::<W>() {
+        if let Some(w) = crate::widget::downcast_mut::<W>(w) {
             f(w, v, ctx)
         }
     })
@@ -904,7 +903,7 @@ fn downcast_value<W: Widget>(mut f: impl FnMut(&mut W, f32, &mut Ctx) + 'static)
 
 fn downcast_complete<W: Widget>(f: impl FnOnce(&mut W, &mut Ctx) + 'static) -> CompleteCallback {
     Box::new(move |w, ctx| {
-        if let Some(w) = (w as &mut dyn Any).downcast_mut::<W>() {
+        if let Some(w) = crate::widget::downcast_mut::<W>(w) {
             f(w, ctx)
         }
     })

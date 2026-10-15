@@ -2,7 +2,6 @@
 
 use crate::widget::Widget;
 use slotmap::SlotMap;
-use std::any::Any;
 use textual_css::{SelectorList, SelectorNode, Styles};
 use textual_render::{Offset, Region, Size};
 
@@ -343,12 +342,12 @@ impl Dom {
 
     pub fn widget<W: Widget>(&self, id: NodeId) -> Option<&W> {
         let w: &dyn Widget = self.nodes.get(id)?.widget.as_deref()?;
-        (w as &dyn Any).downcast_ref::<W>()
+        crate::widget::downcast_ref::<W>(w)
     }
 
     pub fn widget_mut<W: Widget>(&mut self, id: NodeId) -> Option<&mut W> {
         let w: &mut dyn Widget = self.nodes.get_mut(id)?.widget.as_deref_mut()?;
-        (w as &mut dyn Any).downcast_mut::<W>()
+        crate::widget::downcast_mut::<W>(w)
     }
 
     /// Whether the node or any ancestor is disabled.
