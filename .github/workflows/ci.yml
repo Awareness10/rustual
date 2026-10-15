@@ -97,6 +97,8 @@ jobs:
           set -o pipefail
           cargo llvm-cov --workspace --exclude rustual-py --json --summary-only \
             --output-path "$RUNNER_TEMP/rust-cov.json" 2>&1 | tee "$RUNNER_TEMP/rust.log"
+          # llvm-cov doesn't run doc-tests on stable; run them too so the test count includes them.
+          cargo test --doc --workspace --exclude rustual-py 2>&1 | tee -a "$RUNNER_TEMP/rust.log"
 
       - name: Python tests with coverage
         working-directory: crates/rustual-py
