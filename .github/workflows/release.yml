@@ -2,7 +2,10 @@ name: Release
 
 # Builds rustual-py packages and publishes them to a GitHub release.
 #
-# - Push a tag `v*` (e.g. `v0.1.0`) to build, smoke-test and publish a release.
+# Started by `python scripts/release.py release`, which tags vX.Y.Z on main.
+# - Tag `v*`: build, smoke-test, then publish the GitHub release, PyPI (rustual-py) and
+#   crates.io (rustual-render, rustual-css, rustual). Publishing uses trusted publishing (OIDC),
+#   so no tokens are stored; already-published versions are skipped, so re-runs are safe.
 # - Run manually (Actions → Release → Run workflow) to build and test without publishing.
 #
 # Wheels are abi3 (one wheel per platform for CPython 3.10+):
@@ -20,6 +23,15 @@ env:
   PKG_DIR: crates/rustual-py
 
 jobs:
+  version:
+    name: Version check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - run: python3 scripts/release.py check
+
   sdist:
     name: Source distribution
     runs-on: ubuntu-latest
@@ -142,7 +154,7 @@ jobs:
 
   release:
     name: Publish GitHub release
-    needs: [sdist, smoke, smoke-musl]
+    needs: [version, sdist, smoke, smoke-musl]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
@@ -154,29 +166,94 @@ jobs:
           merge-multiple: true
           path: dist
       - run: ls -l dist
+      - uses: actions/checkout@v5
+        with:
+          path: src
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
-          cat > notes.md <<EOF
-          Python packages for **rustual-py** ${TAG#v}: Textual's Python API on the rustual Rust engine.
+          {
+            python3 src/scripts/release.py notes "$TAG"
+            cat <<'EOF'
 
-          | File | Platform |
+          ### Install
+
+          ```sh
+          pip install rustual-py        # Python (Textual-compatible API), CPython 3.10+
+          cargo add rustual             # Rust
+          ```
+
+          | Wheel | Platform |
           |---|---|
-          | \`*manylinux_2_28_x86_64.whl\` | Linux x86_64 (glibc 2.28+: Debian 10+, Ubuntu 18.10+, RHEL 8+, Fedora 29+) |
-          | \`*musllinux_1_2_x86_64.whl\` | Linux x86_64 with musl (Alpine 3.13+) |
-          | \`*win_amd64.whl\` | Windows x86_64 |
-          | \`*macosx_*_universal2.whl\` | macOS, Intel and Apple silicon |
-          | \`*.tar.gz\` | Source (needs a Rust toolchain to build) |
-
-          Every wheel works with CPython 3.10 and newer (abi3). Install one with:
-
-          \`\`\`sh
-          pip install <wheel file or its download URL>
-          \`\`\`
+          | `*manylinux_2_28_x86_64.whl` | Linux x86_64 (glibc 2.28+: Debian 10+, Ubuntu 18.10+, RHEL 8+) |
+          | `*musllinux_1_2_x86_64.whl` | Linux x86_64 with musl (Alpine 3.13+) |
+          | `*win_amd64.whl` | Windows x86_64 |
+          | `*universal2.whl` | macOS, Intel and Apple silicon |
+          | `*.tar.gz` | Source (needs Rust to build) |
 
           Every wheel was installed and smoke-tested on its platform before publishing.
           EOF
-          gh release create "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --title "rustual-py $TAG" \
-            --notes-file notes.md
+          } | sed 's/^          //' > notes.md
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --title "rustual $TAG" --notes-file notes.md
+          fi
+
+  pypi:
+    name: Publish to PyPI
+    needs: [release]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/rustual-py/
+    permissions:
+      id-token: write # trusted publishing
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: dist-*
+          merge-multiple: true
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+
+  crates-io:
+    name: Publish to crates.io
+    needs: [release]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment:
+      name: crates-io
+      url: https://crates.io/crates/rustual
+    permissions:
+      id-token: write # trusted publishing
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Which crates still need publishing?
+        id: pending
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          pending=""
+          for crate in rustual-render rustual-css rustual; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -A "rustual-release (github.com/${GITHUB_REPOSITORY})" \
+              "https://crates.io/api/v1/crates/$crate/$version")
+            if [ "$code" = 200 ]; then echo "$crate $version is already on crates.io"; else pending="$pending $crate"; fi
+          done
+          echo "crates=$pending" >> "$GITHUB_OUTPUT"
+      - uses: rust-lang/crates-io-auth-action@v1
+        if: steps.pending.outputs.crates != ''
+        id: auth
+      - name: Publish (in dependency order)
+        if: steps.pending.outputs.crates != ''
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+        run: |
+          for crate in ${{ steps.pending.outputs.crates }}; do
+            cargo publish -p "$crate"
+          done

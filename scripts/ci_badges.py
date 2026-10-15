@@ -11,7 +11,7 @@ Inputs:
 - ``py-cov.json``: ``pytest --cov-report=json`` report.
 
 The README displays the files through https://img.shields.io/endpoint?url=..., so the numbers
-always come from the latest CI run on master.
+always come from the latest CI run on main.
 """
 
 from __future__ import annotations

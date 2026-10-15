@@ -89,16 +89,17 @@ Render any app to SVG without a terminal: one environment variable, handy for do
 
 ## Quick start
 
-rustual isn't on crates.io / PyPI yet. Python wheels for Linux (glibc and musl), Windows and macOS
-are on [GitHub releases](https://github.com/Awareness10/rustual/releases); the Rust crates are used from this repository.
+rustual is on [crates.io](https://crates.io/crates/rustual) and [PyPI](https://pypi.org/project/rustual-py/)
+(prebuilt wheels for Linux, Windows and macOS; also attached to the
+[GitHub releases](https://github.com/Awareness10/rustual/releases)).
 
 <details open>
 <summary><b>Rust</b></summary>
 
 ```toml
-# Cargo.toml
+# cargo add rustual tokio --features tokio/full
 [dependencies]
-rustual = { git = "https://github.com/Awareness10/rustual" }
+rustual = "0.2"
 tokio = { version = "1", features = ["full"] }
 ```
 
@@ -141,10 +142,8 @@ Or try the bundled examples: `cargo run -p rustual --example dashboard`
 <details open>
 <summary><b>Python</b></summary>
 
-Install a prebuilt wheel from the [latest release](https://github.com/Awareness10/rustual/releases/latest) (CPython 3.10+), for example:
-
 ```sh
-pip install https://github.com/Awareness10/rustual/releases/download/v0.1.0/rustual_py-0.1.0-cp310-abi3-manylinux_2_28_x86_64.whl
+pip install rustual-py        # or: uv add rustual-py   (CPython 3.10+)
 ```
 
 Or build from source (needs Rust):
@@ -373,7 +372,7 @@ cargo llvm-cov --workspace --exclude rustual-py # Rust line coverage
 uv run pytest --cov=rustual                     # Python line coverage
 ```
 
-Latest results on `master`, published by CI on every push:
+Latest results on `main`, published by CI on every push:
 
 [![Rust tests](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Frust-tests.json)](https://github.com/Awareness10/rustual/actions/workflows/ci.yml)
 [![Python tests](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Fpython-tests.json)](https://github.com/Awareness10/rustual/actions/workflows/ci.yml)
@@ -393,7 +392,8 @@ It's young: CI runs the test suite on Linux, macOS and Windows, but interactive 
 
 ## Contributing
 
-Issues and pull requests are welcome. Before opening a PR:
+Issues and pull requests are welcome; work happens on the `dev` branch (`main` holds releases, see
+[`RELEASING.md`](RELEASING.md)). Before opening a PR:
 
 ```sh
 cargo fmt --all && cargo clippy --workspace --all-targets -- -D warnings && cargo test
