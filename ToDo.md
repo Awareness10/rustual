@@ -17,7 +17,6 @@ Released so far: **v0.1.0** on [GitHub releases](https://github.com/Awareness10/
   dependency order (add `version` to the workspace path dependencies, a README per crate, `keywords` /
   `categories` / `repository` metadata; `cargo publish --dry-run` in CI); keep `rustual-py` `publish = false`.
 - [ ] **More wheel targets** (S): Linux aarch64 (manylinux + musllinux) and Windows arm64 in `release.yml`.
-
 - [ ] **Real-terminal QA pass** (M): mouse, resize, true color, wide characters, and performance across kitty,
   WezTerm, Alacritty, GNOME Terminal, tmux, Windows Terminal. So far, all checks were headless (Pilot, a pyte
   terminal emulator, SVG screenshots).
