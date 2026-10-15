@@ -490,6 +490,22 @@ impl<T: Clone + PartialEq + Send + 'static> Select<T> {
         self.expanded
     }
 
+    /// The text shown when nothing is selected.
+    pub fn get_prompt(&self) -> &str {
+        &self.prompt
+    }
+
+    /// Whether the blank (no selection) state is allowed.
+    pub fn allows_blank(&self) -> bool {
+        self.allow_blank
+    }
+
+    /// Change the prompt shown when nothing is selected.
+    pub fn set_prompt(&mut self, prompt: impl Into<String>, ctx: &mut Ctx) {
+        self.prompt = prompt.into();
+        self.update_current(ctx);
+    }
+
     /// Prompts of the selectable options (excluding the blank entry).
     pub fn option_prompts(&self) -> Vec<&str> {
         self.options

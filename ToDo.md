@@ -76,7 +76,18 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
   `Static` / `RichLog`.
 - [ ] **Placeholder** (S): per-app color cycling counter like Textual.
 
-## 4. Docs & examples
+## 4. Python bindings (`textual_rs`)
+
+- [ ] **Remaining widget bindings** (M): bind every built-in widget (in progress: forms, data, content batches).
+- [ ] **`check_action` / `refresh_bindings`** (S, needs the core `check_action` above).
+- [ ] **Command palette providers** (M): Python `Provider` classes (`COMMANDS`) on the core `CommandProvider`.
+- [ ] **`render_line` / Line API** (M): Python `ScrollView` subclasses rendering strips per line.
+- [ ] **`styles` read access** (S): expose computed styles (currently write-only, plus display/visibility).
+- [ ] **`App.suspend()`, devtools `log()`** (S each).
+- [ ] **Wheels & CI** (S): build abi3 wheels for Linux/macOS/Windows with maturin in CI; publish.
+- [ ] **Type stubs** (S): `py.typed` + stubs for `_native`.
+
+## 5. Docs & examples
 
 - [ ] **Guide** (M): port the essential parts of Textual's guide (app basics, CSS, layout, events, actions,
   screens, workers, testing) to Rust idioms.

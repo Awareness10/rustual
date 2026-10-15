@@ -19,6 +19,7 @@ use textual::{Ctx, Message, Widget};
 
 mod basic;
 mod content;
+mod forms;
 pub(crate) mod rich;
 
 /// Builds a base widget from the Python constructor kwargs. May consume `children` (e.g.
@@ -83,6 +84,7 @@ fn registry() -> &'static Registry {
         let mut r = Registry::default();
         basic::register(&mut r);
         content::register(&mut r);
+        forms::register(&mut r);
         r
     })
 }

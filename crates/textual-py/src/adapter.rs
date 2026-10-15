@@ -30,6 +30,7 @@ pub(crate) struct ClassInfo {
     has_content_width: bool,
     has_content_height: bool,
     has_key_methods: bool,
+    has_check_action: bool,
     bindings: Vec<Binding>,
     help: Option<&'static str>,
     /// Base widget CSS + Python `DEFAULT_CSS` (the base kind is fixed per class).
@@ -102,6 +103,7 @@ pub(crate) fn class_info(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Arc
         has_content_width: get("has_content_width")?.extract()?,
         has_content_height: get("has_content_height")?.extract()?,
         has_key_methods,
+        has_check_action: get("has_check_action")?.extract()?,
         handlers,
         bindings,
         help: help.map(leak),
@@ -482,6 +484,26 @@ impl Widget for PyWidget {
             }
         }
         self.base.run_action(action, args, ctx)
+    }
+
+    fn check_action(&self, action: &str, args: &[String]) -> Option<bool> {
+        if !self.info.has_check_action {
+            return self.base.check_action(action, args);
+        }
+        // Called during layout (no handler context): Python may read its own state only.
+        call_py(|py| {
+            let _guard = bridge::push(bridge::blocked_frame());
+            let r = self
+                .obj
+                .bind(py)
+                .call_method1("_rs_check_action", (action, args.to_vec()))?;
+            if r.is_none() {
+                Ok(None)
+            } else {
+                Ok(Some(r.is_truthy()?))
+            }
+        })
+        .unwrap_or(Some(true))
     }
 
     fn commands(&self) -> Vec<textual::Command> {

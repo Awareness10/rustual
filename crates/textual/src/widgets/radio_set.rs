@@ -81,6 +81,8 @@ pub struct Changed {
     pub pressed_index: usize,
     /// Plain-text label of the pressed button.
     pub pressed_label: String,
+    /// Node of the pressed button.
+    pub pressed: NodeId,
     /// The CSS id of the radio set, if any.
     pub radio_set_id: Option<String>,
 }
@@ -308,6 +310,7 @@ impl Widget for RadioSet {
             ctx.post_message(Changed {
                 pressed_index: index,
                 pressed_label,
+                pressed: sender,
                 radio_set_id,
             });
             self.selected = Some(index);
