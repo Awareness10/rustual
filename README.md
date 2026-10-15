@@ -9,9 +9,9 @@
 <br>
 
 [![CI](https://github.com/Awareness10/rustual/actions/workflows/ci.yml/badge.svg)](https://github.com/Awareness10/rustual/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-628%20passing-brightgreen?style=flat-square)](#testing)
-[![Rust coverage](https://img.shields.io/badge/rust%20coverage-86%25-brightgreen?style=flat-square&logo=rust)](#testing)
-[![Python coverage](https://img.shields.io/badge/python%20coverage-82%25-green?style=flat-square&logo=python&logoColor=white)](#testing)
+[![Tests](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Ftests.json)](#testing)
+[![Rust coverage](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Frust-coverage.json)](#testing)
+[![Python coverage](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Fpython-coverage.json)](#testing)
 <br>
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Rust 1.86+](https://img.shields.io/badge/rust-1.86%2B-CE422B?style=flat-square&logo=rust)](https://www.rust-lang.org)
@@ -357,13 +357,22 @@ async def test_counter():
 </table>
 
 ```sh
-cargo test                                      # 568 Rust tests
-cd crates/rustual-py && uv run pytest           # 60 Python tests
-cargo llvm-cov --workspace --exclude rustual-py # Rust coverage (86% of lines)
-uv run pytest --cov=rustual                     # Python coverage (82% of lines)
+cargo test                                      # Rust tests
+cd crates/rustual-py && uv run pytest           # Python tests
+cargo llvm-cov --workspace --exclude rustual-py # Rust line coverage
+uv run pytest --cov=rustual                     # Python line coverage
 ```
 
-Coverage figures were measured on 2026-10-15; CI runs the same commands.
+Latest results on `master`, published by CI on every push:
+
+[![Rust tests](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Frust-tests.json)](https://github.com/Awareness10/rustual/actions/workflows/ci.yml)
+[![Python tests](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Fpython-tests.json)](https://github.com/Awareness10/rustual/actions/workflows/ci.yml)
+[![Rust coverage](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Frust-coverage.json)](https://github.com/Awareness10/rustual/actions/workflows/ci.yml)
+[![Python coverage](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fraw.githubusercontent.com%2FAwareness10%2Frustual%2Fbadges%2Fpython-coverage.json)](https://github.com/Awareness10/rustual/actions/workflows/ci.yml)
+
+<sub>The CI job runs the commands above and writes the results to the
+[`badges`](https://github.com/Awareness10/rustual/tree/badges) branch
+([`scripts/ci_badges.py`](scripts/ci_badges.py)); the badges read them from there.</sub>
 
 ## Status
 
