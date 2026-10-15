@@ -1,0 +1,182 @@
+name: Release
+
+# Builds rustual-py packages and publishes them to a GitHub release.
+#
+# - Push a tag `v*` (e.g. `v0.1.0`) to build, smoke-test and publish a release.
+# - Run manually (Actions → Release → Run workflow) to build and test without publishing.
+#
+# Wheels are abi3 (one wheel per platform for CPython 3.10+):
+#   manylinux_2_28 x86_64 · musllinux_1_2 x86_64 · Windows x86_64 · macOS universal2 (Intel + Apple silicon)
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PKG_DIR: crates/rustual-py
+
+jobs:
+  sdist:
+    name: Source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist
+          working-directory: ${{ env.PKG_DIR }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-sdist
+          path: ${{ env.PKG_DIR }}/dist
+
+  linux:
+    name: Linux (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: manylinux_2_28
+            manylinux: "2_28"
+          - platform: musllinux_1_2
+            manylinux: musllinux_1_2
+    steps:
+      - uses: actions/checkout@v5
+      - uses: PyO3/maturin-action@v1
+        with:
+          target: x86_64
+          manylinux: ${{ matrix.manylinux }}
+          args: --release --out dist
+          working-directory: ${{ env.PKG_DIR }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.platform }}
+          path: ${{ env.PKG_DIR }}/dist
+
+  windows:
+    name: Windows (x86_64)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          architecture: x64
+      - uses: PyO3/maturin-action@v1
+        with:
+          target: x64
+          args: --release --out dist
+          working-directory: ${{ env.PKG_DIR }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-windows-x86_64
+          path: ${{ env.PKG_DIR }}/dist
+
+  macos:
+    name: macOS (universal2)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - uses: PyO3/maturin-action@v1
+        with:
+          target: universal2-apple-darwin
+          args: --release --out dist
+          working-directory: ${{ env.PKG_DIR }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-macos-universal2
+          path: ${{ env.PKG_DIR }}/dist
+
+  # Install every wheel on its own platform and run a headless app.
+  smoke:
+    name: Smoke test (${{ matrix.artifact }}, Python ${{ matrix.python }})
+    needs: [linux, windows, macos]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, artifact: manylinux_2_28, python: "3.10" }
+          - { os: ubuntu-latest, artifact: manylinux_2_28, python: "3.14" }
+          - { os: windows-latest, artifact: windows-x86_64, python: "3.10" }
+          - { os: windows-latest, artifact: windows-x86_64, python: "3.14" }
+          - { os: macos-latest, artifact: macos-universal2, python: "3.14" }
+          - { os: macos-15-intel, artifact: macos-universal2, python: "3.12" }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          name: dist-${{ matrix.artifact }}
+          path: dist
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --no-index --find-links dist rustual-py
+      # Run from outside the checkout so the installed wheel (not the sources) is imported.
+      - run: python "$GITHUB_WORKSPACE/scripts/smoke_wheel.py"
+        working-directory: ${{ runner.temp }}
+        shell: bash
+
+  smoke-musl:
+    name: Smoke test (musllinux_1_2, Alpine)
+    needs: [linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          name: dist-musllinux_1_2
+          path: dist
+      - run: |
+          docker run --rm -v "$PWD:/src:ro" python:3.12-alpine sh -c \
+            "pip install --no-index --find-links /src/dist rustual-py && cd /tmp && python /src/scripts/smoke_wheel.py"
+
+  release:
+    name: Publish GitHub release
+    needs: [sdist, smoke, smoke-musl]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: dist-*
+          merge-multiple: true
+          path: dist
+      - run: ls -l dist
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          cat > notes.md <<EOF
+          Python packages for **rustual-py** ${TAG#v}: Textual's Python API on the rustual Rust engine.
+
+          | File | Platform |
+          |---|---|
+          | \`*manylinux_2_28_x86_64.whl\` | Linux x86_64 (glibc 2.28+: Debian 10+, Ubuntu 18.10+, RHEL 8+, Fedora 29+) |
+          | \`*musllinux_1_2_x86_64.whl\` | Linux x86_64 with musl (Alpine 3.13+) |
+          | \`*win_amd64.whl\` | Windows x86_64 |
+          | \`*macosx_*_universal2.whl\` | macOS, Intel and Apple silicon |
+          | \`*.tar.gz\` | Source (needs a Rust toolchain to build) |
+
+          Every wheel works with CPython 3.10 and newer (abi3). Install one with:
+
+          \`\`\`sh
+          pip install <wheel file or its download URL>
+          \`\`\`
+
+          Every wheel was installed and smoke-tested on its platform before publishing.
+          EOF
+          gh release create "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --title "rustual-py $TAG" \
+            --notes-file notes.md
