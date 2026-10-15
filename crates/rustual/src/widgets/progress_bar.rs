@@ -211,7 +211,7 @@ impl Eta {
         }
         self.samples.push((time, progress));
         self.add_count += 1;
-        if self.add_count.is_multiple_of(100) {
+        if self.add_count % 100 == 0 {
             self.prune();
         }
     }

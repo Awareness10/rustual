@@ -4,6 +4,7 @@ description = "A Rust re-creation of Python's Textual TUI framework"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 rustual-render.workspace = true

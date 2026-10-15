@@ -16,8 +16,9 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
   which methods take `ctx`), `#[non_exhaustive]` on public enums, hide internals that leaked as `pub`.
 - [ ] **Rustdoc pass** (M): crate-level docs with a tutorial, docs on every public widget, doc-tests for
   the main APIs; `cargo doc` without warnings.
-- [ ] **Publishable crates** (S): metadata, README per crate, LICENSE file, CI workflow
-  (test + clippy + fmt on Linux/macOS/Windows), MSRV declared.
+- [ ] **Publishable crates** (S): crates.io / PyPI metadata and a README per crate. Done: LICENSE (MIT),
+  CI workflow (lint, tests on Linux/macOS, MSRV 1.86, Python 3.10 + 3.14, coverage), MSRV declared.
+  Remaining: publish, abi3 wheels, Windows in CI (after the Windows check above).
 - [ ] **Clipboard fallback** (S): copy now goes through the app (OSC 52 + per-app clipboard), but paste still
   falls back to a process-global clipboard shared by Input/TextArea; remove the global so parallel tests
   can't race.

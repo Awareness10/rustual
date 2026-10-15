@@ -1,0 +1,278 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1004" height="660" viewBox="0 0 1004 660">
+<style>
+  .t { font-family: "Fira Code", "DejaVu Sans Mono", Menlo, Consolas, monospace; font-size: 16px; white-space: pre; dominant-baseline: central; }
+  .b { font-weight: bold; } .i { font-style: italic; } .u { text-decoration: underline; } .s { text-decoration: line-through; }
+</style>
+<rect width="1004" height="660" rx="8" fill="#292929"/>
+<circle cx="20" cy="18" r="6" fill="#ff5f57"/><circle cx="40" cy="18" r="6" fill="#febc2e"/><circle cx="60" cy="18" r="6" fill="#28c840"/>
+<text class="t" x="502" y="18" fill="#c5c8c6" text-anchor="middle">DataTable demo</text>
+<g transform="translate(12, 48)">
+<rect x="0.0" y="0.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="0.0" width="764.9" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="10.0" fill="#FEA62B" textLength="19.6" lengthAdjust="spacingAndGlyphs">╭─</text>
+<text xml:space="preserve" class="t" x="29.4" y="10.0" fill="#E0E0E0" textLength="68.6" lengthAdjust="spacingAndGlyphs">Regions</text>
+<text xml:space="preserve" class="t" x="107.8" y="10.0" fill="#FEA62B" textLength="107.8" lengthAdjust="spacingAndGlyphs">──────────╮</text>
+<text xml:space="preserve" class="t" x="215.6" y="10.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">╭─</text>
+<text xml:space="preserve" class="t" x="245.0" y="10.0" fill="#E0E0E0" textLength="39.2" lengthAdjust="spacingAndGlyphs">Data</text>
+<text xml:space="preserve" class="t" x="294.0" y="10.0" fill="#0178D4" textLength="686.0" lengthAdjust="spacingAndGlyphs">─────────────────────────────────────────────────────────────────────╮</text>
+<rect x="0.0" y="20.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="9.8" y="20.0" width="196.5" height="20" fill="#153854" shape-rendering="crispEdges"/>
+<rect x="205.8" y="20.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="20.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="225.4" y="20.0" width="725.7" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+<rect x="950.6" y="20.0" width="20.1" height="20" fill="#003054" shape-rendering="crispEdges"/>
+<rect x="970.2" y="20.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="30.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="9.8" y="30.0" fill="#E0E0E0" textLength="29.4" lengthAdjust="spacingAndGlyphs">All</text>
+<text xml:space="preserve" class="t" x="205.8" y="30.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="30.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t b" x="235.2" y="30.0" fill="#E0E0E0" textLength="529.2" lengthAdjust="spacingAndGlyphs">ID   Name          Region  Score               Ratio %</text>
+<text xml:space="preserve" class="t" x="970.2" y="30.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="40.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="40.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="225.4" y="40.0" width="725.7" height="20" fill="#0178D4" shape-rendering="crispEdges"/>
+<rect x="950.6" y="40.0" width="20.1" height="20" fill="#003054" shape-rendering="crispEdges"/>
+<rect x="970.2" y="40.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="50.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="9.8" y="50.0" fill="#E0E0E0" textLength="49.0" lengthAdjust="spacingAndGlyphs">North</text>
+<text xml:space="preserve" class="t" x="205.8" y="50.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="50.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t b" x="235.2" y="50.0" fill="#DDEDF9" textLength="509.6" lengthAdjust="spacingAndGlyphs">0    Margaret 0    North   135                 75.74</text>
+<text xml:space="preserve" class="t" x="970.2" y="50.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="60.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="60.0" width="735.5" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="60.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="60.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="70.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="9.8" y="70.0" fill="#E0E0E0" textLength="49.0" lengthAdjust="spacingAndGlyphs">South</text>
+<text xml:space="preserve" class="t" x="205.8" y="70.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="70.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="70.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">1    Barbara 1     South   576                 20.77</text>
+<text xml:space="preserve" class="t" x="970.2" y="70.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="80.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="80.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="225.4" y="80.0" width="725.7" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="80.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="80.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="90.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="9.8" y="90.0" fill="#E0E0E0" textLength="39.2" lengthAdjust="spacingAndGlyphs">East</text>
+<text xml:space="preserve" class="t" x="205.8" y="90.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="90.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="90.0" fill="#E0E0E0" textLength="235.2" lengthAdjust="spacingAndGlyphs">2    Margaret 2    South</text>
+<text xml:space="preserve" class="t b" x="499.8" y="90.0" fill="#4EBF71" textLength="29.4" lengthAdjust="spacingAndGlyphs">932</text>
+<text xml:space="preserve" class="t" x="695.8" y="90.0" fill="#E0E0E0" textLength="49.0" lengthAdjust="spacingAndGlyphs">40.57</text>
+<text xml:space="preserve" class="t" x="970.2" y="90.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="100.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="100.0" width="735.5" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="100.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="100.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="110.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="9.8" y="110.0" fill="#E0E0E0" textLength="39.2" lengthAdjust="spacingAndGlyphs">West</text>
+<text xml:space="preserve" class="t" x="205.8" y="110.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="110.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="110.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">3    Dennis 3      East    868                 24.15</text>
+<text xml:space="preserve" class="t" x="970.2" y="110.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="120.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="120.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="225.4" y="120.0" width="725.7" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="120.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="120.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="130.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="130.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="130.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="130.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">4    Linus 4       North   717                 10.94</text>
+<text xml:space="preserve" class="t" x="970.2" y="130.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="140.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="140.0" width="735.5" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="140.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="140.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="150.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="150.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="150.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="150.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">5    Barbara 5     West    507                 94.03</text>
+<text xml:space="preserve" class="t" x="970.2" y="150.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="160.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="160.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="225.4" y="160.0" width="725.7" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="160.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="160.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="170.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="170.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="170.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="170.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">6    Ada 6         East    103                 44.21</text>
+<text xml:space="preserve" class="t" x="970.2" y="170.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="180.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="180.0" width="735.5" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="180.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="180.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="190.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="190.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="190.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="190.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">7    Margaret 7    East    229                 90.75</text>
+<text xml:space="preserve" class="t" x="970.2" y="190.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="200.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="200.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="225.4" y="200.0" width="725.7" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="200.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="200.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="210.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="210.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="210.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="210.0" fill="#E0E0E0" textLength="235.2" lengthAdjust="spacingAndGlyphs">8    Barbara 8     North</text>
+<text xml:space="preserve" class="t b" x="499.8" y="210.0" fill="#4EBF71" textLength="29.4" lengthAdjust="spacingAndGlyphs">950</text>
+<text xml:space="preserve" class="t" x="695.8" y="210.0" fill="#E0E0E0" textLength="39.2" lengthAdjust="spacingAndGlyphs">9.86</text>
+<text xml:space="preserve" class="t" x="970.2" y="210.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="220.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="220.0" width="735.5" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="220.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="220.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="230.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="230.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="230.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="230.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">9    Margaret 9    East    23                  47.73</text>
+<text xml:space="preserve" class="t" x="970.2" y="230.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="240.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="240.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="225.4" y="240.0" width="725.7" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="240.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="240.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="250.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="250.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="250.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="250.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">10   Margaret 10   North   195                 69.83</text>
+<text xml:space="preserve" class="t" x="970.2" y="250.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="260.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="260.0" width="735.5" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="260.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="260.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="270.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="270.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="270.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="270.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">11   Dennis 11     West    290                 57.75</text>
+<text xml:space="preserve" class="t" x="970.2" y="270.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="280.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="280.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="225.4" y="280.0" width="725.7" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="280.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="280.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="290.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="290.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="290.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="290.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">12   Barbara 12    North   189                 63.95</text>
+<text xml:space="preserve" class="t" x="970.2" y="290.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="300.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="300.0" width="735.5" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="300.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="300.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="310.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="310.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="310.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="310.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">13   Margaret 13   East    105                 87.92</text>
+<text xml:space="preserve" class="t" x="970.2" y="310.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="320.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="320.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="225.4" y="320.0" width="725.7" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="320.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="320.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="330.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="330.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="330.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="330.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">14   Guido 14      East    789                 65.74</text>
+<text xml:space="preserve" class="t" x="970.2" y="330.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="340.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="340.0" width="735.5" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="340.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="340.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="350.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="350.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="350.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="350.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">15   Dennis 15     South   336                 80.16</text>
+<text xml:space="preserve" class="t" x="970.2" y="350.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="360.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="360.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="225.4" y="360.0" width="725.7" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="360.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="360.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="370.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="370.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="370.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="370.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">16   Guido 16      North   262                 65.43</text>
+<text xml:space="preserve" class="t" x="970.2" y="370.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="380.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="380.0" width="735.5" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="380.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="380.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="390.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="390.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="390.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="390.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">17   Dennis 17     East    801                 56.08</text>
+<text xml:space="preserve" class="t" x="970.2" y="390.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="400.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="400.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="225.4" y="400.0" width="725.7" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="400.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="400.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="410.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="410.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="410.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="235.2" y="410.0" fill="#E0E0E0" textLength="509.6" lengthAdjust="spacingAndGlyphs">18   Barbara 18    North   370                 59.10</text>
+<text xml:space="preserve" class="t" x="970.2" y="410.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="420.0" width="216.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="215.6" y="420.0" width="764.9" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="430.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="430.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="430.0" fill="#0178D4" textLength="764.4" lengthAdjust="spacingAndGlyphs">╰────────────────────────────────────────────────────────────────────────────╯</text>
+<rect x="0.0" y="440.0" width="980.5" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="450.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="450.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="450.0" fill="#004578" textLength="19.6" lengthAdjust="spacingAndGlyphs">╭─</text>
+<text xml:space="preserve" class="t" x="245.0" y="450.0" fill="#E1E1E1" textLength="58.8" lengthAdjust="spacingAndGlyphs">Events</text>
+<text xml:space="preserve" class="t" x="313.6" y="450.0" fill="#004578" textLength="666.4" lengthAdjust="spacingAndGlyphs">───────────────────────────────────────────────────────────────────╮</text>
+<rect x="0.0" y="460.0" width="951.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="950.6" y="460.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="460.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="470.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="470.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="470.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="225.4" y="470.0" fill="#E1E1E1" textLength="215.6" lengthAdjust="spacingAndGlyphs">highlighted row 0 (r0)</text>
+<text xml:space="preserve" class="t" x="970.2" y="470.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="480.0" width="951.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="950.6" y="480.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="480.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="490.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="490.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="490.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="970.2" y="490.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="500.0" width="951.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="950.6" y="500.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="500.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="510.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="510.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="510.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="970.2" y="510.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="520.0" width="951.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="950.6" y="520.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="520.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="530.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="530.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="530.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="970.2" y="530.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="540.0" width="951.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="950.6" y="540.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="540.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="550.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="550.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="550.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="970.2" y="550.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="560.0" width="225.9" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="225.4" y="560.0" width="745.3" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="560.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="570.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="205.8" y="570.0" fill="#FEA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="215.6" y="570.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="970.2" y="570.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="580.0" width="980.5" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="590.0" fill="#FEA62B" textLength="215.6" lengthAdjust="spacingAndGlyphs">╰────────────────────╯</text>
+<text xml:space="preserve" class="t" x="215.6" y="590.0" fill="#004578" textLength="764.4" lengthAdjust="spacingAndGlyphs">╰────────────────────────────────────────────────────────────────────────────╯</text>
+</g>
+</svg>

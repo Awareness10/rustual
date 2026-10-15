@@ -1,0 +1,254 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1004" height="660" viewBox="0 0 1004 660">
+<style>
+  .t { font-family: "Fira Code", "DejaVu Sans Mono", Menlo, Consolas, monospace; font-size: 16px; white-space: pre; dominant-baseline: central; }
+  .b { font-weight: bold; } .i { font-style: italic; } .u { text-decoration: underline; } .s { text-decoration: line-through; }
+</style>
+<rect width="1004" height="660" rx="8" fill="#292929"/>
+<circle cx="20" cy="18" r="6" fill="#ff5f57"/><circle cx="40" cy="18" r="6" fill="#febc2e"/><circle cx="60" cy="18" r="6" fill="#28c840"/>
+<text class="t" x="502" y="18" fill="#c5c8c6" text-anchor="middle">FormsApp</text>
+<g transform="translate(12, 48)">
+<rect x="0.0" y="0.0" width="980.5" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="10.0" fill="#E0E0E0" textLength="9.8" lengthAdjust="spacingAndGlyphs">⭘</text>
+<text xml:space="preserve" class="t" x="441.0" y="10.0" fill="#E0E0E0" textLength="78.4" lengthAdjust="spacingAndGlyphs">FormsApp</text>
+<rect x="0.0" y="20.0" width="10.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="9.8" y="20.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="19.6" y="20.0" width="294.5" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="313.6" y="20.0" width="186.7" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="20.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="20.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="20.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="30.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="19.6" y="30.0" fill="#191919" textLength="303.8" lengthAdjust="spacingAndGlyphs">▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="30.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="509.6" y="30.0" fill="#191919" textLength="460.6" lengthAdjust="spacingAndGlyphs">▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎</text>
+<rect x="0.0" y="40.0" width="10.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="9.8" y="40.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="19.6" y="40.0" width="20.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="39.2" y="40.0" width="10.3" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+<rect x="49.0" y="40.0" width="265.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="313.6" y="40.0" width="186.7" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="40.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="40.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="519.4" y="40.0" width="431.7" height="20" fill="#153854" shape-rendering="crispEdges"/>
+<rect x="950.6" y="40.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="40.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="50.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="29.4" y="50.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▐</text>
+<text xml:space="preserve" class="t" x="39.2" y="50.0" fill="#8AD4A1" textLength="9.8" lengthAdjust="spacingAndGlyphs">X</text>
+<text xml:space="preserve" class="t" x="49.0" y="50.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▌</text>
+<text xml:space="preserve" class="t" x="68.6" y="50.0" fill="#E0E0E0" textLength="225.4" lengthAdjust="spacingAndGlyphs">Subscribe to newsletter</text>
+<text xml:space="preserve" class="t" x="313.6" y="50.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="50.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="519.4" y="50.0" fill="#E0E0E0" textLength="78.4" lengthAdjust="spacingAndGlyphs">New file</text>
+<text xml:space="preserve" class="t" x="960.4" y="50.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<rect x="0.0" y="60.0" width="10.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="9.8" y="60.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="19.6" y="60.0" width="294.5" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="313.6" y="60.0" width="186.7" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="60.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="60.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="60.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="70.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="19.6" y="70.0" fill="#191919" textLength="303.8" lengthAdjust="spacingAndGlyphs">▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="70.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="519.4" y="70.0" fill="#E0E0E0" textLength="49.0" lengthAdjust="spacingAndGlyphs">Open…</text>
+<text xml:space="preserve" class="t" x="960.4" y="70.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<rect x="0.0" y="80.0" width="108.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="107.8" y="80.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="117.6" y="80.0" width="78.9" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="196.0" y="80.0" width="304.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="80.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="80.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="80.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="107.8" y="90.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="117.6" y="90.0" fill="#191919" textLength="88.2" lengthAdjust="spacingAndGlyphs">▔▔▔▔▔▔▔▔▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="90.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="519.4" y="90.0" fill="#3B3B3B" textLength="431.2" lengthAdjust="spacingAndGlyphs">────────────────────────────────────────────</text>
+<text xml:space="preserve" class="t" x="960.4" y="90.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<rect x="0.0" y="100.0" width="108.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="107.8" y="100.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="117.6" y="100.0" width="20.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="137.2" y="100.0" width="20.1" height="20" fill="#000F18" shape-rendering="crispEdges"/>
+<rect x="156.8" y="100.0" width="20.1" height="20" fill="#4EBF71" shape-rendering="crispEdges"/>
+<rect x="176.4" y="100.0" width="20.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="196.0" y="100.0" width="304.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="100.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="100.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="100.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="110.0" fill="#E0E0E0" textLength="88.2" lengthAdjust="spacingAndGlyphs">Dark mode</text>
+<text xml:space="preserve" class="t" x="107.8" y="110.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="196.0" y="110.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="110.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="519.4" y="110.0" fill="#E0E0E0" textLength="39.2" lengthAdjust="spacingAndGlyphs">Save</text>
+<text xml:space="preserve" class="t" x="960.4" y="110.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<rect x="0.0" y="120.0" width="108.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="107.8" y="120.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="117.6" y="120.0" width="78.9" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="196.0" y="120.0" width="304.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="120.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="120.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="120.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="107.8" y="130.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="117.6" y="130.0" fill="#191919" textLength="88.2" lengthAdjust="spacingAndGlyphs">▁▁▁▁▁▁▁▁▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="130.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="519.4" y="130.0" fill="#737373" textLength="39.2" lengthAdjust="spacingAndGlyphs">Quit</text>
+<text xml:space="preserve" class="t" x="960.4" y="130.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<rect x="0.0" y="140.0" width="10.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="9.8" y="140.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="19.6" y="140.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="470.4" y="140.0" width="29.9" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="140.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="140.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="140.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="150.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="19.6" y="150.0" fill="#191919" textLength="460.6" lengthAdjust="spacingAndGlyphs">▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="150.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="509.6" y="150.0" fill="#191919" textLength="460.6" lengthAdjust="spacingAndGlyphs">▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎</text>
+<rect x="0.0" y="160.0" width="10.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="9.8" y="160.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="19.6" y="160.0" width="20.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="39.2" y="160.0" width="10.3" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+<rect x="49.0" y="160.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="58.8" y="160.0" width="69.1" height="20" fill="#153854" shape-rendering="crispEdges"/>
+<rect x="127.4" y="160.0" width="343.5" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="470.4" y="160.0" width="29.9" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="160.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="160.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="160.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="170.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="29.4" y="170.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▐</text>
+<text xml:space="preserve" class="t" x="39.2" y="170.0" fill="#000F18" textLength="9.8" lengthAdjust="spacingAndGlyphs">●</text>
+<text xml:space="preserve" class="t" x="49.0" y="170.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▌</text>
+<text xml:space="preserve" class="t" x="68.6" y="170.0" fill="#E0E0E0" textLength="49.0" lengthAdjust="spacingAndGlyphs">Small</text>
+<text xml:space="preserve" class="t" x="470.4" y="170.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="170.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="509.6" y="170.0" fill="#191919" textLength="460.6" lengthAdjust="spacingAndGlyphs">▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎</text>
+<rect x="0.0" y="180.0" width="10.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="9.8" y="180.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="19.6" y="180.0" width="20.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="39.2" y="180.0" width="10.3" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+<rect x="49.0" y="180.0" width="421.9" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="470.4" y="180.0" width="29.9" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="180.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="180.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="519.4" y="180.0" width="10.3" height="20" fill="#153854" shape-rendering="crispEdges"/>
+<rect x="529.2" y="180.0" width="10.3" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+<rect x="539.0" y="180.0" width="412.1" height="20" fill="#153854" shape-rendering="crispEdges"/>
+<rect x="950.6" y="180.0" width="10.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="180.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="190.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="29.4" y="190.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▐</text>
+<text xml:space="preserve" class="t" x="39.2" y="190.0" fill="#8AD4A1" textLength="9.8" lengthAdjust="spacingAndGlyphs">●</text>
+<text xml:space="preserve" class="t" x="49.0" y="190.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▌</text>
+<text xml:space="preserve" class="t" x="68.6" y="190.0" fill="#E0E0E0" textLength="58.8" lengthAdjust="spacingAndGlyphs">Medium</text>
+<text xml:space="preserve" class="t" x="470.4" y="190.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="190.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="519.4" y="190.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▐</text>
+<text xml:space="preserve" class="t" x="529.2" y="190.0" fill="#8AD4A1" textLength="9.8" lengthAdjust="spacingAndGlyphs">X</text>
+<text xml:space="preserve" class="t" x="539.0" y="190.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▌</text>
+<text xml:space="preserve" class="t" x="558.6" y="190.0" fill="#E0E0E0" textLength="49.0" lengthAdjust="spacingAndGlyphs">Tests</text>
+<text xml:space="preserve" class="t" x="960.4" y="190.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<rect x="0.0" y="200.0" width="10.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="9.8" y="200.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="19.6" y="200.0" width="20.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="39.2" y="200.0" width="10.3" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+<rect x="49.0" y="200.0" width="421.9" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="470.4" y="200.0" width="29.9" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="200.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="200.0" width="20.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="529.2" y="200.0" width="10.3" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+<rect x="539.0" y="200.0" width="421.9" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="200.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="210.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="29.4" y="210.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▐</text>
+<text xml:space="preserve" class="t" x="39.2" y="210.0" fill="#000F18" textLength="9.8" lengthAdjust="spacingAndGlyphs">●</text>
+<text xml:space="preserve" class="t" x="49.0" y="210.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▌</text>
+<text xml:space="preserve" class="t" x="68.6" y="210.0" fill="#E0E0E0" textLength="49.0" lengthAdjust="spacingAndGlyphs">Large</text>
+<text xml:space="preserve" class="t" x="470.4" y="210.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="210.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="519.4" y="210.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▐</text>
+<text xml:space="preserve" class="t" x="529.2" y="210.0" fill="#000F18" textLength="9.8" lengthAdjust="spacingAndGlyphs">X</text>
+<text xml:space="preserve" class="t" x="539.0" y="210.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▌</text>
+<text xml:space="preserve" class="t" x="558.6" y="210.0" fill="#E0E0E0" textLength="39.2" lengthAdjust="spacingAndGlyphs">Docs</text>
+<text xml:space="preserve" class="t" x="960.4" y="210.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<rect x="0.0" y="220.0" width="10.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="9.8" y="220.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="19.6" y="220.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="470.4" y="220.0" width="29.9" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="220.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="220.0" width="20.1" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="529.2" y="220.0" width="10.3" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+<rect x="539.0" y="220.0" width="421.9" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="220.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="230.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="19.6" y="230.0" fill="#191919" textLength="460.6" lengthAdjust="spacingAndGlyphs">▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="230.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="519.4" y="230.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▐</text>
+<text xml:space="preserve" class="t" x="529.2" y="230.0" fill="#8AD4A1" textLength="9.8" lengthAdjust="spacingAndGlyphs">X</text>
+<text xml:space="preserve" class="t" x="539.0" y="230.0" fill="#242F38" textLength="9.8" lengthAdjust="spacingAndGlyphs">▌</text>
+<text xml:space="preserve" class="t" x="558.6" y="230.0" fill="#E0E0E0" textLength="98.0" lengthAdjust="spacingAndGlyphs">Benchmarks</text>
+<text xml:space="preserve" class="t" x="960.4" y="230.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<rect x="0.0" y="240.0" width="10.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="9.8" y="240.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="19.6" y="240.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="470.4" y="240.0" width="29.9" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="240.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="240.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="240.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="250.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="19.6" y="250.0" fill="#191919" textLength="460.6" lengthAdjust="spacingAndGlyphs">▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="250.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="960.4" y="250.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<rect x="0.0" y="260.0" width="10.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="9.8" y="260.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="19.6" y="260.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="470.4" y="260.0" width="29.9" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="260.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="260.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="260.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="270.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="39.2" y="270.0" fill="#7F7F7F" textLength="176.4" lengthAdjust="spacingAndGlyphs">Favourite language</text>
+<text xml:space="preserve" class="t" x="441.0" y="270.0" fill="#7F7F7F" textLength="9.8" lengthAdjust="spacingAndGlyphs">▼</text>
+<text xml:space="preserve" class="t" x="470.4" y="270.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="270.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="509.6" y="270.0" fill="#191919" textLength="460.6" lengthAdjust="spacingAndGlyphs">▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎</text>
+<rect x="0.0" y="280.0" width="10.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="9.8" y="280.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="19.6" y="280.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="470.4" y="280.0" width="29.9" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="280.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="280.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="280.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="290.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="19.6" y="290.0" fill="#191919" textLength="460.6" lengthAdjust="spacingAndGlyphs">▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎</text>
+<text xml:space="preserve" class="t" x="499.8" y="290.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="509.6" y="290.0" fill="#191919" textLength="460.6" lengthAdjust="spacingAndGlyphs">▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎</text>
+<rect x="0.0" y="300.0" width="500.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="300.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="300.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="300.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="499.8" y="310.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="529.2" y="310.0" fill="#737373" textLength="186.2" lengthAdjust="spacingAndGlyphs">0000-0000-0000-0000</text>
+<text xml:space="preserve" class="t" x="960.4" y="310.0" fill="#191919" textLength="9.8" lengthAdjust="spacingAndGlyphs">▎</text>
+<rect x="0.0" y="320.0" width="500.3" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="499.8" y="320.0" width="10.3" height="20" fill="#191919" shape-rendering="crispEdges"/>
+<rect x="509.6" y="320.0" width="451.3" height="20" fill="#1E1E1E" shape-rendering="crispEdges"/>
+<rect x="960.4" y="320.0" width="20.1" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="499.8" y="330.0" fill="#121212" textLength="9.8" lengthAdjust="spacingAndGlyphs">▊</text>
+<text xml:space="preserve" class="t" x="509.6" y="330.0" fill="#191919" textLength="460.6" lengthAdjust="spacingAndGlyphs">▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎</text>
+<rect x="0.0" y="340.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="0.0" y="360.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="0.0" y="380.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="0.0" y="400.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="0.0" y="420.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="0.0" y="440.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="0.0" y="460.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="0.0" y="480.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="0.0" y="500.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="0.0" y="520.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="0.0" y="540.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<rect x="0.0" y="560.0" width="980.5" height="20" fill="#1B1B1B" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="570.0" fill="#E0E0E0" textLength="49.0" lengthAdjust="spacingAndGlyphs">Ready</text>
+<rect x="0.0" y="580.0" width="980.5" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+</g>
+</svg>

@@ -93,7 +93,7 @@ impl Widget for Dashboard {
                     pb.advance(0.5);
                 }
             }
-            if app.ticks.is_multiple_of(4) {
+            if app.ticks % 4 == 0 {
                 let secs = app.ticks / 4;
                 if let Some(d) = ctx.query_one::<Digits>("#counter") {
                     d.update(secs.to_string());

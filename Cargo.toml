@@ -8,6 +8,7 @@ default-members = ["crates/rustual-render", "crates/rustual-css", "crates/rustua
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
+rust-version = "1.86"
 
 [workspace.dependencies]
 rustual-render = { path = "crates/rustual-render" }

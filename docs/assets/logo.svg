@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="140" viewBox="0 0 560 140" role="img" aria-label="rustual">
+  <title>rustual</title>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F74C00"/>
+      <stop offset="0.55" stop-color="#E0457B"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="t" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#F74C00"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+  <!-- terminal window mark -->
+  <g transform="translate(14 18)">
+    <rect x="0" y="0" width="112" height="104" rx="18" fill="url(#g)"/>
+    <rect x="7" y="25" width="98" height="72" rx="11" fill="#14141A"/>
+    <circle cx="20" cy="13" r="4.5" fill="#fff" fill-opacity="0.9"/>
+    <circle cx="34" cy="13" r="4.5" fill="#fff" fill-opacity="0.6"/>
+    <circle cx="48" cy="13" r="4.5" fill="#fff" fill-opacity="0.35"/>
+    <!-- prompt chevron + cursor -->
+    <path d="M24 46 L42 61 L24 76" fill="none" stroke="#F74C00" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="52" y="70" width="34" height="8" rx="4" fill="#8B5CF6"/>
+  </g>
+  <!-- wordmark -->
+  <text x="150" y="96" font-family="JetBrains Mono, Fira Code, SFMono-Regular, Menlo, Consolas, monospace"
+        font-size="76" font-weight="700" letter-spacing="-2" fill="url(#t)">rustual</text>
+</svg>

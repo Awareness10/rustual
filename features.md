@@ -3,7 +3,7 @@
 Parity tracker against Python Textual 8.2.8. Percentages are rough estimates of how much of
 Textual's behaviour for that item is implemented here. Status: ✅ done (≥ 90%) · 🟡 partial · ❌ missing.
 
-**Overall: ~90% of commonly used Textual functionality, ~70% of full parity.** ~570 Rust tests + 59 Python tests.
+**Overall: ~90% of commonly used Textual functionality, ~70% of full parity.** 568 Rust tests + 60 Python tests.
 
 _Last updated: 2026-10-15._
 

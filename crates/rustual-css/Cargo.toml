@@ -4,6 +4,7 @@ description = "Textual CSS (TCSS) tokenizer, parser, selectors, cascade and them
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 rustual-render.workspace = true

@@ -1,8 +1,104 @@
-# rustual
+<a id="readme-top"></a>
 
-A Rust re-creation of Python's [Textual](https://textual.textualize.io) TUI framework: a DOM of
-widgets, styled with **Textual CSS**, arranged by Textual's layout engine (vertical, horizontal,
-grid, dock, layers, scrolling), and driven by an async **tokio + crossterm** event loop.
+<div align="center">
+
+<img src="docs/assets/logo.svg" alt="rustual" width="420">
+
+### Textual's TUI framework, rebuilt in Rust.<br>Use it from Rust, or from Python with the same API, much faster.
+
+<br>
+
+[![CI](https://github.com/Awareness10/rustual/actions/workflows/ci.yml/badge.svg)](https://github.com/Awareness10/rustual/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-628%20passing-brightgreen?style=flat-square)](#testing)
+[![Rust coverage](https://img.shields.io/badge/rust%20coverage-86%25-brightgreen?style=flat-square&logo=rust)](#testing)
+[![Python coverage](https://img.shields.io/badge/python%20coverage-82%25-green?style=flat-square&logo=python&logoColor=white)](#testing)
+<br>
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
+[![Rust 1.86+](https://img.shields.io/badge/rust-1.86%2B-CE422B?style=flat-square&logo=rust)](https://www.rust-lang.org)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](crates/rustual-py)
+[![Textual parity](https://img.shields.io/badge/Textual%20parity-%7E90%25-8B5CF6?style=flat-square)](features.md)
+
+**[Quick start](#quick-start)** ·
+**[Python](#python)** ·
+**[Gallery](#gallery)** ·
+**[Benchmarks](#benchmarks)** ·
+**[Architecture](#architecture)** ·
+**[Roadmap](ToDo.md)**
+
+<br>
+
+<img src="docs/assets/screenshots/py_stopwatch.svg" alt="Textual's stopwatch tutorial running on rustual" width="760">
+
+<sub>Textual's stopwatch tutorial in Python, unchanged except for its imports, running on rustual.<br>
+Every screenshot in this README was rendered by rustual itself.</sub>
+
+</div>
+
+<br>
+
+## Why rustual?
+
+[Textual](https://textual.textualize.io) is a wonderful way to build terminal apps: a DOM of
+widgets, styled with CSS, laid out like the web. **rustual** re-creates it in Rust (same
+concepts, same CSS, same widgets) and brings it back to Python through a binding with
+Textual's own API.
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+**⚡ Fast**<br>
+Layout, styling and rendering run in Rust. Python apps start ~56× faster and react ~24× faster than on Textual.
+
+</td>
+<td width="33%" valign="top">
+
+**🎨 Textual CSS**<br>
+TCSS with variables, nesting, themes, transitions, and vertical / horizontal / grid / dock layouts with layers.
+
+</td>
+<td width="33%" valign="top">
+
+**🧩 40+ widgets**<br>
+DataTable, Tree, TextArea, Markdown, TabbedContent, Select, Input and more, ported from Textual.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+**🐍 Python API**<br>
+`from rustual.app import App`: reactive attributes, `@on`, screens, workers and async, as in Textual.
+
+</td>
+<td valign="top">
+
+**🧪 Headless testing**<br>
+Drive apps with a `Pilot` (keys, clicks, hover, resize) from `cargo test` or `pytest`.
+
+</td>
+<td valign="top">
+
+**🖼️ SVG screenshots**<br>
+Render any app to SVG without a terminal: one environment variable, handy for docs and CI.
+
+</td>
+</tr>
+</table>
+
+## Quick start
+
+rustual isn't on crates.io / PyPI yet; use it from this repository.
+
+<details open>
+<summary><b>Rust</b></summary>
+
+```toml
+# Cargo.toml
+[dependencies]
+rustual = { git = "https://github.com/Awareness10/rustual" }
+tokio = { version = "1", features = ["full"] }
+```
 
 ```rust
 use rustual::prelude::*;
@@ -34,45 +130,160 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-Run the examples with `cargo run -p rustual --example <name>`: `hello`, `form`, `dashboard`, `table`,
-`navigator`, `editor`, `markdown`, `palette`, `widgets_extra`, `readme`. Quit with `ctrl+q`;
-`ctrl+p` opens the command palette.
+Or try the bundled examples: `cargo run -p rustual --example dashboard`
+(also `hello`, `form`, `table`, `navigator`, `editor`, `markdown`, `palette`, `modes`,
+`widgets_extra`). `ctrl+p` opens the command palette, `ctrl+q` quits.
 
-## What's included
+</details>
 
-- **Widgets:** Static, Label, Button, Input, MaskedInput, TextArea, Checkbox, RadioButton/RadioSet, Switch,
-  Select, SelectionList, OptionList, ListView, DataTable, Tree, DirectoryTree, Tabs, TabbedContent,
-  ContentSwitcher, Collapsible, Header, Footer, Markdown, MarkdownViewer, Log, RichLog, ProgressBar,
-  LoadingIndicator, Sparkline, Digits, Placeholder, Rule, Pretty, Link, Tooltip, Toasts, KeyPanel, Welcome,
-  plus containers (Container, Vertical, Horizontal, Grid, Center, Middle, VerticalScroll, ...).
-- **Core:** Textual CSS with themes, vertical/horizontal/grid/dock layouts, layers, scrolling, screens and
-  modals, command palette, tooltips, animations with easing, CSS transitions, timers, async workers,
-  notifications, SVG screenshots, and a headless `Pilot` for tests.
+<details open>
+<summary><b>Python</b></summary>
 
-See [`features.md`](features.md) for per-feature parity with Textual and [`ToDo.md`](ToDo.md) for what's left.
+```sh
+git clone https://github.com/Awareness10/rustual && cd rustual/crates/rustual-py
+uv sync                               # builds the Rust extension with maturin
+uv run python examples/stopwatch.py
+```
+
+```python
+from rustual import on
+from rustual.app import App, ComposeResult
+from rustual.reactive import reactive
+from rustual.widgets import Button, Footer, Header, Static
+
+
+class Counter(Static):
+    count = reactive(0)
+
+    def render(self) -> str:
+        return f"Count: [b]{self.count}[/b]"
+
+
+class CounterApp(App):
+    CSS = "Counter { height: 3; border: round $accent; }"
+    BINDINGS = [("+", "increment", "Add one")]
+
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Counter()
+        yield Button("Add", id="add", variant="primary")
+        yield Footer()
+
+    def action_increment(self) -> None:
+        self.query_one(Counter).count += 1
+
+    @on(Button.Pressed, "#add")
+    def add(self) -> None:
+        self.action_increment()
+
+
+if __name__ == "__main__":
+    CounterApp().run()
+```
+
+</details>
+
+<p align="right"><a href="#readme-top">back to top ↑</a></p>
 
 ## Python
 
-[`crates/rustual-py`](crates/rustual-py/README.md) is a PyO3/maturin package, `rustual`, with a
-Textual-compatible Python API on this engine. Port a Textual app by changing its imports from
-`textual` to `rustual`. It runs the same app code 13–56× faster than Python Textual in the included
-benchmark.
+`rustual-py` is a [PyO3](https://pyo3.rs) extension with a **Textual-compatible API**. Porting an
+app is usually a matter of changing its imports:
 
-```sh
-cd crates/rustual-py && uv sync && uv run python examples/counter.py
+```diff
+-from textual.app import App, ComposeResult
+-from textual.widgets import Button, DataTable, Footer
++from rustual.app import App, ComposeResult
++from rustual.widgets import Button, DataTable, Footer
 ```
 
-## Screenshots
+- **Same model:** `compose()` with `with` blocks, `DEFAULT_CSS` / `CSS` / `CSS_PATH`, `BINDINGS`
+  and `action_*`, `reactive` with `watch_` / `validate_` / `compute_`, messages with `@on`
+  selectors, screens and `ModalScreen`, `run_test()` + `Pilot`.
+- **Async and threads, done safely:** async handlers and `@work` workers run on an asyncio loop
+  on the app thread; thread workers can call widget methods directly (calls are marshalled to the
+  app thread). The event loop runs with the GIL released, and nothing waits on another thread
+  while holding it.
+- **Rich renderables:** `Table`, `Syntax`, `Panel` and friends render in `Static` and `render()`.
 
-Render any app to SVG without a terminal (handy for docs and visual checks):
+Details: [`crates/rustual-py`](crates/rustual-py/README.md) ·
+[design notes](docs/python-bindings.md).
 
-```sh
-TEXTUAL_SCREENSHOT=shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=tab,down cargo run -p rustual --example table
-```
+## Gallery
 
-## Concepts (Textual → rustual)
+<table>
+<tr>
+<td width="50%"><img src="docs/assets/screenshots/dashboard.svg" alt="Dashboard"><br><sub><b>Dashboard</b>: grid, sparkline, progress, digits · <a href="crates/rustual/examples/dashboard.rs">Rust</a></sub></td>
+<td width="50%"><img src="docs/assets/screenshots/table.svg" alt="DataTable"><br><sub><b>DataTable</b>: sorting, cursors, filtering · <a href="crates/rustual/examples/table.rs">Rust</a></sub></td>
+</tr>
+<tr>
+<td><img src="docs/assets/screenshots/editor.svg" alt="TextArea editor"><br><sub><b>Editor</b>: TextArea with highlighting and themes · <a href="crates/rustual/examples/editor.rs">Rust</a></sub></td>
+<td><img src="docs/assets/screenshots/markdown.svg" alt="Markdown viewer"><br><sub><b>Markdown</b>: viewer with table of contents · <a href="crates/rustual/examples/markdown.rs">Rust</a></sub></td>
+</tr>
+<tr>
+<td><img src="docs/assets/screenshots/py_data.svg" alt="Data widgets from Python"><br><sub><b>Data widgets</b>: DataTable, Tree, RichLog · <a href="crates/rustual-py/examples/data.py">Python</a></sub></td>
+<td><img src="docs/assets/screenshots/py_forms.svg" alt="Form controls from Python"><br><sub><b>Forms</b>: Checkbox, Switch, RadioSet, Select, OptionList · <a href="crates/rustual-py/examples/forms.py">Python</a></sub></td>
+</tr>
+</table>
 
-| Textual | rustual |
+Make your own: `TEXTUAL_SCREENSHOT=shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=tab,down cargo run -p rustual --example table`
+(works for Python apps too).
+
+## Benchmarks
+
+The same Python app code, run headlessly with `run_test()` against
+[Textual 8.2.8](https://github.com/Textualize/textual) (release build, median of 3 runs, Python 3.14):
+
+| Scenario | Textual | rustual | Speed-up |
+|---|---:|---:|---:|
+| Startup with 1000 rows (3000 widgets) | 1951 ms | 35 ms | **~56×** |
+| 100 key presses updating a reactive | 5191 ms | 220 ms | **~24×** |
+| 100 scroll steps over 1000 rows | 11456 ms | 853 ms | **~13×** |
+
+Every rustual step includes rendering a full frame. Reproduce with
+[`bench/bench.py`](crates/rustual-py/bench/bench.py). The Rust core renders a frame with 1000 widgets
+in about 2 ms.
+
+<p align="right"><a href="#readme-top">back to top ↑</a></p>
+
+## What's included
+
+<details>
+<summary><b>Widgets</b> (40+)</summary>
+<br>
+
+| Category | Widgets |
+|---|---|
+| Text & display | Static, Label, Markdown, MarkdownViewer, Pretty, Digits, Rule, Placeholder, Link, Welcome |
+| Input | Button, Input, MaskedInput, TextArea, Checkbox, Switch, RadioButton, RadioSet, Select, SelectionList |
+| Data | DataTable, Tree, DirectoryTree, ListView, OptionList, Log, RichLog, Sparkline, ProgressBar, LoadingIndicator |
+| Navigation | Tabs, TabbedContent, ContentSwitcher, Collapsible, Header, Footer, KeyPanel, HelpPanel |
+| Overlays | Tooltip, Toasts (notifications), command palette |
+| Containers | Container, Vertical, Horizontal, Grid, Center, Middle, Right, VerticalScroll, HorizontalScroll, ... |
+
+</details>
+
+<details>
+<summary><b>Core features</b></summary>
+<br>
+
+- Textual CSS: variables, nesting, `!important`, pseudo-classes, themes and the design system
+- Layouts: vertical, horizontal, grid, dock, layers, offsets, scrolling with scrollbars
+- Screens, modal screens, modes, maximize, loading overlays
+- Bindings with keymaps, `check_action`, actions with namespaces and arguments
+- Animations with Textual's easing functions, CSS transitions, timers
+- Async workers, notifications, clipboard (OSC 52), suspend, SVG screenshots
+- Command palette, tooltips, help panel
+
+Per-feature parity with Textual is tracked in [`features.md`](features.md).
+
+</details>
+
+<details>
+<summary><b>Textual concepts in Rust</b></summary>
+<br>
+
+| Textual (Python) | rustual (Rust) |
 |---|---|
 | `class MyApp(App)` with `compose`, `BINDINGS`, `action_*`, `on_*` | `impl Widget for MyApp` passed to `App::new` |
 | `yield Button("OK", id="ok")` | `compose![Button::new("OK").id("ok")]` |
@@ -85,27 +296,103 @@ TEXTUAL_SCREENSHOT=shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=tab,down cargo run
 | `push_screen` / `dismiss` | `ctx.push_screen` / `ctx.push_modal` / `ctx.dismiss(result)` |
 | `async with app.run_test() as pilot` | `let mut pilot = App::new(..).test(size).await` |
 
-See `docs/widget-guide.md` for writing widgets and `docs/plans/` for the architecture.
+</details>
 
-## Workspace
+## Architecture
+
+```mermaid
+flowchart LR
+    py["<b>rustual-py</b><br/>Python API (PyO3)"] --> core
+    core["<b>rustual</b><br/>DOM · widgets · events · layout<br/>compositor · driver · Pilot"] --> css
+    core --> render
+    css["<b>rustual-css</b><br/>TCSS parser · selectors<br/>cascade · themes"] --> render
+    render["<b>rustual-render</b><br/>colors · styled text · markup<br/>strips · cell canvas"]
+```
 
 | Crate | Role |
 |---|---|
-| `rustual-render` | geometry, colors, styles, cell widths, styled text + markup, strips, border glyphs, cell canvas with diffing (the "rich" layer) |
-| `rustual-css` | TCSS tokenizer/parser (variables, nesting, `!important`), selectors & specificity, typed `Styles`, cascade, themes/design system |
-| `rustual` | DOM, widgets, events/messages/bindings/actions, layout, compositor, crossterm driver, app runtime, Pilot test harness |
-| `rustual-py` | Python bindings (PyO3, built with maturin/uv): the `rustual` package (see [`docs/python-bindings.md`](docs/python-bindings.md)) |
+| [`rustual-render`](crates/rustual-render) | Geometry, colors, styles, cell widths, styled text and markup, strips, border glyphs, a cell canvas with diffing (the Rich layer) |
+| [`rustual-css`](crates/rustual-css) | TCSS tokenizer and parser (variables, nesting, `!important`), selectors and specificity, typed `Styles`, cascade, themes |
+| [`rustual`](crates/rustual) | DOM, widgets, events / messages / bindings / actions, layout, compositor, crossterm driver, async runtime (tokio), Pilot |
+| [`rustual-py`](crates/rustual-py) | Python bindings built with maturin and uv: the `rustual` package |
+
+More in the [design doc](docs/plans/2026-10-14-rustual-design.md),
+the [widget guide](docs/widget-guide.md) and the [Python binding notes](docs/python-bindings.md).
+
+<p align="right"><a href="#readme-top">back to top ↑</a></p>
 
 ## Testing
 
-`cargo test --workspace` (the Python extension has no Rust tests; test it with
-`cd crates/rustual-py && uv run pytest`). Apps are tested headlessly with `Pilot`
-(`press`, `type_text`, `click`, `hover`, `wait`, `screen_text`, `canvas`, `query_one`, ...).
+Apps are tested headlessly with a `Pilot`, in either language:
 
-The `reference/` directory (git-ignored) holds the upstream Textual and Rich sources used as the
-behavioural reference.
+<table>
+<tr>
+<td width="50%" valign="top">
+
+```rust
+#[tokio::test]
+async fn quit_button_exits() {
+    let mut pilot = App::new(Hello)
+        .test(Size::new(80, 24))
+        .await;
+    pilot.click("#quit").await;
+    assert!(pilot.has_exited());
+}
+```
+
+</td>
+<td width="50%" valign="top">
+
+```python
+async def test_counter():
+    app = CounterApp()
+    async with app.run_test() as pilot:
+        await pilot.press("+")
+        assert app.query_one(Counter).count == 1
+        assert "Count: 1" in pilot.screen_text()
+```
+
+</td>
+</tr>
+</table>
+
+```sh
+cargo test                                      # 568 Rust tests
+cd crates/rustual-py && uv run pytest           # 60 Python tests
+cargo llvm-cov --workspace --exclude rustual-py # Rust coverage (86% of lines)
+uv run pytest --cov=rustual                     # Python coverage (82% of lines)
+```
+
+Coverage figures were measured on 2026-10-15; CI runs the same commands.
+
+## Status
+
+rustual covers roughly 90% of the Textual features apps commonly use (about 70% of full parity);
+[`features.md`](features.md) tracks every feature and [`ToDo.md`](ToDo.md) is the roadmap.
+It's young: so far it has been tested headlessly and in terminal emulators, and Windows hasn't been
+verified yet.
+
+## Contributing
+
+Issues and pull requests are welcome. Before opening a PR:
+
+```sh
+cargo fmt --all && cargo clippy --workspace --all-targets -- -D warnings && cargo test
+cd crates/rustual-py && uv sync --reinstall-package rustual-py && uv run pytest
+```
+
+New widgets follow the [widget guide](docs/widget-guide.md); Python bindings for them follow
+[docs/python-bindings.md](docs/python-bindings.md#adding-a-widget-binding).
 
 ## License
 
-MIT, like Textual. See [`LICENSE`](LICENSE): rustual is a port of Textual and Rich, so their
-copyright notices are included.
+MIT, like Textual. See [`LICENSE`](LICENSE).
+
+## Acknowledgements
+
+rustual is a re-creation of [Textual](https://github.com/Textualize/textual) and
+[Rich](https://github.com/Textualize/rich) by Will McGugan and the Textualize team; their design,
+CSS and behaviour are the reference for everything here. If you write Python TUIs, use and
+support the originals.
+
+<p align="right"><a href="#readme-top">back to top ↑</a></p>

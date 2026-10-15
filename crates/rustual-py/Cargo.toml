@@ -4,6 +4,7 @@ description = "Python bindings (PyO3) for rustual, exposing a Textual-compatible
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
 publish = false
 
 [lib]
