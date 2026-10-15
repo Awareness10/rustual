@@ -13,8 +13,12 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
 ]
 
+[project.optional-dependencies]
+# Rich renderables (Table, Syntax, Panel, ...) in Static / render(); only needed if you use them.
+rich = ["rich>=13"]
+
 [dependency-groups]
-dev = ["pytest>=8", "pytest-asyncio>=0.24", "maturin>=1.8,<2"]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "maturin>=1.8,<2", "rich>=13"]
 
 [tool.maturin]
 python-source = "python"

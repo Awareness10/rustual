@@ -523,6 +523,9 @@ pub(crate) fn content_from_py(ctx: &RenderCtx, r: &Bound<'_, PyAny>) -> PyResult
             return Ok(Content::Text(ctx.markup(&s)));
         }
     }
+    if r.hasattr("__rich_console__")? || r.hasattr("__rich__")? {
+        return crate::widgets::rich::rich_content(r.py(), ctx, r);
+    }
     let s = r.str()?;
     Ok(Content::Text(textual::Text::plain(s.to_cow()?.as_ref())))
 }
