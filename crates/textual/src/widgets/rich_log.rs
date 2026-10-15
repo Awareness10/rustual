@@ -8,6 +8,7 @@ use crate::binding::Binding;
 use crate::context::Ctx;
 use crate::widget::{Content, RenderCtx, Widget};
 use crate::widgets::log::{is_vertical_scroll_end, process_line, scroll_end};
+use crate::widgets::pretty;
 use crate::widgets::scroll_bindings;
 use std::cell::RefCell;
 use std::collections::VecDeque;
@@ -102,10 +103,21 @@ impl RichLog {
         self
     }
 
-    /// Accepted for API parity with Textual; repr highlighting is not implemented.
+    /// Highlight strings passed to [`RichLog::write`] with a port of Rich's `ReprHighlighter`
+    /// (numbers, strings, `True` / `None`, calls, URLs, paths, ...; see
+    /// [`pretty::tokenize_text`]). Default off. Colors are Rich's `repr.*` styles under
+    /// Textual's ANSI theme for the current dark / light mode at write time.
     pub fn highlight(mut self, highlight: bool) -> Self {
         self.highlight = highlight;
         self
+    }
+
+    pub fn set_highlight(&mut self, highlight: bool) {
+        self.highlight = highlight;
+    }
+
+    pub fn is_highlighting(&self) -> bool {
+        self.highlight
     }
 
     /// Scroll to the end on write (default `true`).
@@ -133,13 +145,17 @@ impl RichLog {
         self.entries.iter().map(Strip::plain_text).collect()
     }
 
-    /// Write a string (markup if `markup(true)`, else plain).
+    /// Write a string (markup if `markup(true)`, else plain; highlighted if `highlight(true)`).
     pub fn write(&mut self, content: &str, ctx: &mut Ctx) {
-        let text = if self.markup {
+        let mut text = if self.markup {
             Text::from_markup(content)
         } else {
             Text::plain(content)
         };
+        if self.highlight {
+            let dark = ctx.is_dark();
+            text = pretty::highlight_text(&text, &|t| pretty::repr_style(t, dark));
+        }
         self.write_text(text, ctx);
     }
 

@@ -3,9 +3,9 @@
 Parity tracker against Python Textual 8.2.8. Percentages are rough estimates of how much of
 Textual's behaviour for that item is implemented here. Status: ✅ done (≥ 90%) · 🟡 partial · ❌ missing.
 
-**Overall: milestones 1–2 complete. ~85% of commonly used Textual functionality, ~65% of full parity.** 509 tests.
+**Overall: milestones 1–2 complete. ~85% of commonly used Textual functionality, ~65% of full parity.** 520 tests.
 
-_Last updated: 2026-10-14._
+_Last updated: 2026-10-15._
 
 ## Core runtime
 
@@ -89,7 +89,7 @@ _Last updated: 2026-10-14._
 | SelectionList | ✅ | 90 | generic values, toggle/select/deselect (all), typed messages; no separators |
 | OptionList | ✅ | 90 | |
 | ListView / ListItem | ✅ | 90 | |
-| DataTable | ✅ | 85 | cursors, sorting, fixed rows/cols, zebra, hover; cells always left-aligned |
+| DataTable | ✅ | 88 | cursors, sorting, fixed rows/cols, zebra, hover; per-cell alignment (`CellValue::right/center/justify`; numbers left by default, as Textual) |
 | Tree | ✅ | 90 | generic data payload, guides, keyboard + mouse |
 | DirectoryTree | 🟡 | 85 | lazy loading, sorting, icons, filter predicate, reload keeping expansion; synchronous I/O |
 | Tabs / Tab | ✅ | 95 | underline slides over 0.3s |
@@ -97,9 +97,9 @@ _Last updated: 2026-10-14._
 | ContentSwitcher | ✅ | 95 | |
 | Collapsible | ✅ | 95 | |
 | Header | ✅ | 90 | clock in UTC (offset configurable); icon opens the command palette |
-| Footer | ✅ | 85 | click replays the key; no binding groups |
+| Footer | ✅ | 90 | click replays the key; binding groups (`Binding::group(BindingGroup)`, compact groups) |
 | Log | ✅ | 90 | |
-| RichLog | ✅ | 80 | no highlighter |
+| RichLog | ✅ | 90 | `highlight(true)`: Rich `ReprHighlighter` port (`pretty::tokenize_text`), ANSI-theme colors at write time; no custom highlighter object |
 | ProgressBar | ✅ | 95 | ETA, indeterminate, gradients |
 | LoadingIndicator | ✅ | 90 | no `loading` overlay integration |
 | Sparkline | ✅ | 85 | no gradient |
@@ -108,19 +108,18 @@ _Last updated: 2026-10-14._
 | Rule | ✅ | 100 | |
 | Toast / ToastRack | ✅ | 90 | |
 | Containers (Container, Vertical, Horizontal, Grid, Center, Middle, ScrollableContainer, ...) | ✅ | 95 | |
-| Markdown / MarkdownViewer | 🟡 | 75 | pulldown-cmark (GFM tables, strikethrough, task lists); all block types, inline styles, clickable links, TOC + goto_anchor, viewer with TOC tree and file history; no syntax highlighting (hook only), no streaming / incremental append, no `open_url` |
+| Markdown / MarkdownViewer | 🟡 | 85 | pulldown-cmark (GFM tables, strikethrough, task lists); all block types, inline styles, clickable links, TOC + goto_anchor, viewer with TOC tree and file history; fences highlighted by default with the TextArea keyword highlighter (python/rust/js/json/toml; monokai dark / github_light light; replaceable hook), `open_links` (default on: scheme links via `open_url`); no streaming / incremental append |
 | Link | ✅ | 90 | opener stubbable via `link::set_url_opener`; posts `link::Opened` |
 | Pretty | 🟡 | 75 | `Debug` repr, one-line or expanded, hand-written repr highlighter; all-or-nothing expansion, no indent guides |
 | Tooltip | ✅ | 90 | runtime-positioned (no `constrain` CSS) |
-| KeyPanel / HelpPanel | 🟡 | 60 | KeyPanel ✅ (~85%, `dock: right` instead of `split`); HelpPanel missing (now unblocked: Markdown exists) |
+| KeyPanel / HelpPanel | ✅ | 85 | `dock: right` instead of `split`; HelpPanel shows `Widget::help` Markdown (nearest ancestor) + embedded KeyPanel, `app.show/hide_help_panel`; help refresh lands one loop turn after focus changes (no focus watcher) |
 | Welcome | 🟡 | 85 | welcome text built from Statics (not the Markdown widget); OK exits |
 
 ## Roadmap
 
 1. **Next low-hanging fruit (core):** `switch_screen` + named screens / `MODES`, maximize (`ctrl+m`), `loading`
-   overlay (LoadingIndicator over a widget), OSC 52 system clipboard, suspend (`ctrl+z`), screenshot key binding,
-   HelpPanel, Markdown `open_url` for external links.
+   overlay (LoadingIndicator over a widget), OSC 52 system clipboard, suspend (`ctrl+z`), screenshot key binding.
 2. **Medium:** CSS `transition`, colour animation, text selection & copy across widgets, worker state events,
-   keymaps (binding overrides), DataTable cell alignment, RichLog highlighter.
-3. **Larger:** tree-sitter syntax highlighting (TextArea / Markdown fences), inline mode, ANSI / no-color themes,
+   keymaps (binding overrides).
+3. **Larger:** tree-sitter syntax highlighting (TextArea / Markdown fences use a keyword highlighter), inline mode, ANSI / no-color themes,
    devtools console, stream layout, Rich-style renderables.

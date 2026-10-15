@@ -1,9 +1,29 @@
 //! Tests for `Markdown` / `MarkdownViewer`.
 
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 use textual::prelude::*;
 use textual::render::Attrs;
+use textual::widgets::link::set_url_opener;
 use textual::widgets::markdown::{self, MarkdownTableOfContents, TocEntry};
+
+/// URLs "opened" by any test in this file. `Markdown` opens external links by default, so
+/// every test app installs this (process-wide) stub instead of the system opener.
+fn opened() -> &'static Mutex<Vec<String>> {
+    static OPENED: OnceLock<Mutex<Vec<String>>> = OnceLock::new();
+    OPENED.get_or_init(Mutex::default)
+}
+
+fn stub_opener() {
+    set_url_opener(Some(Arc::new(|u: &str| {
+        opened().lock().unwrap().push(u.to_string());
+        Ok(())
+    })));
+}
+
+fn was_opened(url: &str) -> bool {
+    opened().lock().unwrap().iter().any(|u| u == url)
+}
 
 const DOC: &str = "\
 # Title
@@ -70,6 +90,7 @@ impl Widget for Root {
 }
 
 async fn pilot(doc: &str, size: Size) -> Pilot {
+    stub_opener();
     App::new(Root::new(doc)).test(size).await
 }
 
@@ -198,6 +219,10 @@ async fn link_click_posts_message() {
     let (x, y) = find(&mut p, "link.").unwrap();
     p.click_at(x + 2, y).await;
     assert_eq!(root(&p).links, vec!["https://example.com".to_string()]);
+    assert!(
+        was_opened("https://example.com"),
+        "open_links is on by default"
+    );
     p.click_at(x + 4, y).await;
     assert_eq!(root(&p).links.len(), 1);
 }
@@ -464,6 +489,7 @@ impl Widget for ViewerApp {
 }
 
 async fn viewer(v: MarkdownViewer, size: Size) -> Pilot {
+    stub_opener();
     App::new(ViewerApp {
         viewer: Some(v),
         links: vec![],
@@ -550,6 +576,79 @@ async fn viewer_anchor_links_and_external_links() {
         p.app::<ViewerApp>().unwrap().links,
         vec!["https://example.com"]
     );
+    assert!(was_opened("https://example.com"));
+    // Local links are navigated by the viewer, never handed to the opener.
+    assert!(!was_opened("#section-4"));
+}
+
+#[tokio::test]
+async fn open_links_opens_only_external_links() {
+    struct L;
+    impl Widget for L {
+        fn compose(&mut self) -> Vec<Child> {
+            compose![
+                Markdown::new("[ext](https://example.org/open-links) [local](notes.md)").id("on"),
+                Markdown::new("[off](https://example.org/not-opened)")
+                    .open_links(false)
+                    .id("off"),
+            ]
+        }
+    }
+    stub_opener();
+    let mut p = App::new(L).test(Size::new(60, 10)).await;
+    let (x, y) = find(&mut p, "ext").unwrap();
+    p.click_at(x, y).await;
+    assert!(was_opened("https://example.org/open-links"));
+    let (x, y) = find(&mut p, "local").unwrap();
+    p.click_at(x, y).await;
+    assert!(!was_opened("notes.md"));
+    let (x, y) = find(&mut p, "off").unwrap();
+    p.click_at(x, y).await;
+    assert!(!was_opened("https://example.org/not-opened"));
+    assert!(p.query_one::<Markdown>("#on").unwrap().opens_links());
+    assert!(!p.query_one::<Markdown>("#off").unwrap().opens_links());
+}
+
+#[tokio::test]
+async fn fences_highlighted_by_default() {
+    struct F;
+    impl Widget for F {
+        fn compose(&mut self) -> Vec<Child> {
+            compose![
+                Markdown::new("```rust\nfn main() {}\n```\n\n```\nfn plain\n```").id("md"),
+                Markdown::new("```python\ndef off(): pass\n```").id("off"),
+            ]
+        }
+        fn on_mount(&mut self, ctx: &mut Ctx) {
+            ctx.with::<Markdown, _>("#off", |md, ctx| {
+                md.set_highlighter(None);
+                let src = md.source().to_string();
+                md.update(src, ctx);
+            });
+        }
+    }
+    let mut p = App::new(F).test(Size::new(40, 20)).await;
+    let monokai = TextAreaTheme::get_builtin_theme("monokai").unwrap();
+    let keyword = monokai.get_highlight("keyword").unwrap().fg;
+    let function = monokai.get_highlight("function").unwrap().fg;
+    let (x, y) = find(&mut p, "fn main").unwrap();
+    let (px, py) = find(&mut p, "fn plain").unwrap();
+    let (ox, oy) = find(&mut p, "def off").unwrap();
+    let c = p.canvas();
+    assert_eq!(c.get(x, y).unwrap().fg, keyword.unwrap());
+    assert_eq!(c.get(x + 3, y).unwrap().fg, function.unwrap());
+    // No language: plain.
+    assert_ne!(c.get(px, py).unwrap().fg, keyword.unwrap());
+    // Highlighting disabled through the hook.
+    assert_ne!(c.get(ox, oy).unwrap().fg, keyword.unwrap());
+
+    // The highlighter functions are usable directly, with language aliases.
+    assert_eq!(markdown::fence_language("py"), Some("python"));
+    assert_eq!(markdown::fence_language("JS"), Some("javascript"));
+    assert_eq!(markdown::fence_language("bash"), None);
+    let t = markdown::highlight_code_monokai("let x = 1; // hi", "rs").unwrap();
+    assert_eq!(t.plain_text(), "let x = 1; // hi");
+    assert!(markdown::highlight_code_monokai("x", "cobol").is_none());
 }
 
 fn temp_dir() -> std::path::PathBuf {

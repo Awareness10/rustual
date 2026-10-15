@@ -17,6 +17,32 @@ pub struct Binding {
     pub priority: bool,
     /// Override how the key is displayed in the footer.
     pub key_display: Option<String>,
+    /// Footer group: consecutive bindings of the same group are shown as their keys followed
+    /// by one description (Textual's `Binding.group`).
+    pub group: Option<BindingGroup>,
+}
+
+/// A binding group (Textual's `Binding.Group`): related bindings shown together in the
+/// footer under a single description.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct BindingGroup {
+    pub description: String,
+    /// Show the keys without spaces between them.
+    pub compact: bool,
+}
+
+impl BindingGroup {
+    pub fn new(description: &str) -> Self {
+        BindingGroup {
+            description: description.to_string(),
+            compact: false,
+        }
+    }
+
+    pub fn compact(mut self, compact: bool) -> Self {
+        self.compact = compact;
+        self
+    }
 }
 
 impl Binding {
@@ -32,7 +58,14 @@ impl Binding {
             show: true,
             priority: false,
             key_display: None,
+            group: None,
         }
+    }
+
+    /// Put the binding in a footer group.
+    pub fn group(mut self, group: BindingGroup) -> Self {
+        self.group = Some(group);
+        self
     }
 
     pub fn hidden(mut self) -> Self {

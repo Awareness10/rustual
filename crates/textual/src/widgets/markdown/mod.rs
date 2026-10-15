@@ -18,8 +18,14 @@
 //! [`MarkdownTableOfContents`]).
 //!
 //! Deviations from Textual:
-//! - Links are not opened in a browser (there is no `open_url`); handle [`LinkClicked`].
-//! - No syntax highlighting is built in; see [`Markdown::highlighter`].
+//! - With [`Markdown::open_links`] (the default), only links with a URL scheme (`https:`,
+//!   `mailto:` ...) are opened with [`crate::widgets::link::open_url`]; Textual passes every
+//!   href to `App.open_url`. Relative links and `#anchors` are left to [`LinkClicked`]
+//!   handlers (such as [`MarkdownViewer`]).
+//! - Code fences are highlighted with the TextArea keyword highlighter (python, rust,
+//!   javascript, json, toml; [`highlight_code`]) instead of Textual's Pygments-based
+//!   `highlight`; replace it with [`Markdown::highlighter`] or disable it with
+//!   `set_highlighter(None)`.
 //! - `append` re-parses the whole document and remounts every block (no incremental update,
 //!   no `MarkdownStream`).
 //! - Headings are one widget type ([`MarkdownHeader`]) whose CSS type name depends on the level.
@@ -32,6 +38,7 @@ mod table;
 mod viewer;
 
 pub use blocks::{
+    fence_language, highlight_code, highlight_code_github_light, highlight_code_monokai,
     Highlighter, MarkdownBlockQuote, MarkdownBullet, MarkdownBulletList, MarkdownFence,
     MarkdownHeader, MarkdownHorizontalRule, MarkdownListItem, MarkdownOrderedList,
     MarkdownParagraph,
@@ -42,6 +49,7 @@ pub use viewer::{MarkdownTableOfContents, MarkdownViewer, Navigator, NavigatorUp
 
 use crate::context::Ctx;
 use crate::dom::NodeId;
+use crate::message::{Flow, Message};
 use crate::widget::{Child, Widget, WidgetExt};
 use crate::widgets::Vertical;
 use std::collections::HashMap;
@@ -190,7 +198,7 @@ pub fn sanitize_location(location: &str) -> (PathBuf, String) {
 fn build_blocks(
     blocks: Vec<Block>,
     bullet_depth: usize,
-    highlighter: Option<Highlighter>,
+    highlighter: blocks::FenceHighlight,
     toc: &mut Vec<TocEntry>,
     top_level: bool,
 ) -> Vec<Child> {
@@ -248,7 +256,7 @@ fn build_blocks(
             }
             Block::Fence { lang, code } => out.push(
                 MarkdownFence::new(code, lang)
-                    .highlighter(highlighter)
+                    .with_highlight(highlighter)
                     .child(),
             ),
             Block::Rule => out.push(MarkdownHorizontalRule::new().child()),
@@ -302,7 +310,8 @@ pub struct Markdown {
     /// Blocks parsed at construction, mounted by `compose`.
     pending: Option<Vec<Block>>,
     toc: Vec<TocEntry>,
-    highlighter: Option<Highlighter>,
+    highlighter: blocks::FenceHighlight,
+    open_links: bool,
     node: Option<NodeId>,
 }
 
@@ -314,19 +323,38 @@ impl Markdown {
             source,
             pending: Some(blocks),
             toc: Vec::new(),
-            highlighter: None,
+            highlighter: blocks::FenceHighlight::Builtin,
+            open_links: true,
             node: None,
         }
     }
 
-    /// Syntax highlighter for code fences (applies to blocks built after this call).
-    pub fn highlighter(mut self, h: Highlighter) -> Self {
-        self.highlighter = Some(h);
+    /// Open external links (with a URL scheme) when clicked (default `true`, Textual's
+    /// `open_links`). [`LinkClicked`] is posted either way.
+    pub fn open_links(mut self, open: bool) -> Self {
+        self.open_links = open;
         self
     }
 
+    pub fn set_open_links(&mut self, open: bool) {
+        self.open_links = open;
+    }
+
+    pub fn opens_links(&self) -> bool {
+        self.open_links
+    }
+
+    /// Syntax highlighter for code fences, replacing the built-in one (applies to blocks
+    /// built after this call).
+    pub fn highlighter(mut self, h: Highlighter) -> Self {
+        self.highlighter = blocks::FenceHighlight::Custom(h);
+        self
+    }
+
+    /// Replace the fence highlighter; `None` disables highlighting (applies to blocks built
+    /// after this call).
     pub fn set_highlighter(&mut self, h: Option<Highlighter>) {
-        self.highlighter = h;
+        self.highlighter = blocks::FenceHighlight::from_option(h);
     }
 
     /// The Markdown source.
@@ -445,5 +473,29 @@ impl Widget for Markdown {
         ctx.post_message(TableOfContentsUpdated {
             table_of_contents: toc,
         });
+    }
+
+    fn on_message(&mut self, message: &Message, ctx: &mut Ctx) -> Flow {
+        // Textual: `Markdown.on_markdown_link_clicked` (the message keeps bubbling).
+        if let Some(link) = message.get::<LinkClicked>() {
+            if self.open_links && is_url(&link.href) {
+                let _ = ctx.open_url(&link.href);
+            }
+        }
+        Flow::Continue
+    }
+}
+
+/// Whether `href` has a URL scheme (`https:`, `mailto:` ...), i.e. is not a local path.
+pub(crate) fn is_url(href: &str) -> bool {
+    match href.split_once(':') {
+        Some((scheme, _)) => {
+            scheme.len() > 1
+                && scheme.starts_with(|c: char| c.is_ascii_alphabetic())
+                && scheme
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || matches!(c, '+' | '-' | '.'))
+        }
+        None => false,
     }
 }

@@ -138,6 +138,12 @@ pub trait Widget: Any {
     fn commands(&self) -> Vec<crate::command::Command> {
         Vec::new()
     }
+
+    /// Help text (Markdown) shown in the [`HelpPanel`](crate::widgets::HelpPanel) while this
+    /// widget (or a descendant without help of its own) has focus (Textual's `HELP`).
+    fn help(&self) -> Option<&str> {
+        None
+    }
 }
 
 /// A widget plus the node attributes to mount it with (id, classes, inline styles, children).

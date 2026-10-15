@@ -1627,6 +1627,19 @@ impl Widget for TextArea {
         }
     }
 
+    fn help(&self) -> Option<&str> {
+        Some(
+            "\
+## Text area
+
+A multi-line text editor.
+
+- **shift+arrows** select text.
+- **ctrl+z** / **ctrl+y** undo and redo.
+- **ctrl+x** / **ctrl+c** / **ctrl+v** cut, copy and paste.",
+        )
+    }
+
     fn bindings(&self) -> Vec<Binding> {
         let b = |keys: &str, action: &str, desc: &str| Binding::new(keys, action, desc).hidden();
         vec![

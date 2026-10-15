@@ -20,7 +20,7 @@ like this.
 - Task lists:
   - [x] parse with pulldown-cmark
   - [x] render tables
-  - [ ] syntax highlighting
+  - [x] syntax highlighting
 
 1. Ordered lists
 2. are numbered

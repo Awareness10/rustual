@@ -158,6 +158,42 @@ async fn rich_log_no_wrap_and_text() {
 }
 
 #[tokio::test]
+async fn rich_log_highlight() {
+    use textual::widgets::pretty::{repr_style, ReprToken};
+    struct App3;
+    impl Widget for App3 {
+        fn compose(&mut self) -> Vec<Child> {
+            compose![
+                RichLog::new().highlight(true).id("on").style("height: 4;"),
+                RichLog::new().id("off").style("height: 4;"),
+            ]
+        }
+    }
+    let mut p = App::new(App3).test(Size::new(40, 10)).await;
+    for sel in ["#on", "#off"] {
+        p.with::<RichLog, _>(sel, |log, ctx| log.write("n=42 ok=True", ctx))
+            .await;
+    }
+    let on = p.query("#on")[0];
+    let off = p.query("#off")[0];
+    let (ro, rf) = (
+        p.dom().get(on).unwrap().layout.content_region,
+        p.dom().get(off).unwrap().layout.content_region,
+    );
+    let c = p.canvas();
+    let number = repr_style(ReprToken::Number, true).fg.unwrap();
+    // "n=42": the number is at x = 2.
+    assert_eq!(c.get(ro.x + 2, ro.y).unwrap().fg, number);
+    assert!(c
+        .get(ro.x + 2, ro.y)
+        .unwrap()
+        .attrs
+        .contains(textual::render::Attrs::BOLD));
+    assert_ne!(c.get(rf.x + 2, rf.y).unwrap().fg, number);
+    assert!(p.query_one::<RichLog>("#on").unwrap().is_highlighting());
+}
+
+#[tokio::test]
 async fn large_log_renders_fast() {
     let mut p = pilot().await;
     let lines: Vec<String> = (0..10_000).map(|i| format!("log line {i}")).collect();

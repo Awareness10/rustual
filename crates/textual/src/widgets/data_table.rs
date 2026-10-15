@@ -22,7 +22,9 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt;
 use textual_css::Overflow;
-use textual_render::{Justify, Region, Size, Span, Strip, Style, Text, TextOverflow};
+use textual_render::cells::cell_len;
+pub use textual_render::Justify;
+use textual_render::{Region, Size, Span, Strip, Style, Text, TextOverflow};
 
 const DEFAULT_CSS: &str = r#"
 DataTable {
@@ -207,9 +209,50 @@ pub enum CellValue {
     Int(i64),
     /// Displayed with two decimals (as Textual's `default_cell_formatter`).
     Float(f64),
+    /// A value displayed with an explicit justification (like a Rich `Text(justify=...)`
+    /// cell in Textual). Build with [`CellValue::justify`], [`CellValue::right`] or
+    /// [`CellValue::center`]. Sorting and [`CellValue::plain`] use the inner value.
+    Aligned(Box<CellValue>, Justify),
 }
 
 impl CellValue {
+    /// This value displayed with `justify` within its cell. Values are left-aligned by
+    /// default, numbers included (as in Textual, whose `default_cell_formatter` renders
+    /// numbers as plain left-justified text).
+    pub fn justify(self, justify: Justify) -> CellValue {
+        match self {
+            CellValue::Aligned(inner, _) => CellValue::Aligned(inner, justify),
+            v => CellValue::Aligned(Box::new(v), justify),
+        }
+    }
+
+    /// Right-aligned value: `CellValue::right(12.5)`.
+    pub fn right(value: impl Into<CellValue>) -> CellValue {
+        value.into().justify(Justify::Right)
+    }
+
+    /// Centered value.
+    pub fn center(value: impl Into<CellValue>) -> CellValue {
+        value.into().justify(Justify::Center)
+    }
+
+    /// The justification of the value in its cell ([`Justify::Left`] unless
+    /// [`CellValue::Aligned`]).
+    pub fn get_justify(&self) -> Justify {
+        match self {
+            CellValue::Aligned(_, j) => *j,
+            _ => Justify::Left,
+        }
+    }
+
+    /// The value without its alignment wrapper.
+    pub fn inner(&self) -> &CellValue {
+        match self {
+            CellValue::Aligned(inner, _) => inner.inner(),
+            v => v,
+        }
+    }
+
     /// Text as displayed (markup parsed with `markup`).
     fn to_text(&self, markup: &dyn Fn(&str) -> Text) -> Text {
         match self {
@@ -218,6 +261,7 @@ impl CellValue {
             CellValue::Text(t) => t.clone(),
             CellValue::Int(i) => Text::plain(i.to_string()),
             CellValue::Float(f) => Text::plain(format!("{f:.2}")),
+            CellValue::Aligned(inner, _) => inner.to_text(markup),
         }
     }
 
@@ -238,23 +282,25 @@ impl CellValue {
             CellValue::Float(f) => Some(*f),
             CellValue::Markup(_) | CellValue::Text(_) => self.plain().trim().parse().ok(),
             CellValue::Empty => None,
+            CellValue::Aligned(inner, _) => inner.as_number(),
         }
     }
 
     /// Ordering used by [`DataTable::sort`]: empty cells first, then numbers (numerically,
     /// including numeric strings), then strings (by their plain text).
     pub fn compare(&self, other: &CellValue) -> Ordering {
-        match (self, other) {
+        let (this, other) = (self.inner(), other.inner());
+        match (this, other) {
             (CellValue::Empty, CellValue::Empty) => return Ordering::Equal,
             (CellValue::Empty, _) => return Ordering::Less,
             (_, CellValue::Empty) => return Ordering::Greater,
             _ => {}
         }
-        match (self.as_number(), other.as_number()) {
+        match (this.as_number(), other.as_number()) {
             (Some(a), Some(b)) => a.partial_cmp(&b).unwrap_or(Ordering::Equal),
             (Some(_), None) => Ordering::Less,
             (None, Some(_)) => Ordering::Greater,
-            (None, None) => self.plain().cmp(&other.plain()),
+            (None, None) => this.plain().cmp(&other.plain()),
         }
     }
 }
@@ -1616,6 +1662,7 @@ impl DataTable {
     fn render_cell_line(
         &self,
         text: &Text,
+        justify: Justify,
         row_height: i32,
         line_no: i32,
         width: i32,
@@ -1642,15 +1689,31 @@ impl DataTable {
         if pad > 0 {
             out.push(Span::new(" ".repeat(pad as usize), pre.combine(post)));
         }
+        let line = line.crop(0, inner);
+        // Justify within the cell (trailing whitespace of wrapped lines doesn't count).
+        let len = cell_len(line.plain_text().trim_end());
+        let lead = match justify {
+            Justify::Right => inner - len,
+            Justify::Center => (inner - len) / 2,
+            _ => 0,
+        }
+        .max(0);
+        if lead > 0 {
+            out.push(Span::new(" ".repeat(lead as usize), pre.combine(post)));
+        }
+        let line = if lead > 0 {
+            line.crop(0, inner - lead)
+        } else {
+            line
+        };
         let styled = Strip::new(
-            line.crop(0, inner)
-                .spans
+            line.spans
                 .into_iter()
                 .map(|s| Span::new(s.text, pre.combine(&s.style).combine(post)))
                 .collect(),
         );
         out.spans
-            .extend(styled.set_cell_len(inner, &pre.combine(post)).spans);
+            .extend(styled.set_cell_len(inner - lead, &pre.combine(post)).spans);
         if pad > 0 {
             out.push(Span::new(" ".repeat(pad as usize), pre.combine(post)));
         }
@@ -1678,10 +1741,13 @@ impl DataTable {
         };
         let cursor = (self.cursor.row as isize, self.cursor.column as isize);
         let t = self.cursor_type;
-        let cell_text = |c: usize| -> Text {
+        let cell_text = |c: usize| -> (Text, Justify) {
             match row {
-                RowRef::Header => self.columns[c].label.clone(),
-                RowRef::Data(i) => self.rows[i].cells[c].to_text(&markup),
+                RowRef::Header => (self.columns[c].label.clone(), Justify::Left),
+                RowRef::Data(i) => {
+                    let cell = &self.rows[i].cells[c];
+                    (cell.to_text(&markup), cell.get_justify())
+                }
             }
         };
         let row_style = self.row_style(st, row);
@@ -1694,8 +1760,10 @@ impl DataTable {
                 Self::should_highlight(self.hover, cell, t),
                 Self::should_highlight(cursor, cell, t),
             );
+            let (text, justify) = cell_text(c);
             self.render_cell_line(
-                &cell_text(c),
+                &text,
+                justify,
                 row_height,
                 line_no,
                 self.col_width(c),
@@ -1723,6 +1791,7 @@ impl DataTable {
             fixed.spans.extend(
                 self.render_cell_line(
                     &label,
+                    Justify::Left,
                     row_height,
                     line_no,
                     self.label_width(),
@@ -1829,6 +1898,16 @@ impl Widget for DataTable {
         if self.show_cursor && !self.rows.is_empty() && !self.columns.is_empty() {
             self.highlight_cursor(ctx);
         }
+    }
+
+    fn help(&self) -> Option<&str> {
+        Some(
+            "\
+## Data table
+
+- **Arrow keys** move the cursor, **page up** / **page down** scroll.
+- **enter** selects the cell, row or column under the cursor.",
+        )
     }
 
     fn bindings(&self) -> Vec<Binding> {

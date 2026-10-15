@@ -2,9 +2,10 @@
 //! on the right of the screen listing every key binding active for the focused widget
 //! (including hidden ones), app bindings first.
 //!
-//! Shown with the `app.show_help_panel` / `app.show_keys` actions (or `ctx.show_key_panel()`,
-//! or the "Keys" command of the command palette), hidden with `app.hide_help_panel` /
-//! `app.hide_keys`; `app.toggle_keys` toggles.
+//! Shown on its own with the `app.show_keys` action (or `ctx.show_key_panel()`), hidden with
+//! `app.hide_keys`; `app.toggle_keys` toggles. The [`HelpPanel`](crate::widgets::HelpPanel)
+//! (`app.show_help_panel`, the "Keys" command of the command palette) embeds one below the
+//! focused widget's help; an embedded panel is not docked.
 //!
 //! Deviations: Textual's `split: right` is approximated with `dock: right`; the panel is
 //! re-rendered every frame from [`RenderEnv::all_bindings`](crate::RenderEnv) rather than
@@ -17,7 +18,6 @@ use textual_render::{Justify, Span, Strip, Style, Text, TextOverflow};
 
 const KEY_PANEL_CSS: &str = "
 KeyPanel {
-    dock: right;
     width: 33%;
     min-width: 30;
     max-width: 60;
@@ -29,6 +29,10 @@ KeyPanel {
     layout: vertical;
     overflow-x: hidden;
     overflow-y: auto;
+
+    &.-docked {
+        dock: right;
+    }
 
     &> BindingsTable > .bindings-table--key {
         color: $text-accent;
@@ -206,5 +210,11 @@ impl Widget for KeyPanel {
 
     fn on_mount(&mut self, ctx: &mut Ctx) {
         ctx.add_class("-textual-system");
+        // Docked on the right unless embedded in a `HelpPanel` (Textual: `split: initial`).
+        let embedded = ctx
+            .parent()
+            .and_then(|p| ctx.dom().get(p))
+            .is_some_and(|n| n.is_type("HelpPanel"));
+        ctx.set_class(!embedded, "-docked");
     }
 }

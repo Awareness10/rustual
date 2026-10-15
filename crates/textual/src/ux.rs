@@ -1,4 +1,4 @@
-//! Runtime glue for the command palette, tooltips, the key panel and `@click` markup links.
+//! Runtime glue for the command palette, tooltips, the key / help panels and `@click` markup links.
 //!
 //! Kept out of `app.rs`: the runtime only calls the hooks here (`builtin_action`,
 //! `click_link`) and in [`crate::tooltip`].
@@ -35,8 +35,10 @@ pub(crate) fn builtin_action(state: &mut AppState, action: &Action) -> bool {
     match action.name.as_str() {
         "command_palette" => crate::command::open_palette(state),
         "change_theme" => crate::command::open_theme_palette(state),
-        "show_keys" | "show_help_panel" => show_key_panel(state),
-        "hide_keys" | "hide_help_panel" => hide_key_panel(state),
+        "show_keys" => show_key_panel(state),
+        "hide_keys" => hide_key_panel(state),
+        "show_help_panel" => show_help_panel(state),
+        "hide_help_panel" => hide_help_panel(state),
         "toggle_keys" => {
             if key_panels(state).is_empty() {
                 show_key_panel(state)
@@ -52,19 +54,50 @@ pub(crate) fn builtin_action(state: &mut AppState, action: &Action) -> bool {
 
 // ---------------------------------------------------------------------------------- key panel
 
-fn key_panels(state: &AppState) -> Vec<NodeId> {
+fn panels(state: &AppState, selector: &str) -> Vec<NodeId> {
     let Some(screen) = state.active_screen() else {
         return Vec::new();
     };
     state
         .dom
-        .query_str(screen, "KeyPanel")
+        .query_str(screen, selector)
         .into_iter()
         .filter(|id| !state.pending_removals.contains(id))
         .collect()
 }
 
-/// Mount a [`KeyPanel`](crate::widgets::KeyPanel) on the active screen (Textual: `action_show_help_panel`).
+/// Stand-alone key panels (not the one embedded in a help panel).
+fn key_panels(state: &AppState) -> Vec<NodeId> {
+    let mut out = panels(state, "KeyPanel");
+    out.retain(|id| {
+        !state
+            .dom
+            .ancestors(*id)
+            .iter()
+            .any(|a| state.dom.get(*a).is_some_and(|n| n.is_type("HelpPanel")))
+    });
+    out
+}
+
+/// Mount a [`HelpPanel`](crate::widgets::HelpPanel) on the active screen (Textual: `action_show_help_panel`).
+pub(crate) fn show_help_panel(state: &mut AppState) {
+    if !panels(state, "HelpPanel").is_empty() {
+        return;
+    }
+    if let Some(screen) = state.active_screen() {
+        let panel = crate::widgets::help_panel::HelpPanel::new();
+        state.mount(screen, Child::new(Box::new(panel)), None);
+    }
+}
+
+/// Remove help panels from the active screen (Textual: `action_hide_help_panel`).
+pub(crate) fn hide_help_panel(state: &mut AppState) {
+    for id in panels(state, "HelpPanel") {
+        state.request_remove(id);
+    }
+}
+
+/// Mount a stand-alone [`KeyPanel`](crate::widgets::KeyPanel) on the active screen.
 pub(crate) fn show_key_panel(state: &mut AppState) {
     if !key_panels(state).is_empty() {
         return;
@@ -75,7 +108,7 @@ pub(crate) fn show_key_panel(state: &mut AppState) {
     }
 }
 
-/// Remove key panels from the active screen (Textual: `action_hide_help_panel`).
+/// Remove stand-alone key panels from the active screen.
 pub(crate) fn hide_key_panel(state: &mut AppState) {
     for id in key_panels(state) {
         state.request_remove(id);
@@ -105,6 +138,21 @@ impl Ctx<'_> {
     /// Whether the active screen shows a keys panel.
     pub fn key_panel_visible(&self) -> bool {
         !key_panels(self.app).is_empty()
+    }
+
+    /// Show the help panel (focused widget's help + key bindings) on the active screen.
+    pub fn show_help_panel(&mut self) {
+        show_help_panel(self.app);
+    }
+
+    /// Hide the help panel.
+    pub fn hide_help_panel(&mut self) {
+        hide_help_panel(self.app);
+    }
+
+    /// Whether the active screen shows a help panel.
+    pub fn help_panel_visible(&self) -> bool {
+        !panels(self.app, "HelpPanel").is_empty()
     }
 }
 

@@ -1,7 +1,7 @@
 //! `MarkdownViewer` and `MarkdownTableOfContents`.
 
 use super::{
-    sanitize_location, Highlighter, LinkClicked, Markdown, TableOfContentsSelected,
+    is_url, sanitize_location, Highlighter, LinkClicked, Markdown, TableOfContentsSelected,
     TableOfContentsUpdated, TocEntry,
 };
 use crate::app::Severity;
@@ -210,7 +210,8 @@ MarkdownTableOfContents > Tree {
 /// browser-like navigation between local `.md` files.
 ///
 /// Clicking a link: `#anchor` scrolls to the heading; a link with a URL scheme
-/// (`https://`, `mailto:` ...) lets [`LinkClicked`] bubble to the app; anything else is loaded
+/// (`https://`, `mailto:` ...) is opened by the document (see [`Markdown::open_links`]) and
+/// [`LinkClicked`] bubbles on to the app; anything else is loaded
 /// as a file relative to the current document ([`MarkdownViewer::go`]).
 ///
 /// Deviation from Textual: the viewer is a horizontal container (table of contents, then a
@@ -220,6 +221,7 @@ pub struct MarkdownViewer {
     show_toc: bool,
     navigator: Navigator,
     highlighter: Option<Highlighter>,
+    open_links: bool,
     node: Option<NodeId>,
 }
 
@@ -230,8 +232,16 @@ impl MarkdownViewer {
             show_toc: true,
             navigator: Navigator::new(),
             highlighter: None,
+            open_links: true,
             node: None,
         }
+    }
+
+    /// Open external links (with a URL scheme) when clicked (default `true`); passed to the
+    /// [`Markdown`] document. Local links are always handled by the viewer.
+    pub fn open_links(mut self, open: bool) -> Self {
+        self.open_links = open;
+        self
     }
 
     /// Show the table of contents sidebar (default true).
@@ -240,7 +250,7 @@ impl MarkdownViewer {
         self
     }
 
-    /// Syntax highlighter for code fences.
+    /// Syntax highlighter for code fences (replacing the built-in one).
     pub fn highlighter(mut self, h: Highlighter) -> Self {
         self.highlighter = Some(h);
         self
@@ -357,19 +367,6 @@ impl MarkdownViewer {
     }
 }
 
-/// Whether `href` has a URL scheme (`https:`, `mailto:`...) rather than being a file path.
-fn is_url(href: &str) -> bool {
-    match href.split_once(':') {
-        Some((scheme, _)) => {
-            scheme.len() > 1
-                && scheme
-                    .chars()
-                    .all(|c| c.is_ascii_alphanumeric() || matches!(c, '+' | '-' | '.'))
-        }
-        None => false,
-    }
-}
-
 impl Widget for MarkdownViewer {
     fn type_names(&self) -> &'static [&'static str] {
         &["MarkdownViewer"]
@@ -400,8 +397,11 @@ MarkdownViewer.-show-table-of-contents > MarkdownTableOfContents {
     }
 
     fn compose(&mut self) -> Vec<Child> {
-        let mut md = Markdown::new(self.markdown.take().unwrap_or_default());
-        md.set_highlighter(self.highlighter);
+        let mut md =
+            Markdown::new(self.markdown.take().unwrap_or_default()).open_links(self.open_links);
+        if let Some(h) = self.highlighter {
+            md.set_highlighter(Some(h));
+        }
         vec![
             MarkdownTableOfContents::new().child(),
             VerticalScroll::new().with([md.child()]),
