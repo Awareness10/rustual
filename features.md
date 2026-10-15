@@ -1,4 +1,4 @@
-# textual-rs feature status
+# rustual feature status
 
 Parity tracker against Python Textual 8.2.8. Percentages are rough estimates of how much of
 Textual's behaviour for that item is implemented here. Status: ✅ done (≥ 90%) · 🟡 partial · ❌ missing.
@@ -116,9 +116,9 @@ _Last updated: 2026-10-15._
 | KeyPanel / HelpPanel | ✅ | 85 | `dock: right` instead of `split`; HelpPanel shows `Widget::help` Markdown (nearest ancestor) + embedded KeyPanel, `app.show/hide_help_panel`; help refresh lands one loop turn after focus changes (no focus watcher) |
 | Welcome | 🟡 | 85 | welcome text built from Statics (not the Markdown widget); OK exits |
 
-## Python bindings (`textual_rs`)
+## Python bindings (`rustual`)
 
-Textual-compatible Python API on the Rust engine (`crates/textual-py`, PyO3 + maturin + uv).
+Textual-compatible Python API on the Rust engine (`crates/rustual-py`, PyO3 + maturin + uv).
 See [`docs/python-bindings.md`](docs/python-bindings.md).
 
 | Feature | Status | % | Notes |
@@ -129,7 +129,7 @@ See [`docs/python-bindings.md`](docs/python-bindings.md).
 | Messages & events | ✅ | 90 | custom messages, bubbling, stop/prevent_default, `@on` with selectors, MRO dispatch, `key_*` methods, mouse/focus/enter/leave/resize/paste |
 | Screens & modes | ✅ | 85 | Screen/ModalScreen, dismiss + callback, `push_screen_wait`, SCREENS/MODES, screen CSS |
 | Workers & async | ✅ | 90 | async handlers/workers on an app-thread asyncio loop; thread workers; widget calls from threads auto-marshalled |
-| Themes, validation | ✅ | 90 | `Theme`/`register_theme`; `textual_rs.validation`; Input `restrict` regex |
+| Themes, validation | ✅ | 90 | `Theme`/`register_theme`; `rustual.validation`; Input `restrict` regex |
 | Bindings | ✅ | 90 | `BINDINGS` (tuples / `Binding`), MRO merge, `check_action` / `refresh_bindings` |
 | Built-in widgets | ✅ | 85 | every built-in widget is bound (see below) |
 | Not yet | ❌ | 0 | command palette providers, devtools/`log`, `App.suspend`, `render_line`, inline mode |

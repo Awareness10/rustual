@@ -1,0 +1,10 @@
+[package]
+name = "rustual-render"
+description = "Rendering primitives (geometry, color, styled text, cell canvas) for rustual"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+unicode-width.workspace = true
+unicode-segmentation.workspace = true

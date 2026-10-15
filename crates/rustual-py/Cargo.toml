@@ -1,0 +1,17 @@
+[package]
+name = "rustual-py"
+description = "Python bindings (PyO3) for rustual, exposing a Textual-compatible API"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lib]
+name = "_native"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustual = { path = "../rustual" }
+pyo3 = { version = "0.30", features = ["abi3-py310"] }
+tokio.workspace = true
+slotmap.workspace = true

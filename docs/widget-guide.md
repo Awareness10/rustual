@@ -1,12 +1,12 @@
-# Writing widgets for textual-rs
+# Writing widgets for rustual
 
-This is how Textual widget concepts map to textual-rs. Read `crates/textual/src/widget.rs`,
+This is how Textual widget concepts map to rustual. Read `crates/rustual/src/widget.rs`,
 `context.rs`, and `widgets/static_.rs` / `widgets/containers.rs` for working examples.
 
 ## Anatomy
 
 ```rust
-// crates/textual/src/widgets/button.rs
+// crates/rustual/src/widgets/button.rs
 use crate::prelude::*;          // Widget, Ctx, Content, RenderCtx, Event, Flow, Message, Binding, ...
 
 /// Posted when the button is activated (Textual: `Button.Pressed`).
@@ -48,9 +48,9 @@ impl Widget for Button {
 Register the module in `widgets/mod.rs`: `pub mod button; pub use button::{Button, ButtonVariant};`
 Users then match messages as `msg.get::<button::Pressed>()`.
 
-## Mapping Textual → textual-rs
+## Mapping Textual → rustual
 
-| Textual | textual-rs |
+| Textual | rustual |
 |---|---|
 | `DEFAULT_CSS` | `fn default_css()` — port verbatim where possible (TCSS is the same language) |
 | `COMPONENT_CLASSES` + `get_component_rich_style("x--y")` | `ctx.component_style("x--y")` in `render` (rules like `Widget > .x--y { ... }` in default CSS) |
@@ -97,7 +97,7 @@ Users then match messages as `msg.get::<button::Pressed>()`.
 
 ## Testing
 
-Write tests in `crates/textual/tests/widget_<name>.rs` using the Pilot:
+Write tests in `crates/rustual/tests/widget_<name>.rs` using the Pilot:
 
 ```rust
 #[tokio::test]
@@ -130,7 +130,7 @@ Render any example to an image and look at it:
 
 ```sh
 TEXTUAL_SCREENSHOT=/tmp/shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=tab,down,enter \
-    cargo run -q -p textual --example table
+    cargo run -q -p rustual --example table
 rsvg-convert /tmp/shot.svg -o /tmp/shot.png   # then view the PNG
 ```
 

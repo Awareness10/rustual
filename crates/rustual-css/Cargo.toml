@@ -1,0 +1,9 @@
+[package]
+name = "rustual-css"
+description = "Textual CSS (TCSS) tokenizer, parser, selectors, cascade and themes for rustual"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+rustual-render.workspace = true

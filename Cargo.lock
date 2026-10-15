@@ -396,6 +396,45 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustual"
+version = "0.1.0"
+dependencies = [
+ "crossterm",
+ "futures",
+ "pulldown-cmark",
+ "rustual-css",
+ "rustual-render",
+ "slotmap",
+ "tokio",
+ "unicode-width",
+]
+
+[[package]]
+name = "rustual-css"
+version = "0.1.0"
+dependencies = [
+ "rustual-render",
+]
+
+[[package]]
+name = "rustual-py"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
+ "rustual",
+ "slotmap",
+ "tokio",
+]
+
+[[package]]
+name = "rustual-render"
+version = "0.1.0"
+dependencies = [
+ "unicode-segmentation",
+ "unicode-width",
+]
+
+[[package]]
 name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -486,45 +525,6 @@ name = "target-lexicon"
 version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca"
-
-[[package]]
-name = "textual"
-version = "0.1.0"
-dependencies = [
- "crossterm",
- "futures",
- "pulldown-cmark",
- "slotmap",
- "textual-css",
- "textual-render",
- "tokio",
- "unicode-width",
-]
-
-[[package]]
-name = "textual-css"
-version = "0.1.0"
-dependencies = [
- "textual-render",
-]
-
-[[package]]
-name = "textual-py"
-version = "0.1.0"
-dependencies = [
- "pyo3",
- "slotmap",
- "textual",
- "tokio",
-]
-
-[[package]]
-name = "textual-render"
-version = "0.1.0"
-dependencies = [
- "unicode-segmentation",
- "unicode-width",
-]
 
 [[package]]
 name = "tokio"

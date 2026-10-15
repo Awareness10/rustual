@@ -1,14 +1,14 @@
-# Python bindings (`textual_rs`)
+# Python bindings (`rustual`)
 
-`crates/textual-py` is a PyO3 extension plus a pure-Python package that exposes a
-**Textual-compatible Python API** on top of the textual-rs engine. Porting a Textual app is meant
-to be a matter of replacing `textual` with `textual_rs` in its imports:
+`crates/rustual-py` is a PyO3 extension plus a pure-Python package that exposes a
+**Textual-compatible Python API** on top of the rustual engine. Porting a Textual app is meant
+to be a matter of replacing `textual` with `rustual` in its imports:
 
 ```python
-from textual_rs.app import App, ComposeResult
-from textual_rs.widgets import Button, Header, Footer
-from textual_rs.reactive import reactive
-from textual_rs import on, work
+from rustual.app import App, ComposeResult
+from rustual.widgets import Button, Header, Footer
+from rustual.reactive import reactive
+from rustual import on, work
 ```
 
 Layout, styling, rendering, compositing, input handling and the built-in widgets run in Rust;
@@ -17,9 +17,9 @@ Python code runs only in your handlers, `compose()`, `render()` and workers.
 ## Building and testing
 
 ```sh
-cd crates/textual-py
+cd crates/rustual-py
 uv sync                                  # builds the extension (maturin) into .venv
-uv sync --reinstall-package textual-rs   # rebuild after changing Rust code
+uv sync --reinstall-package rustual-py   # rebuild after changing Rust code
 uv run pytest                            # Python tests (headless, via Pilot)
 uv run python examples/counter.py        # run an example in the terminal
 ```
@@ -29,7 +29,7 @@ Python-only changes don't need a rebuild (the package is installed in editable m
 ## Architecture
 
 ```
-python/textual_rs/            pure-Python API (App, Widget, reactive, messages, widgets, ...)
+python/rustual/            pure-Python API (App, Widget, reactive, messages, widgets, ...)
   _bridge.py                  `native` proxy: marshals calls from other threads
   _context.py                 active app + asyncio integration
   widget.py                   Widget base class, compose stack, dispatch, queries, timers
@@ -87,7 +87,7 @@ All native functions take explicit node ids, so they behave the same whichever f
 Async handlers, async watchers and async workers run as tasks on an asyncio loop that lives on
 the app thread, so they may touch widgets directly:
 
-- `App.run()`: the loop is owned by `textual_rs` and pumped by the Rust event loop (each pump
+- `App.run()`: the loop is owned by `rustual` and pumped by the Rust event loop (each pump
   runs ready callbacks without blocking; while tasks are pending a 10 ms native timer keeps
   pumping, so `await asyncio.sleep()` and network I/O make progress).
 - `App.run_test()`: the test's running loop is used; tasks start eagerly and `Pilot` methods
@@ -99,8 +99,8 @@ so `await self.mount(...)` works in sync and async code alike.
 ## Adding a widget binding
 
 A built-in widget needs a Rust part (in `src/widgets/<group>.rs`) and a Python class
-(in `python/textual_rs/widgets/_<name>.py`). Follow `src/widgets/basic.rs` and
-`python/textual_rs/widgets/_button.py` / `_input.py`.
+(in `python/rustual/widgets/_<name>.py`). Follow `src/widgets/basic.rs` and
+`python/rustual/widgets/_button.py` / `_input.py`.
 
 **Rust** (`register(r: &mut Registry)` in your module, called from `widgets/mod.rs::registry()`):
 
@@ -134,7 +134,7 @@ A built-in widget needs a Rust part (in `src/widgets/<group>.rs`) and a Python c
 5. Add tests in `tests/test_widgets_*.py` that drive the widget with `app.run_test()`.
 
 **Widgets filled before mounting** (`DataTable`, `Tree`, `Log`, ... — see `src/widgets/data.rs`
-and `python/textual_rs/widgets/_detached.py`): the Python class mixes in `DetachedNative`, and
+and `python/rustual/widgets/_detached.py`): the Python class mixes in `DetachedNative`, and
 its methods use `self._call(...)` / `self._get(...)`. Before the widget is mounted these run on
 a *detached* Rust widget (`_native.Detached`, built lazily from `_rs_kw`) which the kind
 constructor takes over at mount time (the `_detached` kwarg); afterwards they go to the mounted
@@ -143,8 +143,8 @@ widget. The Rust method dispatcher receives `Option<&mut Ctx>` and uses ctx-free
 
 ## Differences from Textual
 
-- Import from `textual_rs` instead of `textual`.
-- `render()` may return a markup `str`, `textual_rs.content.Content` or a Rich `Text`
+- Import from `rustual` instead of `textual`.
+- `render()` may return a markup `str`, `rustual.content.Content` or a Rich `Text`
   (converted through its markup); other Rich renderables are rendered with `str()`.
   `render_line()` (the line API) isn't supported.
 - `widget.styles` is write-mostly: setting any CSS property works (inline styles); reading

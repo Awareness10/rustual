@@ -1,6 +1,6 @@
 # ToDo
 
-What remains for textual-rs to reach full parity with Python Textual 8.2.8 and to be production-ready.
+What remains for rustual to reach full parity with Python Textual 8.2.8 and to be production-ready.
 Status per feature lives in [`features.md`](features.md); this file is the actionable backlog.
 Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **L** (several days).
 
@@ -75,7 +75,7 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
   `Static` / `RichLog`.
 - [ ] **Placeholder** (S): per-app color cycling counter like Textual.
 
-## 4. Python bindings (`textual_rs`)
+## 4. Python bindings (`rustual`)
 
 - [ ] **Widget API gaps** (M): see the per-widget notes in `features.md` (e.g. TextArea `register_language`,
   DataTable per-row updates, Tree label styling, reactive-style watchers on widget properties such as

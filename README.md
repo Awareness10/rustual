@@ -1,11 +1,11 @@
-# textual-rs
+# rustual
 
 A Rust re-creation of Python's [Textual](https://textual.textualize.io) TUI framework: a DOM of
 widgets, styled with **Textual CSS**, arranged by Textual's layout engine (vertical, horizontal,
 grid, dock, layers, scrolling), and driven by an async **tokio + crossterm** event loop.
 
 ```rust
-use textual::prelude::*;
+use rustual::prelude::*;
 
 struct Hello;
 
@@ -34,7 +34,7 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-Run the examples with `cargo run -p textual --example <name>`: `hello`, `form`, `dashboard`, `table`,
+Run the examples with `cargo run -p rustual --example <name>`: `hello`, `form`, `dashboard`, `table`,
 `navigator`, `editor`, `markdown`, `palette`, `widgets_extra`, `readme`. Quit with `ctrl+q`;
 `ctrl+p` opens the command palette.
 
@@ -53,13 +53,13 @@ See [`features.md`](features.md) for per-feature parity with Textual and [`ToDo.
 
 ## Python
 
-[`crates/textual-py`](crates/textual-py/README.md) is a PyO3/maturin package, `textual_rs`, with a
+[`crates/rustual-py`](crates/rustual-py/README.md) is a PyO3/maturin package, `rustual`, with a
 Textual-compatible Python API on this engine. Port a Textual app by changing its imports from
-`textual` to `textual_rs`. It runs the same app code 13–56× faster than Python Textual in the included
+`textual` to `rustual`. It runs the same app code 13–56× faster than Python Textual in the included
 benchmark.
 
 ```sh
-cd crates/textual-py && uv sync && uv run python examples/counter.py
+cd crates/rustual-py && uv sync && uv run python examples/counter.py
 ```
 
 ## Screenshots
@@ -67,12 +67,12 @@ cd crates/textual-py && uv sync && uv run python examples/counter.py
 Render any app to SVG without a terminal (handy for docs and visual checks):
 
 ```sh
-TEXTUAL_SCREENSHOT=shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=tab,down cargo run -p textual --example table
+TEXTUAL_SCREENSHOT=shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=tab,down cargo run -p rustual --example table
 ```
 
-## Concepts (Textual → textual-rs)
+## Concepts (Textual → rustual)
 
-| Textual | textual-rs |
+| Textual | rustual |
 |---|---|
 | `class MyApp(App)` with `compose`, `BINDINGS`, `action_*`, `on_*` | `impl Widget for MyApp` passed to `App::new` |
 | `yield Button("OK", id="ok")` | `compose![Button::new("OK").id("ok")]` |
@@ -91,16 +91,21 @@ See `docs/widget-guide.md` for writing widgets and `docs/plans/` for the archite
 
 | Crate | Role |
 |---|---|
-| `textual-render` | geometry, colors, styles, cell widths, styled text + markup, strips, border glyphs, cell canvas with diffing (the "rich" layer) |
-| `textual-css` | TCSS tokenizer/parser (variables, nesting, `!important`), selectors & specificity, typed `Styles`, cascade, themes/design system |
-| `textual` | DOM, widgets, events/messages/bindings/actions, layout, compositor, crossterm driver, app runtime, Pilot test harness |
-| `textual-py` | Python bindings (PyO3, built with maturin/uv): the `textual_rs` package (see [`docs/python-bindings.md`](docs/python-bindings.md)) |
+| `rustual-render` | geometry, colors, styles, cell widths, styled text + markup, strips, border glyphs, cell canvas with diffing (the "rich" layer) |
+| `rustual-css` | TCSS tokenizer/parser (variables, nesting, `!important`), selectors & specificity, typed `Styles`, cascade, themes/design system |
+| `rustual` | DOM, widgets, events/messages/bindings/actions, layout, compositor, crossterm driver, app runtime, Pilot test harness |
+| `rustual-py` | Python bindings (PyO3, built with maturin/uv): the `rustual` package (see [`docs/python-bindings.md`](docs/python-bindings.md)) |
 
 ## Testing
 
 `cargo test --workspace` (the Python extension has no Rust tests; test it with
-`cd crates/textual-py && uv run pytest`). Apps are tested headlessly with `Pilot`
+`cd crates/rustual-py && uv run pytest`). Apps are tested headlessly with `Pilot`
 (`press`, `type_text`, `click`, `hover`, `wait`, `screen_text`, `canvas`, `query_one`, ...).
 
 The `reference/` directory (git-ignored) holds the upstream Textual and Rich sources used as the
 behavioural reference.
+
+## License
+
+MIT, like Textual. See [`LICENSE`](LICENSE): rustual is a port of Textual and Rich, so their
+copyright notices are included.
