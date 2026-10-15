@@ -5,6 +5,12 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+readme = "README.md"
+keywords = ["tui", "terminal", "textual", "widgets", "css"]
+categories = ["command-line-interface", "gui"]
 
 [dependencies]
 rustual-render.workspace = true

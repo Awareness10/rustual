@@ -9,10 +9,13 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT"
 rust-version = "1.86"
+repository = "https://github.com/Awareness10/rustual"
+homepage = "https://github.com/Awareness10/rustual"
+authors = ["The rustual authors"]
 
 [workspace.dependencies]
-rustual-render = { path = "crates/rustual-render" }
-rustual-css = { path = "crates/rustual-css" }
+rustual-render = { path = "crates/rustual-render", version = "0.1.0" }
+rustual-css = { path = "crates/rustual-css", version = "0.1.0" }
 unicode-width = "0.2"
 unicode-segmentation = "1.12"
 crossterm = { version = "0.29", features = ["event-stream"] }

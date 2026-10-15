@@ -38,6 +38,15 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo test
 
+  package:
+    name: Package crates (publish dry run)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo publish --workspace --dry-run
+
   msrv:
     name: MSRV (1.86)
     runs-on: ubuntu-latest

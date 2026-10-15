@@ -13,9 +13,10 @@ Released so far: **v0.1.0** on [GitHub releases](https://github.com/Awareness10/
   publishing (`pypa/gh-action-pypi-publish`, `permissions: id-token: write`, a `pypi` environment), and register
   the GitHub workflow as a trusted publisher for `rustual-py` on pypi.org. The release artifacts are already in
   the right shape (abi3 wheels + sdist).
-- [ ] **Publish to crates.io** (S): `cargo publish` for `rustual-render`, `rustual-css` and `rustual` in
-  dependency order (add `version` to the workspace path dependencies, a README per crate, `keywords` /
-  `categories` / `repository` metadata; `cargo publish --dry-run` in CI); keep `rustual-py` `publish = false`.
+- [ ] **Publish to crates.io** (S): ready: `rustual-render`, `rustual-css` and `rustual` have metadata, READMEs
+  and LICENSE, and `cargo publish --workspace --dry-run` passes in CI (`rustual-py` is `publish = false`). To
+  publish: `cargo login` with a crates.io token, then `cargo publish --workspace`. Later: a `crates-io` job in
+  `release.yml` using a `CARGO_REGISTRY_TOKEN` secret.
 - [ ] **More wheel targets** (S): Linux aarch64 (manylinux + musllinux) and Windows arm64 in `release.yml`.
 - [ ] **Real-terminal QA pass** (M): mouse, resize, true color, wide characters, and performance across kitty,
   WezTerm, Alacritty, GNOME Terminal, tmux, Windows Terminal. So far, all checks were headless (Pilot, a pyte
