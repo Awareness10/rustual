@@ -82,3 +82,20 @@ async def test_mouse_focus_bindings_paste_resize():
         assert pad.log_[-1] == "focus"
         await pilot.resize_terminal(50, 14)
         assert resized and resized[-1] == (50, 14)
+
+
+async def test_key_names_match_textual():
+    """Punctuation keys use Textual's names (``plus``, ``equals_sign``, ...), also for key_ methods."""
+    seen: list[str] = []
+
+    class MyApp(App):
+        def on_key(self, event: events.Key) -> None:
+            seen.append(event.key)
+
+        def key_plus(self) -> None:
+            seen.append("key_plus method")
+
+    app = MyApp()
+    async with app.run_test() as pilot:
+        await pilot.press("+", "=", "*", ".", "a", "ctrl+x")
+    assert seen == ["plus", "key_plus method", "equals_sign", "asterisk", "full_stop", "a", "ctrl+x"]

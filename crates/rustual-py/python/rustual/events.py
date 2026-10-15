@@ -195,11 +195,46 @@ _EVENTS: dict[str, type[Event]] = {
 }
 
 
+_KEY_NAME_REPLACEMENTS = {
+    "solidus": "slash",
+    "reverse_solidus": "backslash",
+    "commercial_at": "at",
+    "hyphen_minus": "minus",
+    "plus_sign": "plus",
+    "low_line": "underscore",
+}
+
+
+def _character_to_key(character: str) -> str:
+    """Textual's key name for a single character (``"+"`` → ``"plus"``, ``"="`` → ``"equals_sign"``)."""
+    if not character.isalnum():
+        try:
+            import unicodedata
+
+            key = unicodedata.name(character).lower().replace("-", "_").replace(" ", "_")
+        except ValueError:
+            key = character
+    else:
+        key = character
+    return _KEY_NAME_REPLACEMENTS.get(key, key)
+
+
+def _textual_key(key: str) -> str:
+    """Convert a native key (punctuation as the character itself) to Textual's key name."""
+    parts = key.split("+")
+    if parts[-1] == "":  # the key itself is "+", e.g. "+" or "ctrl++"
+        parts = [p for p in parts[:-2] if p] + ["+"]
+    *modifiers, last = parts
+    if len(last) == 1:
+        last = _character_to_key(last)
+    return "+".join([*modifiers, last])
+
+
 def from_native(data: tuple) -> Event:
     kind = data[0]
     cls = _EVENTS[kind]
     if kind == "key":
-        return Key(data[1], data[2])
+        return Key(_textual_key(data[1]), data[2])
     if kind == "resize":
         return Resize(Size(data[1], data[2]))
     if kind == "paste":
