@@ -133,6 +133,14 @@ A built-in widget needs a Rust part (in `src/widgets/<group>.rs`) and a Python c
    `widgets/__init__.py`.
 5. Add tests in `tests/test_widgets_*.py` that drive the widget with `app.run_test()`.
 
+**Widgets filled before mounting** (`DataTable`, `Tree`, `Log`, ... — see `src/widgets/data.rs`
+and `python/textual_rs/widgets/_detached.py`): the Python class mixes in `DetachedNative`, and
+its methods use `self._call(...)` / `self._get(...)`. Before the widget is mounted these run on
+a *detached* Rust widget (`_native.Detached`, built lazily from `_rs_kw`) which the kind
+constructor takes over at mount time (the `_detached` kwarg); afterwards they go to the mounted
+widget. The Rust method dispatcher receives `Option<&mut Ctx>` and uses ctx-free fallbacks
+(e.g. `Log::push`, `Tree::set_expanded`) when there is no ctx.
+
 ## Differences from Textual
 
 - Import from `textual_rs` instead of `textual`.
