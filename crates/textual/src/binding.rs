@@ -21,6 +21,32 @@ pub struct Binding {
     /// Identifier for keymaps ([`App::keymap`](crate::App::keymap) / `Ctx::set_keymap`
     /// replace the keys of bindings by id). Textual: `Binding.id`.
     pub id: Option<String>,
+    /// Footer group: consecutive bindings of the same group are shown as their keys followed
+    /// by one description (Textual's `Binding.group`).
+    pub group: Option<BindingGroup>,
+}
+
+/// A binding group (Textual's `Binding.Group`): related bindings shown together in the
+/// footer under a single description.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct BindingGroup {
+    pub description: String,
+    /// Show the keys without spaces between them.
+    pub compact: bool,
+}
+
+impl BindingGroup {
+    pub fn new(description: &str) -> Self {
+        BindingGroup {
+            description: description.to_string(),
+            compact: false,
+        }
+    }
+
+    pub fn compact(mut self, compact: bool) -> Self {
+        self.compact = compact;
+        self
+    }
 }
 
 impl Binding {
@@ -33,12 +59,19 @@ impl Binding {
             priority: false,
             key_display: None,
             id: None,
+            group: None,
         }
     }
 
     /// Set the binding id used by keymaps (Textual: `Binding(..., id=...)`).
     pub fn id(mut self, id: &str) -> Self {
         self.id = Some(id.to_string());
+        self
+    }
+
+    /// Put the binding in a footer group.
+    pub fn group(mut self, group: BindingGroup) -> Self {
+        self.group = Some(group);
         self
     }
 

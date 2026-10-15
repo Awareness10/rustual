@@ -1120,6 +1120,17 @@ impl<T: 'static> Widget for Tree<T> {
         true
     }
 
+    fn help(&self) -> Option<&str> {
+        Some(
+            "\
+## Tree
+
+- **up** / **down** move the cursor, **left** / **right** collapse and expand.
+- **enter** selects a node, **space** toggles it.
+- **shift+left** jumps to the parent node.",
+        )
+    }
+
     fn bindings(&self) -> Vec<Binding> {
         vec![
             Binding::new("shift+left", "cursor_parent", "Cursor to parent").hidden(),

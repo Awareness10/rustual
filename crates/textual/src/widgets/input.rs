@@ -839,6 +839,19 @@ impl Widget for Input {
         }
     }
 
+    fn help(&self) -> Option<&str> {
+        Some(
+            "\
+## Input
+
+A single-line text input.
+
+- **shift+arrows** select text, **ctrl+shift+a** selects all.
+- **enter** submits the value.
+- **ctrl+x** / **ctrl+c** / **ctrl+v** cut, copy and paste.",
+        )
+    }
+
     fn bindings(&self) -> Vec<Binding> {
         vec![
             Binding::new("left", "cursor_left", "Move cursor left").hidden(),

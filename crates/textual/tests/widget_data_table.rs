@@ -335,3 +335,71 @@ async fn hover_highlight() {
         p.canvas().get(30, 4).unwrap().bg
     );
 }
+
+#[tokio::test]
+async fn cell_alignment() {
+    use textual::render::Attrs;
+    use textual::widgets::data_table::Justify;
+    struct A;
+    impl Widget for A {
+        fn compose(&mut self) -> Vec<Child> {
+            let mut t = DataTable::new().cursor_type(CursorType::None);
+            t.add_column_with("Item", Some(8), Some("item")).unwrap();
+            t.add_column_with("Price", Some(8), Some("price")).unwrap();
+            t.add_column_with("Tag", Some(8), Some("tag")).unwrap();
+            t.add_row([
+                CellValue::from("apple"),
+                CellValue::right(1.5),
+                CellValue::center("[b]new[/]"),
+            ]);
+            t.add_row([
+                CellValue::from("pear"),
+                CellValue::from(12).justify(Justify::Right),
+                CellValue::from(7),
+            ]);
+            t.add_row([
+                CellValue::from("fig"),
+                CellValue::right(100.25),
+                CellValue::from("x").justify(Justify::Left),
+            ]);
+            compose![t.id("t")]
+        }
+    }
+    let mut p = App::new(A).test(Size::new(40, 6)).await;
+    assert!(p.css_errors().is_empty());
+    let text = p.screen_text();
+    let lines: Vec<&str> = text.lines().collect();
+    // Column width 8 + cell padding 1 either side: content cells at x = 1, 11, 21.
+    let cell = |row: usize, col: usize| -> String {
+        let s: String = lines[row].chars().skip(col * 10 + 1).take(8).collect();
+        format!("{s:<8}")
+    };
+    assert_eq!(cell(1, 0), "apple   ", "{text}");
+    assert_eq!(cell(1, 1), "    1.50", "{text}");
+    assert_eq!(cell(1, 2), "  new   ", "{text}");
+    assert_eq!(cell(2, 1), "      12", "{text}");
+    // Numbers are left-aligned unless asked otherwise (as in Textual).
+    assert_eq!(cell(2, 2), "7       ", "{text}");
+    assert_eq!(cell(3, 1), "  100.25", "{text}");
+
+    // Markup styles survive alignment.
+    assert!(p.canvas().get(23, 1).unwrap().attrs.contains(Attrs::BOLD));
+
+    // Alignment is transparent for values, plain text and sorting.
+    let t = p.query_one::<DataTable>("#t").unwrap();
+    assert_eq!(
+        t.get_cell_at(Coordinate::new(0, 1)).unwrap().plain(),
+        "1.50"
+    );
+    assert_eq!(
+        CellValue::right(2).compare(&CellValue::from(10)),
+        std::cmp::Ordering::Less
+    );
+    assert_eq!(CellValue::right(2).inner(), &CellValue::Int(2));
+    assert_eq!(CellValue::right(2).get_justify(), Justify::Right);
+    assert_eq!(CellValue::from(2).get_justify(), Justify::Left);
+    p.with::<DataTable, _>("#t", |t, _| t.sort(&["price"], true).unwrap())
+        .await;
+    let text = p.screen_text();
+    assert!(text.lines().nth(1).unwrap().contains("fig"), "{text}");
+}

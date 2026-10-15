@@ -120,3 +120,56 @@ async fn hovered_item_is_highlighted() {
     pilot.hover("#f").await;
     assert_eq!(pilot.canvas().get(10, 4).unwrap().bg, before);
 }
+
+#[tokio::test]
+async fn binding_groups() {
+    use textual::binding::BindingGroup;
+    #[derive(Default)]
+    struct G {
+        moved: Vec<String>,
+    }
+    impl Widget for G {
+        fn compose(&mut self) -> Vec<Child> {
+            compose![Footer::new()]
+        }
+        fn bindings(&self) -> Vec<Binding> {
+            let nav = BindingGroup::new("Move");
+            let zoom = BindingGroup::new("Zoom").compact(true);
+            vec![
+                Binding::new("q", "quit", "Quit"),
+                Binding::new("h", "go('h')", "Left").group(nav.clone()),
+                Binding::new("l", "go('l')", "Right").group(nav),
+                Binding::new("plus", "go('+')", "In")
+                    .key_display("+")
+                    .group(zoom.clone()),
+                Binding::new("minus", "go('-')", "Out")
+                    .key_display("-")
+                    .group(zoom),
+                Binding::new("s", "go('s')", "Solo").group(BindingGroup::new("Alone")),
+            ]
+        }
+        fn run_action(&mut self, a: &str, args: &[String], _: &mut Ctx) -> bool {
+            if a == "go" {
+                self.moved.push(args[0].clone());
+                return true;
+            }
+            false
+        }
+    }
+    let mut p = App::new(G::default()).test(Size::new(80, 5)).await;
+    assert!(p.css_errors().is_empty());
+    let line = p.screen_text().lines().last().unwrap().to_string();
+    // A single-binding group is shown as a normal item.
+    assert!(
+        line.starts_with(" q Quit  h l Move  +- Zoom  s Solo"),
+        "{line:?}"
+    );
+    let x = line.find(" l ").unwrap() as i32 + 1;
+    p.click_at(x, 4).await;
+    // The group label is not clickable.
+    let label_x = line.find("Move").unwrap() as i32;
+    p.click_at(label_x, 4).await;
+    let minus_x = line.find('-').unwrap() as i32;
+    p.click_at(minus_x, 4).await;
+    assert_eq!(p.app::<G>().unwrap().moved, vec!["l", "-"]);
+}

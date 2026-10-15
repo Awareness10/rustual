@@ -50,6 +50,8 @@ pub struct FooterItem {
     pub key_text: String,
     pub description_text: String,
     pub binding: Binding,
+    /// The description of a binding group (not clickable; `binding` is the group's first).
+    pub group_label: bool,
 }
 
 /// Displays the active bindings (`RenderEnv::active_bindings`) as ` key description ` items.
@@ -81,10 +83,59 @@ impl Footer {
 
     /// Lay out items for `bindings` (padding as in Textual's `FooterKey` CSS:
     /// key `0 1` / description `0 1 0 0`; compact: key `0`, description `0 0 0 1`, margin-right 1).
+    ///
+    /// Two or more consecutive bindings with the same [`BindingGroup`](crate::binding::BindingGroup)
+    /// are shown as their keys (one item each, no description) followed by the group's
+    /// description (an item with `group_label`), as in Textual's `KeyGroup` / `FooterLabel`.
     pub fn layout_items(&self, bindings: &[Binding]) -> Vec<FooterItem> {
+        let shown: Vec<&Binding> = bindings.iter().filter(|b| b.show).collect();
         let mut x = 0;
         let mut out = Vec::new();
-        for b in bindings.iter().filter(|b| b.show) {
+        let mut i = 0;
+        while i < shown.len() {
+            let b = shown[i];
+            let run = shown[i..]
+                .iter()
+                .take_while(|o| b.group.is_some() && o.group == b.group)
+                .count();
+            if let (Some(group), true) = (&b.group, run > 1) {
+                // KeyGroup: grouped keys have margin `0 1` (collapsed between siblings), or
+                // none in a compact group (which has `padding-left: 1; margin-right: 1`).
+                x += 1;
+                for (k, gb) in shown[i..i + run].iter().enumerate() {
+                    if k > 0 && !group.compact {
+                        x += 1;
+                    }
+                    let key_text = gb.display_key();
+                    let w = cell_len(&key_text);
+                    out.push(FooterItem {
+                        start: x,
+                        end: x + w,
+                        key_text,
+                        description_text: String::new(),
+                        binding: (*gb).clone(),
+                        group_label: false,
+                    });
+                    x += w;
+                }
+                x += 1;
+                // FooterLabel: margin `0 1 0 0` (`0` in a compact footer).
+                let w = cell_len(&group.description);
+                out.push(FooterItem {
+                    start: x,
+                    end: x + w,
+                    key_text: String::new(),
+                    description_text: group.description.clone(),
+                    binding: b.clone(),
+                    group_label: true,
+                });
+                x += w;
+                if !self.compact {
+                    x += 1;
+                }
+                i += run;
+                continue;
+            }
             let key = b.display_key();
             let (key_text, description_text) = if b.description.is_empty() {
                 (key, String::new())
@@ -100,11 +151,13 @@ impl Footer {
                 key_text,
                 description_text,
                 binding: b.clone(),
+                group_label: false,
             });
             x += width;
             if self.compact {
                 x += 1;
             }
+            i += 1;
         }
         out
     }
@@ -152,7 +205,10 @@ impl Widget for Footer {
             Event::MouseDown(m) => {
                 let x = Self::content_x(ctx, m.x);
                 let items = self.layout_items(&ctx.app.env.active_bindings);
-                let Some(item) = items.into_iter().find(|i| x >= i.start && x < i.end) else {
+                let Some(item) = items
+                    .into_iter()
+                    .find(|i| x >= i.start && x < i.end && !i.group_label)
+                else {
                     return Flow::Continue;
                 };
                 // Textual: `FooterKey.on_mouse_down` → `app.simulate_key(key)`.
@@ -187,7 +243,12 @@ impl Widget for Footer {
                 ks.bg = hover_style.bg;
                 ds.bg = hover_style.bg;
             }
-            spans.push(Span::new(item.key_text.clone(), ks));
+            if self.hover == Some(i) && item.group_label {
+                ds.bg = desc_style.bg;
+            }
+            if !item.key_text.is_empty() {
+                spans.push(Span::new(item.key_text.clone(), ks));
+            }
             if !item.description_text.is_empty() {
                 spans.push(Span::new(item.description_text.clone(), ds));
             }

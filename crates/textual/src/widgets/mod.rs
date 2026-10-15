@@ -71,12 +71,14 @@ pub use rich_log::RichLog;
 // Markdown.
 pub mod markdown;
 pub use markdown::{Markdown, MarkdownTableOfContents, MarkdownViewer};
-// Core UX widgets: command palette, tooltip, link, key panel.
+// Core UX widgets: command palette, tooltip, link, key / help panels.
 pub mod command_palette;
+pub mod help_panel;
 pub mod key_panel;
 pub mod link;
 pub mod tooltip;
 pub use command_palette::{CommandList, CommandPalette};
+pub use help_panel::HelpPanel;
 pub use key_panel::{BindingsTable, KeyPanel};
 pub use link::Link;
 pub use tooltip::Tooltip;

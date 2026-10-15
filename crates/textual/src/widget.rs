@@ -144,6 +144,12 @@ pub trait Widget: Any {
     fn allow_maximize(&self) -> Option<bool> {
         None
     }
+
+    /// Help text (Markdown) shown in the [`HelpPanel`](crate::widgets::HelpPanel) while this
+    /// widget (or a descendant without help of its own) has focus (Textual's `HELP`).
+    fn help(&self) -> Option<&str> {
+        None
+    }
 }
 
 /// A widget plus the node attributes to mount it with (id, classes, inline styles, children).

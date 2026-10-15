@@ -7,6 +7,8 @@ use crate::context::Ctx;
 use crate::events::Event;
 use crate::message::Flow;
 use crate::widget::{Content, RenderCtx, Widget};
+use crate::widgets::text_area::{Highlighter as _, KeywordHighlighter, TextAreaTheme};
+use std::cell::RefCell;
 use textual_render::{Strip, Style, Text};
 
 /// Wrap inline content to the content width, recording link positions.
@@ -365,12 +367,104 @@ MarkdownHorizontalRule {
 /// to fall back to plain text. The returned text is split into lines on `\n`.
 pub type Highlighter = fn(&str, &str) -> Option<Text>;
 
+/// How a fence is highlighted.
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum FenceHighlight {
+    Off,
+    /// [`highlight_code`] with the `monokai` (dark) / `github_light` (light) theme.
+    Builtin,
+    Custom(Highlighter),
+}
+
+impl FenceHighlight {
+    pub(crate) fn from_option(h: Option<Highlighter>) -> Self {
+        h.map_or(FenceHighlight::Off, FenceHighlight::Custom)
+    }
+}
+
+/// The built-in [`KeywordHighlighter`] language for a fence info string (`py`, `rs`, `js`
+/// and the full names), if any.
+pub fn fence_language(lang: &str) -> Option<&'static str> {
+    let lang = lang
+        .split_whitespace()
+        .next()
+        .unwrap_or("")
+        .to_ascii_lowercase();
+    Some(match lang.as_str() {
+        "python" | "py" | "python3" | "py3" => "python",
+        "rust" | "rs" => "rust",
+        "javascript" | "js" | "jsx" | "mjs" | "cjs" | "node" => "javascript",
+        "json" | "jsonc" | "json5" => "json",
+        "toml" => "toml",
+        _ => return None,
+    })
+}
+
+/// Highlight `code` with the TextArea's built-in keyword highlighter for `lang` (see
+/// [`fence_language`]), styled by `theme`'s syntax styles. `None` if the language is unknown.
+pub fn highlight_code(code: &str, lang: &str, theme: &TextAreaTheme) -> Option<Text> {
+    let highlighter = KeywordHighlighter::for_language(fence_language(lang)?)?;
+    let mut text = Text::new();
+    for (i, line) in code.split('\n').enumerate() {
+        if i > 0 {
+            text.push("\n", Style::default());
+        }
+        let chars: Vec<char> = line.chars().collect();
+        let mut pos = 0;
+        for h in highlighter.highlight_line(i, line) {
+            let (start, end) = (h.start.max(pos).min(chars.len()), h.end.min(chars.len()));
+            if start >= end {
+                continue;
+            }
+            if start > pos {
+                text.push(
+                    chars[pos..start].iter().collect::<String>(),
+                    Style::default(),
+                );
+            }
+            let style = theme.get_highlight(&h.name).cloned().unwrap_or_default();
+            text.push(chars[start..end].iter().collect::<String>(), style);
+            pos = end;
+        }
+        if pos < chars.len() {
+            text.push(chars[pos..].iter().collect::<String>(), Style::default());
+        }
+    }
+    Some(text)
+}
+
+/// A [`Highlighter`] using [`highlight_code`] with the `monokai` theme (the built-in default
+/// under dark themes), for use with [`super::Markdown::highlighter`].
+pub fn highlight_code_monokai(code: &str, lang: &str) -> Option<Text> {
+    thread_local! {
+        static MONOKAI: TextAreaTheme =
+            TextAreaTheme::get_builtin_theme("monokai").unwrap_or_default();
+    }
+    MONOKAI.with(|t| highlight_code(code, lang, t))
+}
+
+/// A [`Highlighter`] using [`highlight_code`] with the `github_light` theme (the built-in
+/// default under light themes).
+pub fn highlight_code_github_light(code: &str, lang: &str) -> Option<Text> {
+    thread_local! {
+        static LIGHT: TextAreaTheme =
+            TextAreaTheme::get_builtin_theme("github_light").unwrap_or_default();
+    }
+    LIGHT.with(|t| highlight_code(code, lang, t))
+}
+
 /// A fenced or indented code block. Lines are not wrapped (they are cropped).
+///
+/// Code in a known language (see [`fence_language`]) is highlighted by default with the
+/// TextArea keyword highlighter: `monokai` colors under dark themes, `github_light` under light
+/// ones. [`MarkdownFence::highlighter`] replaces (or, with `None`, disables) it.
 #[derive(Debug, Clone)]
 pub struct MarkdownFence {
     code: String,
     lang: String,
-    highlighter: Option<Highlighter>,
+    highlight: FenceHighlight,
+    /// `(dark, highlighted text)`: fences are re-rendered every frame.
+    cache: RefCell<Option<(bool, Text)>>,
 }
 
 impl MarkdownFence {
@@ -378,13 +472,20 @@ impl MarkdownFence {
         MarkdownFence {
             code: code.into(),
             lang: lang.into(),
-            highlighter: None,
+            highlight: FenceHighlight::Builtin,
+            cache: RefCell::new(None),
         }
     }
 
-    /// Use a syntax highlighter (no highlighting is built in).
+    /// Use a custom syntax highlighter instead of the built-in one; `None` disables
+    /// highlighting.
     pub fn highlighter(mut self, h: Option<Highlighter>) -> Self {
-        self.highlighter = h;
+        self.highlight = FenceHighlight::from_option(h);
+        self
+    }
+
+    pub(crate) fn with_highlight(mut self, h: FenceHighlight) -> Self {
+        self.highlight = h;
         self
     }
 
@@ -397,10 +498,21 @@ impl MarkdownFence {
         &self.lang
     }
 
-    fn text(&self) -> Text {
-        self.highlighter
-            .and_then(|h| h(&self.code, &self.lang))
-            .unwrap_or_else(|| Text::plain(self.code.clone()))
+    fn text(&self, dark: bool) -> Text {
+        if let Some((d, t)) = self.cache.borrow().as_ref() {
+            if *d == dark {
+                return t.clone();
+            }
+        }
+        let highlighted = match self.highlight {
+            FenceHighlight::Off => None,
+            FenceHighlight::Custom(h) => h(&self.code, &self.lang),
+            FenceHighlight::Builtin if dark => highlight_code_monokai(&self.code, &self.lang),
+            FenceHighlight::Builtin => highlight_code_github_light(&self.code, &self.lang),
+        };
+        let text = highlighted.unwrap_or_else(|| Text::plain(self.code.clone()));
+        *self.cache.borrow_mut() = Some((dark, text.clone()));
+        text
     }
 }
 
@@ -431,7 +543,7 @@ MarkdownFence {
     }
 
     fn render(&self, ctx: &RenderCtx) -> Content {
-        let text = self.text();
+        let text = self.text(ctx.env.dark);
         let lines = text.wrap(
             ctx.size.width,
             textual_render::Justify::Left,

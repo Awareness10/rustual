@@ -18,8 +18,9 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
   the main APIs; `cargo doc` without warnings.
 - [ ] **Publishable crates** (S): metadata, README per crate, LICENSE file, CI workflow
   (test + clippy + fmt on Linux/macOS/Windows), MSRV declared.
-- [ ] **Clipboard sharing** (S): Input/TextArea share one global internal clipboard. Tests that copy can
-  race when run in parallel in the same binary; make it per-app state.
+- [ ] **Clipboard fallback** (S): copy now goes through the app (OSC 52 + per-app clipboard), but paste still
+  falls back to a process-global clipboard shared by Input/TextArea; remove the global so parallel tests
+  can't race.
 
 ## 2. Core gaps
 
@@ -36,9 +37,16 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
 - [ ] **Snapshot testing** (M): SVG snapshot compare helper (`pilot.assert_snapshot("name")` storing
   baselines), like pytest-textual-snapshot.
 - [ ] **`@click` links** (S): `link-*-hover` styles; `@mouse.down` / `@mouse.up` handlers.
+- [ ] **Screens & modes** (S): `ScreenSuspend` / `ScreenResume` events, `remove_mode`, modes from screen
+  names; unknown screen/mode names should be reported (currently return `None`/`false`).
+- [ ] **Actions** (S): `check_action` (dynamic enable/disable of bindings and footer dimming).
+- [ ] **Workers** (S): cancel a widget's workers when it is removed (results are currently dropped).
+- [ ] **Loading** (S): refuse programmatic focus of loading widgets (Textual does); block their bindings.
+- [ ] **Screenshots** (S): local-time filenames and default to the Downloads folder like Textual.
 - [ ] **Command palette** (M): async providers with incremental results, busy indicator, discovery hits.
 - [ ] **Mouse** (S): `MouseCapture` / `MouseRelease` events; click chain as an event field.
-- [ ] **Animations** (S): first frame lands one frame late; colour `speed`; animated thumb drag.
+- [ ] **Animations** (S): first frame lands one frame late; colour `speed`; animated thumb drag;
+  transitions from/to `auto` and `fr` sizes jump instead of animating.
 - [ ] **Docks** (S): document (or optionally fix) that multiple widgets docked to the same edge overlap,
   as in Textual — this has already tripped up one example.
 - [ ] **Scrolling helpers** (S): `scroll_to_widget(top=True)` / `scroll_visible(top=..)`, 3-cell margin when
@@ -50,8 +58,9 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
 
 ## 3. Widget gaps
 
-- [ ] **TextArea** (L): tree-sitter syntax highlighting (multi-line constructs), autocomplete suggestions,
-  more themes; 3-cell scroll margin.
+- [ ] **TextArea** (M): autocomplete suggestions, more themes, 3-cell scroll margin.
+- [ ] **Syntax highlighting** (L): Markdown fences and TextArea use a line-based keyword highlighter (python,
+  rust, js, json, toml); replace with tree-sitter (or syntect) for multi-line constructs and more languages.
 - [ ] **Markdown** (M): streaming / incremental `append` (`MarkdownStream`), horizontal scrolling in code
   fences, custom block classes (`parser_factory`).
 - [ ] **DataTable** (S): re-measure row heights on column changes; wrap long cells in auto-height rows.
@@ -59,7 +68,7 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
 - [ ] **Select** (S): render the dropdown as an overlay instead of a modal screen (after `overlay: screen`).
 - [ ] **ListView** (S): `-hovered` class semantics instead of `:hover` (which also matches descendants).
 - [ ] **Header** (S): local timezone clock (currently UTC with configurable offset), strftime formats.
-- [ ] **Footer** (S): binding groups, `compact` polish, disabled-binding styling.
+- [ ] **Footer** (S): disabled-binding styling (needs `check_action`), clickable group descriptions.
 - [ ] **Pretty** (S): per-container expansion like Rich (instead of all-or-nothing), indent guides.
 - [ ] **DirectoryTree** (S): load directories in a worker for slow filesystems.
 - [ ] **Welcome** (S): render the welcome text with the Markdown widget.
