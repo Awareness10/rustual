@@ -162,14 +162,9 @@ impl Highlighter for KeywordHighlighter {
         let mut out = Vec::new();
         let mut i = 0;
         let starts_with = |i: usize, p: &str| {
-            let mut k = i;
-            for pc in p.chars() {
-                if k >= n || chars[k] != pc {
-                    return false;
-                }
-                k += 1;
-            }
-            true
+            p.chars()
+                .enumerate()
+                .all(|(j, pc)| i + j < n && chars[i + j] == pc)
         };
         while i < n {
             let c = chars[i];

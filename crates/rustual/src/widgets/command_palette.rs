@@ -295,16 +295,14 @@ impl CommandPalette {
     /// Re-filter the commands for `query` and refill the list (Textual: `_gather_commands`).
     fn refresh_list(&mut self, query: &str, ctx: &mut Ctx) {
         let help_style = Self::component_attrs(ctx, "command-palette--help-text");
-        let options: Vec<OptionItem>;
-        if query.is_empty() {
+        let options: Vec<OptionItem> = if query.is_empty() {
             self.hits = (0..self.commands.len())
                 .filter(|i| self.commands[*i].discover)
                 .collect();
-            options = self
-                .hits
+            self.hits
                 .iter()
                 .map(|i| OptionItem::text(self.prompt(&self.commands[*i], None, &help_style)))
-                .collect();
+                .collect()
         } else {
             let matcher = Matcher::new(query)
                 .match_style(Self::component_attrs(ctx, "command-palette--highlight"));
@@ -317,14 +315,13 @@ impl CommandPalette {
                 .collect();
             scored.sort_by(|a, b| b.0.total_cmp(&a.0));
             self.hits = scored.into_iter().map(|(_, i)| i).collect();
-            options = self
-                .hits
+            self.hits
                 .iter()
                 .map(|i| {
                     OptionItem::text(self.prompt(&self.commands[*i], Some(&matcher), &help_style))
                 })
-                .collect();
-        }
+                .collect()
+        };
         let no_matches = options.is_empty() && !query.is_empty();
         let Some(list) = Self::list_id(ctx) else {
             return;
