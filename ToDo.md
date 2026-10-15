@@ -8,12 +8,9 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
 
 Released so far: **v0.2.0** on [PyPI](https://pypi.org/project/rustual-py/),
 [crates.io](https://crates.io/crates/rustual) and [GitHub releases](https://github.com/Awareness10/rustual/releases).
-Releases follow [`RELEASING.md`](RELEASING.md) (`dev` → `main`, `scripts/release.py`).
+Releases follow [`RELEASING.md`](RELEASING.md) (`dev` → `main`, `scripts/release.py`); the tag publishes
+to PyPI and crates.io through trusted publishing (configured for all three crates and `rustual-py`).
 
-- [ ] **crates.io trusted publishing** (S, one-time, on crates.io): for `rustual`, `rustual-render` and
-  `rustual-css`, Settings → Trusted Publishing → GitHub (`Awareness10/rustual`, `release.yml`, environment
-  `crates-io`). Until then the release workflow's crates.io job fails; publish with `cargo publish --workspace`
-  from the tag instead.
 - [ ] **More wheel targets** (S): Linux aarch64 (manylinux + musllinux) and Windows arm64 in `release.yml`.
 - [ ] **Real-terminal QA pass** (M): mouse, resize, true color, wide characters, and performance across kitty,
   WezTerm, Alacritty, GNOME Terminal, tmux, Windows Terminal. So far, all checks were headless (Pilot, a pyte
