@@ -18,6 +18,7 @@ use std::sync::OnceLock;
 use textual::{Ctx, Message, Widget};
 
 mod basic;
+mod forms;
 pub(crate) mod rich;
 
 /// Builds a base widget from the Python constructor kwargs. May consume `children` (e.g.
@@ -81,6 +82,7 @@ fn registry() -> &'static Registry {
     R.get_or_init(|| {
         let mut r = Registry::default();
         basic::register(&mut r);
+        forms::register(&mut r);
         r
     })
 }
