@@ -1,6 +1,6 @@
 """TabbedContent with a Markdown pane, a TextArea code editor and a few other widgets.
 
-Run with ``uv run python examples/content.py``.
+Run with ``uvx rustual-py content``.
 """
 
 from rustual import on

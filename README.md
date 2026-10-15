@@ -143,6 +143,7 @@ Or try the bundled examples: `cargo run -p rustual --example dashboard`
 <summary><b>Python</b></summary>
 
 ```sh
+uvx rustual-py                # try it: a launcher for the bundled examples, nothing to install
 pip install rustual-py        # or: uv add rustual-py   (CPython 3.10+)
 ```
 
@@ -151,7 +152,7 @@ Or build from source (needs Rust):
 ```sh
 git clone https://github.com/Awareness10/rustual && cd rustual/crates/rustual-py
 uv sync                               # builds the Rust extension with maturin
-uv run python examples/stopwatch.py
+uv run rustual-py stopwatch
 ```
 
 ```python
@@ -230,8 +231,8 @@ Details: [`crates/rustual-py`](crates/rustual-py/README.md) ·
 <td><img src="docs/assets/screenshots/markdown.svg" alt="Markdown viewer"><br><sub><b>Markdown</b>: viewer with table of contents · <a href="crates/rustual/examples/markdown.rs">Rust</a></sub></td>
 </tr>
 <tr>
-<td><img src="docs/assets/screenshots/py_data.svg" alt="Data widgets from Python"><br><sub><b>Data widgets</b>: DataTable, Tree, RichLog · <a href="crates/rustual-py/examples/data.py">Python</a></sub></td>
-<td><img src="docs/assets/screenshots/py_forms.svg" alt="Form controls from Python"><br><sub><b>Forms</b>: Checkbox, Switch, RadioSet, Select, OptionList · <a href="crates/rustual-py/examples/forms.py">Python</a></sub></td>
+<td><img src="docs/assets/screenshots/py_data.svg" alt="Data widgets from Python"><br><sub><b>Data widgets</b>: DataTable, Tree, RichLog · <a href="crates/rustual-py/python/rustual/demo/data.py">Python</a></sub></td>
+<td><img src="docs/assets/screenshots/py_forms.svg" alt="Form controls from Python"><br><sub><b>Forms</b>: Checkbox, Switch, RadioSet, Select, OptionList · <a href="crates/rustual-py/python/rustual/demo/forms.py">Python</a></sub></td>
 </tr>
 </table>
 
