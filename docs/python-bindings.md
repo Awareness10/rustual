@@ -150,7 +150,6 @@ widget. The Rust method dispatcher receives `Option<&mut Ctx>` and uses ctx-free
 - `widget.styles` is write-mostly: setting any CSS property works (inline styles); reading
   returns what was set (and the computed `display` / `visibility`).
 - Accessing the DOM from `compose()` or a widget constructor raises (Textual raises `NoMatches`).
-- `push_screen(wait_for_dismiss=True)` / `push_screen_wait` aren't supported; use a callback.
 - `log()` is a no-op (no devtools console).
 - Calls from worker threads are marshalled to the app thread automatically (Textual requires
   `call_from_thread`, which also works).

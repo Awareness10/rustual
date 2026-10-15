@@ -39,7 +39,6 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
 - [ ] **`@click` links** (S): `link-*-hover` styles; `@mouse.down` / `@mouse.up` handlers.
 - [ ] **Screens & modes** (S): `ScreenSuspend` / `ScreenResume` events, `remove_mode`, modes from screen
   names; unknown screen/mode names should be reported (currently return `None`/`false`).
-- [ ] **Actions** (S): `check_action` (dynamic enable/disable of bindings and footer dimming).
 - [ ] **Workers** (S): cancel a widget's workers when it is removed (results are currently dropped).
 - [ ] **Loading** (S): refuse programmatic focus of loading widgets (Textual does); block their bindings.
 - [ ] **Screenshots** (S): local-time filenames and default to the Downloads folder like Textual.
@@ -68,7 +67,7 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
 - [ ] **Select** (S): render the dropdown as an overlay instead of a modal screen (after `overlay: screen`).
 - [ ] **ListView** (S): `-hovered` class semantics instead of `:hover` (which also matches descendants).
 - [ ] **Header** (S): local timezone clock (currently UTC with configurable offset), strftime formats.
-- [ ] **Footer** (S): disabled-binding styling (needs `check_action`), clickable group descriptions.
+- [ ] **Footer** (S): clickable group descriptions.
 - [ ] **Pretty** (S): per-container expansion like Rich (instead of all-or-nothing), indent guides.
 - [ ] **DirectoryTree** (S): load directories in a worker for slow filesystems.
 - [ ] **Welcome** (S): render the welcome text with the Markdown widget.
@@ -78,8 +77,9 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
 
 ## 4. Python bindings (`textual_rs`)
 
-- [ ] **Remaining widget bindings** (M): bind every built-in widget (in progress: forms, data, content batches).
-- [ ] **`check_action` / `refresh_bindings`** (S, needs the core `check_action` above).
+- [ ] **Widget API gaps** (M): see the per-widget notes in `features.md` (e.g. TextArea `register_language`,
+  DataTable per-row updates, Tree label styling, reactive-style watchers on widget properties such as
+  `Checkbox.value`, TabPane `Disabled`/`Enabled` messages).
 - [ ] **Command palette providers** (M): Python `Provider` classes (`COMMANDS`) on the core `CommandProvider`.
 - [ ] **`render_line` / Line API** (M): Python `ScrollView` subclasses rendering strips per line.
 - [ ] **`styles` read access** (S): expose computed styles (currently write-only, plus display/visibility).

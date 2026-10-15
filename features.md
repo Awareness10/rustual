@@ -3,7 +3,7 @@
 Parity tracker against Python Textual 8.2.8. Percentages are rough estimates of how much of
 Textual's behaviour for that item is implemented here. Status: ✅ done (≥ 90%) · 🟡 partial · ❌ missing.
 
-**Overall: ~90% of commonly used Textual functionality, ~70% of full parity.** 566 tests.
+**Overall: ~90% of commonly used Textual functionality, ~70% of full parity.** ~570 Rust tests + 59 Python tests.
 
 _Last updated: 2026-10-15._
 
@@ -18,7 +18,7 @@ _Last updated: 2026-10-15._
 | Mouse capture / drag | ✅ | 85 | `ctx.capture_mouse/release_mouse`; drags go to the MouseDown widget; scrollbar thumb drag + track paging; no `MouseCapture`/`MouseRelease` events |
 | Focus chain, tab/shift+tab, auto-focus | ✅ | 90 | `can_focus_children`, focus on click, restore on screen pop |
 | Messages (bubbling) | ✅ | 95 | typed payloads, `Flow::Stop`, `sender_id()` |
-| Bindings & actions | ✅ | 90 | priority, namespaces `app.`/`screen.`/`focused.`, args; keymaps (`Binding::id`, `App::keymap`, `ctx.set_keymap/update_keymap`, clashing keys dropped); no `check_action` |
+| Bindings & actions | ✅ | 90 | priority, namespaces `app.`/`screen.`/`focused.`, args; keymaps (`Binding::id`, `App::keymap`, `ctx.set_keymap/update_keymap`, clashing keys dropped); `check_action` (hide / disable bindings, footer dims) |
 | Builtin actions | ✅ | 85 | quit, bell, toggle_dark, set_theme, focus, focus_next/previous, pop_screen, push_screen/switch_screen/switch_mode('name'), maximize, minimize, screenshot, suspend_process, add/remove/toggle_class, notify, scroll_* |
 | Timers (`set_timer`, `set_interval`) | ✅ | 95 | |
 | Workers (async + blocking) | ✅ | 90 | result posted as message; `run_worker_with`/`run_blocking_with` + `WorkerOptions { name, group, exclusive }` post `worker::StateChanged` (Pending/Running/Success/Error=panic/Cancelled); `cancel_workers(group)`, `WorkerHandle::state()`; errors don't exit the app; plain `run_worker` posts no state events |
@@ -130,8 +130,25 @@ See [`docs/python-bindings.md`](docs/python-bindings.md).
 | Screens & modes | ✅ | 85 | Screen/ModalScreen, dismiss + callback, `push_screen_wait`, SCREENS/MODES, screen CSS |
 | Workers & async | ✅ | 90 | async handlers/workers on an app-thread asyncio loop; thread workers; widget calls from threads auto-marshalled |
 | Themes, validation | ✅ | 90 | `Theme`/`register_theme`; `textual_rs.validation`; Input `restrict` regex |
-| Built-in widgets | 🟡 | 20 | Static, Label, Button, Input, Header, Footer, containers bound; remaining widgets in progress |
-| Not yet | ❌ | 0 | `check_action`, command palette providers, devtools/`log`, `App.suspend`, inline mode |
+| Bindings | ✅ | 90 | `BINDINGS` (tuples / `Binding`), MRO merge, `check_action` / `refresh_bindings` |
+| Built-in widgets | ✅ | 85 | every built-in widget is bound (see below) |
+| Not yet | ❌ | 0 | command palette providers, devtools/`log`, `App.suspend`, `render_line`, inline mode |
+
+Python widget coverage (gaps vs Textual's Python API; the Rust widget's own gaps are listed above):
+
+| Widget(s) | % | Gaps |
+|---|---|---|
+| Static, Label, Button, Input, MaskedInput | 90 | Input `suggester`; MaskedInput lacks insert/delete/replace/selection setters |
+| Checkbox, RadioButton, RadioSet, Switch | 85 | `value` is a property, not a reactive (no `watch_value` in subclasses) |
+| Select, SelectionList, OptionList | 80 | `Option.disabled` must be changed via enable/disable methods; Select `type_to_search` always on |
+| DataTable | 80 | `get_cell` returns plain values (Rich `Text` as markup); no per-row height/label updates |
+| Tree, DirectoryTree | 80 | labels are `str`; no `render_label`; DirectoryTree loads synchronously |
+| ListView, Log, RichLog, Pretty | 85 | RichLog pretty-printing via `str()`; Pretty uses `pprint` |
+| ProgressBar, Sparkline, Digits | 90 | ProgressBar `gradient`/`clock` ignored |
+| TabbedContent, Tabs, ContentSwitcher, Collapsible | 85 | TabPane `Disabled`/`Enabled`/`Focused` and Tab `Clicked`/`Relabelled` messages missing |
+| Markdown, MarkdownViewer | 75 | no `MarkdownStream` / `parser_factory`; viewer navigation methods aren't coroutines |
+| TextArea | 75 | no `register_language` / `register_theme` / `edit(Edit)`; keyword highlighter instead of tree-sitter |
+| Header, Footer, Rule, Placeholder, LoadingIndicator, Link, Welcome, HelpPanel, KeyPanel | 90 | HelpPanel/KeyPanel `update_help` |
 
 ## Roadmap
 

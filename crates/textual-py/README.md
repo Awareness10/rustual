@@ -86,7 +86,7 @@ Each textual_rs step includes rendering a full frame. Run it yourself with
   (returns the `exit()` value), `run_async()`, `run_test()`, `exit()`, `notify()`, `bell()`,
   `push_screen(screen, callback)`, `pop_screen`, `switch_screen`, `install_screen`,
   `switch_mode`, `query`/`query_one`, `focused`/`set_focus`, `theme` / `register_theme`,
-  `call_from_thread`, `copy_to_clipboard`.
+  `call_from_thread`, `copy_to_clipboard`, `push_screen_wait`, `open_url`.
 - **Widget**: `compose()` (with `with Container():` nesting), `render()` (markup `str`,
   `Content`, Rich renderables), `DEFAULT_CSS`, `BINDINGS`, `can_focus`, `query*`, classes,
   `styles.*`, `display`/`visible`/`disabled`/`loading`, `border_title`/`border_subtitle`,
@@ -122,8 +122,9 @@ See [`docs/python-bindings.md`](../../docs/python-bindings.md) for the design.
 
 ## Differences from Textual
 
-- `render_line()` (the line API), devtools / `log()` output, `push_screen(wait_for_dismiss=True)`,
-  `check_action`, the command palette provider API and inline mode aren't supported yet.
+- `render_line()` (the line API), devtools / `log()` output, the command palette provider API,
+  `App.suspend()` and inline mode aren't supported yet.
+- Some widget APIs are partial; the gaps per widget are listed in `features.md` at the repo root.
 - `widget.styles` attributes can be set (inline CSS); reading returns what was set, plus the
   computed `display` / `visibility`.
 - Accessing the DOM from `compose()` or a widget's constructor raises an error.
