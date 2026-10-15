@@ -18,6 +18,7 @@ use std::sync::OnceLock;
 use textual::{Ctx, Message, Widget};
 
 mod basic;
+mod content;
 mod forms;
 pub(crate) mod rich;
 
@@ -82,9 +83,15 @@ fn registry() -> &'static Registry {
     R.get_or_init(|| {
         let mut r = Registry::default();
         basic::register(&mut r);
+        content::register(&mut r);
         forms::register(&mut r);
         r
     })
+}
+
+/// Extra module-level functions of the widget bindings (e.g. `set_url_opener`).
+pub(crate) fn add_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    content::add_functions(m)
 }
 
 /// A widget with no behaviour of its own (base of pure-Python widgets and of the app).
