@@ -33,21 +33,22 @@ class Pilot(Generic[ReturnType]):
         return self._app
 
     async def _settle(self, timeout: float = 5.0) -> None:
-        """Process pending work until the app (and its asyncio tasks) are idle."""
+        """Process pending work until the app is idle and no asyncio callbacks are runnable.
+
+        Tasks blocked on something external (a sleep, a dismissed screen) aren't waited for;
+        use ``pause(delay)`` to let time pass, like in Textual.
+        """
         deadline = time.monotonic() + timeout
-        runner = _context.runner()
+        loop = asyncio.get_running_loop()
         while True:
             self._handle.pause()
             # Let tasks scheduled on the test loop (async handlers, workers) run.
             for _ in range(3):
                 await asyncio.sleep(0)
             busy = self._handle.pump()
-            if not busy and not runner.pending():
+            runnable = bool(getattr(loop, "_ready", ()))
+            if (not busy and not runnable) or time.monotonic() > deadline:
                 break
-            if time.monotonic() > deadline:
-                break
-            if runner.pending():
-                await asyncio.sleep(0.001)
         self._raise_errors()
 
     def _raise_errors(self) -> None:

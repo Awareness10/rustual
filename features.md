@@ -116,6 +116,23 @@ _Last updated: 2026-10-15._
 | KeyPanel / HelpPanel | ✅ | 85 | `dock: right` instead of `split`; HelpPanel shows `Widget::help` Markdown (nearest ancestor) + embedded KeyPanel, `app.show/hide_help_panel`; help refresh lands one loop turn after focus changes (no focus watcher) |
 | Welcome | 🟡 | 85 | welcome text built from Statics (not the Markdown widget); OK exits |
 
+## Python bindings (`textual_rs`)
+
+Textual-compatible Python API on the Rust engine (`crates/textual-py`, PyO3 + maturin + uv).
+See [`docs/python-bindings.md`](docs/python-bindings.md).
+
+| Feature | Status | % | Notes |
+|---|---|---|---|
+| App lifecycle | ✅ | 90 | `run()` with GIL released (returns `exit()` value), `run_async`, `run_test` + `Pilot`; handler exceptions exit cleanly and re-raise |
+| Widget API | ✅ | 85 | compose (incl. `with` blocks), render (markup / Content / Rich renderables), DEFAULT_CSS, BINDINGS, queries, classes, styles (write), display/visible/disabled/loading, mount/remove/recompose, focus, scrolling, timers, `animate()`; no `render_line` |
+| Reactivity | ✅ | 90 | reactive/var with watch/validate/compute, init, always_update, layout, recompose, toggle_class, `watch()` |
+| Messages & events | ✅ | 90 | custom messages, bubbling, stop/prevent_default, `@on` with selectors, MRO dispatch, `key_*` methods, mouse/focus/enter/leave/resize/paste |
+| Screens & modes | ✅ | 85 | Screen/ModalScreen, dismiss + callback, `push_screen_wait`, SCREENS/MODES, screen CSS |
+| Workers & async | ✅ | 90 | async handlers/workers on an app-thread asyncio loop; thread workers; widget calls from threads auto-marshalled |
+| Themes, validation | ✅ | 90 | `Theme`/`register_theme`; `textual_rs.validation`; Input `restrict` regex |
+| Built-in widgets | 🟡 | 20 | Static, Label, Button, Input, Header, Footer, containers bound; remaining widgets in progress |
+| Not yet | ❌ | 0 | `check_action`, command palette providers, devtools/`log`, `App.suspend`, inline mode |
+
 ## Roadmap
 
 See [`ToDo.md`](ToDo.md) for the prioritized backlog.

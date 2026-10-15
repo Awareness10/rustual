@@ -25,7 +25,7 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(runner::run_app, m)?)?;
     m.add_function(wrap_pyfunction!(runner::start_test, m)?)?;
     m.add_function(wrap_pyfunction!(widgets::register_class, m)?)?;
-    widgets::add_to_module(m)?;
+    widgets::add_functions(m)?;
     macro_rules! ops {
         ($($f:ident),* $(,)?) => { $( m.add_function(wrap_pyfunction!(ops::$f, m)?)?; )* };
     }

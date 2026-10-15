@@ -137,6 +137,13 @@ pub trait Widget: Any {
         false
     }
 
+    /// Whether an action may run now (Textual's `check_action`): `Some(true)` runs it,
+    /// `Some(false)` hides its bindings (they don't fire), `None` shows them disabled (dimmed
+    /// in the footer, not triggered). Re-evaluated on every layout.
+    fn check_action(&self, _action: &str, _args: &[String]) -> Option<bool> {
+        Some(true)
+    }
+
     /// Commands offered in the command palette when this widget is the app root or the
     /// active screen (like Textual's `App.get_system_commands` / `Screen.COMMANDS`).
     fn commands(&self) -> Vec<crate::command::Command> {

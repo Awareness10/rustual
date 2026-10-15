@@ -246,6 +246,10 @@ impl Widget for Footer {
             if self.hover == Some(i) && item.group_label {
                 ds.bg = desc_style.bg;
             }
+            if item.binding.disabled {
+                ks.dim = Some(true);
+                ds.dim = Some(true);
+            }
             if !item.key_text.is_empty() {
                 spans.push(Span::new(item.key_text.clone(), ks));
             }

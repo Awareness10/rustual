@@ -24,6 +24,9 @@ pub struct Binding {
     /// Footer group: consecutive bindings of the same group are shown as their keys followed
     /// by one description (Textual's `Binding.group`).
     pub group: Option<BindingGroup>,
+    /// Set by the runtime on the footer's copy when `Widget::check_action` returns `None`
+    /// (shown dimmed and not triggered).
+    pub disabled: bool,
 }
 
 /// A binding group (Textual's `Binding.Group`): related bindings shown together in the
@@ -60,6 +63,7 @@ impl Binding {
             key_display: None,
             id: None,
             group: None,
+            disabled: false,
         }
     }
 

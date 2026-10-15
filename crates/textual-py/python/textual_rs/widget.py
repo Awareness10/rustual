@@ -372,6 +372,7 @@ class Widget:
             "has_compose": user_defines("compose"),
             "has_content_width": user_defines("get_content_width"),
             "has_content_height": user_defines("get_content_height"),
+            "has_check_action": user_defines("check_action"),
             "bindings": [b._native() for b in collect_bindings(cls)],
             "help": cls.HELP,
         }
@@ -450,6 +451,25 @@ class Widget:
         if inspect.isawaitable(result):
             _run_awaitable(self, result)
         return True
+
+    def _rs_check_action(self, name: str, args: list[str]) -> bool | None:
+        import ast
+
+        parsed: list[Any] = []
+        for a in args:
+            try:
+                parsed.append(ast.literal_eval(a))
+            except (ValueError, SyntaxError):
+                parsed.append(a)
+        return self.check_action(name, tuple(parsed))
+
+    def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
+        """Return ``True`` to allow ``action``, ``False`` to hide its bindings, ``None`` to
+        show them disabled. Re-evaluated on every refresh (see :meth:`refresh_bindings`)."""
+        return True
+
+    def refresh_bindings(self) -> None:
+        native.refresh()
 
     def _rs_content_width(self, width: int, height: int) -> int | None:
         return self.get_content_width(Size(width, height), Size(width, height))

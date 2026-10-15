@@ -158,8 +158,12 @@ class Input(Widget):
             value = self.value
         if not self.validators:
             if self.is_mounted:
+                from ..validation import Failure, Function
+
                 ok = self._native_call("validate")
-                return ValidationResult.success() if ok else ValidationResult.failure([])
+                if ok:
+                    return ValidationResult.success()
+                return ValidationResult.failure([Failure(Function(lambda v: False), value, f"Invalid {self._rs_kw.get('type', 'value')}.")])
             return None
         if self.valid_empty and value == "":
             result = ValidationResult.success()

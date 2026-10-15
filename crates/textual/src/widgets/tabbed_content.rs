@@ -244,12 +244,18 @@ impl TabbedContent {
     /// Add a pane (a `TabPane` child, e.g. `TabPane::new("x").id("x").with(..)`) at the end.
     /// If it is the first pane it becomes active.
     pub fn add_pane(&mut self, pane: impl Into<Child>, ctx: &mut Ctx) {
+        self.insert_pane(pane, None, ctx);
+    }
+
+    /// Add a pane at `index` among the panes (`None` = at the end). If it is the first pane
+    /// it becomes active.
+    pub fn insert_pane(&mut self, pane: impl Into<Child>, index: Option<usize>, ctx: &mut Ctx) {
         let Some(switcher) = self.switcher else {
             return;
         };
         let from_empty = self.tab_count(ctx) == 0;
-        let node = ctx.mount_to(switcher, pane, None);
-        self.adopt_pane(node, None, ctx);
+        let node = ctx.mount_to(switcher, pane, index);
+        self.adopt_pane(node, index, ctx);
         if from_empty {
             if let Some(id) = ctx.css_id(node).map(String::from) {
                 self.set_active(&id, ctx);

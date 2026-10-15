@@ -107,7 +107,10 @@ A built-in widget needs a Rust part (in `src/widgets/<group>.rs`) and a Python c
 1. `r.kind("Name", |py, kwargs, children| ...)`: build the widget from the Python constructor
    kwargs (`kw::<T>(kwargs, "key")?` returns `None` when absent or `None`). Widgets whose children
    are data (tab panes, list items) may consume `children`; whatever is left is mounted as
-   ordinary children.
+   ordinary children. Container widgets whose Rust implementation moves `.with(...)` children
+   into place on mount (`TabbedContent`, `Collapsible`, `Tabs`, ...) need nothing special: the
+   Python children are mounted as children and moved like Rust ones (see `widgets/content.rs`).
+   A caller can mount a Python widget itself with `adapter::build_child(py, obj)`.
 2. A getter `fn(py, &dyn Widget, attr) -> Option<PyResult<Py<PyAny>>>`: downcast with
    `as_ref::<W>(w)`, return `None` if it isn't your widget or attribute.
 3. A setter and a caller (methods) in the same style; they get a `&mut Ctx` targeting the

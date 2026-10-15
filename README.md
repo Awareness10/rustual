@@ -51,6 +51,17 @@ Run the examples with `cargo run -p textual --example <name>`: `hello`, `form`, 
 
 See [`features.md`](features.md) for per-feature parity with Textual and [`ToDo.md`](ToDo.md) for what's left.
 
+## Python
+
+[`crates/textual-py`](crates/textual-py/README.md) is a PyO3/maturin package, `textual_rs`, with a
+Textual-compatible Python API on this engine. Port a Textual app by changing its imports from
+`textual` to `textual_rs`. It runs the same app code 13–56× faster than Python Textual in the included
+benchmark.
+
+```sh
+cd crates/textual-py && uv sync && uv run python examples/counter.py
+```
+
 ## Screenshots
 
 Render any app to SVG without a terminal (handy for docs and visual checks):
@@ -83,10 +94,12 @@ See `docs/widget-guide.md` for writing widgets and `docs/plans/` for the archite
 | `textual-render` | geometry, colors, styles, cell widths, styled text + markup, strips, border glyphs, cell canvas with diffing (the "rich" layer) |
 | `textual-css` | TCSS tokenizer/parser (variables, nesting, `!important`), selectors & specificity, typed `Styles`, cascade, themes/design system |
 | `textual` | DOM, widgets, events/messages/bindings/actions, layout, compositor, crossterm driver, app runtime, Pilot test harness |
+| `textual-py` | Python bindings (PyO3, built with maturin/uv): the `textual_rs` package (see [`docs/python-bindings.md`](docs/python-bindings.md)) |
 
 ## Testing
 
-`cargo test --workspace`. Apps are tested headlessly with `Pilot`
+`cargo test --workspace` (the Python extension has no Rust tests; test it with
+`cd crates/textual-py && uv run pytest`). Apps are tested headlessly with `Pilot`
 (`press`, `type_text`, `click`, `hover`, `wait`, `screen_text`, `canvas`, `query_one`, ...).
 
 The `reference/` directory (git-ignored) holds the upstream Textual and Rich sources used as the

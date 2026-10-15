@@ -567,8 +567,30 @@ impl Tabs {
         tab: impl Into<Tab>,
         ctx: &mut Ctx,
     ) -> Option<String> {
+        let child = self.make_child(tab.into());
+        self.mount_tab(child, index, ctx)
+    }
+
+    /// Mount a tab given as a [`Child`] (e.g. a `Tab` wrapped by another widget) at `index`
+    /// (`None` = at the end); it gets an id `tab-N` if it has none. If it is the first tab, it
+    /// becomes active. Returns its id.
+    pub fn mount_tab(
+        &mut self,
+        mut child: Child,
+        index: Option<usize>,
+        ctx: &mut Ctx,
+    ) -> Option<String> {
+        let list = Self::list_node(ctx)?;
         let from_empty = self.tab_count(ctx) == 0;
-        let id = self.insert_tab_silent(index, tab.into(), ctx)?;
+        let id = match child.id.clone() {
+            Some(id) => id,
+            None => {
+                let id = self.next_id();
+                child.id = Some(id.clone());
+                id
+            }
+        };
+        ctx.mount_to(list, child, index);
         if from_empty {
             self.active.clear();
             self.set_active(&id, ctx);
