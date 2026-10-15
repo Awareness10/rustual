@@ -3,7 +3,7 @@
 Parity tracker against Python Textual 8.2.8. Percentages are rough estimates of how much of
 Textual's behaviour for that item is implemented here. Status: ✅ done (≥ 90%) · 🟡 partial · ❌ missing.
 
-**Overall: ~90% of commonly used Textual functionality, ~70% of full parity.** Test counts and coverage: see the badges in the [README](README.md#testing) (updated by CI).
+**Overall: ~90% of commonly used Textual functionality, ~70% of full parity.** Test counts and coverage: see the badges in the [README](README.md#testing) (updated by CI). CI tests Linux, macOS and Windows; Python wheels for all three are on [GitHub releases](https://github.com/Awareness10/rustual/releases).
 
 _Last updated: 2026-10-15._
 
@@ -71,7 +71,7 @@ _Last updated: 2026-10-15._
 | Compositor: clipping, layers, opacity, modal dimming | ✅ | 90 | full-frame paint + diff (~2 ms per frame at 1000 widgets, release build) |
 | Content markup (`[b red on $panel]`, `[/]`, `\[`) | ✅ | 90 | |
 | Unicode cell widths (CJK, emoji, ZWJ) | ✅ | 90 | |
-| Rich renderables (tables, syntax, pretty) | ❌ | 5 | no Rich equivalent beyond styled text |
+| Rich renderables (tables, syntax, pretty) | 🟡 | 40 | Python: any Rich renderable (`Table`, `Syntax`, `Panel`, ...) via the `rich` package in `Static`, `render()` and `RichLog`; Rust: no Rich equivalent beyond styled text |
 
 ## Widgets
 
@@ -80,7 +80,7 @@ _Last updated: 2026-10-15._
 | Static | ✅ | 95 | markup / plain / Text content, `update` |
 | Label | ✅ | 95 | variants via classes |
 | Button | ✅ | 95 | variants, flat, action, active effect |
-| Input | ✅ | 85 | password, restrict (char predicate), max length, integer/number, selection; no suggester/validators API |
+| Input | ✅ | 85 | password, restrict (char predicate or whole-value `restrict_value`), max length, integer/number, selection; no suggester; validators only in Python (`rustual.validation`) |
 | MaskedInput | ✅ | 90 | full template engine (`A a N n X x 9 0 D d # H h B b`, case, escapes, blank char), validity classes; no `validators=` |
 | TextArea | 🟡 | 80 | editing, selection (keys/mouse drag/double+triple click), undo/redo batching, soft wrap, line numbers, themes (css/monokai/dracula/vscode_dark/github_light), bracket matching, read-only, placeholder; no tree-sitter (simple per-line keyword highlighter for python/rust/js/json/toml), no suggestions; copy/cut use the OSC 52 clipboard |
 | Checkbox / ToggleButton | ✅ | 95 | |
@@ -114,7 +114,7 @@ _Last updated: 2026-10-15._
 | Pretty | 🟡 | 75 | `Debug` repr, one-line or expanded, hand-written repr highlighter; all-or-nothing expansion, no indent guides |
 | Tooltip | ✅ | 90 | runtime-positioned (no `constrain` CSS) |
 | KeyPanel / HelpPanel | ✅ | 85 | `dock: right` instead of `split`; HelpPanel shows `Widget::help` Markdown (nearest ancestor) + embedded KeyPanel, `app.show/hide_help_panel`; help refresh lands one loop turn after focus changes (no focus watcher) |
-| Welcome | 🟡 | 85 | welcome text built from Statics (not the Markdown widget); OK exits |
+| Welcome | 🟡 | 85 | welcome text built from Statics (not the Markdown widget); OK exits by default in Rust (`exit_on_close`), not in Python (as Textual) |
 
 ## Python bindings (`rustual`)
 
@@ -132,6 +132,7 @@ See [`docs/python-bindings.md`](docs/python-bindings.md).
 | Themes, validation | ✅ | 90 | `Theme`/`register_theme`; `rustual.validation`; Input `restrict` regex |
 | Bindings | ✅ | 90 | `BINDINGS` (tuples / `Binding`), MRO merge, `check_action` / `refresh_bindings` |
 | Built-in widgets | ✅ | 85 | every built-in widget is bound (see below) |
+| Packaging | ✅ | 90 | abi3 wheels (CPython 3.10+) for manylinux_2_28 / musllinux_1_2 x86_64, Windows x86_64, macOS universal2 + sdist on GitHub releases; not on PyPI yet |
 | Not yet | ❌ | 0 | command palette providers, devtools/`log`, `App.suspend`, `render_line`, inline mode |
 
 Python widget coverage (gaps vs Textual's Python API; the Rust widget's own gaps are listed above):

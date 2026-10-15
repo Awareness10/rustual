@@ -4,7 +4,19 @@ What remains for rustual to reach full parity with Python Textual 8.2.8 and to b
 Status per feature lives in [`features.md`](features.md); this file is the actionable backlog.
 Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **L** (several days).
 
-## 1. Before a first release
+## 1. Releases & production readiness
+
+Released so far: **v0.1.0** on [GitHub releases](https://github.com/Awareness10/rustual/releases)
+(rustual-py wheels + sdist, built and smoke-tested by `.github/workflows/release.yml` on `v*` tags).
+
+- [ ] **Publish to PyPI** (S): add a `pypi` job to `release.yml` after the smoke tests, using PyPI trusted
+  publishing (`pypa/gh-action-pypi-publish`, `permissions: id-token: write`, a `pypi` environment), and register
+  the GitHub workflow as a trusted publisher for `rustual-py` on pypi.org. The release artifacts are already in
+  the right shape (abi3 wheels + sdist).
+- [ ] **Publish to crates.io** (S): `cargo publish` for `rustual-render`, `rustual-css` and `rustual` in
+  dependency order (add `version` to the workspace path dependencies, a README per crate, `keywords` /
+  `categories` / `repository` metadata; `cargo publish --dry-run` in CI); keep `rustual-py` `publish = false`.
+- [ ] **More wheel targets** (S): Linux aarch64 (manylinux + musllinux) and Windows arm64 in `release.yml`.
 
 - [ ] **Real-terminal QA pass** (M): mouse, resize, true color, wide characters, and performance across kitty,
   WezTerm, Alacritty, GNOME Terminal, tmux, Windows Terminal. So far, all checks were headless (Pilot, a pyte
@@ -15,11 +27,9 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
   Windows terminal (suspend is unix-only).
 - [ ] **Public API review** (M): naming consistency (`get_value` vs `value`, builder vs setter patterns,
   which methods take `ctx`), `#[non_exhaustive]` on public enums, hide internals that leaked as `pub`.
-- [ ] **Rustdoc pass** (M): crate-level docs with a tutorial, docs on every public widget, doc-tests for
-  the main APIs; `cargo doc` without warnings.
-- [ ] **Publishable crates** (S): crates.io / PyPI metadata and a README per crate. Done: LICENSE (MIT),
-  CI workflow (lint, tests on Linux/macOS, MSRV 1.86, Python 3.10 + 3.14, coverage), MSRV declared.
-  Windows tests in CI. Remaining: publish, abi3 wheels.
+- [ ] **Rustdoc pass** (M): crate-level docs with a tutorial, docs on every public widget; turn the 23
+  `ignore`d doc examples into compiled doc-tests (`no_run` where they start a terminal); `cargo doc` without
+  warnings (and add it to CI).
 - [ ] **Clipboard fallback** (S): copy now goes through the app (OSC 52 + per-app clipboard), but paste still
   falls back to a process-global clipboard shared by Input/TextArea; remove the global so parallel tests
   can't race.
@@ -65,7 +75,8 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
 - [ ] **Markdown** (M): streaming / incremental `append` (`MarkdownStream`), horizontal scrolling in code
   fences, custom block classes (`parser_factory`).
 - [ ] **DataTable** (S): re-measure row heights on column changes; wrap long cells in auto-height rows.
-- [ ] **Input** (S): `Suggester` (inline completion), pluggable validators (`validators=`).
+- [ ] **Input** (S): `Suggester` (inline completion); pluggable validators in the Rust API (Python has
+  `validators=` via `rustual.validation`).
 - [ ] **Select** (S): render the dropdown as an overlay instead of a modal screen (after `overlay: screen`).
 - [ ] **ListView** (S): `-hovered` class semantics instead of `:hover` (which also matches descendants).
 - [ ] **Header** (S): local timezone clock (currently UTC with configurable offset), strftime formats.
@@ -73,8 +84,9 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
 - [ ] **Pretty** (S): per-container expansion like Rich (instead of all-or-nothing), indent guides.
 - [ ] **DirectoryTree** (S): load directories in a worker for slow filesystems.
 - [ ] **Welcome** (S): render the welcome text with the Markdown widget.
-- [ ] **Rich renderables** (L): Rich-style `Table`, `Syntax`, `Panel`, `Columns` renderables usable in
-  `Static` / `RichLog`.
+- [ ] **Rich renderables in Rust** (L): Rich-style `Table`, `Syntax`, `Panel`, `Columns` renderables usable
+  in `Static` / `RichLog` from Rust (Python apps already render any Rich renderable through the `rich`
+  package).
 - [ ] **Placeholder** (S): per-app color cycling counter like Textual.
 
 ## 4. Python bindings (`rustual`)
@@ -86,14 +98,15 @@ Items are grouped by priority; each is sized **S** (hours), **M** (a day), or **
 - [ ] **`render_line` / Line API** (M): Python `ScrollView` subclasses rendering strips per line.
 - [ ] **`styles` read access** (S): expose computed styles (currently write-only, plus display/visibility).
 - [ ] **`App.suspend()`, devtools `log()`** (S each).
-- [ ] **PyPI / crates.io** (S): wheels are already built and smoke-tested by `.github/workflows/release.yml`
-  and attached to GitHub releases on `v*` tags; add a PyPI publish step (trusted publishing) and `cargo publish`.
-- [ ] **Type stubs** (S): `py.typed` + stubs for `_native`.
+- [ ] **Type stubs** (S): a `_native.pyi` stub (the package already ships `py.typed`).
+- [ ] **Python CI on Windows/macOS** (S): the Python test suite runs on Linux only (release wheels are
+  smoke-tested on all platforms).
 
 ## 5. Docs & examples
 
 - [ ] **Guide** (M): port the essential parts of Textual's guide (app basics, CSS, layout, events, actions,
   screens, workers, testing) to Rust idioms.
-- [ ] **Gallery** (S): SVG screenshots of every example in `docs/` generated by `TEXTUAL_SCREENSHOT`.
-- [ ] **Port Textual's example apps** (M): calculator, code browser, five-by-five, dictionary, stopwatch
-  tutorial — good end-to-end validation.
+- [ ] **Gallery script** (S): a script that regenerates `docs/assets/screenshots/` from every example via
+  `TEXTUAL_SCREENSHOT` (the README gallery currently uses hand-made captures of 10 examples).
+- [ ] **Port Textual's example apps** (M): calculator, code browser, five-by-five, dictionary — good
+  end-to-end validation (the stopwatch tutorial already runs unchanged in Python, with a test).
