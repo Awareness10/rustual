@@ -46,6 +46,28 @@ DirectoryTree {
         text-style: dim;
     }
 }
+
+/* ANSI themes (Textual `:ansi`). */
+DirectoryTree {
+    &:ansi {
+        & > .tree--guides {
+           color: ansi_bright_black;
+        }
+
+        & > .directory-tree--folder {
+            text-style: bold;
+        }
+
+        & > .directory-tree--extension {
+            text-style: italic;
+        }
+
+        & > .directory-tree--hidden {
+            color: ansi_default;
+            text-style: dim;
+        }
+    }
+}
 "#;
 
 /// Icon of a collapsed folder.

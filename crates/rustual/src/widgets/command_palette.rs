@@ -12,7 +12,7 @@
 
 use crate::app::Pending;
 use crate::binding::Binding;
-use crate::command::{Command, CommandAction, Matcher};
+use crate::command::{Command, CommandAction, Matcher, SearchEvent, SearchHook};
 use crate::context::Ctx;
 use crate::events::Event;
 use crate::message::{Flow, Message};
@@ -60,6 +60,18 @@ CommandPalette #--input Input, CommandPalette #--input Input:focus {
     background: transparent;
     background-tint: transparent;
 }
+
+/* ANSI themes (Textual `:ansi`). */
+CommandPalette {
+    &:ansi {
+        background: transparent;
+    }
+}
+
+/* ANSI themes (Textual `:ansi`). */
+CommandPalette:nocolor > .command-palette--highlight {
+    text-style: underline;
+}
 ";
 
 const COMMAND_LIST_CSS: &str = "
@@ -100,6 +112,20 @@ CommandList > .option-list--option-hover {
 }
 CommandList > .option-list--separator {
     color: $foreground 15%;
+}
+
+/* ANSI themes (Textual `:ansi`). */
+CommandList:ansi {
+    & > .option-list--option-highlighted {
+        color: $block-cursor-foreground;
+        background: $block-cursor-background;
+        text-style: $block-cursor-text-style;
+    }
+}
+
+/* ANSI themes (Textual `:ansi`). */
+CommandList:nocolor > .option-list--option-highlighted {
+    text-style: reverse;
 }
 ";
 
@@ -223,14 +249,39 @@ impl Widget for CommandList {
     }
 }
 
+/// A listed command: one of the palette's own, or a hit delivered by a search hook.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Hit {
+    Builtin(usize),
+    External(usize),
+}
+
 /// The command palette screen (pushed as a modal by the `command_palette` action).
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct CommandPalette {
     commands: Vec<Command>,
     placeholder: String,
-    /// Indices into `commands` of the listed hits, in display order.
-    hits: Vec<usize>,
+    /// The listed commands, in display order.
+    hits: Vec<Hit>,
     list_visible: bool,
+    /// Searches that deliver hits later ([`crate::command::SearchHook`]).
+    hooks: Vec<SearchHook>,
+    /// Incremented for every query; hits for older generations are dropped.
+    generation: u64,
+    /// Hits delivered for the current generation.
+    external: Vec<Command>,
+    query: String,
+}
+
+impl std::fmt::Debug for CommandPalette {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CommandPalette")
+            .field("commands", &self.commands)
+            .field("placeholder", &self.placeholder)
+            .field("hooks", &self.hooks.len())
+            .field("external", &self.external)
+            .finish()
+    }
 }
 
 impl CommandPalette {
@@ -240,6 +291,10 @@ impl CommandPalette {
             placeholder: "Search for commands…".to_string(),
             hits: Vec::new(),
             list_visible: false,
+            hooks: Vec::new(),
+            generation: 0,
+            external: Vec::new(),
+            query: String::new(),
         }
     }
 
@@ -248,17 +303,46 @@ impl CommandPalette {
         self
     }
 
-    /// All commands offered by this palette.
+    /// Searches asked for more hits as the query changes.
+    pub fn search_hooks(mut self, hooks: Vec<SearchHook>) -> Self {
+        self.hooks = hooks;
+        self
+    }
+
+    /// All commands offered by this palette (excluding search hook hits).
     pub fn commands(&self) -> &[Command] {
         &self.commands
+    }
+
+    fn command(&self, hit: Hit) -> &Command {
+        match hit {
+            Hit::Builtin(i) => &self.commands[i],
+            Hit::External(i) => &self.external[i],
+        }
     }
 
     /// Names of the commands currently listed, best match first.
     pub fn hit_names(&self) -> Vec<&str> {
         self.hits
             .iter()
-            .map(|i| self.commands[*i].name.as_str())
+            .map(|h| self.command(*h).name.as_str())
             .collect()
+    }
+
+    /// Hits from a search hook for query `generation` (stale generations are ignored).
+    pub fn add_hits(&mut self, generation: u64, hits: Vec<Command>, ctx: &mut Ctx) {
+        if generation != self.generation || hits.is_empty() {
+            return;
+        }
+        self.external.extend(hits);
+        self.rebuild(ctx);
+    }
+
+    fn notify_hooks(&self, event: SearchEvent<'_>, ctx: &mut Ctx) {
+        let me = ctx.id();
+        for hook in self.hooks.clone() {
+            hook(me, event, ctx);
+        }
     }
 
     fn list_id(ctx: &Ctx) -> Option<crate::dom::NodeId> {
@@ -279,9 +363,10 @@ impl CommandPalette {
 
     fn prompt(&self, command: &Command, matcher: Option<&Matcher>, help_style: &Style) -> Text {
         let mut text = Text::plain("  ");
-        text.append(match matcher {
-            Some(m) => m.highlight(&command.name),
-            None => Text::plain(command.name.clone()),
+        text.append(match (&command.display, matcher) {
+            (Some(display), _) => display.clone(),
+            (None, Some(m)) => m.highlight(&command.name),
+            (None, None) => Text::plain(command.name.clone()),
         });
         if !command.help.is_empty() {
             text.push("\n  ", Style::new());
@@ -292,41 +377,57 @@ impl CommandPalette {
         text
     }
 
-    /// Re-filter the commands for `query` and refill the list (Textual: `_gather_commands`).
+    /// A new query: ask the search hooks and refill the list (Textual: `_gather_commands`).
     fn refresh_list(&mut self, query: &str, ctx: &mut Ctx) {
+        self.query = query.to_string();
+        self.generation += 1;
+        self.external.clear();
+        let generation = self.generation;
+        self.notify_hooks(SearchEvent::Query { query, generation }, ctx);
+        self.rebuild(ctx);
+    }
+
+    /// Refill the list from the palette's commands and the hits delivered so far: in
+    /// discovery (empty query) in order, otherwise best score first.
+    fn rebuild(&mut self, ctx: &mut Ctx) {
+        let query = self.query.clone();
         let help_style = Self::component_attrs(ctx, "command-palette--help-text");
-        let options: Vec<OptionItem> = if query.is_empty() {
-            self.hits = (0..self.commands.len())
+        let externals = (0..self.external.len()).map(Hit::External);
+        let (options, matcher): (Vec<Hit>, Option<Matcher>) = if query.is_empty() {
+            let builtin = (0..self.commands.len())
                 .filter(|i| self.commands[*i].discover)
-                .collect();
-            self.hits
-                .iter()
-                .map(|i| OptionItem::text(self.prompt(&self.commands[*i], None, &help_style)))
-                .collect()
+                .map(Hit::Builtin);
+            (builtin.chain(externals).collect(), None)
         } else {
-            let matcher = Matcher::new(query)
+            let matcher = Matcher::new(&query)
                 .match_style(Self::component_attrs(ctx, "command-palette--highlight"));
-            let mut scored: Vec<(f64, usize)> = self
+            let mut scored: Vec<(f64, Hit)> = self
                 .commands
                 .iter()
                 .enumerate()
-                .map(|(i, c)| (matcher.score(&c.name), i))
+                .map(|(i, c)| (matcher.score(&c.name), Hit::Builtin(i)))
+                .chain(externals.map(|h| (self.command(h).score.unwrap_or(0.0), h)))
                 .filter(|(s, _)| *s > 0.0)
                 .collect();
             scored.sort_by(|a, b| b.0.total_cmp(&a.0));
-            self.hits = scored.into_iter().map(|(_, i)| i).collect();
-            self.hits
-                .iter()
-                .map(|i| {
-                    OptionItem::text(self.prompt(&self.commands[*i], Some(&matcher), &help_style))
-                })
-                .collect()
+            (scored.into_iter().map(|(_, h)| h).collect(), Some(matcher))
         };
+        self.hits = options;
+        let options: Vec<OptionItem> = self
+            .hits
+            .iter()
+            .map(|h| {
+                let command = self.command(*h);
+                let matcher = matcher.as_ref().filter(|_| command.score.is_none());
+                OptionItem::text(self.prompt(command, matcher, &help_style))
+            })
+            .collect();
         let no_matches = options.is_empty() && !query.is_empty();
         let Some(list) = Self::list_id(ctx) else {
             return;
         };
         ctx.with_id::<CommandList, _>(list, |l, ctx| {
+            let previous = l.list.highlighted();
             l.list.clear_options(ctx);
             if no_matches {
                 let _ = l.list.add_option(
@@ -336,8 +437,11 @@ impl CommandPalette {
                 );
             } else {
                 let _ = l.list.add_options(options);
-                if l.list.option_count() > 0 {
-                    l.list.set_highlighted(Some(0), ctx);
+                let count = l.list.option_count();
+                if count > 0 {
+                    // Keep the highlight in place as late hits arrive.
+                    let index = previous.unwrap_or(0).min(count - 1);
+                    l.list.set_highlighted(Some(index), ctx);
                 }
             }
         });
@@ -383,7 +487,7 @@ impl CommandPalette {
 
     /// Run the listed command at `index` after closing the palette.
     fn run_hit(&mut self, index: usize, ctx: &mut Ctx) {
-        let Some(command) = self.hits.get(index).map(|i| self.commands[*i].clone()) else {
+        let Some(command) = self.hits.get(index).map(|h| self.command(*h).clone()) else {
             return;
         };
         let root = ctx.root();
@@ -472,7 +576,12 @@ impl Widget for CommandPalette {
         ctx.add_class("--textual-command-palette");
         let root = ctx.root();
         ctx.post_message_to(root, Opened);
+        self.notify_hooks(SearchEvent::Opened, ctx);
         self.refresh_list("", ctx);
+    }
+
+    fn on_unmount(&mut self, ctx: &mut Ctx) {
+        self.notify_hooks(SearchEvent::Closed, ctx);
     }
 
     fn bindings(&self) -> Vec<Binding> {

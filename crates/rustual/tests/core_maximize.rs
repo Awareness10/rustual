@@ -81,6 +81,20 @@ async fn maximize_action_fills_the_screen_with_the_focused_widget() {
 }
 
 #[tokio::test]
+async fn maximized_view_is_hatched_around_the_widget() {
+    let mut p = pilot().await;
+    let panel = p.query("#panel")[0];
+    p.with::<Root, _>("App", |_, ctx| ctx.maximize_exact(panel))
+        .await;
+    let text = p.screen_text();
+    // Textual: `Screen.-maximized-view { hatch: right $panel; }`.
+    assert!(text.lines().any(|l| l.starts_with("╱╱╱╱")), "{text}");
+    assert!(text.contains("╭"), "{text}");
+    p.press(&["f3"]).await;
+    assert!(!p.screen_text().contains('╱'), "{}", p.screen_text());
+}
+
+#[tokio::test]
 async fn maximize_prefers_a_maximizable_container() {
     let mut p = pilot().await;
     let inner = p.query("#inner")[0];

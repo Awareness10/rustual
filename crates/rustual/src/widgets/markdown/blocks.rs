@@ -535,6 +535,16 @@ MarkdownFence {
         background: white 30%;
     }
 }
+
+/* ANSI themes (Textual `:ansi`). */
+MarkdownFence:ansi {
+    background: transparent;
+
+    margin: 0;
+    & > Label {
+        padding: 1 0;
+    }
+}
 "
     }
 

@@ -99,7 +99,7 @@ rustual is on [crates.io](https://crates.io/crates/rustual) and [PyPI](https://p
 ```toml
 # cargo add rustual tokio --features tokio/full
 [dependencies]
-rustual = "0.2"
+rustual = "0.4"
 tokio = { version = "1", features = ["full"] }
 ```
 
@@ -135,7 +135,7 @@ async fn main() -> std::io::Result<()> {
 
 Or try the bundled examples: `cargo run -p rustual --example dashboard`
 (also `hello`, `form`, `table`, `navigator`, `editor`, `markdown`, `palette`, `modes`,
-`widgets_extra`). `ctrl+p` opens the command palette, `ctrl+q` quits.
+`renderables`, `widgets_extra`). `ctrl+p` opens the command palette, `ctrl+q` quits.
 
 </details>
 
@@ -277,13 +277,15 @@ in about 2 ms.
 <summary><b>Core features</b></summary>
 <br>
 
-- Textual CSS: variables, nesting, `!important`, pseudo-classes, themes and the design system
+- Textual CSS: variables, nesting, `!important`, pseudo-classes, themes (including ANSI themes that use
+  the terminal's own colors, and `NO_COLOR`) and the design system
 - Layouts: vertical, horizontal, grid, dock, layers, offsets, scrolling with scrollbars
 - Screens, modal screens, modes, maximize, loading overlays
 - Bindings with keymaps, `check_action`, actions with namespaces and arguments
 - Animations with Textual's easing functions, CSS transitions, timers
 - Async workers, notifications, clipboard (OSC 52), suspend, SVG screenshots
 - Command palette, tooltips, help panel
+- Rich-style renderables from Rust: `Table`, `Panel`, `Columns`, `Syntax` in `Static` and `RichLog`
 
 Per-feature parity with Textual is tracked in [`features.md`](features.md).
 
@@ -321,7 +323,7 @@ flowchart LR
 
 | Crate | Role |
 |---|---|
-| [`rustual-render`](crates/rustual-render) | Geometry, colors, styles, cell widths, styled text and markup, strips, border glyphs, a cell canvas with diffing (the Rich layer) |
+| [`rustual-render`](crates/rustual-render) | Geometry, colors, styles, cell widths, styled text and markup, strips, border glyphs, Rich-style renderables (`Table`, `Panel`, `Columns`), a cell canvas with diffing (the Rich layer) |
 | [`rustual-css`](crates/rustual-css) | TCSS tokenizer and parser (variables, nesting, `!important`), selectors and specificity, typed `Styles`, cascade, themes |
 | [`rustual`](crates/rustual) | DOM, widgets, events / messages / bindings / actions, layout, compositor, crossterm driver, async runtime (tokio), Pilot |
 | [`rustual-py`](crates/rustual-py) | Python bindings built with maturin and uv: the `rustual` package |

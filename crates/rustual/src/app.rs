@@ -39,6 +39,43 @@ Widget {
     scrollbar-color-hover: $scrollbar-hover;
     scrollbar-corner-color: $scrollbar-corner-color;
 }
+Screen.-maximized-view {
+    hatch: right $panel;
+}
+
+/* ANSI themes (Textual `:ansi`). */
+App {
+    &:ansi {
+        background: ansi_default;
+        color: ansi_default;
+
+        .-ansi-scrollbar {
+            scrollbar-background: ansi_default;
+            scrollbar-background-hover: ansi_default;
+            scrollbar-background-active: ansi_default;
+            scrollbar-color: ansi_blue;
+            scrollbar-color-active: ansi_bright_blue;
+            scrollbar-color-hover: ansi_bright_blue;
+            scrollbar-corner-color: ansi_default;
+        }
+
+        .bindings-table--key {
+            color: ansi_magenta;
+        }
+        .bindings-table--description {
+            color: ansi_default;
+        }
+
+        .bindings-table--header {
+            color: ansi_default;
+        }
+
+        .bindings-table--divider {
+            color: transparent;
+            text-style: dim;
+        }
+    }
+}
 ";
 
 /// Lines scrolled per mouse-wheel tick.
@@ -144,6 +181,17 @@ pub(crate) struct AppState {
     pub arrangements: HashMap<NodeId, Arrangement>,
     pub themes: Vec<Theme>,
     pub theme: String,
+    /// `App.ansi_color`: native ANSI colors if `Some(true)`, truecolor if `Some(false)`,
+    /// the theme's `ansi` flag if `None`.
+    pub ansi_color: Option<bool>,
+    /// `NO_COLOR` was set (or [`App::no_color`]).
+    pub no_color: bool,
+    /// The active screen at the last layout (for `ScreenSuspend` / `ScreenResume`).
+    pub last_active_screen: Option<NodeId>,
+    /// `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS` of the app: `(min size, class)`.
+    pub breakpoints: Breakpoints,
+    /// Classes set on each screen by breakpoints (removed when no longer wanted).
+    pub breakpoint_classes: HashMap<NodeId, Vec<String>>,
     pub app_css: Vec<(String, String)>,
     pub css_errors: Vec<String>,
     pub mouse_down_on: Option<NodeId>,
@@ -228,6 +276,11 @@ impl App {
             arrangements: HashMap::new(),
             themes: Theme::builtin(),
             theme: "textual-dark".to_string(),
+            ansi_color: None,
+            no_color: std::env::var_os("NO_COLOR").is_some(),
+            last_active_screen: None,
+            breakpoints: Breakpoints::default(),
+            breakpoint_classes: HashMap::new(),
             app_css: Vec::new(),
             css_errors: Vec::new(),
             mouse_down_on: None,
@@ -281,6 +334,34 @@ impl App {
     /// Select a theme by name (see [`Theme::builtin`]).
     pub fn theme(mut self, name: &str) -> Self {
         self.state.theme = name.to_string();
+        self
+    }
+
+    /// Native ANSI colors (`true`), ANSI colors converted to truecolor (`false`); without this,
+    /// the theme decides (ANSI themes such as `ansi-dark` use native colors). Textual's
+    /// `App(ansi_color=...)`.
+    pub fn ansi_color(mut self, ansi_color: bool) -> Self {
+        self.state.ansi_color = Some(ansi_color);
+        self
+    }
+
+    /// Remove colors, as when `NO_COLOR` is set (which this overrides).
+    pub fn no_color(mut self, no_color: bool) -> Self {
+        self.state.no_color = no_color;
+        self
+    }
+
+    /// Classes set on screens by terminal width: `(min width, class)` pairs; the class of the
+    /// largest threshold not above the width applies (Textual `HORIZONTAL_BREAKPOINTS`).
+    pub fn horizontal_breakpoints(mut self, breakpoints: &[(i32, &str)]) -> Self {
+        self.state.breakpoints.horizontal = Some(to_breakpoints(breakpoints));
+        self
+    }
+
+    /// Like [`App::horizontal_breakpoints`] for the terminal height (Textual
+    /// `VERTICAL_BREAKPOINTS`).
+    pub fn vertical_breakpoints(mut self, breakpoints: &[(i32, &str)]) -> Self {
+        self.state.breakpoints.vertical = Some(to_breakpoints(breakpoints));
         self
     }
 
@@ -477,6 +558,8 @@ impl AppState {
         self.theme = name.to_string();
         self.dom.dark = theme.dark;
         self.env.dark = theme.dark;
+        self.dom.ansi = self.ansi_color.unwrap_or(theme.ansi);
+        self.dom.no_color = self.no_color;
         for e in self.env.stylesheet.set_variables(theme.to_variables()) {
             self.css_errors.push(e.to_string());
         }
@@ -625,6 +708,15 @@ impl AppState {
         }
         let screen = self.screens.pop().expect("screen");
         let pusher = self.screen_pushers.remove(&screen);
+        if self.last_active_screen == Some(screen) {
+            // Textual sends `ScreenSuspend` before the popped screen goes away.
+            self.last_active_screen = None;
+            let mut msg = Message::new(screen, None, crate::events::ScreenSuspend);
+            msg.bubble = false;
+            self.call_widget(screen, |w, ctx| {
+                w.on_message(&msg, ctx);
+            });
+        }
         if crate::screens::is_installed(self, screen) {
             crate::screens::suspend_screen(self, screen);
         } else {
@@ -717,6 +809,22 @@ impl AppState {
             self.call_widget(*n, |w, ctx| w.on_unmount(ctx));
         }
         self.dom.remove_subtree(id);
+        let dom = &self.dom;
+        let live: Vec<NodeId> = dom
+            .screen_titles
+            .keys()
+            .copied()
+            .filter(|k| dom.contains(*k))
+            .collect();
+        self.dom.screen_titles.retain(|k, _| live.contains(k));
+        let dom = &self.dom;
+        let live: Vec<NodeId> = dom
+            .screen_breakpoints
+            .keys()
+            .copied()
+            .filter(|k| dom.contains(*k))
+            .collect();
+        self.dom.screen_breakpoints.retain(|k, _| live.contains(k));
         self.timers.retain(|t| !ids.contains(&t.node));
         self.screens.retain(|s| !ids.contains(s));
         for a in self.arrangements.values_mut() {
@@ -1014,12 +1122,24 @@ impl AppState {
                 target: old,
                 event: Event::Blur,
             });
+            if let Some(parent) = self.dom.parent(old) {
+                self.post(
+                    parent,
+                    Message::new(old, None, crate::events::DescendantBlur { widget: old }),
+                );
+            }
         }
         if let Some(new) = id {
             self.queue.push_back(Pending::Event {
                 target: new,
                 event: Event::Focus,
             });
+            if let Some(parent) = self.dom.parent(new) {
+                self.post(
+                    parent,
+                    Message::new(new, None, crate::events::DescendantFocus { widget: new }),
+                );
+            }
             self.scroll_visible_request = Some(new);
         }
         self.dirty = true;
@@ -1096,6 +1216,9 @@ impl AppState {
             .and_then(|n| n.widget())
             .map(|w| w.bindings())
             .unwrap_or_default();
+        if let Some(n) = self.dom.get(id) {
+            b.extend(n.extra_bindings.iter().cloned());
+        }
         if id == self.root {
             b.push(Binding::new("ctrl+q", "quit", "Quit").hidden().priority());
             b.push(Binding::new("ctrl+c", "quit", "Quit").hidden());
@@ -1515,6 +1638,8 @@ impl AppState {
 
     pub(crate) fn layout(&mut self) {
         self.dom.active_screen = self.active_screen();
+        self.post_screen_activation();
+        self.apply_breakpoints();
         self.update_styles();
         crate::screens::adjust_styles(self);
         self.update_active_bindings();
@@ -1575,9 +1700,106 @@ impl AppState {
             .iter()
             .filter_map(|s| self.arrangements.get(s).map(|a| (*s, a)))
             .collect();
-        let canvas = compositor::render(&self.dom, &self.env, &layers, self.size);
+        let mut canvas = compositor::render(&self.dom, &self.env, &layers, self.size);
+        crate::filter::apply(&mut canvas, self.output_mode());
         self.dirty = false;
         canvas
+    }
+
+    /// How frames are written: native ANSI colors, dark theme, `NO_COLOR`.
+    pub(crate) fn output_mode(&self) -> crate::filter::OutputMode {
+        crate::filter::OutputMode {
+            native_ansi: self.dom.ansi,
+            dark: self.dom.dark,
+            no_color: self.no_color,
+        }
+    }
+
+    /// The current frame for a screenshot: ANSI colors shown with the terminal theme.
+    pub(crate) fn screenshot_frame(&mut self) -> Canvas {
+        let mut canvas = self.render_frame();
+        crate::filter::to_truecolor(&mut canvas);
+        canvas
+    }
+
+    /// Change `ansi_color` at runtime (`None`: follow the theme).
+    pub(crate) fn set_ansi_color(&mut self, ansi_color: Option<bool>) {
+        self.ansi_color = ansi_color;
+        let theme_ansi = self
+            .themes
+            .iter()
+            .find(|t| t.name == self.theme)
+            .is_some_and(|t| t.ansi);
+        self.dom.ansi = ansi_color.unwrap_or(theme_ansi);
+        self.dirty = true;
+    }
+
+    /// Breakpoint classes on every screen for the terminal size (Textual `Screen._on_resize`):
+    /// per list, the class of the largest threshold not above the size is set and the list's
+    /// other classes are removed. A screen's own lists replace the app's.
+    fn apply_breakpoints(&mut self) {
+        let size = self.size;
+        for screen in self.screens.clone() {
+            let own = self.dom.screen_breakpoints.get(&screen);
+            let horizontal = own
+                .and_then(|b| b.horizontal.clone())
+                .or_else(|| self.breakpoints.horizontal.clone())
+                .unwrap_or_default();
+            let vertical = own
+                .and_then(|b| b.vertical.clone())
+                .or_else(|| self.breakpoints.vertical.clone())
+                .unwrap_or_default();
+            let Some(node) = self.dom.get_mut(screen) else {
+                continue;
+            };
+            let mut wanted: Vec<String> = Vec::new();
+            let mut listed: Vec<&String> = Vec::new();
+            for (list, dimension) in [(&horizontal, size.width), (&vertical, size.height)] {
+                let active = list
+                    .iter()
+                    .filter(|(min, _)| dimension >= *min)
+                    .max_by_key(|(min, _)| *min);
+                wanted.extend(active.map(|(_, class)| class.clone()));
+                listed.extend(list.iter().map(|(_, class)| class));
+            }
+            let previous = self.breakpoint_classes.remove(&screen).unwrap_or_default();
+            for class in listed.into_iter().chain(previous.iter()) {
+                if !wanted.contains(class) && node.has_class(class) {
+                    node.remove_class(class);
+                    self.dirty = true;
+                }
+            }
+            for class in &wanted {
+                if !node.has_class(class) {
+                    node.add_class(class);
+                    self.dirty = true;
+                }
+            }
+            if !wanted.is_empty() {
+                self.breakpoint_classes.insert(screen, wanted);
+            }
+        }
+    }
+
+    /// `ScreenSuspend` / `ScreenResume` when the active screen changed since the last layout.
+    fn post_screen_activation(&mut self) {
+        let active = self.dom.active_screen;
+        if active == self.last_active_screen {
+            return;
+        }
+        let previous = std::mem::replace(&mut self.last_active_screen, active);
+        for (target, resume) in [(previous, false), (active, true)] {
+            let Some(target) = target.filter(|t| self.dom.contains(*t)) else {
+                continue;
+            };
+            let mut msg = if resume {
+                Message::new(target, None, crate::events::ScreenResume)
+            } else {
+                Message::new(target, None, crate::events::ScreenSuspend)
+            };
+            msg.bubble = false;
+            self.post(target, msg);
+        }
     }
 
     /// Region of a node from the last layout.
@@ -1616,4 +1838,18 @@ pub enum MouseKind {
     ScrollDown,
     ScrollLeft,
     ScrollRight,
+}
+
+/// Breakpoint lists: `(min size, class)`; `None` means "not set" (a screen inherits the app's).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct Breakpoints {
+    pub horizontal: Option<Vec<(i32, String)>>,
+    pub vertical: Option<Vec<(i32, String)>>,
+}
+
+fn to_breakpoints(breakpoints: &[(i32, &str)]) -> Vec<(i32, String)> {
+    breakpoints
+        .iter()
+        .map(|(min, class)| (*min, class.to_string()))
+        .collect()
 }

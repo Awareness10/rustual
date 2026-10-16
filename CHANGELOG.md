@@ -7,6 +7,54 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+## 0.4.0 - 2026-10-16
+
+### Added
+- `hatch` CSS (`hatch: right $panel`, `hatch: "x" red 50%`, `hatch: none`) and Python
+  `styles.hatch = ("cross", "red")`: hatched backgrounds as in Textual. A maximized widget's screen is
+  now hatched around it, like Textual's.
+- Rich-style renderables for Rust (`rustual::renderables`): ports of rich's `Table`, `Panel`,
+  `Columns`, `Padding` and `Group`, plus `Syntax` (keyword highlighting, line numbers, highlighted
+  lines, word wrap). Their layout matches rich 15 line for line. Show them with
+  `Static::renderable` / `update_renderable` or `RichLog::write_renderable`; see the `renderables`
+  example.
+- ANSI themes `ansi-dark` / `ansi-light` (Textual's, with identical variables) that use the
+  terminal's own colors: `ansi_*` / `ansi_default` colors are written as ANSI codes, `:ansi` /
+  `:nocolor` pseudo-classes and the widgets' `:ansi` rules apply. `App::ansi_color` /
+  `ctx.set_ansi_color` (Python `App(ansi_color=...)`, `app.ansi_color`) choose native ANSI colors
+  or truecolor; `NO_COLOR` removes colors (`App::no_color`). `Theme::ansi` / Python `Theme(ansi=True)`.
+- Command palette search hooks (`App::command_search`, `Ctx::add_command_hits`): hits delivered
+  later (e.g. from async work), merged by score as they arrive; `App::system_commands(false)`.
+  Python: `rustual.command` (`Provider`, `Hit`, `DiscoveryHit`, `SimpleProvider`,
+  `CommandPalette`), `App.COMMANDS` / `Screen.COMMANDS`, `get_system_commands` / `SystemCommand`,
+  `search_commands`, `fuzzy.Matcher`. Textual's `color_command` example runs unchanged.
+- Breakpoints: `App::horizontal_breakpoints` / `vertical_breakpoints`, per-screen
+  `Ctx::set_screen_breakpoints` (Python `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS` on apps
+  and screens).
+- `DescendantFocus` / `DescendantBlur` and `ScreenResume` / `ScreenSuspend` events; per-screen
+  titles (`Ctx::set_screen_title`, Python `Screen.title` / `TITLE`); runtime bindings (`Ctx::bind`);
+  `Ctx::widget_style`, `Ctx::clear_notifications`.
+- Python compatibility with real Textual apps (found by scanning 9 popular ones): `log`
+  (`TEXTUAL_LOG` / `logging`), `lazy`, `getters`, `cache`, `design.ColorSystem`,
+  `theme.BUILTIN_THEMES`, `markup.escape`, `types`, `errors`, `dom`, `timer`, `notifications`,
+  `_color_constants`, `InvalidThemeError`, `rich_style` / `get_component_rich_style`, `data_bind`,
+  `set_reactive`, `bind`, `clear_notifications`, `set_keymap`, `get_key_display`, `@dataclass`
+  messages.
+- `Header::time_format` / `set_time_format` (Python `Header(time_format=...)`, `header.time_format`):
+  strftime formats for the header clock (default `%X`).
+
+### Changed
+- `ansi_*` colors are the terminal's own colors (`Color::ansi`): `ansi_default` is no longer
+  transparent, and without native ANSI colors they are shown with Textual's terminal themes
+  (MONOKAI / ALABASTER) instead of fixed RGB values. `Color` has a new `ansi` field.
+- `dim` text is drawn as a color blended towards the background (like Textual) unless ANSI
+  colors are native.
+- The header clock shows the local time (it was UTC), like Textual. `clock_utc_offset` still pins a
+  fixed offset. rustual now depends on `chrono` for time zones and formatting.
+
+### Fixed
+- Python `Content.from_markup(...).plain` / `str()` returned the markup instead of the text.
+
 ## 0.3.0 - 2026-10-15
 
 ### Added

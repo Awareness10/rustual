@@ -64,6 +64,30 @@ HelpPanel {
         padding: 0;
     }
 }
+
+/* ANSI themes (Textual `:ansi`). */
+HelpPanel {
+    &:ansi {
+        background: ansi_default;
+        border-left: vkey ansi_black;
+
+        Markdown, KeyPanel {
+            background: ansi_default;
+        }
+        .bindings-table--divide {
+            color: transparent;
+        }
+    }
+}
+
+/* ANSI themes (Textual `:ansi`). */
+HelpPanel {
+    #widget-help {
+        &:ansi {
+            background: ansi_default;
+        }
+    }
+}
 ";
 
 /// Posted by the panel to itself when the focused widget's help changed.

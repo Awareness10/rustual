@@ -18,6 +18,13 @@ Tooltip {
     max-width: 40;
     display: none;
 }
+
+/* ANSI themes (Textual `:ansi`). */
+Tooltip {
+    &:ansi {
+        background: $ansi-background;
+    }
+}
 ";
 
 /// The tooltip overlay widget.

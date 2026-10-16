@@ -131,6 +131,15 @@ MarkdownHeader {
     color: $text;
     margin: 2 0 1 0;
 }
+
+/* ANSI themes (Textual `:ansi`). */
+Markdown {
+    &:ansi {
+        MarkdownBlock > .code_inline {
+            background: ansi_default !important;
+        }
+    }
+}
 ";
 
 static HEADING_COUNTER: AtomicUsize = AtomicUsize::new(0);

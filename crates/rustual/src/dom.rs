@@ -77,6 +77,8 @@ pub struct Node {
     pub is_cover: bool,
     /// Screens only: the maximized widget ([`Ctx::maximize`](crate::Ctx::maximize)).
     pub maximized: Option<NodeId>,
+    /// Bindings added at runtime ([`Ctx::bind`](crate::Ctx::bind)), after the widget's own.
+    pub extra_bindings: Vec<crate::binding::Binding>,
 }
 
 impl Node {
@@ -107,6 +109,7 @@ impl Node {
             can_focus,
             can_focus_children,
             tooltip: None,
+            extra_bindings: Vec::new(),
             loading: false,
             cover: None,
             is_cover: false,
@@ -169,14 +172,45 @@ pub struct Dom {
     pub focused: Option<NodeId>,
     pub hovered: Option<NodeId>,
     pub dark: bool,
+    /// Native ANSI colors are in use (`:ansi`).
+    pub ansi: bool,
+    /// `NO_COLOR` is set (`:nocolor`).
+    pub no_color: bool,
+    /// Per-screen breakpoints overriding the app's (Textual `Screen.HORIZONTAL_BREAKPOINTS`).
+    pub screen_breakpoints: std::collections::HashMap<NodeId, crate::app::Breakpoints>,
+    /// Per-screen title / sub-title overriding the app's (Textual `Screen.title`).
+    pub screen_titles: std::collections::HashMap<NodeId, ScreenTitle>,
     /// The active (top) screen as of the last layout / key dispatch, for read-only observers
     /// (the runtime itself uses its screen stack).
     pub active_screen: Option<NodeId>,
 }
 
+/// A screen's own title and sub-title (`None`: use the app's).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ScreenTitle {
+    pub title: Option<String>,
+    pub sub_title: Option<String>,
+}
+
 impl Dom {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// The title shown for `id`'s screen: the screen's own (`Screen.title`), else `app_title`.
+    pub fn screen_title<'a>(&'a self, id: NodeId, app_title: &'a str) -> &'a str {
+        self.screen_of(id)
+            .and_then(|s| self.screen_titles.get(&s))
+            .and_then(|t| t.title.as_deref())
+            .unwrap_or(app_title)
+    }
+
+    /// The sub-title shown for `id`'s screen (see [`Dom::screen_title`]).
+    pub fn screen_sub_title<'a>(&'a self, id: NodeId, app_sub_title: &'a str) -> &'a str {
+        self.screen_of(id)
+            .and_then(|s| self.screen_titles.get(&s))
+            .and_then(|t| t.sub_title.as_deref())
+            .unwrap_or(app_sub_title)
     }
 
     pub fn insert(&mut self, node: Node) -> NodeId {
@@ -443,6 +477,8 @@ impl<'a> SelectorNode for NodeRef<'a> {
             "enabled" => !dom.is_disabled(self.id),
             "dark" => dom.dark,
             "light" => !dom.dark,
+            "ansi" => dom.ansi,
+            "nocolor" => dom.no_color,
             "can-focus" => self.node().map(|n| n.can_focus).unwrap_or(false),
             "empty" => dom.children(self.id).is_empty(),
             "first-child" | "first-of-type" => {

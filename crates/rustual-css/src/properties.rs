@@ -8,7 +8,6 @@ use rustual_render::{BorderKind, Color, Spacing, Style};
 /// Properties Textual supports that rustual does not model. Declarations of these are
 /// accepted and ignored so real Textual CSS loads without errors.
 pub const IGNORED_PROPERTIES: &[&str] = &[
-    "hatch",
     "keyline",
     "pointer",
     "constrain",
@@ -127,6 +126,7 @@ impl Styles {
             "background" => self.background = Some(plain_color(name, t)?),
             "background-tint" => self.background_tint = Some(plain_color(name, t)?),
             "tint" => self.tint = Some(plain_color(name, t)?),
+            "hatch" => self.hatch = Some(hatch(name, t)?),
             "opacity" => self.opacity = Some(fraction(name, t)?),
             "text-opacity" => self.text_opacity = Some(fraction(name, t)?),
             "text-style" => self.text_style = Some(text_style(t)?),
@@ -549,12 +549,8 @@ fn fraction(name: &str, t: &[&str]) -> Result<f32, String> {
     Ok(v.clamp(0.0, 1.0))
 }
 
-/// Parse a single color word with [`Color::parse`]. `ansi_default` (the terminal's default
-/// color, which we can't express) maps to transparent.
+/// Parse a single color word with [`Color::parse`] (`ansi_*` names are terminal colors).
 pub(crate) fn parse_color_word(s: &str) -> Result<Color, String> {
-    if s.eq_ignore_ascii_case("ansi_default") || s.eq_ignore_ascii_case("ansi-default") {
-        return Ok(Color::TRANSPARENT);
-    }
     Color::parse(s).map_err(|e| e.to_string())
 }
 
@@ -591,6 +587,58 @@ fn color_value(name: &str, t: &[&str], allow_auto: bool) -> Result<ColorValue, S
         c = c.multiply_alpha(a);
     }
     Ok(ColorValue::Color(c))
+}
+
+/// `none` or `<keyword|"c"> <color> [<alpha>%]` (Textual `process_hatch`).
+fn hatch(name: &str, t: &[&str]) -> Result<Hatch, String> {
+    if let ["none"] = t {
+        return Ok(Hatch::NONE);
+    }
+    let (character, color, alpha) = match t {
+        [c, col] => (*c, *col, None),
+        [c, col, a] => (*c, *col, Some(*a)),
+        _ => {
+            return Err(format!(
+                "'{name}' expects `none` or <type> <color> [<alpha>%]"
+            ))
+        }
+    };
+    let character =
+        if let Some(&(_, c)) = Hatch::KEYWORDS.iter().find(|(k, _)| *k == character) {
+            c
+        } else if let Some(inner) = unquote(character) {
+            let mut chars = inner.chars();
+            let (Some(c), None) = (chars.next(), chars.next()) else {
+                return Err(format!(
+                    "'{name}' requires a string of length 1; got {character}"
+                ));
+            };
+            if rustual_render::cells::cell_len(inner) != 1 {
+                return Err(format!(
+                    "'{name}' requires a character with a cell length of 1; got {character}"
+                ));
+            }
+            c
+        } else {
+            return Err(format!(
+            "invalid value {character:?} for '{name}'; expected one of {}, or a quoted character",
+            Hatch::KEYWORDS.iter().map(|(k, _)| *k).collect::<Vec<_>>().join(", ")
+        ));
+        };
+    let mut color = parse_color_word(color).map_err(|e| format!("'{name}': {e}"))?;
+    if let Some(a) = alpha {
+        let a = percent(a)
+            .ok_or_else(|| format!("'{name}' alpha must be a percentage (e.g. 50%); got {a:?}"))?;
+        color = color.multiply_alpha(a.clamp(0.0, 1.0));
+    }
+    Ok(Hatch { character, color })
+}
+
+/// The text inside matching single or double quotes.
+fn unquote(s: &str) -> Option<&str> {
+    ['"', '\'']
+        .iter()
+        .find_map(|q| s.strip_prefix(*q)?.strip_suffix(*q))
 }
 
 /// Color for fields that can't express `auto`. Background colors reject `auto` (as Textual
@@ -899,7 +947,16 @@ mod tests {
         );
         assert_eq!(
             s("background: ansi_default").background,
-            Some(Color::TRANSPARENT)
+            Some(Color::ANSI_DEFAULT)
+        );
+        assert_eq!(
+            s("color: ansi_red").color,
+            Some(ColorValue::Color(Color::from_ansi(1)))
+        );
+        // ANSI colors ignore alpha, like Textual.
+        assert_eq!(
+            s("background: ansi_blue 50%").background,
+            Some(Color::from_ansi(4))
         );
         assert_eq!(
             s("background: #12345680").background.unwrap().a,
@@ -1105,6 +1162,46 @@ mod tests {
         );
         // `initial` leaves the property unset.
         assert_eq!(s("link-background: initial").link_background, None);
+    }
+
+    #[test]
+    fn hatch() {
+        let h = |css: &str| s(css).hatch.unwrap();
+        assert_eq!(
+            h("hatch: right red"),
+            Hatch {
+                character: '╱',
+                color: c("red")
+            }
+        );
+        assert_eq!(h("hatch: left red").character, '╲');
+        assert_eq!(h("hatch: cross red").character, '╳');
+        assert_eq!(h("hatch: horizontal red").character, '─');
+        assert_eq!(h("hatch: vertical red").character, '│');
+        assert_eq!(h("hatch: \"x\" blue").character, 'x');
+        assert_eq!(h("hatch: '.' blue").character, '.');
+        assert_eq!(
+            h("hatch: right red 30%").color,
+            c("red").multiply_alpha(0.3)
+        );
+        // `none` is stored (so it overrides a less specific rule) but inactive.
+        assert_eq!(h("hatch: none"), Hatch::NONE);
+        assert_eq!(s("hatch: none").get_hatch(), None);
+        assert_eq!(s("hatch: right transparent").get_hatch(), None);
+        assert_eq!(s("hatch: \" \" red").get_hatch(), None);
+        assert!(s("hatch: right red").get_hatch().is_some());
+
+        assert!(err("hatch: diagonal red").contains("hatch"));
+        assert!(err("hatch: \"ab\" red").contains("hatch"));
+        assert!(err("hatch: \"字\" red").contains("cell"));
+        assert!(err("hatch: right").contains("hatch"));
+        assert!(err("hatch: right red 30% 1").contains("hatch"));
+        assert!(err("hatch: right red 0.3").contains("%"));
+        assert!(err("hatch: right notacolor").contains("hatch"));
+
+        let mut base = s("hatch: right red");
+        base.merge(&s("hatch: none"));
+        assert_eq!(base.get_hatch(), None);
     }
 
     #[test]

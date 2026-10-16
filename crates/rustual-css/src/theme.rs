@@ -23,6 +23,9 @@ pub struct Theme {
     pub text_alpha: f32,
     /// Explicit variable overrides.
     pub variables: HashMap<String, String>,
+    /// An ANSI theme: colors are the terminal's own (`ansi_*`), and the app uses native ANSI
+    /// colors unless `App::ansi_color` says otherwise (Textual `Theme.ansi`).
+    pub ansi: bool,
 }
 
 /// Number of lighten/darken shades generated per base color (`design.py` `NUMBER_OF_SHADES`).
@@ -81,7 +84,14 @@ impl Theme {
             luminosity_spread: 0.15,
             text_alpha: 0.95,
             variables: HashMap::new(),
+            ansi: false,
         }
+    }
+
+    /// Mark as an ANSI theme (see [`Theme::ansi`]).
+    pub fn ansi(mut self, ansi: bool) -> Self {
+        self.ansi = ansi;
+        self
     }
 
     pub fn secondary(mut self, c: &str) -> Self {
@@ -144,6 +154,9 @@ impl Theme {
     /// `*-text-style` / `link-*` variables, and theme overrides (which may be `<color> <alpha>%`).
     /// Theme `variables` are applied on top, as Textual's `App.get_css_variables` does.
     pub fn to_variables(&self) -> HashMap<String, String> {
+        if self.ansi {
+            return self.ansi_variables();
+        }
         let overrides = &self.variables;
         let get = |name: &str, default: String| -> String {
             overrides.get(name).cloned().unwrap_or(default)
@@ -415,9 +428,10 @@ impl Theme {
     }
 
     /// Built-in themes: textual-dark (default), textual-light, nord, gruvbox, dracula,
-    /// tokyo-night, monokai, solarized-light, catppuccin-mocha, flexoki, textual-ansi is optional.
+    /// tokyo-night, monokai, solarized-light, catppuccin-mocha, flexoki, ..., and the ANSI
+    /// themes ansi-dark / ansi-light.
     ///
-    /// Ported from `BUILTIN_THEMES` in `textual/theme.py` (the ANSI themes are omitted).
+    /// Ported from `BUILTIN_THEMES` in `textual/theme.py`.
     pub fn builtin() -> Vec<Theme> {
         vec![
             Theme::new("textual-dark", "#0178D4")
@@ -716,7 +730,207 @@ impl Theme {
                 .surface("#E0E0E0")
                 .panel("#CCCCCC")
                 .dark(false),
+            Theme::new("ansi-dark", "ansi_blue")
+                .ansi(true)
+                .secondary("ansi_cyan")
+                .warning("ansi_yellow")
+                .error("ansi_red")
+                .success("ansi_green")
+                .accent("ansi_green")
+                .foreground("ansi_default")
+                .background("ansi_default")
+                .surface("ansi_default")
+                .panel("ansi_default")
+                .boost("ansi_default")
+                .with_variables(&[
+                    ("ansi-background", "ansi_black"),
+                    ("ansi-foreground", "ansi_white"),
+                    ("border-blurred", "ansi_black"),
+                    ("block-cursor-foreground", "ansi_black"),
+                    ("block-cursor-background", "ansi_white"),
+                    ("input-cursor-background", "ansi_black"),
+                    ("input-cursor-foreground", "ansi_bright_white"),
+                    ("input-cursor-text-style", "none"),
+                    ("input-selection-background", "ansi_bright_blue"),
+                    ("input-selection-foreground", "ansi_black"),
+                    ("screen-selection-background", "ansi_bright_blue"),
+                    ("screen-selection-foreground", "ansi_black"),
+                ]),
+            Theme::new("ansi-light", "ansi_blue")
+                .ansi(true)
+                .secondary("ansi_cyan")
+                .warning("ansi_bright_red")
+                .error("ansi_red")
+                .success("ansi_green")
+                .accent("ansi_magenta")
+                .foreground("ansi_default")
+                .background("ansi_default")
+                .surface("ansi_default")
+                .panel("ansi_default")
+                .boost("ansi_default")
+                .dark(false)
+                .with_variables(&[
+                    ("border", "ansi_blue"),
+                    ("border-blurred", "ansi_white"),
+                    ("block-cursor-foreground", "ansi_bright_white"),
+                    ("block-cursor-background", "ansi_blue"),
+                    ("ansi-background", "ansi_white"),
+                    ("ansi-foreground", "ansi_black"),
+                    ("input-cursor-background", "ansi_bright_white"),
+                    ("input-cursor-foreground", "ansi_black"),
+                    ("input-cursor-text-style", "reverse"),
+                    ("input-selection-background", "ansi_cyan"),
+                    ("input-selection-foreground", "ansi_white"),
+                    ("scrollbar", "ansi_bright_blue"),
+                    ("scrollbar-hover", "ansi_blue"),
+                    ("scrollbar-active", "ansi_blue"),
+                    ("scrollbar-background", "ansi_white"),
+                    ("scrollbar-corner-color", "ansi_default"),
+                    ("scrollbar-background-hover", "ansi_white"),
+                    ("scrollbar-background-active", "ansi_white"),
+                    ("block-hover-background", "ansi_white"),
+                    ("screen-selection-background", "ansi_cyan"),
+                    ("screen-selection-foreground", "ansi_bright_white"),
+                ]),
         ]
+    }
+
+    /// Variables of an ANSI theme (`ColorSystem._generate_ansi`): terminal colors throughout,
+    /// shades equal to their base color.
+    fn ansi_variables(&self) -> HashMap<String, String> {
+        let name = |c: Color| c.ansi_name().unwrap_or_else(|| c.hex());
+        let primary = parse(&self.primary);
+        let secondary = parse_opt(&self.secondary).unwrap_or(primary);
+        let warning = parse_opt(&self.warning).unwrap_or(primary);
+        let error = parse_opt(&self.error).unwrap_or(secondary);
+        let success = parse_opt(&self.success).unwrap_or(secondary);
+        let accent = parse_opt(&self.accent).unwrap_or(primary);
+        let background = parse_opt(&self.background).map_or("ansi_default".to_string(), name);
+        let foreground = parse_opt(&self.foreground).map_or("ansi_default".to_string(), name);
+        let entries: Vec<(&str, String)> = vec![
+            ("primary", name(primary)),
+            ("secondary", name(secondary)),
+            ("warning", name(warning)),
+            ("error", name(error)),
+            ("success", name(success)),
+            ("accent", name(accent)),
+            ("background", background.clone()),
+            ("foreground", foreground.clone()),
+            ("primary-background", background.clone()),
+            ("secondary-background", background.clone()),
+            ("boost", "transparent".to_string()),
+            ("surface", "transparent".to_string()),
+            ("text", "ansi_default".to_string()),
+            ("text-muted", "ansi_default 50%".to_string()),
+            ("text-disabled", "ansi_default 50%".to_string()),
+            ("text-primary", name(primary)),
+            ("text-secondary", name(secondary)),
+            ("text-warning", name(warning)),
+            ("text-error", name(error)),
+            ("text-success", name(success)),
+            ("text-accent", name(accent)),
+            ("panel", "transparent".to_string()),
+            ("primary-muted", format!("{} 50%", name(primary))),
+            ("secondary-muted", format!("{} 50%", name(secondary))),
+            ("warning-muted", format!("{} 50%", name(warning))),
+            ("error-muted", format!("{} 50%", name(error))),
+            ("success-muted", format!("{} 50%", name(success))),
+            ("accent-muted", format!("{} 50%", name(accent))),
+            ("foreground-muted", "ansi_default 50%".to_string()),
+            ("background-muted", "ansi_default 50%".to_string()),
+            ("block-cursor-foreground", "ansi_default".to_string()),
+            ("block-cursor-background", "ansi_magenta".to_string()),
+            ("block-cursor-text-style", "bold".to_string()),
+            (
+                "block-cursor-blurred-foreground",
+                "ansi_default".to_string(),
+            ),
+            (
+                "block-cursor-blurred-background",
+                "ansi_default".to_string(),
+            ),
+            ("block-cursor-blurred-text-style", "none".to_string()),
+            ("block-hover-background", "ansi_default".to_string()),
+            ("border", "ansi_magenta".to_string()),
+            ("border-blurred", "ansi_black".to_string()),
+            ("surface-actrive", "transparent".to_string()),
+            ("scrollbar", "ansi_blue".to_string()),
+            ("scrollbar-hover", "ansi_blue".to_string()),
+            ("scrollbar-active", "ansi_bright_blue".to_string()),
+            ("scrollbar-background", "ansi_black".to_string()),
+            ("scrollbar-corner-color", "ansi_default".to_string()),
+            ("scrollbar-background-hover", "ansi_black".to_string()),
+            ("scrollbar-background-active", "ansi_black".to_string()),
+            ("link-style", "underline".to_string()),
+            ("link-background", "transparent".to_string()),
+            ("link-background-hover", "ansi_bright_blue".to_string()),
+            ("link-color", "ansi_blue".to_string()),
+            ("link-color-hover", "ansi_bright_white".to_string()),
+            ("link-style-hover", "not underline".to_string()),
+            ("footer-foreground", "ansi_default".to_string()),
+            ("footer-background", "ansi_default".to_string()),
+            ("footer-key-foreground", "ansi_magenta".to_string()),
+            ("footer-key-background", "transparent".to_string()),
+            ("footer-description-foreground", "ansi_default".to_string()),
+            ("footer-description-background", "ansi_default".to_string()),
+            ("footer-item-background", "ansi_default".to_string()),
+            ("input-cursor-background", "ansi_default".to_string()),
+            ("input-cursor-foreground", "ansi_default".to_string()),
+            ("input-cursor-text-style", "reverse".to_string()),
+            ("input-selection-background", "ansi_cyan".to_string()),
+            ("input-selection-foreground", "ansi_default".to_string()),
+            ("markdown-h1-color", "ansi_magenta".to_string()),
+            ("markdown-h1-background", "transparent".to_string()),
+            ("markdown-h1-text-style", "bold".to_string()),
+            ("markdown-h2-color", "ansi_bright_blue".to_string()),
+            ("markdown-h2-background", "transparent".to_string()),
+            ("markdown-h2-text-style", "underline".to_string()),
+            ("markdown-h3-color", "ansi_blue".to_string()),
+            ("markdown-h3-background", "transparent".to_string()),
+            ("markdown-h3-text-style", "none".to_string()),
+            ("markdown-h4-color", "ansi_cyan".to_string()),
+            ("markdown-h4-background", "transparent".to_string()),
+            ("markdown-h4-text-style", "bold".to_string()),
+            ("markdown-h5-color", "ansi_cyan".to_string()),
+            ("markdown-h5-background", "transparent".to_string()),
+            ("markdown-h5-text-style", "none".to_string()),
+            ("markdown-h6-color", "ansi_cyan".to_string()),
+            ("markdown-h6-background", "transparent".to_string()),
+            ("markdown-h6-text-style", "underline".to_string()),
+            ("button-foreground", "ansi_default".to_string()),
+            ("button-color-foreground", "ansi_default".to_string()),
+            ("button-focus-text-style", "b reverse".to_string()),
+            ("screen-selection-background", "ansi_cyan".to_string()),
+            ("screen-selection-foreground", "ansi_black".to_string()),
+        ];
+        let mut colors: HashMap<String, String> = entries
+            .into_iter()
+            .map(|(k, v)| (k.to_string(), v))
+            .collect();
+        const SHADE_COLORS: [&str; 13] = [
+            "primary",
+            "secondary",
+            "primary-background",
+            "secondary-background",
+            "background",
+            "foreground",
+            "panel",
+            "boost",
+            "surface",
+            "warning",
+            "error",
+            "success",
+            "accent",
+        ];
+        for shade in 1..=NUMBER_OF_SHADES {
+            for color in SHADE_COLORS {
+                let value = colors.get(color).cloned().unwrap_or_default();
+                colors.insert(format!("{color}-lighten-{shade}"), value.clone());
+                colors.insert(format!("{color}-darken-{shade}"), value);
+            }
+        }
+        colors.extend(self.variables.iter().map(|(k, v)| (k.clone(), v.clone())));
+        colors
     }
 
     pub fn by_name(name: &str) -> Option<Theme> {

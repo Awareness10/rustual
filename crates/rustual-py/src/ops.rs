@@ -520,6 +520,19 @@ pub fn set_app_text(which: &str, value: &str) -> PyResult<()> {
     })
 }
 
+/// `Screen.title` / `Screen.sub_title` of the screen `node` (`None`: the app's).
+#[pyfunction]
+#[pyo3(signature = (node, which, value))]
+pub fn set_screen_text(node: Node, which: &str, value: Option<&str>) -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.for_node(n(node), |c| match which {
+            "title" => c.set_screen_title(value),
+            _ => c.set_screen_sub_title(value),
+        });
+        Ok(())
+    })
+}
+
 #[pyfunction]
 pub fn set_theme(name: &str) -> PyResult<bool> {
     with_ctx(|ctx| Ok(ctx.set_theme(name)))
@@ -533,6 +546,22 @@ pub fn theme() -> PyResult<String> {
 #[pyfunction]
 pub fn theme_names() -> PyResult<Vec<String>> {
     with_ctx(|ctx| Ok(ctx.theme_names()))
+}
+
+/// `App.native_ansi_color`.
+#[pyfunction]
+pub fn native_ansi_color() -> PyResult<bool> {
+    with_ctx(|ctx| Ok(ctx.native_ansi_color()))
+}
+
+/// Set `App.ansi_color` (`None`: follow the theme).
+#[pyfunction]
+#[pyo3(signature = (ansi_color))]
+pub fn set_ansi_color(ansi_color: Option<bool>) -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.set_ansi_color(ansi_color);
+        Ok(())
+    })
 }
 
 #[pyfunction]
@@ -772,5 +801,215 @@ pub fn builtin_theme(py: Python<'_>, name: &str) -> PyResult<Option<Py<pyo3::typ
     d.set_item("luminosity_spread", t.luminosity_spread)?;
     d.set_item("text_alpha", t.text_alpha)?;
     d.set_item("variables", t.variables.clone())?;
+    d.set_item("ansi", t.ansi)?;
     Ok(Some(d.unbind()))
+}
+
+/// Names of the built-in themes (`BUILTIN_THEMES`).
+#[pyfunction]
+pub fn builtin_theme_names() -> Vec<String> {
+    rustual::css::Theme::builtin()
+        .into_iter()
+        .map(|t| t.name)
+        .collect()
+}
+
+/// The CSS variables a theme generates (`ColorSystem.generate()`).
+#[pyfunction]
+pub fn theme_variables(
+    spec: crate::runner::ThemeSpec,
+) -> std::collections::HashMap<String, String> {
+    spec.into_theme().to_variables()
+}
+
+/// `(color, bgcolor, {attribute: on})` of a style, colors as Rich color strings.
+type RichStyleParts = (
+    Option<String>,
+    Option<String>,
+    std::collections::HashMap<&'static str, bool>,
+);
+
+/// Colors and attributes of a widget, or one of its component classes (for `rich_style` /
+/// `get_component_rich_style`): `(color, bgcolor, {attr: bool})`, colors as Rich color strings.
+#[pyfunction]
+#[pyo3(signature = (node, component=None, partial=false))]
+pub fn widget_style(
+    node: Node,
+    component: Option<&str>,
+    partial: bool,
+) -> PyResult<RichStyleParts> {
+    with_ctx(|ctx| {
+        let s = ctx.widget_style(n(node), component, partial);
+        let color = |c: Option<rustual::Color>| {
+            c.filter(|c| !c.is_transparent())
+                .map(|c| match c.ansi_name() {
+                    Some(name) => name.trim_start_matches("ansi_").to_string(),
+                    None => c.with_alpha(1.0).hex(),
+                })
+        };
+        let mut attrs = std::collections::HashMap::new();
+        for (name, value) in [
+            ("bold", s.bold),
+            ("dim", s.dim),
+            ("italic", s.italic),
+            ("underline", s.underline),
+            ("strike", s.strike),
+            ("reverse", s.reverse),
+            ("blink", s.blink),
+        ] {
+            if let Some(v) = value {
+                attrs.insert(name, v);
+            }
+        }
+        Ok((color(s.fg), color(s.bg), attrs))
+    })
+}
+
+/// `DOMNode.bind`: add a binding to `node` at runtime.
+#[pyfunction]
+pub fn bind(node: Node, binding: &Bound<'_, PyAny>) -> PyResult<()> {
+    let binding = crate::adapter::binding_from_py(binding)?;
+    with_ctx(|ctx| {
+        ctx.for_node(n(node), |c| c.bind(binding));
+        Ok(())
+    })
+}
+
+/// `App.clear_notifications`.
+#[pyfunction]
+pub fn clear_notifications() -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.clear_notifications();
+        Ok(())
+    })
+}
+
+/// `App.set_keymap` (`replace`) / `App.update_keymap`: binding id → keys.
+#[pyfunction]
+pub fn set_keymap(
+    keymap: std::collections::HashMap<String, String>,
+    replace: bool,
+) -> PyResult<()> {
+    with_ctx(|ctx| {
+        if replace {
+            ctx.set_keymap(keymap);
+        } else {
+            ctx.update_keymap(keymap);
+        }
+        Ok(())
+    })
+}
+
+/// Footer-style display of a key (`ctrl+s` → `^s`).
+#[pyfunction]
+pub fn format_key(key: &str) -> String {
+    rustual::binding::format_key(key)
+}
+
+/// Show / hide the help panel (`App.action_show_help_panel` / `action_hide_help_panel`).
+#[pyfunction]
+pub fn help_panel(show: bool) -> PyResult<()> {
+    with_ctx(|ctx| {
+        if show {
+            ctx.show_help_panel();
+        } else {
+            ctx.hide_help_panel();
+        }
+        Ok(())
+    })
+}
+
+/// `Matcher.match` / `highlight`: fuzzy score (the Textual scale) and matched char offsets.
+#[pyfunction]
+pub fn fuzzy_match(query: &str, candidate: &str, case_sensitive: bool) -> (f64, Vec<usize>) {
+    rustual::command::FuzzySearch::new(case_sensitive).match_offsets(query, candidate)
+}
+
+/// The built-in system commands for the active screen: `(title, help, action)`.
+#[pyfunction]
+pub fn system_commands() -> PyResult<Vec<(String, String, String)>> {
+    with_ctx(|ctx| {
+        Ok(ctx
+            .system_commands()
+            .into_iter()
+            .filter_map(|c| match c.action {
+                rustual::command::CommandAction::Action(a) => Some((c.name, c.help, a)),
+                rustual::command::CommandAction::Callback(_) => None,
+            })
+            .collect())
+    })
+}
+
+/// Deliver provider hits to an open palette:
+/// `(score or None for discovery, display markup, text, help, callback id)`.
+#[pyfunction]
+pub fn palette_add_hits(
+    palette: Node,
+    generation: u64,
+    hits: Vec<(Option<f64>, String, String, String, u64)>,
+) -> PyResult<()> {
+    let commands = hits
+        .into_iter()
+        .map(|(score, display, text, help, id)| {
+            let mut c =
+                rustual::Command::new(&text, &help, &format!("app._rs_palette_callback({id})"))
+                    .display(rustual::Text::from_markup(&display));
+            if let Some(s) = score {
+                c = c.score(s);
+            }
+            c
+        })
+        .collect();
+    with_ctx(|ctx| {
+        ctx.add_command_hits(n(palette), generation, commands);
+        Ok(())
+    })
+}
+
+/// Open a command palette searching the app's providers (`builtin`: also the Rust-side
+/// commands, i.e. widgets' `commands()`).
+#[pyfunction]
+pub fn open_command_palette(placeholder: &str, builtin: bool) -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.open_command_palette_searching(Vec::new(), placeholder, builtin);
+        Ok(())
+    })
+}
+
+/// The plain text of Textual markup.
+#[pyfunction]
+pub fn markup_plain(markup: &str) -> String {
+    rustual::Text::from_markup(markup).plain_text()
+}
+
+/// Named colors (`COLOR_NAME_TO_RGB`): name → (r, g, b) or (r, g, b, a) when translucent.
+#[pyfunction]
+pub fn color_names() -> Vec<(&'static str, Vec<u8>)> {
+    rustual::Color::named_colors()
+        .map(|(name, (r, g, b, a))| {
+            (
+                name,
+                if a == 255 {
+                    vec![r, g, b]
+                } else {
+                    vec![r, g, b, a]
+                },
+            )
+        })
+        .collect()
+}
+
+/// `Screen.HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS` of the screen `node` (`None`: the
+/// app's).
+#[pyfunction]
+#[pyo3(signature = (node, horizontal, vertical))]
+pub fn set_screen_breakpoints(
+    node: Node,
+    horizontal: Option<Vec<(i32, String)>>,
+    vertical: Option<Vec<(i32, String)>>,
+) -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.for_node(n(node), |c| c.set_screen_breakpoints(horizontal, vertical));
+        Ok(())
+    })
 }

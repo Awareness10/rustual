@@ -216,5 +216,8 @@ impl Widget for KeyPanel {
             .and_then(|p| ctx.dom().get(p))
             .is_some_and(|n| n.is_type("HelpPanel"));
         ctx.set_class(!embedded, "-docked");
+        // ANSI scrollbar colors under native ANSI colors (Textual: `app.ansi_color`).
+        let ansi = ctx.native_ansi_color();
+        ctx.set_class(ansi, "-ansi-scrollbar");
     }
 }

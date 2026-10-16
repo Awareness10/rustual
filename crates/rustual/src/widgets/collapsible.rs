@@ -58,6 +58,14 @@ Collapsible {
         display: none;
     }
 }
+
+/* ANSI themes (Textual `:ansi`). */
+Collapsible {
+    &:ansi {
+        border-top: hkey ansi_blue;
+        background: $panel;
+    }
+}
 "#;
 
 const CONTENTS_CSS: &str = r#"

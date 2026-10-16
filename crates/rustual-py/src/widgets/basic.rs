@@ -102,6 +102,9 @@ pub(crate) fn register(r: &mut Registry) {
         if let Some(icon) = kw::<String>(k, "icon")? {
             h = h.icon(&icon);
         }
+        if let Some(format) = kw::<String>(k, "time_format")? {
+            h = h.time_format(&format);
+        }
         Ok(Box::new(h))
     });
     r.kind("Footer", |_, k, _| {
@@ -114,6 +117,18 @@ pub(crate) fn register(r: &mut Registry) {
 
     r.getter(get).setter(set).caller(call);
 
+    r.message::<rustual::events::DescendantFocus>("on_descendant_focus", |py, _m: &Message| {
+        new_py(py, "DescendantFocus", &PyDict::new(py))
+    });
+    r.message::<rustual::events::DescendantBlur>("on_descendant_blur", |py, _m: &Message| {
+        new_py(py, "DescendantBlur", &PyDict::new(py))
+    });
+    r.message::<rustual::events::ScreenResume>("on_screen_resume", |py, _m: &Message| {
+        new_py(py, "ScreenResume", &PyDict::new(py))
+    });
+    r.message::<rustual::events::ScreenSuspend>("on_screen_suspend", |py, _m: &Message| {
+        new_py(py, "ScreenSuspend", &PyDict::new(py))
+    });
     r.message::<button::Pressed>("on_button_pressed", |py, m: &Message| {
         let _p = m.get::<button::Pressed>().expect("Pressed");
         new_py(py, "Button.Pressed", &PyDict::new(py))
@@ -207,6 +222,7 @@ fn get(py: Python<'_>, wd: &dyn Widget, attr: &str) -> Option<PyResult<Py<PyAny>
     if let Some(h) = as_ref::<w::Header>(wd) {
         return match attr {
             "tall" => Some(to_py(py, h.is_tall())),
+            "time_format" => Some(to_py(py, h.get_time_format())),
             _ => None,
         };
     }
@@ -218,6 +234,7 @@ fn static_text(s: &w::Static) -> String {
         w::StaticContent::Markup(m) => m.clone(),
         w::StaticContent::Plain(p) => p.clone(),
         w::StaticContent::Text(t) => t.plain_text(),
+        w::StaticContent::Renderable(_) => s.plain_text(),
     }
 }
 
@@ -263,6 +280,7 @@ fn set(
     if let Some(h) = as_mut::<w::Header>(wd) {
         return match attr {
             "tall" => Some(v.extract::<bool>().map(|t| h.set_tall(t, ctx))),
+            "time_format" => Some(v.extract::<String>().map(|f| h.set_time_format(&f, ctx))),
             _ => None,
         };
     }

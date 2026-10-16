@@ -87,6 +87,18 @@ SelectCurrent {
         background: transparent;
     }
 }
+
+/* ANSI themes (Textual `:ansi`). */
+SelectCurrent {
+    &:ansi {
+        border: tall $border-blurred;
+        color: ansi_default;
+        background: ansi_default;
+        &:focus {
+            border: tall $border;
+        }
+    }
+}
 "#;
 
 const OVERLAY_CSS: &str = r#"

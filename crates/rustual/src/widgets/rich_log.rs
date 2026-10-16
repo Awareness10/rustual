@@ -3,9 +3,13 @@
 //! Lines are [`Text`] (or markup when `markup(true)`); with `wrap(true)` long lines are
 //! word-wrapped to the widget width (at least `min_width`). Writing needs the widget's [`Ctx`]:
 //! `ctx.with::<RichLog, _>("#log", |log, ctx| log.write("[b]hi[/]", ctx))`.
+//!
+//! [`RichLog::write_renderable`] writes a Rich-style renderable (a table, panel, syntax, ...):
+//! it is rendered once, at write time, like Textual's `RichLog.write`.
 
 use crate::binding::Binding;
 use crate::context::Ctx;
+use crate::renderables::{measure, render_lines, IntoRenderable, RenderOptions};
 use crate::widget::{Content, RenderCtx, Widget};
 use crate::widgets::log::{is_vertical_scroll_end, process_line, scroll_end};
 use crate::widgets::pretty;
@@ -42,11 +46,19 @@ struct WrapCache {
     widest: i32,
 }
 
+/// A logical line of the log.
+#[derive(Debug, Clone)]
+struct Entry {
+    line: Strip,
+    /// Re-wrapped to the widget width when wrapping is on (`false` for pre-rendered lines).
+    wrap: bool,
+}
+
 /// A log of styled text lines.
 #[derive(Debug, Clone)]
 pub struct RichLog {
     /// Logical lines (already split on newlines, tabs expanded).
-    entries: VecDeque<Strip>,
+    entries: VecDeque<Entry>,
     /// Absolute index of `entries[0]` (grows as old lines are pruned).
     start_entry: usize,
     widest: i32,
@@ -179,7 +191,7 @@ impl RichLog {
 
     /// Logical lines as plain text.
     pub fn plain_lines(&self) -> Vec<String> {
-        self.entries.iter().map(Strip::plain_text).collect()
+        self.entries.iter().map(|e| e.line.plain_text()).collect()
     }
 
     /// Write a string (markup if `markup(true)`, else plain; highlighted if `highlight(true)`).
@@ -213,12 +225,86 @@ impl RichLog {
     pub fn push_text(&mut self, text: Text) {
         let lines = text.lines();
         if lines.is_empty() {
-            self.entries.push_back(Strip::default());
+            self.entries.push_back(Entry {
+                line: Strip::default(),
+                wrap: true,
+            });
         }
         for line in lines {
             let line = expand_strip(&line);
             self.widest = self.widest.max(line.cell_len());
-            self.entries.push_back(line);
+            self.entries.push_back(Entry { line, wrap: true });
+        }
+        self.prune();
+    }
+
+    /// Write a Rich-style renderable ([`crate::renderables`]). It is rendered once, at its
+    /// measured width, shrunk to fit the content region and at least `min_width` wide
+    /// (Textual's `RichLog.write` defaults: `expand=False, shrink=True`).
+    pub fn write_renderable(&mut self, renderable: impl IntoRenderable, ctx: &mut Ctx) {
+        self.write_renderable_with(renderable, None, false, None, ctx)
+    }
+
+    /// [`RichLog::write_renderable`] with Textual's options: a fixed `width` (ignores
+    /// `expand`, the region and `min_width`), `expand` to the region width, and `scroll_end`
+    /// overriding `auto_scroll`.
+    pub fn write_renderable_with(
+        &mut self,
+        renderable: impl IntoRenderable,
+        width: Option<i32>,
+        expand: bool,
+        scroll_end: Option<bool>,
+        ctx: &mut Ctx,
+    ) {
+        let region_width = ctx.content_region().width;
+        let console_width = ctx.app_size().width;
+        self.push_renderable(renderable, width, expand, region_width, console_width);
+        if scroll_end.unwrap_or(self.auto_scroll) {
+            self::scroll_end(ctx);
+        }
+    }
+
+    /// Append a renderable without a ctx (no auto-scroll). It is measured within
+    /// `console_width` (the terminal width, as Textual's console does) and fitted to a content
+    /// region `region_width` wide (`0`: not laid out yet, so not fitted).
+    pub fn push_renderable(
+        &mut self,
+        renderable: impl IntoRenderable,
+        width: Option<i32>,
+        expand: bool,
+        region_width: i32,
+        console_width: i32,
+    ) {
+        let renderable = renderable.into_renderable();
+        let render_width = match width {
+            Some(w) => w,
+            None => {
+                let console_width = console_width.max(1);
+                let measured =
+                    measure(renderable.as_ref(), &RenderOptions::new(console_width)).maximum;
+                let mut w = measured;
+                if region_width > 0 {
+                    if expand && measured < region_width {
+                        w = region_width;
+                    }
+                    if measured > region_width {
+                        w = region_width;
+                    }
+                }
+                w.max(self.min_width)
+            }
+        }
+        .max(1);
+        let lines = render_lines(renderable.as_ref(), &RenderOptions::new(render_width));
+        if lines.is_empty() {
+            self.entries.push_back(Entry {
+                line: Strip::blank(render_width, Default::default()),
+                wrap: false,
+            });
+        }
+        for line in lines {
+            self.widest = self.widest.max(line.cell_len());
+            self.entries.push_back(Entry { line, wrap: false });
         }
         self.prune();
     }
@@ -274,9 +360,15 @@ impl RichLog {
         let end = self.start_entry + self.entries.len();
         while cache.next_entry < end {
             let abs = cache.next_entry;
-            let strip = &self.entries[abs - self.start_entry];
+            let entry = &self.entries[abs - self.start_entry];
+            if !entry.wrap {
+                cache.widest = cache.widest.max(entry.line.cell_len());
+                cache.lines.push_back((abs, entry.line.clone()));
+                cache.next_entry += 1;
+                continue;
+            }
             let text = Text {
-                spans: strip.spans.clone(),
+                spans: entry.line.spans.clone(),
             };
             let wrapped = text.wrap(width, Justify::Left, TextOverflow::Fold, false);
             if wrapped.is_empty() {
@@ -386,10 +478,10 @@ impl Widget for RichLog {
         } else {
             for y in 0..height.max(0) {
                 let idx = (off.y + y) as usize;
-                let Some(line) = self.entries.get(idx) else {
+                let Some(entry) = self.entries.get(idx) else {
                     break;
                 };
-                out.push(line.crop(off.x, off.x + width));
+                out.push(entry.line.crop(off.x, off.x + width));
             }
         }
         Content::Lines(out)

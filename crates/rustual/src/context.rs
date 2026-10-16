@@ -489,6 +489,83 @@ impl<'a> Ctx<'a> {
         self.app.dirty = true;
     }
 
+    /// Remove every notification (Textual `App.clear_notifications`).
+    pub fn clear_notifications(&mut self) {
+        self.app.notifications.clear();
+        crate::widgets::toast::sync_all_racks(self);
+        self.app.dirty = true;
+    }
+
+    /// Add a binding to this widget at runtime (Textual `DOMNode.bind`); it comes after the
+    /// widget's own [`Widget::bindings`].
+    pub fn bind(&mut self, binding: crate::binding::Binding) {
+        if let Some(n) = self.app.dom.get_mut(self.node) {
+            n.extra_bindings.push(binding);
+            self.app.dirty = true;
+        }
+    }
+
+    /// The text style (colors and attributes) of widget `id` (Textual `Widget.rich_style`), or of
+    /// one of its component classes (`get_component_rich_style`). A `partial` component style has
+    /// only what the component's own rules set (nothing inherited from the widget).
+    pub fn widget_style(
+        &self,
+        id: NodeId,
+        component: Option<&str>,
+        partial: bool,
+    ) -> rustual_render::Style {
+        let rc = crate::widget::RenderCtx::new(&self.app.dom, &self.app.env, id, Size::new(1, 1));
+        match component {
+            Some(class) if partial => rc.component_style_partial(class),
+            Some(class) => {
+                // Like Textual's `rich_style`, a component without its own background is drawn
+                // over the widget's.
+                let mut style = rc.component_style(class);
+                style.bg = style.bg.or(Some(rc.background()));
+                style
+            }
+            None => rc.base_style(),
+        }
+    }
+
+    /// Breakpoints of this widget's screen, replacing the app's (`None`: use the app's list;
+    /// see [`App::horizontal_breakpoints`](crate::App::horizontal_breakpoints)).
+    pub fn set_screen_breakpoints(
+        &mut self,
+        horizontal: Option<Vec<(i32, String)>>,
+        vertical: Option<Vec<(i32, String)>>,
+    ) {
+        if let Some(screen) = self.app.dom.screen_of(self.node) {
+            self.app.dom.screen_breakpoints.insert(
+                screen,
+                crate::app::Breakpoints {
+                    horizontal,
+                    vertical,
+                },
+            );
+            self.app.dirty = true;
+        }
+    }
+
+    /// Set the title of this widget's screen, shown by the header instead of the app's
+    /// (`None` restores the app's; Textual `Screen.title`).
+    pub fn set_screen_title(&mut self, title: Option<&str>) {
+        if let Some(screen) = self.app.dom.screen_of(self.node) {
+            let entry = self.app.dom.screen_titles.entry(screen).or_default();
+            entry.title = title.map(str::to_string);
+            self.app.dirty = true;
+        }
+    }
+
+    /// Set the sub-title of this widget's screen (see [`Ctx::set_screen_title`]).
+    pub fn set_screen_sub_title(&mut self, sub_title: Option<&str>) {
+        if let Some(screen) = self.app.dom.screen_of(self.node) {
+            let entry = self.app.dom.screen_titles.entry(screen).or_default();
+            entry.sub_title = sub_title.map(str::to_string);
+            self.app.dirty = true;
+        }
+    }
+
     /// Add (or replace) app-level CSS at runtime under `key` (e.g. a screen's `CSS`).
     /// Returns the parse errors.
     pub fn add_css(&mut self, key: &str, css: &str) -> Vec<String> {
@@ -542,6 +619,22 @@ impl<'a> Ctx<'a> {
 
     pub fn is_dark(&self) -> bool {
         self.app.dom.dark
+    }
+
+    /// Whether ANSI colors are written natively (`App.native_ansi_color`; `:ansi` matches).
+    pub fn native_ansi_color(&self) -> bool {
+        self.app.dom.ansi
+    }
+
+    /// Set `App.ansi_color`: `Some(true)` native ANSI colors, `Some(false)` truecolor, `None`
+    /// the theme's choice.
+    pub fn set_ansi_color(&mut self, ansi_color: Option<bool>) {
+        self.app.set_ansi_color(ansi_color);
+    }
+
+    /// Whether colors are removed (`NO_COLOR`; `:nocolor` matches).
+    pub fn no_color(&self) -> bool {
+        self.app.no_color
     }
 
     /// Push a screen; this widget receives the dismissal result as a message.

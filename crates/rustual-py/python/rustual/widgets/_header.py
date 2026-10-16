@@ -22,7 +22,7 @@ class Header(Widget):
         time_format: str | None = None,
     ) -> None:
         super().__init__(name=name, id=id, classes=classes)
-        self._rs_kw = {"show_clock": show_clock, "icon": icon}
+        self._rs_kw = {"show_clock": show_clock, "icon": icon, "time_format": time_format}
 
     @property
     def tall(self) -> bool:
@@ -31,6 +31,15 @@ class Header(Widget):
     @tall.setter
     def tall(self, value: bool) -> None:
         self._native_set("tall", bool(value))
+
+    @property
+    def time_format(self) -> str:
+        """The clock's strftime format (default ``%X``)."""
+        return self._native_get("time_format") or "%X"
+
+    @time_format.setter
+    def time_format(self, value: str) -> None:
+        self._native_set("time_format", str(value))
 
 
 _NATIVE_CLASSES["Header"] = Header

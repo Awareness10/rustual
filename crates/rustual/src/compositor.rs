@@ -23,10 +23,10 @@ use crate::dom::{Dom, Node, NodeId};
 use crate::layout::Arrangement;
 use crate::scrollbar;
 use crate::widget::{style_from_styles, Content, RenderCtx, RenderEnv};
-use rustual_css::{AlignH, AlignV, BorderEdge, ColorValue, Styles, TextAlign, Visibility};
+use rustual_css::{AlignH, AlignV, BorderEdge, ColorValue, Hatch, Styles, TextAlign, Visibility};
 use rustual_render::border::BorderCellStyle;
 use rustual_render::{
-    BorderKind, Canvas, Cell, Color, Justify, Region, Size, Strip, Style, Text, TextOverflow,
+    Attrs, BorderKind, Canvas, Cell, Color, Justify, Region, Size, Strip, Style, Text, TextOverflow,
 };
 
 pub fn render(dom: &Dom, env: &RenderEnv, layers: &[(NodeId, &Arrangement)], size: Size) -> Canvas {
@@ -140,8 +140,17 @@ fn paint_node(canvas: &mut Canvas, dom: &Dom, env: &RenderEnv, id: NodeId, node:
     );
     paint_labels(canvas, dom, env, id, node, inner_bg, outer_bg, fg, clip);
 
-    // 3. content
+    // 3. content (+ hatch over its blank cells)
     paint_content(canvas, dom, env, id, node, clip);
+    if let Some(hatch) = styles.get_hatch() {
+        paint_hatch(
+            canvas,
+            hatch,
+            region.shrink(styles.border_spacing()),
+            clip,
+            inner_bg,
+        );
+    }
 
     // 4. scrollbars
     paint_scrollbars(canvas, env, id, node, clip, inner_bg);
@@ -168,6 +177,29 @@ fn paint_node(canvas: &mut Canvas, dom: &Dom, env: &RenderEnv, id: NodeId, node:
                     c.bg = base.blend(c.bg, opacity);
                 }
                 i += 1;
+            }
+        }
+    }
+}
+
+/// `hatch`: draw blank cells of the padding box as the hatch character (Textual `apply_hatch`:
+/// every run of spaces, including those between words, in `background + color` over the
+/// widget's background). Children paint afterwards, so they cover it.
+fn paint_hatch(canvas: &mut Canvas, hatch: Hatch, area: Region, clip: Region, bg: Color) {
+    let area = area.intersection(&clip);
+    let fg = bg.composite(hatch.color);
+    let mut symbol = [0u8; 4];
+    let symbol: &str = hatch.character.encode_utf8(&mut symbol);
+    for y in area.y..area.bottom() {
+        for x in area.x..area.right() {
+            if let Some(c) = canvas.get_mut(x, y) {
+                if c.symbol == " " {
+                    c.symbol.replace_range(.., symbol);
+                    c.fg = fg;
+                    c.bg = bg;
+                    c.attrs = Attrs::NONE;
+                    c.link = None;
+                }
             }
         }
     }
@@ -236,9 +268,20 @@ fn border_cell_style(loc: BorderCellStyle, color: Color, inner: Color, outer: Co
         // 1: outer + style
         BorderCellStyle::Outer => Style::new().fg(outer.composite(color)).bg(outer),
         // 2: Style(outer.bg, inner.fg, reverse) → visual fg = outer bg, visual bg = border color
-        BorderCellStyle::OuterReverse => Style::new().fg(outer).bg(inner.composite(color)),
+        BorderCellStyle::OuterReverse => reverse_cell(outer, inner.composite(color)),
         // 3: Style(inner.bg, outer.fg, reverse) → visual fg = inner bg, visual bg = border color
-        BorderCellStyle::Reverse => Style::new().fg(inner).bg(outer.composite(color)),
+        BorderCellStyle::Reverse => reverse_cell(inner, outer.composite(color)),
+    }
+}
+
+/// A cell showing the background color `bg` as text on `border`. RGB colors are swapped here;
+/// ANSI colors keep their slots and the terminal reverses them (as in Textual), because the
+/// terminal's default color differs between foreground and background.
+fn reverse_cell(bg: Color, border: Color) -> Style {
+    if bg.ansi.is_some() || border.ansi.is_some() {
+        Style::new().fg(border).bg(bg).reverse()
+    } else {
+        Style::new().fg(bg).bg(border)
     }
 }
 

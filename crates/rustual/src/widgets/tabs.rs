@@ -38,6 +38,16 @@ Underline {
         background: $foreground 10%;
     }
 }
+
+/* ANSI themes (Textual `:ansi`). */
+Underline {
+    &:ansi {
+        & > .underline--bar {
+            color: $block-cursor-background;
+            background: $border-blurred;
+        }
+    }
+}
 "#;
 
 const TAB_CSS: &str = r#"
@@ -61,6 +71,16 @@ Tab {
     }
     &.-hidden {
         display: none;
+    }
+}
+
+/* ANSI themes (Textual `:ansi`). */
+Tab {
+    &:ansi {
+        text-style: dim;
+        &.-active {
+            text-style: not dim bold;
+        }
     }
 }
 "#;

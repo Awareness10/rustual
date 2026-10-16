@@ -16,9 +16,11 @@ class Content:
     def from_markup(cls, markup: str, **variables: Any) -> Content:
         if variables:
             markup = markup.format(**variables)
+        from ._bridge import _native
+
         content = cls.__new__(cls)
         content._markup = markup
-        content._plain = markup
+        content._plain = _native.markup_plain(markup)
         return content
 
     @property
