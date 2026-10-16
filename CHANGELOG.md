@@ -7,6 +7,15 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+### Added
+- `layout: stream` (Textual's stream layout for long lists: full-width, auto-height children);
+  child regions match Textual 8.2.8 exactly. Python `Widget.virtual_size`.
+
+### Fixed
+- The Python `Pilot` (`press`, `click`, `pause`, ...) could return while an animation such as
+  smooth scrolling was still running (when frames were fast); it now waits for animations, like
+  Textual's.
+
 ## 0.4.0 - 2026-10-16
 
 ### Added

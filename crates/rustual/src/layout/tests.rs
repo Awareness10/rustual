@@ -1139,3 +1139,120 @@ fn screen_padding_and_border() {
     assert_eq!(t.l(s).content_region, Region::new(3, 2, 74, 20));
     assert_eq!(t.r(a), Region::new(3, 2, 74, 20));
 }
+
+// ---------------------------------------------------------------- stream
+
+/// `layout: stream` (values cross-checked against Textual 8.2.8 with the same tree).
+#[test]
+fn stream_layout_children_are_full_width_and_auto_height() {
+    let mut t = T::new(st());
+    let stream = t.add(
+        t.screen,
+        Styles {
+            layout: Some(LayoutKind::Stream),
+            width: cells(40.0),
+            height: cells(30.0),
+            ..st()
+        },
+    );
+    // An explicit height and width are ignored: the content height (3 lines at width 40)
+    // and the full width are used.
+    let text = t.add_w(
+        stream,
+        W {
+            chars: Some(100),
+            ..W::default()
+        },
+        wh(cells(5.0), cells(10.0)),
+    );
+    // Padding and border wrap the content height; the content is narrower.
+    let mut padded_styles = Styles {
+        padding: Some(Spacing::new(1, 2, 1, 2)),
+        margin: Some(Spacing::new(0, 0, 2, 0)),
+        ..st()
+    };
+    border_all(&mut padded_styles);
+    let padded = t.add_w(
+        stream,
+        W {
+            chars: Some(68),
+            ..W::default()
+        },
+        padded_styles,
+    );
+    // Vertical margins collapse (bottom 2 vs top 1 → 2); horizontal margins shrink the width.
+    let margined = t.add_w(
+        stream,
+        sized(5, 1),
+        Styles {
+            margin: Some(Spacing::new(1, 3, 0, 4)),
+            ..st()
+        },
+    );
+    // Only cell `min-height` / `max-height` apply.
+    let maxed = t.add_w(
+        stream,
+        sized(5, 6),
+        Styles {
+            max_height: cells(2.0),
+            ..st()
+        },
+    );
+    let pct = t.add_w(
+        stream,
+        sized(5, 6),
+        Styles {
+            max_height: Some(Scalar::percent(10.0)),
+            ..st()
+        },
+    );
+    let minned = t.add_w(
+        stream,
+        sized(5, 1),
+        Styles {
+            min_height: cells(3.0),
+            offset_x: cells(7.0),
+            ..st()
+        },
+    );
+    t.layout(80, 40);
+    let origin = t.r(stream);
+    let rel = |id| {
+        let r = t.r(id);
+        (r.x - origin.x, r.y - origin.y, r.width, r.height)
+    };
+    assert_eq!(rel(text), (0, 0, 40, 3));
+    // 68 chars in 40 - 2*2 - 2 = 34 columns → 2 lines, + padding 2 + border 2.
+    assert_eq!(rel(padded), (0, 3, 40, 6));
+    assert_eq!(rel(margined), (4, 11, 33, 1));
+    assert_eq!(rel(maxed), (0, 12, 40, 2));
+    assert_eq!(rel(pct), (0, 14, 40, 6));
+    // The offset is ignored too.
+    assert_eq!(rel(minned), (0, 20, 40, 3));
+}
+
+#[test]
+fn stream_container_with_auto_height_fits_its_children() {
+    let mut t = T::new(st());
+    let stream = t.add(
+        t.screen,
+        Styles {
+            layout: Some(LayoutKind::Stream),
+            height: Some(Scalar::AUTO),
+            ..st()
+        },
+    );
+    for _ in 0..3 {
+        t.add_w(
+            stream,
+            sized(5, 2),
+            Styles {
+                margin: Some(Spacing::new(1, 0, 1, 0)),
+                ..st()
+            },
+        );
+    }
+    t.layout(30, 40);
+    // 1 + 2 + 1 + 2 + 1 + 2 + 1 (margins collapse between children).
+    assert_eq!(t.r(stream).height, 10);
+}

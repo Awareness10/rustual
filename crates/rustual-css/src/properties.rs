@@ -366,7 +366,7 @@ const LAYOUT: &[(&str, LayoutKind)] = &[
     ("vertical", LayoutKind::Vertical),
     ("horizontal", LayoutKind::Horizontal),
     ("grid", LayoutKind::Grid),
-    ("stream", LayoutKind::Vertical),
+    ("stream", LayoutKind::Stream),
 ];
 const POSITION: &[(&str, Position)] = &[
     ("relative", Position::Relative),
@@ -782,6 +782,7 @@ mod tests {
         assert_eq!(st.position, Some(Position::Absolute));
         assert_eq!(st.box_sizing, Some(BoxSizing::ContentBox));
         assert_eq!(s("layout: horizontal").layout, Some(LayoutKind::Horizontal));
+        assert_eq!(s("layout: stream").layout, Some(LayoutKind::Stream));
         assert_eq!(s("display: block").display, Some(Display::Block));
         assert!(err("display: flex").contains("display"));
         assert!(Styles::parse_inline("layout: vertical horizontal").is_err());

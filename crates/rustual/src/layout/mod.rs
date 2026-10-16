@@ -49,6 +49,7 @@ mod box_model;
 mod dock;
 mod grid;
 mod horizontal;
+mod stream;
 #[cfg(test)]
 mod tests;
 mod vertical;

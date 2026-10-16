@@ -337,6 +337,10 @@ pub fn region(node: Node, which: &str) -> PyResult<(i32, i32, i32, i32)> {
         };
         let r = match which {
             "content" => nd.layout.content_region,
+            "virtual" => {
+                let v = nd.layout.virtual_size;
+                rustual::Region::new(0, 0, v.width, v.height)
+            }
             _ => nd.layout.region,
         };
         Ok((r.x, r.y, r.width, r.height))

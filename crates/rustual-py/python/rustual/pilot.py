@@ -47,8 +47,15 @@ class Pilot(Generic[ReturnType]):
                 await asyncio.sleep(0)
             busy = self._handle.pump()
             runnable = bool(getattr(loop, "_ready", ()))
-            if (not busy and not runnable) or time.monotonic() > deadline:
+            if time.monotonic() > deadline:
                 break
+            if not busy and not runnable:
+                # Animations (e.g. smooth scrolling) advance on frame ticks, so a pump between
+                # ticks finds nothing to do: wait a frame until they finish, as Textual's
+                # Pilot waits for animations.
+                if not self._handle.animating():
+                    break
+                await asyncio.sleep(1 / 60)
         self._raise_errors()
 
     def _raise_errors(self) -> None:
