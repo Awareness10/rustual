@@ -663,12 +663,15 @@ impl AppState {
                     .position(|t| *t == "Screen")
                     .unwrap_or(pos);
                 n.type_names.insert(pos, "ModalScreen");
-                self.env.stylesheet.add_source(
-                    "default:ModalScreen",
-                    crate::screen::MODAL_SCREEN_CSS,
-                    Origin::Default,
-                );
             }
+        }
+        // (Also when the widget names itself a `ModalScreen` in its `type_names`.)
+        if modal && !self.env.stylesheet.has_source("default:ModalScreen") {
+            self.env.stylesheet.add_source(
+                "default:ModalScreen",
+                crate::screen::MODAL_SCREEN_CSS,
+                Origin::Default,
+            );
         }
         if !self.env.stylesheet.has_source("default:Screen") {
             self.env.stylesheet.add_source(
@@ -1197,16 +1200,61 @@ impl AppState {
 
     /// Nodes whose bindings apply, innermost first: focused → ancestors → app root.
     fn binding_chain(&self) -> Vec<NodeId> {
-        let start = self
-            .dom
-            .focused
-            .or(self.active_screen())
-            .unwrap_or(self.root);
+        self.binding_chain_for(self.active_screen())
+    }
+
+    /// The binding chain of `screen`, from the widget focused on it (its saved focus when it
+    /// isn't the active screen).
+    fn binding_chain_for(&self, screen: Option<NodeId>) -> Vec<NodeId> {
+        let focus = if screen == self.active_screen() {
+            self.dom.focused
+        } else {
+            screen.and_then(|s| self.screen_focus.get(&s).copied())
+        };
+        let start = focus.or(screen).unwrap_or(self.root);
         let mut chain = self.dom.ancestors_with_self(start);
         if !chain.contains(&self.root) {
             chain.push(self.root);
         }
         chain
+    }
+
+    /// The chain up to (and including) a modal screen (Textual's `_modal_binding_chain`): only
+    /// priority bindings reach past a modal to the app.
+    fn modal_chain(&self, mut chain: Vec<NodeId>) -> Vec<NodeId> {
+        if let Some(i) = chain
+            .iter()
+            .position(|id| self.dom.get(*id).is_some_and(|n| n.is_modal))
+        {
+            chain.truncate(i + 1);
+        }
+        chain
+    }
+
+    /// The bindings of each node in `chain` (innermost first), without the keys that a node
+    /// nearer the focus would consume itself (Textual's `Screen._binding_chain` filtering with
+    /// `check_consume_key`): with an input focused, a printable-key binding on the app neither
+    /// shows in the footer nor runs.
+    fn chain_bindings(&self, chain: &[NodeId]) -> Vec<(NodeId, Vec<Binding>)> {
+        let consumes = |node: NodeId, key: &str| {
+            self.dom
+                .get(node)
+                .and_then(|n| n.widget())
+                .is_some_and(|w| w.check_consume_key(key, crate::binding::key_to_character(key)))
+        };
+        let mut result: Vec<(NodeId, Vec<Binding>)> = Vec::with_capacity(chain.len());
+        for &id in chain {
+            let mut bindings = self.node_bindings(id);
+            if !result.is_empty() {
+                bindings.retain_mut(|b| {
+                    b.keys
+                        .retain(|k| !result.iter().any(|(inner, _)| consumes(*inner, k)));
+                    !b.keys.is_empty()
+                });
+            }
+            result.push((id, bindings));
+        }
+        result
     }
 
     fn node_bindings(&self, id: NodeId) -> Vec<Binding> {
@@ -1219,8 +1267,9 @@ impl AppState {
         if let Some(n) = self.dom.get(id) {
             b.extend(n.extra_bindings.iter().cloned());
         }
-        // Built-in bindings are defaults: a key the widget binds itself replaces them (as a
-        // subclass's `BINDINGS` replace the base class's in Textual).
+        // Built-in bindings are defaults, listed first: a key the widget binds itself replaces
+        // the default in its place (as a subclass's `BINDINGS` replace the base class's in
+        // Textual, which is why a custom `ctrl+q` binding comes first in the footer).
         let mut defaults = Vec::new();
         if id == self.root {
             defaults.push(Binding::new("ctrl+q", "quit", "Quit").hidden().priority());
@@ -1234,14 +1283,25 @@ impl AppState {
             defaults
                 .push(Binding::new("shift+tab", "app.focus_previous", "Focus previous").hidden());
         }
-        for default in defaults {
-            if !b
-                .iter()
-                .any(|own| own.keys.iter().any(|k| default.keys.contains(k)))
-            {
-                b.push(default);
+        // (binding, is a default)
+        let mut merged: Vec<Option<(Binding, bool)>> =
+            defaults.into_iter().map(|d| Some((d, true))).collect();
+        for own in b {
+            let mut slot = None;
+            for (i, entry) in merged.iter_mut().enumerate() {
+                if entry.as_ref().is_some_and(|(d, is_default)| {
+                    *is_default && d.keys.iter().any(|k| own.keys.contains(k))
+                }) {
+                    *entry = None;
+                    slot.get_or_insert(i);
+                }
+            }
+            match slot {
+                Some(i) => merged[i] = Some((own, false)),
+                None => merged.push(Some((own, false))),
             }
         }
+        let mut b: Vec<Binding> = merged.into_iter().flatten().map(|(b, _)| b).collect();
         crate::binding::apply_keymap(&mut b, &self.keymap);
         b
     }
@@ -1254,12 +1314,12 @@ impl AppState {
         }
         let chain = self.binding_chain();
         // 1. priority bindings (app first, like Textual)
-        for id in chain.iter().rev() {
-            for b in self.node_bindings(*id) {
+        for (id, bindings) in self.chain_bindings(&chain).into_iter().rev() {
+            for b in bindings {
                 if b.priority
                     && b.matches(&key.key)
-                    && self.action_state(*id, &b.action) == Some(true)
-                    && self.run_action(*id, &b.action)
+                    && self.action_state(id, &b.action) == Some(true)
+                    && self.run_action(id, &b.action)
                 {
                     return;
                 }
@@ -1274,10 +1334,10 @@ impl AppState {
         if self.dispatch_event(target, Event::Key(key.clone())) == Flow::Stop {
             return;
         }
-        // 3. regular bindings along the chain
-        let chain = self.binding_chain();
-        for id in chain {
-            for b in self.node_bindings(id) {
+        // 3. regular bindings along the chain (stopping at a modal screen)
+        let chain = self.modal_chain(self.binding_chain());
+        for (id, bindings) in self.chain_bindings(&chain) {
+            for b in bindings {
                 if !b.priority
                     && b.matches(&key.key)
                     && self.action_state(id, &b.action) == Some(true)
@@ -1607,19 +1667,38 @@ impl AppState {
         crate::transition::end_frame(&mut self.animator, &self.dom, now);
     }
 
-    /// Compute bindings shown in the footer: focus chain inner → outer, first binding per key wins.
+    /// Compute the bindings shown in footers and the key panel, for every visible screen.
     fn update_active_bindings(&mut self) {
+        let active_screen = self.active_screen();
+        let mut per_screen = HashMap::new();
+        for screen in self.visible_screens() {
+            let bindings = self.screen_bindings(Some(screen));
+            if Some(screen) == active_screen {
+                self.env.active_bindings = bindings.active.clone();
+                self.env.all_bindings = bindings.all.clone();
+            }
+            per_screen.insert(screen, bindings);
+        }
+        if active_screen.is_none() {
+            let bindings = self.screen_bindings(None);
+            self.env.active_bindings = bindings.active;
+            self.env.all_bindings = bindings.all;
+        }
+        self.env.screen_bindings = per_screen;
+    }
+
+    /// Textual's `Screen.active_bindings` (8.x): one binding per key, from the widget focused
+    /// on `screen` up to the app (or the modal screen); the first one wins, unless a later one
+    /// is a priority binding (it then takes the earlier one's place). Hidden bindings take part
+    /// too: a hidden binding near the focus hides a shown one for the same key further up.
+    fn screen_bindings(&self, screen: Option<NodeId>) -> crate::widget::ScreenBindings {
         let mut seen_all: Vec<String> = Vec::new();
-        // Textual's `Screen.active_bindings` (8.x): one binding per key, from the focused widget
-        // up to the app; the first one wins, unless a later one is a priority binding (it then
-        // takes the earlier one's place). Hidden bindings take part too: a hidden binding near
-        // the focus hides a shown one for the same key further up.
         let mut active: Vec<(String, Binding)> = Vec::new();
         let mut all_groups: Vec<Vec<Binding>> = Vec::new();
-        let chain = self.binding_chain();
-        for id in chain {
+        let chain = self.modal_chain(self.binding_chain_for(screen));
+        for (id, bindings) in self.chain_bindings(&chain) {
             let mut all_group = Vec::new();
-            for mut b in self.node_bindings(id) {
+            for mut b in bindings {
                 match self.action_state(id, &b.action) {
                     Some(false) => continue,
                     None => b.disabled = true,
@@ -1644,12 +1723,14 @@ impl AppState {
         // The footer shows them in that order (focused widget first); the key panel lists the
         // app first.
         all_groups.reverse();
-        self.env.active_bindings = active
-            .into_iter()
-            .map(|(_, b)| b)
-            .filter(|b| b.show)
-            .collect();
-        self.env.all_bindings = all_groups;
+        crate::widget::ScreenBindings {
+            active: active
+                .into_iter()
+                .map(|(_, b)| b)
+                .filter(|b| b.show)
+                .collect(),
+            all: all_groups,
+        }
     }
 
     pub(crate) fn layout(&mut self) {

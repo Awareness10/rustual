@@ -399,6 +399,7 @@ class Widget:
             "has_content_width": user_defines("get_content_width"),
             "has_content_height": user_defines("get_content_height"),
             "has_check_action": user_defines("check_action"),
+            "has_check_consume_key": user_defines("check_consume_key"),
             "bindings": [b._native() for b in collect_bindings(cls)],
             "help": cls.HELP,
         }
@@ -501,6 +502,12 @@ class Widget:
         """Return ``True`` to allow ``action``, ``False`` to hide its bindings, ``None`` to
         show them disabled. Re-evaluated on every refresh (see :meth:`refresh_bindings`)."""
         return True
+
+    def check_consume_key(self, key: str, character: str | None) -> bool:
+        """Return ``True`` if this widget may consume ``key`` itself when it (or a descendant)
+        has focus, as an input does with printable keys. Bindings for such keys further up are
+        then hidden from the footer and not run. The built-in inputs already do this."""
+        return False
 
     def refresh_bindings(self) -> None:
         native.refresh()

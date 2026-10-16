@@ -682,6 +682,11 @@ impl<T: Clone + PartialEq + Send + 'static> Widget for Select<T> {
         true
     }
 
+    /// Printable keys search the options (Textual's `type_to_search`).
+    fn check_consume_key(&self, _key: &str, character: Option<char>) -> bool {
+        character.is_some_and(crate::binding::is_printable)
+    }
+
     fn compose(&mut self) -> Vec<Child> {
         compose![SelectCurrent {
             placeholder: self.prompt.clone()

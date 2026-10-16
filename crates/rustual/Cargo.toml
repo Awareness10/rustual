@@ -25,3 +25,16 @@ chrono.workspace = true
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync", "test-util"] }
+
+# Realistic example apps: their in-file tests run with `cargo test`.
+[[example]]
+name = "tasks"
+test = true
+
+[[example]]
+name = "monitor"
+test = true
+
+[[example]]
+name = "chat"
+test = true

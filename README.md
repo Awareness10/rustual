@@ -135,7 +135,8 @@ async fn main() -> std::io::Result<()> {
 
 Or try the bundled examples: `cargo run -p rustual --example dashboard`
 (also `hello`, `form`, `table`, `navigator`, `editor`, `markdown`, `palette`, `modes`,
-`renderables`, `widgets_extra`). `ctrl+p` opens the command palette, `ctrl+q` quits.
+`renderables`, `widgets_extra`), or the larger, realistic apps `tasks` (task manager), `monitor`
+(live process monitor) and `chat` (streaming Markdown chat). `ctrl+p` opens the command palette, `ctrl+q` quits.
 
 </details>
 

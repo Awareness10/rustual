@@ -18,7 +18,7 @@ _Last updated: 2026-10-16._
 | Mouse capture / drag | ✅ | 85 | `ctx.capture_mouse/release_mouse`; drags go to the MouseDown widget; scrollbar thumb drag + track paging; no `MouseCapture`/`MouseRelease` events |
 | Focus chain, tab/shift+tab, auto-focus | ✅ | 90 | `can_focus_children`, focus on click, restore on screen pop |
 | Messages (bubbling) | ✅ | 95 | typed payloads, `Flow::Stop`, `sender_id()` |
-| Bindings & actions | ✅ | 90 | priority, namespaces `app.`/`screen.`/`focused.`, args; keymaps (`Binding::id`, `App::keymap`, `ctx.set_keymap/update_keymap`, clashing keys dropped); runtime bindings (`ctx.bind`, Textual `bind`); `check_action` (hide / disable bindings, footer dims) |
+| Bindings & actions | ✅ | 90 | priority, namespaces `app.`/`screen.`/`focused.`, args; keymaps (`Binding::id`, `App::keymap`, `ctx.set_keymap/update_keymap`, clashing keys dropped); runtime bindings (`ctx.bind`, Textual `bind`); `check_action` (hide / disable bindings, footer dims); `check_consume_key` (a focused input hides / skips printable-key bindings); modal screens stop the chain (only priority bindings reach the app) |
 | Builtin actions | ✅ | 85 | quit, bell, toggle_dark, set_theme, focus, focus_next/previous, pop_screen, push_screen/switch_screen/switch_mode('name'), maximize, minimize, screenshot, suspend_process, add/remove/toggle_class, notify, scroll_* |
 | Timers (`set_timer`, `set_interval`) | ✅ | 95 | |
 | Workers (async + blocking) | ✅ | 90 | result posted as message; `run_worker_with`/`run_blocking_with` + `WorkerOptions { name, group, exclusive }` post `worker::StateChanged` (Pending/Running/Success/Error=panic/Cancelled); `cancel_workers(group)`, `WorkerHandle::state()`; errors don't exit the app; plain `run_worker` posts no state events |
@@ -101,7 +101,7 @@ _Last updated: 2026-10-16._
 | ContentSwitcher | ✅ | 95 | |
 | Collapsible | ✅ | 95 | |
 | Header | ✅ | 95 | shows the screen's own title / sub-title when set (Textual `Screen.title`); clock in local time with a strftime `time_format` (default `%X`; changeable at runtime, Python `Header(time_format=...)` / `header.time_format`), `clock_utc_offset` pins a fixed offset; icon opens the command palette |
-| Footer | ✅ | 92 | Textual 8 order (focused widget → screen → app); `^p palette` key docked right (`show_command_palette`); click replays the key; binding groups (`Binding::group(BindingGroup)`, compact groups) |
+| Footer | ✅ | 92 | key labels as Textual's (`^q`, `del`, `shift+^p`); shows its own screen's bindings (also beneath a modal); Textual 8 order (focused widget → screen → app); `^p palette` key docked right (`show_command_palette`); click replays the key; binding groups (`Binding::group(BindingGroup)`, compact groups) |
 | Log | ✅ | 90 | |
 | RichLog | ✅ | 90 | `highlight(true)`: Rich `ReprHighlighter` port (`pretty::tokenize_text`), ANSI-theme colors at write time; `write_renderable` renders tables / panels / syntax once at write time (measured width, shrunk to the region, at least `min_width`; `write_renderable_with` for `width` / `expand`), as Textual does; no custom highlighter object |
 | ProgressBar | ✅ | 95 | ETA, indeterminate, gradients |

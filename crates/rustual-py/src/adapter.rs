@@ -31,6 +31,7 @@ pub(crate) struct ClassInfo {
     has_content_height: bool,
     has_key_methods: bool,
     has_check_action: bool,
+    has_check_consume_key: bool,
     bindings: Vec<Binding>,
     help: Option<&'static str>,
     /// Base widget CSS + Python `DEFAULT_CSS` (the base kind is fixed per class).
@@ -104,6 +105,7 @@ pub(crate) fn class_info(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Arc
         has_content_height: get("has_content_height")?.extract()?,
         has_key_methods,
         has_check_action: get("has_check_action")?.extract()?,
+        has_check_consume_key: get("has_check_consume_key")?.extract()?,
         handlers,
         bindings,
         help: help.map(leak),
@@ -528,6 +530,20 @@ impl Widget for PyWidget {
             }
         })
         .unwrap_or(Some(true))
+    }
+
+    fn check_consume_key(&self, key: &str, character: Option<char>) -> bool {
+        if !self.info.has_check_consume_key {
+            return self.base.check_consume_key(key, character);
+        }
+        call_py(|py| {
+            let r = self
+                .obj
+                .bind(py)
+                .call_method1("check_consume_key", (key, character.map(|c| c.to_string())))?;
+            r.is_truthy()
+        })
+        .unwrap_or(false)
     }
 
     fn commands(&self) -> Vec<rustual::Command> {

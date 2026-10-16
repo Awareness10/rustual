@@ -58,6 +58,16 @@ DEMOS: list[Demo] = [
         "highlighting, and `Collapsible`, `Rule`, `Placeholder` and `Link`.",
     ),
     Demo(
+        "tasks",
+        "Task manager",
+        "TasksApp",
+        "A realistic app: projects in a `ListView`, tasks in a `DataTable`, a modal form with "
+        "validation (`n` new, `e` edit), a delete confirmation, a filter (`/`), palette commands "
+        "and saving to JSON (`ctrl+s`).\n\n"
+        "*Shows:* `ModalScreen` + `push_screen` callbacks, `Binding`s shown in the `Footer`, "
+        "a command `Provider`. Runs unchanged under Textual.",
+    ),
+    Demo(
         "workers",
         "Workers",
         "WorkersApp",

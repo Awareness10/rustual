@@ -10,8 +10,26 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 ### Added
 - `layout: stream` (Textual's stream layout for long lists: full-width, auto-height children);
   child regions match Textual 8.2.8 exactly. Python `Widget.virtual_size`.
+- Realistic example apps: `tasks` (task manager with modal forms, validation, filtering, palette
+  commands, saving), `monitor` (live process monitor with sparklines, sorting, breakpoints) and
+  `chat` (a streaming Markdown chat in a `layout: stream` log), with tests run by `cargo test`.
+  Python: a `tasks` demo in the `rustual-py` launcher that also runs unchanged under Textual.
+- `Widget::check_consume_key` (Python `check_consume_key`), as in Textual: bindings for keys the
+  focused widget would consume (printable keys in `Input`, `MaskedInput`, `TextArea`, `Select`)
+  are neither shown in the footer nor run. `rustual::binding::key_to_character`.
 
 ### Fixed
+- Footer key labels match Textual (`^q`, `del`, `pgdn`, `?`, `shift+^p`, ...); `shift+a` is its
+  own key; a custom binding replaces the built-in one for the same key in place (so a shown
+  `ctrl+q` comes first, as in Textual), and binding precedence follows Textual's
+  `Screen.active_bindings`. Python subclass `BINDINGS` replace base bindings by key.
+- Modal screens stop the binding chain as in Textual: only priority bindings reach the app from
+  inside a modal (before, e.g. `e` in a dialog could run the app's `e` binding). A footer beneath a
+  modal keeps showing its own screen's bindings.
+- A modal whose `type_names` already include `ModalScreen` didn't get the translucent background.
+- `$variable` colors with `auto` values (such as `$text-muted`) in widget markup, and DataTable
+  column widths for cells with `$variable` markup.
+- `pilot.press("question_mark")` (and other named keys) now types the character, as Textual's.
 - The Python `Pilot` (`press`, `click`, `pause`, ...) could return while an animation such as
   smooth scrolling was still running (when frames were fast); it now waits for animations, like
   Textual's.

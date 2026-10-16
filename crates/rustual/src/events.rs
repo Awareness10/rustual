@@ -94,15 +94,10 @@ pub fn normalize_key(key: &str) -> String {
     out
 }
 
+/// The printable character of a key name: `"a"`, `"space"`, `"question_mark"` (as Textual's
+/// pilot does with `key_to_character`).
 fn printable_char(key: &str) -> Option<char> {
-    if key == "space" {
-        return Some(' ');
-    }
-    let mut chars = key.chars();
-    match (chars.next(), chars.next()) {
-        (Some(c), None) if !c.is_control() => Some(c),
-        _ => None,
-    }
+    crate::binding::key_to_character(key).filter(|c| crate::binding::is_printable(*c))
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

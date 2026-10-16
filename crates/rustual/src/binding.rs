@@ -189,6 +189,69 @@ impl crate::context::Ctx<'_> {
 /// key names become their character or a short alias (`question_mark` → `?`, `delete` →
 /// `del`, `enter` → `⏎`), `ctrl` becomes a `^` prefix on the key, and other modifiers stay in
 /// front: `ctrl+q` → `^q`, `ctrl+shift+p` → `shift+^p`.
+/// Key names (other than single characters) that stand for a character, from Textual's
+/// `textual.keys.key_to_character` (generated with Textual 8.2.8).
+const KEY_CHARACTERS: &[(&str, char)] = &[
+    ("ampersand", '&'),
+    ("apostrophe", '\''),
+    ("asterisk", '*'),
+    ("backspace", '\u{8}'),
+    ("circumflex_accent", '^'),
+    ("colon", ':'),
+    ("comma", ','),
+    ("commercial_at", '@'),
+    ("delete", '\u{7f}'),
+    ("dollar_sign", '$'),
+    ("equals_sign", '='),
+    ("escape", '\u{1b}'),
+    ("exclamation_mark", '!'),
+    ("full_stop", '.'),
+    ("grave_accent", '`'),
+    ("greater_than_sign", '>'),
+    ("hyphen_minus", '-'),
+    ("left_curly_bracket", '{'),
+    ("left_parenthesis", '('),
+    ("left_square_bracket", '['),
+    ("less_than_sign", '<'),
+    ("low_line", '_'),
+    ("number_sign", '#'),
+    ("percent_sign", '%'),
+    ("plus_sign", '+'),
+    ("question_mark", '?'),
+    ("quotation_mark", '"'),
+    ("reverse_solidus", '\\'),
+    ("right_curly_bracket", '}'),
+    ("right_parenthesis", ')'),
+    ("right_square_bracket", ']'),
+    ("semicolon", ';'),
+    ("space", ' '),
+    ("tab", '\t'),
+    ("tilde", '~'),
+    ("vertical_line", '|'),
+];
+
+/// The character a key produces, if any (Textual's `key_to_character`): keys with a modifier
+/// have none; a single-character key is that character; some named keys map to one (`space`,
+/// `question_mark`, …). Note that, as in Textual, some names don't (e.g. `slash`, `minus`).
+pub fn key_to_character(key: &str) -> Option<char> {
+    if key.contains('+') && key != "+" {
+        return None;
+    }
+    let mut chars = key.chars();
+    if let (Some(c), None) = (chars.next(), chars.next()) {
+        return Some(c);
+    }
+    KEY_CHARACTERS
+        .iter()
+        .find(|(name, _)| *name == key)
+        .map(|(_, c)| *c)
+}
+
+/// Whether a character is printable (Python's `str.isprintable` for one character, roughly).
+pub(crate) fn is_printable(c: char) -> bool {
+    !c.is_control()
+}
+
 pub fn format_key(key: &str) -> String {
     if key == "+" {
         return "+".into();
