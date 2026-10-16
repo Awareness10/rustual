@@ -422,6 +422,17 @@ impl<'a> RenderCtx<'a> {
         style_from_styles(&styles, self.background())
     }
 
+    /// Like [`RenderCtx::component_style`] but only with what the component's own rules set
+    /// (Textual's `partial_rich_style`).
+    pub fn component_style_partial(&self, class: &str) -> Style {
+        let virt = EitherNode::Component(ComponentNode {
+            parent: self.dom.node_ref(self.node),
+            class,
+        });
+        let styles = self.env.stylesheet.compute(virt);
+        style_from_styles(&styles, self.background())
+    }
+
     /// Text justification from `text-align`.
     pub fn justify(&self) -> Justify {
         text_align_to_justify(self.styles().get_text_align())

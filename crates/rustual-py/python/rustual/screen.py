@@ -38,6 +38,37 @@ class Screen(Widget, Generic[ScreenResultType]):
     def __init__(self, name: str | None = None, id: str | None = None, classes: str | None = None) -> None:
         super().__init__(name=name, id=id, classes=classes)
         self._result_callback: Callable[..., Any] | None = None
+        self._screen_title: str | None = self.TITLE
+        self._screen_sub_title: str | None = self.SUB_TITLE
+
+    @property
+    def title(self) -> str | None:
+        """This screen's title, shown by the header instead of ``App.title`` (``None``: the app's)."""
+        return self.__dict__.get("_screen_title", self.TITLE)
+
+    @title.setter
+    def title(self, value: str | None) -> None:
+        self._screen_title = None if value is None else str(value)
+        if self.is_mounted:
+            native.set_screen_text(self._node, "title", self._screen_title)
+
+    @property
+    def sub_title(self) -> str | None:
+        """This screen's sub-title (``None``: the app's)."""
+        return self.__dict__.get("_screen_sub_title", self.SUB_TITLE)
+
+    @sub_title.setter
+    def sub_title(self, value: str | None) -> None:
+        self._screen_sub_title = None if value is None else str(value)
+        if self.is_mounted:
+            native.set_screen_text(self._node, "sub_title", self._screen_sub_title)
+
+    def _rs_on_mount(self) -> None:
+        if self.title is not None:
+            native.set_screen_text(self._node, "title", self.title)
+        if self.sub_title is not None:
+            native.set_screen_text(self._node, "sub_title", self.sub_title)
+        super()._rs_on_mount()
 
     @property
     def is_modal(self) -> bool:
@@ -46,6 +77,21 @@ class Screen(Widget, Generic[ScreenResultType]):
     @property
     def is_current(self) -> bool:
         return self.is_mounted and native.active_screen() == self._node
+
+    @property
+    def is_active(self) -> bool:
+        """Whether this is the active (top) screen."""
+        return self.is_current
+
+    def focus_next(self, selector: Any = "*") -> Widget | None:
+        """Focus the next widget in the focus chain; returns the focused widget."""
+        native.focus_next(True)
+        return self.focused
+
+    def focus_previous(self, selector: Any = "*") -> Widget | None:
+        """Focus the previous widget in the focus chain; returns the focused widget."""
+        native.focus_next(False)
+        return self.focused
 
     @property
     def focused(self) -> Widget | None:

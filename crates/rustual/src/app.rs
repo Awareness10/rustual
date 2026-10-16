@@ -186,6 +186,8 @@ pub(crate) struct AppState {
     pub ansi_color: Option<bool>,
     /// `NO_COLOR` was set (or [`App::no_color`]).
     pub no_color: bool,
+    /// The active screen at the last layout (for `ScreenSuspend` / `ScreenResume`).
+    pub last_active_screen: Option<NodeId>,
     pub app_css: Vec<(String, String)>,
     pub css_errors: Vec<String>,
     pub mouse_down_on: Option<NodeId>,
@@ -272,6 +274,7 @@ impl App {
             theme: "textual-dark".to_string(),
             ansi_color: None,
             no_color: std::env::var_os("NO_COLOR").is_some(),
+            last_active_screen: None,
             app_css: Vec::new(),
             css_errors: Vec::new(),
             mouse_down_on: None,
@@ -685,6 +688,15 @@ impl AppState {
         }
         let screen = self.screens.pop().expect("screen");
         let pusher = self.screen_pushers.remove(&screen);
+        if self.last_active_screen == Some(screen) {
+            // Textual sends `ScreenSuspend` before the popped screen goes away.
+            self.last_active_screen = None;
+            let mut msg = Message::new(screen, None, crate::events::ScreenSuspend);
+            msg.bubble = false;
+            self.call_widget(screen, |w, ctx| {
+                w.on_message(&msg, ctx);
+            });
+        }
         if crate::screens::is_installed(self, screen) {
             crate::screens::suspend_screen(self, screen);
         } else {
@@ -777,6 +789,14 @@ impl AppState {
             self.call_widget(*n, |w, ctx| w.on_unmount(ctx));
         }
         self.dom.remove_subtree(id);
+        let dom = &self.dom;
+        let live: Vec<NodeId> = dom
+            .screen_titles
+            .keys()
+            .copied()
+            .filter(|k| dom.contains(*k))
+            .collect();
+        self.dom.screen_titles.retain(|k, _| live.contains(k));
         self.timers.retain(|t| !ids.contains(&t.node));
         self.screens.retain(|s| !ids.contains(s));
         for a in self.arrangements.values_mut() {
@@ -1074,12 +1094,24 @@ impl AppState {
                 target: old,
                 event: Event::Blur,
             });
+            if let Some(parent) = self.dom.parent(old) {
+                self.post(
+                    parent,
+                    Message::new(old, None, crate::events::DescendantBlur { widget: old }),
+                );
+            }
         }
         if let Some(new) = id {
             self.queue.push_back(Pending::Event {
                 target: new,
                 event: Event::Focus,
             });
+            if let Some(parent) = self.dom.parent(new) {
+                self.post(
+                    parent,
+                    Message::new(new, None, crate::events::DescendantFocus { widget: new }),
+                );
+            }
             self.scroll_visible_request = Some(new);
         }
         self.dirty = true;
@@ -1156,6 +1188,9 @@ impl AppState {
             .and_then(|n| n.widget())
             .map(|w| w.bindings())
             .unwrap_or_default();
+        if let Some(n) = self.dom.get(id) {
+            b.extend(n.extra_bindings.iter().cloned());
+        }
         if id == self.root {
             b.push(Binding::new("ctrl+q", "quit", "Quit").hidden().priority());
             b.push(Binding::new("ctrl+c", "quit", "Quit").hidden());
@@ -1575,6 +1610,7 @@ impl AppState {
 
     pub(crate) fn layout(&mut self) {
         self.dom.active_screen = self.active_screen();
+        self.post_screen_activation();
         self.update_styles();
         crate::screens::adjust_styles(self);
         self.update_active_bindings();
@@ -1667,6 +1703,27 @@ impl AppState {
             .is_some_and(|t| t.ansi);
         self.dom.ansi = ansi_color.unwrap_or(theme_ansi);
         self.dirty = true;
+    }
+
+    /// `ScreenSuspend` / `ScreenResume` when the active screen changed since the last layout.
+    fn post_screen_activation(&mut self) {
+        let active = self.dom.active_screen;
+        if active == self.last_active_screen {
+            return;
+        }
+        let previous = std::mem::replace(&mut self.last_active_screen, active);
+        for (target, resume) in [(previous, false), (active, true)] {
+            let Some(target) = target.filter(|t| self.dom.contains(*t)) else {
+                continue;
+            };
+            let mut msg = if resume {
+                Message::new(target, None, crate::events::ScreenResume)
+            } else {
+                Message::new(target, None, crate::events::ScreenSuspend)
+            };
+            msg.bubble = false;
+            self.post(target, msg);
+        }
     }
 
     /// Region of a node from the last layout.

@@ -98,7 +98,7 @@ fn severity_class(s: Severity) -> &'static str {
 }
 
 /// Re-sync every toast rack in the app with the current notifications.
-fn sync_all_racks(ctx: &mut Ctx) {
+pub(crate) fn sync_all_racks(ctx: &mut Ctx) {
     for rack in ctx.query("ToastRack") {
         ctx.with_id::<ToastRack, _>(rack, |r, ctx| r.sync(ctx));
     }

@@ -78,6 +78,13 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
         notify,
         set_app_text,
         set_theme,
+        set_screen_text,
+        widget_style,
+        bind,
+        clear_notifications,
+        set_keymap,
+        format_key,
+        help_panel,
         theme,
         theme_names,
         native_ansi_color,
@@ -106,6 +113,8 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
         prevent_push,
         prevent_pop,
         builtin_theme,
+        builtin_theme_names,
+        theme_variables,
     );
     Ok(())
 }

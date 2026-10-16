@@ -520,6 +520,19 @@ pub fn set_app_text(which: &str, value: &str) -> PyResult<()> {
     })
 }
 
+/// `Screen.title` / `Screen.sub_title` of the screen `node` (`None`: the app's).
+#[pyfunction]
+#[pyo3(signature = (node, which, value))]
+pub fn set_screen_text(node: Node, which: &str, value: Option<&str>) -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.for_node(n(node), |c| match which {
+            "title" => c.set_screen_title(value),
+            _ => c.set_screen_sub_title(value),
+        });
+        Ok(())
+    })
+}
+
 #[pyfunction]
 pub fn set_theme(name: &str) -> PyResult<bool> {
     with_ctx(|ctx| Ok(ctx.set_theme(name)))
@@ -790,4 +803,118 @@ pub fn builtin_theme(py: Python<'_>, name: &str) -> PyResult<Option<Py<pyo3::typ
     d.set_item("variables", t.variables.clone())?;
     d.set_item("ansi", t.ansi)?;
     Ok(Some(d.unbind()))
+}
+
+/// Names of the built-in themes (`BUILTIN_THEMES`).
+#[pyfunction]
+pub fn builtin_theme_names() -> Vec<String> {
+    rustual::css::Theme::builtin()
+        .into_iter()
+        .map(|t| t.name)
+        .collect()
+}
+
+/// The CSS variables a theme generates (`ColorSystem.generate()`).
+#[pyfunction]
+pub fn theme_variables(
+    spec: crate::runner::ThemeSpec,
+) -> std::collections::HashMap<String, String> {
+    spec.into_theme().to_variables()
+}
+
+/// `(color, bgcolor, {attribute: on})` of a style, colors as Rich color strings.
+type RichStyleParts = (
+    Option<String>,
+    Option<String>,
+    std::collections::HashMap<&'static str, bool>,
+);
+
+/// Colors and attributes of a widget, or one of its component classes (for `rich_style` /
+/// `get_component_rich_style`): `(color, bgcolor, {attr: bool})`, colors as Rich color strings.
+#[pyfunction]
+#[pyo3(signature = (node, component=None, partial=false))]
+pub fn widget_style(
+    node: Node,
+    component: Option<&str>,
+    partial: bool,
+) -> PyResult<RichStyleParts> {
+    with_ctx(|ctx| {
+        let s = ctx.widget_style(n(node), component, partial);
+        let color = |c: Option<rustual::Color>| {
+            c.filter(|c| !c.is_transparent())
+                .map(|c| match c.ansi_name() {
+                    Some(name) => name.trim_start_matches("ansi_").to_string(),
+                    None => c.with_alpha(1.0).hex(),
+                })
+        };
+        let mut attrs = std::collections::HashMap::new();
+        for (name, value) in [
+            ("bold", s.bold),
+            ("dim", s.dim),
+            ("italic", s.italic),
+            ("underline", s.underline),
+            ("strike", s.strike),
+            ("reverse", s.reverse),
+            ("blink", s.blink),
+        ] {
+            if let Some(v) = value {
+                attrs.insert(name, v);
+            }
+        }
+        Ok((color(s.fg), color(s.bg), attrs))
+    })
+}
+
+/// `DOMNode.bind`: add a binding to `node` at runtime.
+#[pyfunction]
+pub fn bind(node: Node, binding: &Bound<'_, PyAny>) -> PyResult<()> {
+    let binding = crate::adapter::binding_from_py(binding)?;
+    with_ctx(|ctx| {
+        ctx.for_node(n(node), |c| c.bind(binding));
+        Ok(())
+    })
+}
+
+/// `App.clear_notifications`.
+#[pyfunction]
+pub fn clear_notifications() -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.clear_notifications();
+        Ok(())
+    })
+}
+
+/// `App.set_keymap` (`replace`) / `App.update_keymap`: binding id → keys.
+#[pyfunction]
+pub fn set_keymap(
+    keymap: std::collections::HashMap<String, String>,
+    replace: bool,
+) -> PyResult<()> {
+    with_ctx(|ctx| {
+        if replace {
+            ctx.set_keymap(keymap);
+        } else {
+            ctx.update_keymap(keymap);
+        }
+        Ok(())
+    })
+}
+
+/// Footer-style display of a key (`ctrl+s` → `^s`).
+#[pyfunction]
+pub fn format_key(key: &str) -> String {
+    rustual::binding::format_key(key)
+}
+
+/// Show / hide the help panel (`App.action_show_help_panel` / `action_hide_help_panel`).
+#[pyfunction]
+pub fn help_panel(show: bool) -> PyResult<()> {
+    with_ctx(|ctx| {
+        if show {
+            ctx.show_help_panel();
+        } else {
+            ctx.hide_help_panel();
+        }
+        Ok(())
+    })
 }

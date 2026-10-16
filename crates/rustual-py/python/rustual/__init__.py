@@ -8,6 +8,7 @@ Port a Textual app by replacing ``textual`` with ``rustual`` in its imports::
 
 from __future__ import annotations
 
+from ._log import Logger, log
 from ._on import on
 from .worker import work
 
@@ -18,4 +19,4 @@ try:
 except Exception:  # noqa: BLE001 - not installed (e.g. running from a source tree)
     __version__ = "0.0.0"
 
-__all__ = ["on", "work", "__version__"]
+__all__ = ["Logger", "log", "on", "work", "__version__"]

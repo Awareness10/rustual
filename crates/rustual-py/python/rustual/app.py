@@ -31,6 +31,10 @@ class AppError(Exception):
     pass
 
 
+class InvalidThemeError(ValueError):
+    """Raised when setting ``App.theme`` to a theme that isn't registered."""
+
+
 def _read_css_paths(cls: type, css_path: CSSPathType) -> list[str]:
     """Read CSS files; relative paths are relative to the file defining ``cls`` (like Textual)."""
     paths = css_path if isinstance(css_path, (list, tuple)) else [css_path]
@@ -214,6 +218,40 @@ class App(Widget, Generic[ReturnType]):
     def is_running(self) -> bool:
         return self._running
 
+    @property
+    def debug(self) -> bool:
+        """Debug mode (``TEXTUAL=debug``)."""
+        return "debug" in {f.strip() for f in os.environ.get("TEXTUAL", "").split(",")}
+
+    def clear_notifications(self) -> None:
+        """Remove every notification."""
+        native.clear_notifications()
+
+    def set_keymap(self, keymap: dict[str, str]) -> None:
+        """Replace the keymap (binding id → keys, e.g. ``{"save": "ctrl+s"}``)."""
+        self._keymap = dict(keymap)
+        if self._running:
+            native.set_keymap(self._keymap, True)
+
+    def update_keymap(self, keymap: dict[str, str]) -> None:
+        """Merge entries into the keymap."""
+        self._keymap = {**getattr(self, "_keymap", {}), **keymap}
+        if self._running:
+            native.set_keymap(dict(keymap), False)
+
+    def get_key_display(self, binding: Any) -> str:
+        """How a binding's key is shown (its ``key_display``, else e.g. ``ctrl+s`` → ``^s``)."""
+        if getattr(binding, "key_display", None):
+            return binding.key_display
+        key = binding if isinstance(binding, str) else binding.key
+        return _native.format_key(key.split(",")[0].strip())
+
+    def action_show_help_panel(self) -> None:
+        native.help_panel(True)
+
+    def action_hide_help_panel(self) -> None:
+        native.help_panel(False)
+
     def call_from_thread(self, callback: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
         """Run ``callback`` on the app thread from another thread and return its result."""
 
@@ -228,6 +266,8 @@ class App(Widget, Generic[ReturnType]):
     # -- engine hooks ---------------------------------------------------------------------------
 
     def _rs_on_mount(self) -> None:
+        if getattr(self, "_keymap", None):
+            native.set_keymap(self._keymap, True)
         super()._rs_on_mount()
         from . import events
 
@@ -285,7 +325,7 @@ class App(Widget, Generic[ReturnType]):
             _context.defer(lambda: native.set_theme(name))
             return
         if not ok:
-            raise ValueError(f"unknown theme {name!r}")
+            raise InvalidThemeError(f"unknown theme {name!r}")
         self.theme_changed_signal.publish(self._themes.get(name, name))
 
     @property

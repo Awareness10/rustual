@@ -10,6 +10,7 @@ node id. Built-in widgets (``Button``, ``Input``, ...) are Python subclasses who
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import inspect
 import threading
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, ClassVar, Iterable, Iterator, TypeVar
@@ -131,8 +132,20 @@ def _stacks() -> tuple[list[list[Widget]], list[list[Widget]]]:
     return _compose.stacks, _compose.composed
 
 
+_compose_owner: contextvars.ContextVar[Any] = contextvars.ContextVar("rustual_compose_owner", default=None)
+"""The widget whose ``compose()`` is running (for ``data_bind``)."""
+
+
 def compose(node: Any) -> list[Widget]:
     """Run ``node.compose()`` and collect the widgets (supporting ``with Container():``)."""
+    owner_token = _compose_owner.set(node)
+    try:
+        return _compose(node)
+    finally:
+        _compose_owner.reset(owner_token)
+
+
+def _compose(node: Any) -> list[Widget]:
     stacks, composed_lists = _stacks()
     nodes: list[Widget] = []
     compose_stack: list[Widget] = []
@@ -426,6 +439,9 @@ class Widget:
     def _rs_on_mount(self) -> None:
         _context.flush_deferred()
         Reactive._initialize_object(self)
+        self._initialize_data_bind()
+        for binding in self.__dict__.pop("_pending_bindings", ()):
+            native.bind(self._node, binding._native())
         self._dispatch(events.Mount())
         if self.__dict__.get("_auto_refresh") and self.__dict__.get("_auto_refresh_timer") is None:
             self.auto_refresh = self.__dict__["_auto_refresh"]
@@ -1173,8 +1189,128 @@ class Widget:
 
         watch(obj, attribute_name, callback, init=init, watcher=self)
 
-    def log(self, *args: Any, **kwargs: Any) -> None:
-        """Devtools logging isn't supported; this is a no-op."""
+    # -- reactive helpers ------------------------------------------------------------------
+
+    def set_reactive(self, reactive: Any, value: Any) -> None:
+        """Set a reactive attribute without calling watchers, validators or computes."""
+        name = getattr(reactive, "name", None)
+        if not isinstance(reactive, Reactive) or not name:
+            raise TypeError("A reactive (e.g. MyWidget.count) is required")
+        if not hasattr(self, name):
+            raise AttributeError(f"{type(self).__name__} has no reactive {name!r}")
+        self.__dict__[reactive.internal_name] = value
+
+    def data_bind(self, *reactives: Any, **bind_vars: Any) -> Any:
+        """Bind reactives of the widget composing this one to reactives of this widget:
+        ``Child().data_bind(Parent.value)`` or ``Child().data_bind(count=Parent.value)``.
+        The child is updated whenever the parent's value changes (and on mount)."""
+        from .reactive import ReactiveError, _reactives_of
+
+        if self.is_mounted:
+            raise ReactiveError("data_bind() may only be called on a widget that hasn't yet been mounted")
+        parent = _compose_owner.get()
+        if parent is None:
+            parent = _context._active_app
+        for reactive in reactives:
+            bind_vars[reactive.name] = reactive
+        mine = _reactives_of(type(self))
+        for name, value in bind_vars.items():
+            if name not in mine:
+                raise ReactiveError(f"Unable to bind non-reactive attribute {name!r} on {self!r}")
+            if isinstance(value, Reactive) and value.name not in _reactives_of(type(parent)):
+                raise ReactiveError(f"Unable to bind {value.name!r}: not a reactive of {parent!r}")
+        self.__dict__["_data_bind"] = (parent, bind_vars)
+        return self
+
+    def _initialize_data_bind(self) -> None:
+        binding = self.__dict__.pop("_data_bind", None)
+        if binding is None:
+            return
+        parent, bind_vars = binding
+        from .reactive import watch
+
+        for name, value in bind_vars.items():
+            if isinstance(value, Reactive):
+
+                def setter(new_value: Any, name: str = name) -> None:
+                    setattr(self, name, new_value)
+
+                watch(parent, value.name, setter, init=True, watcher=self)
+            else:
+                setattr(self, name, value)
+
+    # -- bindings ---------------------------------------------------------------------------
+
+    def bind(
+        self,
+        keys: str,
+        action: str,
+        *,
+        description: str = "",
+        show: bool = True,
+        key_display: str | None = None,
+    ) -> None:
+        """Add a key binding at runtime (after the class ``BINDINGS``)."""
+        from .binding import Binding
+
+        binding = Binding(keys, action, description, show=show, key_display=key_display)
+        if self.is_mounted:
+            native.bind(self._node, binding._native())
+        else:
+            self.__dict__.setdefault("_pending_bindings", []).append(binding)
+
+    @property
+    def scrollable_content_region(self) -> Region:
+        """The content region without scrollbars (screen coordinates)."""
+        return self.content_region
+
+    @property
+    def is_running(self) -> bool:
+        """Whether the widget is mounted in a running app."""
+        return self.is_mounted
+
+    def _native_rich_style(self, component: str | None = None, partial: bool = False) -> Any:
+        from rich.style import Style as RichStyle
+
+        if not self.is_mounted:
+            return RichStyle()
+        color, bgcolor, attrs = native.widget_style(self._node, component, partial)
+        return RichStyle(color=color, bgcolor=bgcolor, **attrs)
+
+    @property
+    def rich_style(self) -> Any:
+        """The widget's text style (color, background, text-style) as a Rich ``Style``."""
+        return self._native_rich_style()
+
+    def get_component_rich_style(self, *names: str, partial: bool = False, default: Any = None) -> Any:
+        """The Rich ``Style`` of component classes (e.g. ``"my-widget--title"``), combined.
+
+        ``partial``: only what the component's own rules set (not combined with the widget).
+        Names missing from the widget's ``COMPONENT_CLASSES`` raise ``KeyError`` unless a
+        ``default`` style is given.
+        """
+        from rich.style import Style as RichStyle
+
+        declared: set[str] = set()
+        for cls in type(self).__mro__:
+            declared |= set(cls.__dict__.get("COMPONENT_CLASSES", ()))
+        missing = [n for n in names if declared and n not in declared]
+        if missing:
+            if default is not None:
+                return default
+            raise KeyError(missing[0])
+        style = RichStyle()
+        for name in names:
+            style += self._native_rich_style(name, partial)
+        return style
+
+    @property
+    def log(self) -> Any:
+        """A logger: ``self.log("message", key=value)`` or ``self.log.warning(...)`` (written to
+        ``TEXTUAL_LOG`` when set, and to Python's ``logging``; there is no devtools console)."""
+        from ._log import log
+
+        return log
 
     def prevent(self, *message_types: type[Message]) -> _PreventContext:
         """Suppress messages of these types posted inside the ``with`` block (by any widget)."""

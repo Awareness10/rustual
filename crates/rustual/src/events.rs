@@ -205,6 +205,30 @@ impl Event {
     }
 }
 
+/// Message posted to the parent of a widget that received focus; it bubbles up, so every
+/// ancestor sees it (Textual `events.DescendantFocus`). The sender is the focused widget.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DescendantFocus {
+    pub widget: crate::dom::NodeId,
+}
+
+/// Message posted to the parent of a widget that lost focus; it bubbles up (Textual
+/// `events.DescendantBlur`). The sender is the blurred widget.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DescendantBlur {
+    pub widget: crate::dom::NodeId,
+}
+
+/// Sent (not bubbling) to a screen when it becomes the active screen, including the first
+/// screen (Textual `events.ScreenResume`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ScreenResume;
+
+/// Sent (not bubbling) to a screen when another screen becomes active (Textual
+/// `events.ScreenSuspend`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ScreenSuspend;
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 
 class Offset(NamedTuple):
@@ -85,3 +85,15 @@ class Spacing(NamedTuple):
     @property
     def height(self) -> int:
         return self.top + self.bottom
+
+
+def clamp(value: Any, minimum: Any, maximum: Any) -> Any:
+    """``value`` restricted to ``minimum..maximum`` (the bounds may be given in either order)."""
+    if minimum > maximum:
+        minimum, maximum = maximum, minimum
+    if value < minimum:
+        return minimum
+    elif value > maximum:
+        return maximum
+    else:
+        return value
