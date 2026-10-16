@@ -34,6 +34,10 @@ class Screen(Widget, Generic[ScreenResultType]):
     AUTO_FOCUS: ClassVar[str | None] = None
     TITLE: ClassVar[str | None] = None
     SUB_TITLE: ClassVar[str | None] = None
+    HORIZONTAL_BREAKPOINTS: ClassVar[list[tuple[int, str]] | None] = None
+    """Breakpoints by width replacing ``App.HORIZONTAL_BREAKPOINTS`` (``None``: the app's)."""
+    VERTICAL_BREAKPOINTS: ClassVar[list[tuple[int, str]] | None] = None
+    """Breakpoints by height replacing ``App.VERTICAL_BREAKPOINTS`` (``None``: the app's)."""
     COMMANDS: ClassVar[set[Any]] = set()
     """Command palette providers of this screen (added to ``App.COMMANDS``)."""
 
@@ -66,6 +70,10 @@ class Screen(Widget, Generic[ScreenResultType]):
             native.set_screen_text(self._node, "sub_title", self._screen_sub_title)
 
     def _rs_on_mount(self) -> None:
+        h, v = self.HORIZONTAL_BREAKPOINTS, self.VERTICAL_BREAKPOINTS
+        if h is not None or v is not None:
+            pairs = lambda bps: None if bps is None else [(int(n), str(c)) for n, c in bps]  # noqa: E731
+            native.set_screen_breakpoints(self._node, pairs(h), pairs(v))
         if self.title is not None:
             native.set_screen_text(self._node, "title", self.title)
         if self.sub_title is not None:

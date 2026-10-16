@@ -18,15 +18,15 @@ _Last updated: 2026-10-16._
 | Mouse capture / drag | ✅ | 85 | `ctx.capture_mouse/release_mouse`; drags go to the MouseDown widget; scrollbar thumb drag + track paging; no `MouseCapture`/`MouseRelease` events |
 | Focus chain, tab/shift+tab, auto-focus | ✅ | 90 | `can_focus_children`, focus on click, restore on screen pop |
 | Messages (bubbling) | ✅ | 95 | typed payloads, `Flow::Stop`, `sender_id()` |
-| Bindings & actions | ✅ | 90 | priority, namespaces `app.`/`screen.`/`focused.`, args; keymaps (`Binding::id`, `App::keymap`, `ctx.set_keymap/update_keymap`, clashing keys dropped); `check_action` (hide / disable bindings, footer dims) |
+| Bindings & actions | ✅ | 90 | priority, namespaces `app.`/`screen.`/`focused.`, args; keymaps (`Binding::id`, `App::keymap`, `ctx.set_keymap/update_keymap`, clashing keys dropped); runtime bindings (`ctx.bind`, Textual `bind`); `check_action` (hide / disable bindings, footer dims) |
 | Builtin actions | ✅ | 85 | quit, bell, toggle_dark, set_theme, focus, focus_next/previous, pop_screen, push_screen/switch_screen/switch_mode('name'), maximize, minimize, screenshot, suspend_process, add/remove/toggle_class, notify, scroll_* |
 | Timers (`set_timer`, `set_interval`) | ✅ | 95 | |
 | Workers (async + blocking) | ✅ | 90 | result posted as message; `run_worker_with`/`run_blocking_with` + `WorkerOptions { name, group, exclusive }` post `worker::StateChanged` (Pending/Running/Success/Error=panic/Cancelled); `cancel_workers(group)`, `WorkerHandle::state()`; errors don't exit the app; plain `run_worker` posts no state events |
-| Screens: push/pop/dismiss, modal, switch, named, modes | ✅ | 90 | modal dims the screen below; `ctx.switch_screen`, `App::screen/modal_screen` (installed, kept when popped) + `push_screen_named/switch_screen_named/install_screen`; `App::mode` + `default_mode` + `ctx.switch_mode` (per-mode stacks); no ScreenSuspend/Resume events, no `remove_mode` |
+| Screens: push/pop/dismiss, modal, switch, named, modes | ✅ | 90 | modal dims the screen below; `ctx.switch_screen`, `App::screen/modal_screen` (installed, kept when popped) + `push_screen_named/switch_screen_named/install_screen`; `App::mode` + `default_mode` + `ctx.switch_mode` (per-mode stacks); `ScreenSuspend` / `ScreenResume` events; per-screen titles (`ctx.set_screen_title`); no `remove_mode` |
 | Notifications (toasts) | ✅ | 90 | `ctx.notify`, severity, timeout, click to dismiss |
 | Animation (`animate`, easing, transitions) | ✅ | 90 | all 33 easings, `ctx.animate_value`, `animate_style` (opacity/offset/width/height), `animate_color` (background/color/tint/background-tint, `Color::blend`), `AnimateOptions` (`delay`, `speed`, easing, level) via `*_opts`, smooth scroll, animation levels, CSS transitions, Tabs/Switch animate; delayed style animations read their start value at request time |
 | Tooltips | ✅ | 85 | `Child::tooltip`, `ctx.set_tooltip`; 0.5s delay, ancestor inheritance, flip above / keep on screen; markup content only (no renderables), no `_disable_tooltips` |
-| Command palette | ✅ | 80 | `ctrl+p`, fuzzy `Matcher` port, `CommandProvider` / `App::command_provider` / `Widget::commands`, system commands, theme picker, header icon; synchronous providers (no async search / busy indicator) |
+| Command palette | ✅ | 90 | `ctrl+p`, fuzzy `Matcher` port (Textual's score scale), `CommandProvider` / `App::command_provider` / `Widget::commands`, system commands (`App::system_commands` to replace them), theme picker, header icon; search hooks (`App::command_search`) deliver scored / discovery hits later, merged by score as they arrive (stale queries dropped), which is how Python's async `Provider`s run; no busy indicator, "No matches" shows without Textual's delay |
 | Text selection & copy (screen selection) | ❌ | 0 | Input has its own selection + internal clipboard |
 | Clipboard (OSC 52) | ✅ | 90 | `ctx.copy_to_clipboard` queues OSC 52, flushed after the next frame; Input/TextArea copy/cut use it; paste reads the app clipboard (falling back to a process-wide one); `pilot.clipboard()` |
 | `@click` markup links | 🟡 | 75 | click runs the action with the widget as owner; no `link-*-hover` styles, no `@mouse.down`/`@mouse.up` |
@@ -68,6 +68,7 @@ _Last updated: 2026-10-16._
 | Feature | Status | % | Notes |
 |---|---|---|---|
 | Vertical / horizontal / grid layouts | ✅ | 95 | port of Textual's `layouts/*` |
+| Breakpoints | ✅ | 100 | `App::horizontal_breakpoints` / `vertical_breakpoints` (Textual `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS`), per-screen overrides (`ctx.set_screen_breakpoints`); classes follow the terminal size |
 | Stream layout | ❌ | 0 | falls back to vertical |
 | Scrolling: containers, self-scrolling (ScrollView) | ✅ | 90 | keyboard / scrollbar-track scrolling animates (out_cubic, 50 cells/s); wheel and drag are immediate |
 | Compositor: clipping, layers, opacity, modal dimming | ✅ | 90 | full-frame paint + diff (~2 ms per frame at 1000 widgets, release build) |
@@ -99,7 +100,7 @@ _Last updated: 2026-10-16._
 | TabbedContent / TabPane | ✅ | 90 | |
 | ContentSwitcher | ✅ | 95 | |
 | Collapsible | ✅ | 95 | |
-| Header | ✅ | 95 | clock in local time with a strftime `time_format` (default `%X`; changeable at runtime, Python `Header(time_format=...)` / `header.time_format`), `clock_utc_offset` pins a fixed offset; icon opens the command palette |
+| Header | ✅ | 95 | shows the screen's own title / sub-title when set (Textual `Screen.title`); clock in local time with a strftime `time_format` (default `%X`; changeable at runtime, Python `Header(time_format=...)` / `header.time_format`), `clock_utc_offset` pins a fixed offset; icon opens the command palette |
 | Footer | ✅ | 92 | Textual 8 order (focused widget → screen → app); `^p palette` key docked right (`show_command_palette`); click replays the key; binding groups (`Binding::group(BindingGroup)`, compact groups) |
 | Log | ✅ | 90 | |
 | RichLog | ✅ | 90 | `highlight(true)`: Rich `ReprHighlighter` port (`pretty::tokenize_text`), ANSI-theme colors at write time; `write_renderable` renders tables / panels / syntax once at write time (measured width, shrunk to the region, at least `min_width`; `write_renderable_with` for `width` / `expand`), as Textual does; no custom highlighter object |
@@ -126,17 +127,17 @@ See [`docs/python-bindings.md`](docs/python-bindings.md).
 | Feature | Status | % | Notes |
 |---|---|---|---|
 | App lifecycle | ✅ | 90 | `run()` with GIL released (returns `exit()` value), `run_async`, `run_test` + `Pilot`; handler exceptions exit cleanly and re-raise |
-| Widget API | ✅ | 85 | compose (incl. `with` blocks), render (markup / Content / Rich renderables), DEFAULT_CSS, BINDINGS, queries, classes, styles (write), display/visible/disabled/loading, mount/remove/recompose, focus, scrolling, timers, `animate()`; no `render_line` |
+| Widget API | ✅ | 90 | compose (incl. `with` blocks), render (markup / Content / Rich renderables), DEFAULT_CSS, BINDINGS + `bind()`, queries + `getters` (`query_one`, `child_by_id`, `app`), classes, styles (write), `rich_style` / `get_component_rich_style` (partial, default), `data_bind`, `set_reactive`, display/visible/disabled/loading, mount/remove/recompose, focus, scrolling, timers, `animate()`, `log` (to `TEXTUAL_LOG` and Python `logging`); no `render_line` |
 | Reactivity | ✅ | 90 | reactive/var with watch/validate/compute, init, always_update, layout, recompose, toggle_class, `watch()` |
-| Messages & events | ✅ | 90 | custom messages, bubbling, stop/prevent_default, `@on` with selectors, MRO dispatch, `key_*` methods, mouse/focus/enter/leave/resize/paste |
-| Screens & modes | ✅ | 85 | Screen/ModalScreen, dismiss + callback, `push_screen_wait`, SCREENS/MODES, screen CSS |
+| Messages & events | ✅ | 90 | custom messages (incl. `@dataclass` ones), bubbling, stop/prevent_default, `@on` with selectors, MRO dispatch, `key_*` methods, mouse/focus/enter/leave/resize/paste, `DescendantFocus` / `DescendantBlur`, `ScreenResume` / `ScreenSuspend` |
+| Screens & modes | ✅ | 90 | Screen/ModalScreen, dismiss + callback, `push_screen_wait`, SCREENS/MODES, screen CSS, `title` / `sub_title` (`TITLE` / `SUB_TITLE`), `COMMANDS`, `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS`, `is_active`, `focus_next` / `focus_previous` |
 | Workers & async | ✅ | 90 | async handlers/workers on an app-thread asyncio loop; thread workers; widget calls from threads auto-marshalled |
 | Themes, validation | ✅ | 90 | `Theme` (incl. `ansi=`) / `register_theme`, `App(ansi_color=...)`, `app.ansi_color` / `native_ansi_color` / `no_color`; `rustual.validation`; Input `restrict` regex |
 | Bindings | ✅ | 90 | `BINDINGS` (tuples / `Binding`), MRO merge, `check_action` / `refresh_bindings` |
 | Built-in widgets | ✅ | 85 | every built-in widget is bound (see below) |
 | Packaging | ✅ | 90 | `rustual-py` on PyPI (`pip install rustual-py`, `uvx rustual-py`): abi3 wheels (CPython 3.10+) for manylinux_2_28 / musllinux_1_2 x86_64, Windows x86_64, macOS universal2 + sdist, also on GitHub releases; Rust crates on crates.io |
-| Textual helper modules | ✅ | 80 | `rustual.color` (Color, Gradient), `renderables.gradient` (LinearGradient, VerticalGradient), `highlight` (Pygments, theme-aware), `signal`, `widget.prevent()`, `auto_refresh`, `App.current_theme` / `theme_changed_signal` |
-| Not yet | ❌ | 0 | command palette providers, devtools/`log`, `App.suspend`, `render_line`, inline mode |
+| Textual helper modules | ✅ | 80 | `rustual.color` (Color, Gradient), `renderables.gradient` (LinearGradient, VerticalGradient), `highlight` (Pygments, theme-aware), `signal`, `widget.prevent()`, `auto_refresh`, `App.current_theme` / `theme_changed_signal`, `command` (`Provider`, `Hit`, `DiscoveryHit`, `SimpleProvider`, `CommandPalette`), `fuzzy.Matcher`, `system_commands`, `getters`, `lazy` (`Lazy` / `Reveal` mount at once), `cache` (`LRUCache`, `FIFOCache`), `design.ColorSystem`, `theme.BUILTIN_THEMES`, `markup.escape`, `types`, `errors`, `dom`, `timer`, `notifications`, `geometry.clamp`, `_color_constants`; app `get_system_commands` / `SystemCommand`, `search_commands`, `clear_notifications`, `set_keymap` / `update_keymap`, `get_key_display`, `InvalidThemeError` |
+| Not yet | ❌ | 0 | `render_line` / `Strip` (Line API), `App.suspend`, `App.active_bindings`, custom TextArea themes (`TextAreaTheme`), Input `Suggester`, `textual.style`, devtools console, inline mode |
 
 Python widget coverage (gaps vs Textual's Python API; the Rust widget's own gaps are listed above):
 

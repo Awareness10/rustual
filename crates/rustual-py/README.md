@@ -153,8 +153,8 @@ See [`docs/python-bindings.md`](https://github.com/Awareness10/rustual/blob/main
 
 ## Differences from Textual
 
-- `render_line()` (the line API), devtools / `log()` output, the command palette provider API,
-  `App.suspend()` and inline mode aren't supported yet.
+- `render_line()` (the line API), `App.suspend()`, the devtools console and inline mode aren't
+  supported yet; `log()` goes to `TEXTUAL_LOG` and Python's `logging`.
 - Some widget APIs are partial; the gaps per widget are listed in `features.md` at the repo root.
 - `widget.styles` attributes can be set (inline CSS); reading returns what was set, plus the
   computed `display` / `visibility`.

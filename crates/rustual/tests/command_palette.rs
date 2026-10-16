@@ -253,7 +253,10 @@ async fn search_hooks_get_queries_and_deliver_hits_later() {
     };
     p.with::<PaletteApp, _>(
         "App",
-        deliver(vec![Command::new("Remote one", "From a provider", "app.bell")], generation),
+        deliver(
+            vec![Command::new("Remote one", "From a provider", "app.bell")],
+            generation,
+        ),
     )
     .await;
     assert_eq!(hits(&p).last().map(String::as_str), Some("Remote one"));
@@ -277,8 +280,16 @@ async fn search_hooks_get_queries_and_deliver_hits_later() {
     )
     .await;
     let names = hits(&p);
-    assert_eq!(names.first().map(String::as_str), Some("Remote best"), "{names:?}");
-    assert_eq!(names.last().map(String::as_str), Some("Remote worst"), "{names:?}");
+    assert_eq!(
+        names.first().map(String::as_str),
+        Some("Remote best"),
+        "{names:?}"
+    );
+    assert_eq!(
+        names.last().map(String::as_str),
+        Some("Remote worst"),
+        "{names:?}"
+    );
     // Stale hits (an older generation) are ignored.
     p.with::<PaletteApp, _>(
         "App",
@@ -289,7 +300,10 @@ async fn search_hooks_get_queries_and_deliver_hits_later() {
     // Running a delivered hit; the hook hears the palette close.
     p.press(&["enter"]).await;
     assert_eq!(p.notifications(), vec!["ran remote".to_string()]);
-    assert_eq!(log.lock().unwrap().events.last().map(String::as_str), Some("closed"));
+    assert_eq!(
+        log.lock().unwrap().events.last().map(String::as_str),
+        Some("closed")
+    );
 }
 
 #[tokio::test]

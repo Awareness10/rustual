@@ -188,6 +188,10 @@ pub(crate) struct AppState {
     pub no_color: bool,
     /// The active screen at the last layout (for `ScreenSuspend` / `ScreenResume`).
     pub last_active_screen: Option<NodeId>,
+    /// `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS` of the app: `(min size, class)`.
+    pub breakpoints: Breakpoints,
+    /// Classes set on each screen by breakpoints (removed when no longer wanted).
+    pub breakpoint_classes: HashMap<NodeId, Vec<String>>,
     pub app_css: Vec<(String, String)>,
     pub css_errors: Vec<String>,
     pub mouse_down_on: Option<NodeId>,
@@ -275,6 +279,8 @@ impl App {
             ansi_color: None,
             no_color: std::env::var_os("NO_COLOR").is_some(),
             last_active_screen: None,
+            breakpoints: Breakpoints::default(),
+            breakpoint_classes: HashMap::new(),
             app_css: Vec::new(),
             css_errors: Vec::new(),
             mouse_down_on: None,
@@ -342,6 +348,20 @@ impl App {
     /// Remove colors, as when `NO_COLOR` is set (which this overrides).
     pub fn no_color(mut self, no_color: bool) -> Self {
         self.state.no_color = no_color;
+        self
+    }
+
+    /// Classes set on screens by terminal width: `(min width, class)` pairs; the class of the
+    /// largest threshold not above the width applies (Textual `HORIZONTAL_BREAKPOINTS`).
+    pub fn horizontal_breakpoints(mut self, breakpoints: &[(i32, &str)]) -> Self {
+        self.state.breakpoints.horizontal = Some(to_breakpoints(breakpoints));
+        self
+    }
+
+    /// Like [`App::horizontal_breakpoints`] for the terminal height (Textual
+    /// `VERTICAL_BREAKPOINTS`).
+    pub fn vertical_breakpoints(mut self, breakpoints: &[(i32, &str)]) -> Self {
+        self.state.breakpoints.vertical = Some(to_breakpoints(breakpoints));
         self
     }
 
@@ -797,6 +817,14 @@ impl AppState {
             .filter(|k| dom.contains(*k))
             .collect();
         self.dom.screen_titles.retain(|k, _| live.contains(k));
+        let dom = &self.dom;
+        let live: Vec<NodeId> = dom
+            .screen_breakpoints
+            .keys()
+            .copied()
+            .filter(|k| dom.contains(*k))
+            .collect();
+        self.dom.screen_breakpoints.retain(|k, _| live.contains(k));
         self.timers.retain(|t| !ids.contains(&t.node));
         self.screens.retain(|s| !ids.contains(s));
         for a in self.arrangements.values_mut() {
@@ -1611,6 +1639,7 @@ impl AppState {
     pub(crate) fn layout(&mut self) {
         self.dom.active_screen = self.active_screen();
         self.post_screen_activation();
+        self.apply_breakpoints();
         self.update_styles();
         crate::screens::adjust_styles(self);
         self.update_active_bindings();
@@ -1705,6 +1734,53 @@ impl AppState {
         self.dirty = true;
     }
 
+    /// Breakpoint classes on every screen for the terminal size (Textual `Screen._on_resize`):
+    /// per list, the class of the largest threshold not above the size is set and the list's
+    /// other classes are removed. A screen's own lists replace the app's.
+    fn apply_breakpoints(&mut self) {
+        let size = self.size;
+        for screen in self.screens.clone() {
+            let own = self.dom.screen_breakpoints.get(&screen);
+            let horizontal = own
+                .and_then(|b| b.horizontal.clone())
+                .or_else(|| self.breakpoints.horizontal.clone())
+                .unwrap_or_default();
+            let vertical = own
+                .and_then(|b| b.vertical.clone())
+                .or_else(|| self.breakpoints.vertical.clone())
+                .unwrap_or_default();
+            let Some(node) = self.dom.get_mut(screen) else {
+                continue;
+            };
+            let mut wanted: Vec<String> = Vec::new();
+            let mut listed: Vec<&String> = Vec::new();
+            for (list, dimension) in [(&horizontal, size.width), (&vertical, size.height)] {
+                let active = list
+                    .iter()
+                    .filter(|(min, _)| dimension >= *min)
+                    .max_by_key(|(min, _)| *min);
+                wanted.extend(active.map(|(_, class)| class.clone()));
+                listed.extend(list.iter().map(|(_, class)| class));
+            }
+            let previous = self.breakpoint_classes.remove(&screen).unwrap_or_default();
+            for class in listed.into_iter().chain(previous.iter()) {
+                if !wanted.contains(class) && node.has_class(class) {
+                    node.remove_class(class);
+                    self.dirty = true;
+                }
+            }
+            for class in &wanted {
+                if !node.has_class(class) {
+                    node.add_class(class);
+                    self.dirty = true;
+                }
+            }
+            if !wanted.is_empty() {
+                self.breakpoint_classes.insert(screen, wanted);
+            }
+        }
+    }
+
     /// `ScreenSuspend` / `ScreenResume` when the active screen changed since the last layout.
     fn post_screen_activation(&mut self) {
         let active = self.dom.active_screen;
@@ -1762,4 +1838,18 @@ pub enum MouseKind {
     ScrollDown,
     ScrollLeft,
     ScrollRight,
+}
+
+/// Breakpoint lists: `(min size, class)`; `None` means "not set" (a screen inherits the app's).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct Breakpoints {
+    pub horizontal: Option<Vec<(i32, String)>>,
+    pub vertical: Option<Vec<(i32, String)>>,
+}
+
+fn to_breakpoints(breakpoints: &[(i32, &str)]) -> Vec<(i32, String)> {
+    breakpoints
+        .iter()
+        .map(|(min, class)| (*min, class.to_string()))
+        .collect()
 }

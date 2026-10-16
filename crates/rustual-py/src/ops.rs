@@ -951,8 +951,9 @@ pub fn palette_add_hits(
     let commands = hits
         .into_iter()
         .map(|(score, display, text, help, id)| {
-            let mut c = rustual::Command::new(&text, &help, &format!("app._rs_palette_callback({id})"))
-                .display(rustual::Text::from_markup(&display));
+            let mut c =
+                rustual::Command::new(&text, &help, &format!("app._rs_palette_callback({id})"))
+                    .display(rustual::Text::from_markup(&display));
             if let Some(s) = score {
                 c = c.score(s);
             }
@@ -985,6 +986,30 @@ pub fn markup_plain(markup: &str) -> String {
 #[pyfunction]
 pub fn color_names() -> Vec<(&'static str, Vec<u8>)> {
     rustual::Color::named_colors()
-        .map(|(name, (r, g, b, a))| (name, if a == 255 { vec![r, g, b] } else { vec![r, g, b, a] }))
+        .map(|(name, (r, g, b, a))| {
+            (
+                name,
+                if a == 255 {
+                    vec![r, g, b]
+                } else {
+                    vec![r, g, b, a]
+                },
+            )
+        })
         .collect()
+}
+
+/// `Screen.HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS` of the screen `node` (`None`: the
+/// app's).
+#[pyfunction]
+#[pyo3(signature = (node, horizontal, vertical))]
+pub fn set_screen_breakpoints(
+    node: Node,
+    horizontal: Option<Vec<(i32, String)>>,
+    vertical: Option<Vec<(i32, String)>>,
+) -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.for_node(n(node), |c| c.set_screen_breakpoints(horizontal, vertical));
+        Ok(())
+    })
 }

@@ -528,6 +528,25 @@ impl<'a> Ctx<'a> {
         }
     }
 
+    /// Breakpoints of this widget's screen, replacing the app's (`None`: use the app's list;
+    /// see [`App::horizontal_breakpoints`](crate::App::horizontal_breakpoints)).
+    pub fn set_screen_breakpoints(
+        &mut self,
+        horizontal: Option<Vec<(i32, String)>>,
+        vertical: Option<Vec<(i32, String)>>,
+    ) {
+        if let Some(screen) = self.app.dom.screen_of(self.node) {
+            self.app.dom.screen_breakpoints.insert(
+                screen,
+                crate::app::Breakpoints {
+                    horizontal,
+                    vertical,
+                },
+            );
+            self.app.dirty = true;
+        }
+    }
+
     /// Set the title of this widget's screen, shown by the header instead of the app's
     /// (`None` restores the app's; Textual `Screen.title`).
     pub fn set_screen_title(&mut self, title: Option<&str>) {

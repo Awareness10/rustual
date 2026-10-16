@@ -28,6 +28,9 @@ pub struct AppConfig {
     command_palette: bool,
     /// `App(ansi_color=...)`: `None` follows the theme.
     ansi_color: Option<bool>,
+    /// `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS`.
+    horizontal_breakpoints: Vec<(i32, String)>,
+    vertical_breakpoints: Vec<(i32, String)>,
 }
 
 /// A theme from Python (`rustual.theme.Theme`, passed as a dict).
@@ -88,6 +91,10 @@ fn factory(f: Py<PyAny>) -> impl Fn() -> Child + 'static {
     }
 }
 
+fn breakpoint_refs(v: &[(i32, String)]) -> Vec<(i32, &str)> {
+    v.iter().map(|(n, c)| (*n, c.as_str())).collect()
+}
+
 fn build_app(py: Python<'_>, app: &Bound<'_, PyAny>, cfg: AppConfig) -> PyResult<App> {
     let root = build_root(py, app)?;
     let mut a = App::new(root).title(&cfg.title).sub_title(&cfg.sub_title);
@@ -95,22 +102,24 @@ fn build_app(py: Python<'_>, app: &Bound<'_, PyAny>, cfg: AppConfig) -> PyResult
     // Python apps search with `App.COMMANDS` providers (system commands included, via
     // `App.get_system_commands`), driven by `App._rs_command_search`.
     let app_obj = app.clone().unbind();
-    a = a.system_commands(false).command_search(move |palette, event, ctx| {
-        use rustual::command::SearchEvent;
-        let (kind, generation, query) = match event {
-            SearchEvent::Opened => ("opened", 0, ""),
-            SearchEvent::Query { query, generation } => ("query", generation, query),
-            SearchEvent::Closed => ("closed", 0, ""),
-        };
-        let _frame = bridge::push(bridge::ctx_frame(ctx, None, None));
-        bridge::call_py(|py| {
-            app_obj.bind(py).call_method1(
-                "_rs_command_search",
-                (kind, crate::bridge::node_to_int(palette), generation, query),
-            )?;
-            Ok(())
+    a = a
+        .system_commands(false)
+        .command_search(move |palette, event, ctx| {
+            use rustual::command::SearchEvent;
+            let (kind, generation, query) = match event {
+                SearchEvent::Opened => ("opened", 0, ""),
+                SearchEvent::Query { query, generation } => ("query", generation, query),
+                SearchEvent::Closed => ("closed", 0, ""),
+            };
+            let _frame = bridge::push(bridge::ctx_frame(ctx, None, None));
+            bridge::call_py(|py| {
+                app_obj.bind(py).call_method1(
+                    "_rs_command_search",
+                    (kind, crate::bridge::node_to_int(palette), generation, query),
+                )?;
+                Ok(())
+            });
         });
-    });
     for theme in cfg.themes {
         a = a.register_theme(theme.into_theme());
     }
@@ -124,6 +133,8 @@ fn build_app(py: Python<'_>, app: &Bound<'_, PyAny>, cfg: AppConfig) -> PyResult
     if let Some(ansi) = cfg.ansi_color {
         a = a.ansi_color(ansi);
     }
+    a = a.horizontal_breakpoints(&breakpoint_refs(&cfg.horizontal_breakpoints));
+    a = a.vertical_breakpoints(&breakpoint_refs(&cfg.vertical_breakpoints));
     for (name, f, modal) in cfg.screens {
         a = if modal {
             a.modal_screen(&name, factory(f))

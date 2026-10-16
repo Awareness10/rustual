@@ -88,6 +88,11 @@ class App(Widget, Generic[ReturnType]):
     AUTO_FOCUS: ClassVar[str | None] = "*"
     ENABLE_COMMAND_PALETTE: ClassVar[bool] = True
     COMMAND_PALETTE_BINDING: ClassVar[str] = "ctrl+p"
+    HORIZONTAL_BREAKPOINTS: ClassVar[list[tuple[int, str]] | None] = []
+    """``(min width, class)`` pairs: the screen gets the class of the largest width not above
+    the terminal's (e.g. ``[(0, "-narrow"), (80, "-wide")]``)."""
+    VERTICAL_BREAKPOINTS: ClassVar[list[tuple[int, str]] | None] = []
+    """Like ``HORIZONTAL_BREAKPOINTS``, for the terminal height."""
     COMMANDS: ClassVar[set[Any]] = {get_system_commands_provider}
     """Command palette providers: ``Provider`` classes, or callables returning one."""
     NOTIFICATION_TIMEOUT: ClassVar[float] = 5
@@ -145,6 +150,8 @@ class App(Widget, Generic[ReturnType]):
             "themes": [t._native() for t in self._themes.values()],
             "command_palette": bool(self.ENABLE_COMMAND_PALETTE),
             "ansi_color": self._ansi_color,
+            "horizontal_breakpoints": [(int(n), str(c)) for n, c in (self.HORIZONTAL_BREAKPOINTS or [])],
+            "vertical_breakpoints": [(int(n), str(c)) for n, c in (self.VERTICAL_BREAKPOINTS or [])],
         }
 
     # -- running ------------------------------------------------------------------------------

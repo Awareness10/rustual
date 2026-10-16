@@ -238,3 +238,103 @@ async def test_data_bind_set_reactive_bind_and_misc():
         assert app.get_key_display(Binding("ctrl+s", "save")) == "^s"
         assert app.get_key_display(Binding("f1", "help", key_display="F1!")) == "F1!"
         assert child.is_running and child.scrollable_content_region == child.content_region
+
+
+async def test_dataclass_messages():
+    from dataclasses import dataclass
+
+    from rustual.message import Message
+
+    @dataclass
+    class Picked(Message):
+        value: str
+
+    got = []
+
+    class MsgApp(App):
+        def on_picked(self, message: Picked) -> None:
+            got.append((message.value, message.sender is self))
+
+    app = MsgApp()
+    async with app.run_test() as pilot:
+        app.post_message(Picked("x"))
+        await pilot.pause()
+    assert got == [("x", True)]
+
+
+def test_color_constants():
+    from rustual._color_constants import ANSI_COLORS, COLOR_NAME_TO_RGB
+
+    assert COLOR_NAME_TO_RGB["red"] == (255, 0, 0)
+    assert "ansi_bright_blue" in COLOR_NAME_TO_RGB and ANSI_COLORS[4] == "blue"
+
+
+async def test_breakpoints():
+    from rustual.containers import Grid
+    from rustual.screen import Screen
+    from rustual.widgets import Placeholder
+
+    # Textual's examples/breakpoints.py (imports swapped).
+    class BreakpointApp(App):
+        HORIZONTAL_BREAKPOINTS = [(0, "-narrow"), (40, "-normal"), (80, "-wide"), (120, "-very-wide")]
+        CSS = """
+        Screen {
+            Placeholder { padding: 2; }
+            Grid { grid-rows: auto; height: auto; }
+            &.-narrow { Grid { grid-size: 1; } }
+            &.-normal { Grid { grid-size: 2; } }
+            &.-wide { Grid { grid-size: 4; } }
+            &.-very-wide { Grid { grid-size: 6; } }
+        }
+        """
+
+        def compose(self) -> ComposeResult:
+            with Grid():
+                for n in range(16):
+                    yield Placeholder(f"Placeholder {n + 1}", id=f"p{n}")
+
+    def columns(app) -> int:
+        y = app.query_one("#p0").region.y
+        return sum(1 for n in range(16) if app.query_one(f"#p{n}").region.y == y)
+
+    app = BreakpointApp()
+    async with app.run_test(size=(100, 40)) as pilot:
+        assert app.screen.has_class("-wide") and columns(app) == 4
+        await pilot.resize_terminal(30, 40)
+        assert app.screen.has_class("-narrow") and not app.screen.has_class("-wide")
+        assert columns(app) == 1
+        await pilot.resize_terminal(130, 40)
+        assert columns(app) == 6
+
+        class Fixed(Screen):
+            HORIZONTAL_BREAKPOINTS = [(0, "-fixed")]
+
+        await app.push_screen(Fixed())
+        await pilot.pause()
+        assert app.screen.has_class("-fixed") and not app.screen.has_class("-very-wide")
+
+
+async def test_getters():
+    from rustual import getters
+    from rustual.css.query import NoMatches
+    from rustual.widgets import Input
+
+    class GetterApp(App):
+        field = getters.query_one("#field", Input)
+        first_input = getters.query_one(Input)
+        direct = getters.child_by_id("field", Input)
+        missing = getters.child_by_id("nope")
+
+        def compose(self) -> ComposeResult:
+            yield Input(id="field")
+
+    class Probe(Label):
+        app = getters.app(GetterApp)
+
+    app = GetterApp()
+    async with app.run_test():
+        assert app.field.id == "field" and app.first_input is app.field
+        assert app.direct is app.field or app.direct.id == "field"
+        with pytest.raises(NoMatches):
+            app.missing
+        assert Probe("x").app is app

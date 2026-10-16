@@ -176,6 +176,8 @@ pub struct Dom {
     pub ansi: bool,
     /// `NO_COLOR` is set (`:nocolor`).
     pub no_color: bool,
+    /// Per-screen breakpoints overriding the app's (Textual `Screen.HORIZONTAL_BREAKPOINTS`).
+    pub screen_breakpoints: std::collections::HashMap<NodeId, crate::app::Breakpoints>,
     /// Per-screen title / sub-title overriding the app's (Textual `Screen.title`).
     pub screen_titles: std::collections::HashMap<NodeId, ScreenTitle>,
     /// The active (top) screen as of the last layout / key dispatch, for read-only observers

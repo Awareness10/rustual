@@ -9,11 +9,11 @@ Latest release: **v0.3.0** on [PyPI](https://pypi.org/project/rustual-py/),
 
 ## Next up (0.4)
 
-Make every one of Textual's own example apps run unchanged with only the imports swapped (11 of the 15
-run today), then Textual's demo:
+Textual's own example apps run unchanged with only the imports swapped: 11 of the 15 are in the
+side-by-side `rustual-examples`, and `color_command` and `breakpoints` now pass in tests too (`dictionary`
+and `mother` need a web API / an LLM). Next, Textual's demo:
 
-- [ ] **Command palette providers from Python** (M): `Provider` classes and `COMMANDS` (`color_command`).
-- [ ] **Breakpoints** (S): `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS` classes on resize (`breakpoints`).
+- [ ] **Example parity** (S): add `color_command`, `breakpoints` and `dictionary` to `rustual-examples`.
 - [ ] **Textual's demo** (L): run `python -m textual`'s `DemoApp` with the imports swapped; fix what it exposes.
 - [ ] **Real-terminal QA pass** (M): mouse, resize, true color, wide characters and performance in kitty,
   WezTerm, Alacritty, GNOME Terminal, tmux and Windows Terminal (so far: headless, a pyte emulator, SVG
@@ -48,12 +48,12 @@ run today), then Textual's demo:
 - [ ] **Snapshot testing** (M): SVG snapshot compare helper (`pilot.assert_snapshot("name")` storing
   baselines), like pytest-textual-snapshot.
 - [ ] **`@click` links** (S): `link-*-hover` styles; `@mouse.down` / `@mouse.up` handlers.
-- [ ] **Screens & modes** (S): `ScreenSuspend` / `ScreenResume` events, `remove_mode`, modes from screen
-  names; unknown screen/mode names should be reported (currently return `None`/`false`).
+- [ ] **Screens & modes** (S): `remove_mode`, modes from screen names; unknown screen/mode names should be
+  reported (currently return `None`/`false`).
 - [ ] **Workers** (S): cancel a widget's workers when it is removed (results are currently dropped).
 - [ ] **Loading** (S): refuse programmatic focus of loading widgets (Textual does); block their bindings.
 - [ ] **Screenshots** (S): local-time filenames and default to the Downloads folder like Textual.
-- [ ] **Command palette** (M): async providers with incremental results, busy indicator, discovery hits.
+- [ ] **Command palette** (S): busy indicator while searches run; delay "No matches found" like Textual.
 - [ ] **Mouse** (S): `MouseCapture` / `MouseRelease` events; click chain as an event field.
 - [ ] **Animations** (S): first frame lands one frame late; colour `speed`; animated thumb drag;
   transitions from/to `auto` and `fr` sizes jump instead of animating.
@@ -98,7 +98,11 @@ run today), then Textual's demo:
   `Checkbox.value`, TabPane `Disabled`/`Enabled` messages).
 - [ ] **`render_line` / Line API** (M): Python `ScrollView` subclasses rendering strips per line.
 - [ ] **`styles` read access** (S): expose computed styles (currently write-only, plus display/visibility).
-- [ ] **`App.suspend()`, devtools `log()`** (S each).
+- [ ] **`App.suspend()`** (M): run another program in the terminal (`with app.suspend():`); the run loop must
+  drop its input stream meanwhile, or crossterm's reader thread takes the program's keystrokes.
+- [ ] **Compatibility leftovers** (S each), from scanning popular Textual apps: `App.active_bindings`
+  (`ActiveBinding`), custom TextArea themes (`TextAreaTheme`, `register_theme`), Input `Suggester`,
+  `textual.style.Style`, `MarkdownStream`.
 - [ ] **Type stubs** (S): a `_native.pyi` stub (the package already ships `py.typed`).
 - [ ] **Python CI on Windows/macOS** (S): the Python test suite runs on Linux only (release wheels are
   smoke-tested on all platforms).
