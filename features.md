@@ -32,7 +32,8 @@ _Last updated: 2026-10-16._
 | `@click` markup links | 🟡 | 75 | click runs the action with the widget as owner; no `link-*-hover` styles, no `@mouse.down`/`@mouse.up` |
 | Screenshots (SVG / ANSI / text export) | ✅ | 90 | `canvas.to_svg()`, `to_ansi()`, `pilot.export_svg()`, `TEXTUAL_SCREENSHOT=out.svg` env mode (+ `TEXTUAL_SIZE`, `TEXTUAL_PRESS`); `screenshot(filename?, path?)` action + "Screenshot" palette command (CWD, Textual filename scheme, UTC timestamp), `ctx.save_screenshot` |
 | Maximize, `loading` overlay, `disabled` | ✅ | 85 | `ctx.maximize/maximize_exact/minimize`, `maximize`/`minimize` actions + palette commands, escape minimizes, `Widget::allow_maximize`, Footer/toasts kept, hatched background around the maximized widget; `ctx.set_loading(id, bool)` covers with a LoadingIndicator (blocks input, leaves focus chain); no custom loading widget |
-| Suspend (`ctrl+z`), inline mode, no-color / ANSI themes | 🟡 | 30 | `suspend_process` action / `ctx.suspend_process` (unix SIGTSTP via `kill`, terminal restored + full redraw on resume; not bound by default, like Textual 8); no inline mode, no ANSI themes |
+| Suspend (`ctrl+z`), inline mode | 🟡 | 50 | `suspend_process` action / `ctx.suspend_process` (unix SIGTSTP via `kill`, terminal restored + full redraw on resume; not bound by default, like Textual 8); no inline mode |
+| ANSI themes, `ansi_color`, `NO_COLOR` | ✅ | 90 | `ansi-dark` / `ansi-light` (variables identical to Textual's `_generate_ansi`); `ansi_*` / `ansi_default` colors are written as terminal ANSI codes when native (`App::ansi_color`, else the theme's `ansi`; `ctx.set_ansi_color`), otherwise converted with Textual's MONOKAI / ALABASTER terminal themes, with `dim` turned into a blended color (`ANSIToTruecolor`); `NO_COLOR` gives default colors (native) or a gray scale (`NoColor` / `Monochrome`); widgets' `:ansi` rules ported; screenshots use Rich's SVG export theme; no `TEXTUAL_DIM_FACTOR` / `TEXTUAL_FILTERS` env vars |
 | Devtools console / logging | ❌ | 0 | |
 | Testing: Pilot | ✅ | 90 | press, type, click, hover, scroll, resize, wait (paused time), query, canvas |
 | Snapshot testing (SVG compare) | ❌ | 0 | text snapshots via `screen_text()` |
@@ -43,15 +44,15 @@ _Last updated: 2026-10-16._
 |---|---|---|---|
 | Tokenizer/parser, nesting `&`, `!important`, comments | ✅ | 95 | real Textual DEFAULT_CSS from 102 widgets parses cleanly |
 | Selectors: type/class/id/universal, `>` and descendant, lists | ✅ | 95 | type selectors match "subclass" type names |
-| Pseudo-classes | ✅ | 85 | focus, focus-within, hover, disabled, enabled, dark, light, first/last-child, even/odd, empty, can-focus; no `:inline`, `:ansi`, `:nocolor` |
+| Pseudo-classes | ✅ | 90 | focus, focus-within, hover, disabled, enabled, dark, light, ansi, nocolor, first/last-child, even/odd, empty, can-focus; no `:inline` |
 | Variables (`$var`, theme vars) | ✅ | 100 | |
-| Themes & design system | ✅ | 95 | 19 built-in themes; variables match Python's output within ±2 per channel; no ANSI themes |
+| Themes & design system | ✅ | 95 | 22 built-in themes, including `ansi-dark` / `ansi-light`; variables match Python's output within ±2 per channel (ANSI themes exactly) |
 | Cascade (specificity, origin, important) | ✅ | 95 | |
 | Box model: width/height/min/max, margin, padding, box-sizing | ✅ | 95 | |
 | Units: cells, %, fr, w, h, vw, vh, auto | ✅ | 95 | |
-| Colors: names, hex, rgb/hsl, alpha `%`, `auto` contrast | ✅ | 90 | `ansi_default` → transparent |
+| Colors: names, hex, rgb/hsl, alpha `%`, `auto` contrast | ✅ | 95 | `ansi_*` / `ansi_default` are the terminal's own colors (see ANSI themes): opaque, alpha ignored, they win when composited |
 | Borders (19 kinds), titles/subtitles, outline | ✅ | 95 | |
-| Text: color, text-style, text-align, text-wrap, text-overflow, text-opacity | ✅ | 90 | |
+| Text: color, text-style, text-align, text-wrap, text-overflow, text-opacity | ✅ | 90 | `dim` is drawn as a color blended 66% towards the background unless ANSI colors are native (as Textual) |
 | background, background-tint, tint, opacity | ✅ | 85 | |
 | content-align, align | ✅ | 95 | |
 | dock, layers, layer, offset, position: absolute | ✅ | 85 | |
@@ -130,7 +131,7 @@ See [`docs/python-bindings.md`](docs/python-bindings.md).
 | Messages & events | ✅ | 90 | custom messages, bubbling, stop/prevent_default, `@on` with selectors, MRO dispatch, `key_*` methods, mouse/focus/enter/leave/resize/paste |
 | Screens & modes | ✅ | 85 | Screen/ModalScreen, dismiss + callback, `push_screen_wait`, SCREENS/MODES, screen CSS |
 | Workers & async | ✅ | 90 | async handlers/workers on an app-thread asyncio loop; thread workers; widget calls from threads auto-marshalled |
-| Themes, validation | ✅ | 90 | `Theme`/`register_theme`; `rustual.validation`; Input `restrict` regex |
+| Themes, validation | ✅ | 90 | `Theme` (incl. `ansi=`) / `register_theme`, `App(ansi_color=...)`, `app.ansi_color` / `native_ansi_color` / `no_color`; `rustual.validation`; Input `restrict` regex |
 | Bindings | ✅ | 90 | `BINDINGS` (tuples / `Binding`), MRO merge, `check_action` / `refresh_bindings` |
 | Built-in widgets | ✅ | 85 | every built-in widget is bound (see below) |
 | Packaging | ✅ | 90 | `rustual-py` on PyPI (`pip install rustual-py`, `uvx rustual-py`): abi3 wheels (CPython 3.10+) for manylinux_2_28 / musllinux_1_2 x86_64, Windows x86_64, macOS universal2 + sdist, also on GitHub releases; Rust crates on crates.io |

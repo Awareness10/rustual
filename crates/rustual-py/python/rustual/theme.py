@@ -44,4 +44,5 @@ class Theme:
             "luminosity_spread": self.luminosity_spread,
             "text_alpha": self.text_alpha,
             "variables": dict(self.variables),
+            "ansi": bool(self.ansi),
         }

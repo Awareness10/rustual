@@ -138,10 +138,15 @@ impl CrosstermDriver {
 }
 
 fn ct_color(c: Color) -> CtColor {
-    CtColor::Rgb {
-        r: c.r,
-        g: c.g,
-        b: c.b,
+    match c.ansi {
+        // The terminal's default color (SGR 39 / 49).
+        Some(-1) => CtColor::Reset,
+        Some(index) => CtColor::AnsiValue(index as u8),
+        None => CtColor::Rgb {
+            r: c.r,
+            g: c.g,
+            b: c.b,
+        },
     }
 }
 
@@ -301,5 +306,16 @@ mod tests {
         assert_eq!(key(KeyCode::BackTab, KeyModifiers::SHIFT), "shift+tab");
         assert_eq!(key(KeyCode::Up, KeyModifiers::SHIFT), "shift+up");
         assert_eq!(key(KeyCode::F(5), KeyModifiers::NONE), "f5");
+    }
+
+    #[test]
+    fn ansi_colors_are_written_as_ansi_codes() {
+        assert_eq!(ct_color(Color::ANSI_DEFAULT), CtColor::Reset);
+        assert_eq!(ct_color(Color::from_ansi(1)), CtColor::AnsiValue(1));
+        assert_eq!(ct_color(Color::from_ansi(12)), CtColor::AnsiValue(12));
+        assert_eq!(
+            ct_color(Color::rgb(1, 2, 3)),
+            CtColor::Rgb { r: 1, g: 2, b: 3 }
+        );
     }
 }

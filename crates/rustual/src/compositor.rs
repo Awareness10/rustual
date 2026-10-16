@@ -268,9 +268,20 @@ fn border_cell_style(loc: BorderCellStyle, color: Color, inner: Color, outer: Co
         // 1: outer + style
         BorderCellStyle::Outer => Style::new().fg(outer.composite(color)).bg(outer),
         // 2: Style(outer.bg, inner.fg, reverse) → visual fg = outer bg, visual bg = border color
-        BorderCellStyle::OuterReverse => Style::new().fg(outer).bg(inner.composite(color)),
+        BorderCellStyle::OuterReverse => reverse_cell(outer, inner.composite(color)),
         // 3: Style(inner.bg, outer.fg, reverse) → visual fg = inner bg, visual bg = border color
-        BorderCellStyle::Reverse => Style::new().fg(inner).bg(outer.composite(color)),
+        BorderCellStyle::Reverse => reverse_cell(inner, outer.composite(color)),
+    }
+}
+
+/// A cell showing the background color `bg` as text on `border`. RGB colors are swapped here;
+/// ANSI colors keep their slots and the terminal reverses them (as in Textual), because the
+/// terminal's default color differs between foreground and background.
+fn reverse_cell(bg: Color, border: Color) -> Style {
+    if bg.ansi.is_some() || border.ansi.is_some() {
+        Style::new().fg(border).bg(bg).reverse()
+    } else {
+        Style::new().fg(bg).bg(border)
     }
 }
 

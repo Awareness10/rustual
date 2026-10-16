@@ -63,6 +63,28 @@ Input {
         border: tall $error;
     }
 }
+
+/* ANSI themes (Textual `:ansi`). */
+Input {
+    &:ansi {
+        background: ansi_default;
+        color: ansi_default;
+        &>.input--cursor {
+            background: ansi_white;
+            color: ansi_black;
+        }
+        &>.input--placeholder, &>.input--suggestion {
+            text-style: dim;
+            color: ansi_default;
+        }
+        &.-invalid {
+            border: tall ansi_red;
+        }
+        &.-invalid:focus {
+            border: tall ansi_red;
+        }
+    }
+}
 "#;
 
 /// Cursor blink interval (Textual: 0.5s).

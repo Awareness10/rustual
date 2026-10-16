@@ -58,6 +58,23 @@ Switch {
         }
     }
 }
+
+/* ANSI themes (Textual `:ansi`). */
+Switch {
+    &:ansi {
+        & .switch--slider {
+            color: ansi_red;
+        }
+        &:hover {
+            & > .switch--slider {
+                color: ansi_bright_red;
+            }
+            &.-on > .switch--slider {
+                color: ansi_bright_green;
+            }
+        }
+    }
+}
 "#;
 
 /// Glyphs for the partial ends of a horizontal bar (Textual's `ScrollBarRender.HORIZONTAL_BARS`).

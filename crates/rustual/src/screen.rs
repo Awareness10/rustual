@@ -11,6 +11,24 @@ Screen {
     overflow-y: auto;
     background: $background;
 }
+
+/* ANSI themes (Textual `:ansi`). */
+Screen {
+    &:ansi {
+        background: ansi_default;
+        color: ansi_default;
+        &.-screen-suspended {
+            text-style: dim;
+            ScrollBar {
+                text-style: not dim;
+            }
+        }
+        &:inline {
+            border-top: tall $ansi-background;
+            border-bottom: tall $ansi-background;
+        }
+    }
+}
 ";
 
 pub(crate) const MODAL_SCREEN_CSS: &str = "
@@ -18,6 +36,13 @@ ModalScreen {
     layout: vertical;
     overflow-y: auto;
     background: $background 60%;
+}
+
+/* ANSI themes (Textual `:ansi`). */
+ModalScreen {
+    &:ansi {
+        background: transparent;
+    }
 }
 ";
 

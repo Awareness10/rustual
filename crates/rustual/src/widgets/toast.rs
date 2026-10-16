@@ -65,6 +65,13 @@ Toast.-error {
 Toast.-error .toast--title {
    color: $text-error;
 }
+
+/* ANSI themes (Textual `:ansi`). */
+Toast {
+    &:ansi {
+        background: $ansi-background;
+    }
+}
 ";
 
 const TOAST_RACK_CSS: &str = "

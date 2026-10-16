@@ -13,6 +13,7 @@ pub mod context;
 pub mod dom;
 pub mod driver;
 pub mod events;
+pub mod filter;
 pub mod layout;
 pub mod message;
 pub mod pilot;

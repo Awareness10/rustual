@@ -80,6 +80,8 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
         set_theme,
         theme,
         theme_names,
+        native_ansi_color,
+        set_ansi_color,
         copy_to_clipboard,
         clipboard,
         push_screen,

@@ -549,12 +549,8 @@ fn fraction(name: &str, t: &[&str]) -> Result<f32, String> {
     Ok(v.clamp(0.0, 1.0))
 }
 
-/// Parse a single color word with [`Color::parse`]. `ansi_default` (the terminal's default
-/// color, which we can't express) maps to transparent.
+/// Parse a single color word with [`Color::parse`] (`ansi_*` names are terminal colors).
 pub(crate) fn parse_color_word(s: &str) -> Result<Color, String> {
-    if s.eq_ignore_ascii_case("ansi_default") || s.eq_ignore_ascii_case("ansi-default") {
-        return Ok(Color::TRANSPARENT);
-    }
     Color::parse(s).map_err(|e| e.to_string())
 }
 
@@ -951,7 +947,16 @@ mod tests {
         );
         assert_eq!(
             s("background: ansi_default").background,
-            Some(Color::TRANSPARENT)
+            Some(Color::ANSI_DEFAULT)
+        );
+        assert_eq!(
+            s("color: ansi_red").color,
+            Some(ColorValue::Color(Color::from_ansi(1)))
+        );
+        // ANSI colors ignore alpha, like Textual.
+        assert_eq!(
+            s("background: ansi_blue 50%").background,
+            Some(Color::from_ansi(4))
         );
         assert_eq!(
             s("background: #12345680").background.unwrap().a,

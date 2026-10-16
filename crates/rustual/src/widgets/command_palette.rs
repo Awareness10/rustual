@@ -60,6 +60,18 @@ CommandPalette #--input Input, CommandPalette #--input Input:focus {
     background: transparent;
     background-tint: transparent;
 }
+
+/* ANSI themes (Textual `:ansi`). */
+CommandPalette {
+    &:ansi {
+        background: transparent;
+    }
+}
+
+/* ANSI themes (Textual `:ansi`). */
+CommandPalette:nocolor > .command-palette--highlight {
+    text-style: underline;
+}
 ";
 
 const COMMAND_LIST_CSS: &str = "
@@ -100,6 +112,20 @@ CommandList > .option-list--option-hover {
 }
 CommandList > .option-list--separator {
     color: $foreground 15%;
+}
+
+/* ANSI themes (Textual `:ansi`). */
+CommandList:ansi {
+    & > .option-list--option-highlighted {
+        color: $block-cursor-foreground;
+        background: $block-cursor-background;
+        text-style: $block-cursor-text-style;
+    }
+}
+
+/* ANSI themes (Textual `:ansi`). */
+CommandList:nocolor > .option-list--option-highlighted {
+    text-style: reverse;
 }
 ";
 

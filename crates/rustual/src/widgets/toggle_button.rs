@@ -63,6 +63,23 @@ ToggleButton {
         }
     }
 }
+
+/* ANSI themes (Textual `:ansi`). */
+ToggleButton {
+    &:ansi {
+        background: ansi_default;
+        & > .toggle--button {
+            background: $ansi-background;
+            color: $ansi-foreground;
+            text-style: dim;
+        }
+        &.-on > .toggle--button {
+            color: $accent;
+            background: $ansi-background;
+            text-style: bold not dim;
+        }
+    }
+}
 "#;
 
 /// Posted when a plain `ToggleButton` changes (Textual: `ToggleButton.Changed`).

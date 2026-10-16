@@ -277,7 +277,8 @@ in about 2 ms.
 <summary><b>Core features</b></summary>
 <br>
 
-- Textual CSS: variables, nesting, `!important`, pseudo-classes, themes and the design system
+- Textual CSS: variables, nesting, `!important`, pseudo-classes, themes (including ANSI themes that use
+  the terminal's own colors, and `NO_COLOR`) and the design system
 - Layouts: vertical, horizontal, grid, dock, layers, offsets, scrolling with scrollbars
 - Screens, modal screens, modes, maximize, loading overlays
 - Bindings with keymaps, `check_action`, actions with namespaces and arguments
