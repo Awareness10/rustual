@@ -5,7 +5,7 @@ Textual's behaviour for that item is implemented here. Status: ✅ done (≥ 90%
 
 **Overall: ~90% of commonly used Textual functionality, ~70% of full parity.** Test counts and coverage: see the badges in the [README](README.md#testing) (updated by CI). CI tests Linux, macOS and Windows; Python wheels for all three are on [GitHub releases](https://github.com/Awareness10/rustual/releases).
 
-_Last updated: 2026-10-15._
+_Last updated: 2026-10-16._
 
 ## Core runtime
 
@@ -31,7 +31,7 @@ _Last updated: 2026-10-15._
 | Clipboard (OSC 52) | ✅ | 90 | `ctx.copy_to_clipboard` queues OSC 52, flushed after the next frame; Input/TextArea copy/cut use it; paste reads the app clipboard; `pilot.clipboard()` |
 | `@click` markup links | 🟡 | 75 | click runs the action with the widget as owner; no `link-*-hover` styles, no `@mouse.down`/`@mouse.up` |
 | Screenshots (SVG / ANSI / text export) | ✅ | 90 | `canvas.to_svg()`, `to_ansi()`, `pilot.export_svg()`, `TEXTUAL_SCREENSHOT=out.svg` env mode (+ `TEXTUAL_SIZE`, `TEXTUAL_PRESS`); `screenshot(filename?, path?)` action + "Screenshot" palette command (CWD, Textual filename scheme, UTC timestamp), `ctx.save_screenshot` |
-| Maximize, `loading` overlay, `disabled` | ✅ | 85 | `ctx.maximize/maximize_exact/minimize`, `maximize`/`minimize` actions + palette commands, escape minimizes, `Widget::allow_maximize`, Footer/toasts kept; `ctx.set_loading(id, bool)` covers with a LoadingIndicator (blocks input, leaves focus chain); no hatch background, no custom loading widget |
+| Maximize, `loading` overlay, `disabled` | ✅ | 85 | `ctx.maximize/maximize_exact/minimize`, `maximize`/`minimize` actions + palette commands, escape minimizes, `Widget::allow_maximize`, Footer/toasts kept, hatched background around the maximized widget; `ctx.set_loading(id, bool)` covers with a LoadingIndicator (blocks input, leaves focus chain); no custom loading widget |
 | Suspend (`ctrl+z`), inline mode, no-color / ANSI themes | 🟡 | 30 | `suspend_process` action / `ctx.suspend_process` (unix SIGTSTP via `kill`, terminal restored + full redraw on resume; not bound by default, like Textual 8); no inline mode, no ANSI themes |
 | Devtools console / logging | ❌ | 0 | |
 | Testing: Pilot | ✅ | 90 | press, type, click, hover, scroll, resize, wait (paused time), query, canvas |
@@ -58,7 +58,8 @@ _Last updated: 2026-10-15._
 | overflow, scrollbar-size, scrollbar colors, scrollbar-gutter | ✅ | 95 | hover/active colors, ⅛-cell thumb ends (`ScrollBarRender`), theme scrollbar variables |
 | Grid: grid-size, grid-columns/rows, gutter, spans | ✅ | 90 | |
 | CSS `transition` | ✅ | 90 | `transition: <prop> <duration> [<easing>] [<delay>], ...` → `Styles::transitions`; runtime overlay in `transition.rs` (deterministic under Pilot `wait`, skipped below `AnimationLevel::Full`); opacity, text-opacity, offset, width/height, min/max-*, margin, padding, color, background, tint, background-tint, border(-edge) colors, scrollbar-*, link-* colors; `_`/`-` both accepted in names; mismatched units resolve to cells (`auto` → cells from the layout; to `auto`/`fr` jumps); inline-styled properties are not transitioned |
-| hatch, keyline, pointer, constrain, overlay, expand, line-pad | ❌ | 0 | parsed and ignored |
+| `hatch` | ✅ | 100 | `hatch: <left\|right\|cross\|horizontal\|vertical\|"c"> <color> [<alpha>%]` or `none`: blank cells of the padding box (including spaces between words) drawn as the hatch character in `background + color`; children cover it; maximized views are hatched (`Screen.-maximized-view`); Python `styles.hatch = ("right", "red")` |
+| keyline, pointer, constrain, overlay, expand, line-pad | ❌ | 0 | parsed and ignored |
 | CSS hot reload / `CSS_PATH` file watching | 🟡 | 30 | `App::css_path` loads once |
 
 ## Layout & rendering

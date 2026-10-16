@@ -350,6 +350,32 @@ async def test_exit_return_value_and_styles():
     assert app.return_value == 42
 
 
+async def test_hatch_css_and_styles():
+    class MyApp(App):
+        CSS = "#a { width: 6; height: 1; hatch: right $primary; }"
+
+        def compose(self) -> ComposeResult:
+            yield Static("a", id="a")
+            b = Static("b", id="b")
+            b.styles.width = 6
+            b.styles.height = 1
+            b.styles.hatch = ("x", "red")
+            yield b
+            c = Static("c", id="c")
+            c.styles.width = 6
+            c.styles.height = 1
+            c.styles.hatch = ("cross", "red")
+            yield c
+
+    app = MyApp()
+    async with app.run_test(size=(20, 4)) as pilot:
+        lines = pilot.screen_text().splitlines()
+        assert lines[0].startswith("a╱╱╱╱╱")
+        assert lines[1].startswith("bxxxxx")
+        assert lines[2].startswith("c╳╳╳╳╳")
+        assert app.query_one("#b").styles.hatch == ("x", "red")
+
+
 async def test_pre_mount_configuration_and_border_title():
     class MyApp(App):
         def compose(self) -> ComposeResult:

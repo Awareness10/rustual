@@ -12,7 +12,6 @@ Latest release: **v0.3.0** on [PyPI](https://pypi.org/project/rustual-py/),
 Make every one of Textual's own example apps run unchanged with only the imports swapped (11 of the 15
 run today), then Textual's demo:
 
-- [ ] **`hatch` CSS** (S): hatched backgrounds (`code_browser` uses one).
 - [ ] **ANSI themes** (M): `textual-ansi` / `ansi-dark` / `ansi-light`, `ansi_default`, `:ansi` / `:nocolor`,
   `NO_COLOR` (`theme_sandbox` lists them).
 - [ ] **Command palette providers from Python** (M): `Provider` classes and `COMMANDS` (`color_command`).
@@ -89,6 +88,8 @@ run today), then Textual's demo:
 - [ ] **Rich renderables in Rust** (L): Rich-style `Table`, `Syntax`, `Panel`, `Columns` renderables usable
   in `Static` / `RichLog` from Rust (Python apps already render any Rich renderable through the `rich`
   package).
+- [ ] **Static** (S): empty content should still be one line tall with `height: auto` (Textual measures
+  `""` as one line); visible in `code_browser`, where Textual's empty `#code` row is not hatched.
 - [ ] **Placeholder** (S): per-app color cycling counter like Textual.
 
 ## Python bindings
