@@ -185,25 +185,137 @@ impl crate::context::Ctx<'_> {
     }
 }
 
-/// Footer-friendly key formatting.
-pub fn format_key(key: &str) -> String {
-    if let Some(rest) = key.strip_prefix("ctrl+") {
-        return format!("^{}", format_key(rest));
+/// How a key is shown in the footer, key panel and help (Textual `App.get_key_display`):
+/// key names become their character or a short alias (`question_mark` → `?`, `delete` →
+/// `del`, `enter` → `⏎`), `ctrl` becomes a `^` prefix on the key, and other modifiers stay in
+/// front: `ctrl+q` → `^q`, `ctrl+shift+p` → `shift+^p`.
+/// Key names (other than single characters) that stand for a character, from Textual's
+/// `textual.keys.key_to_character` (generated with Textual 8.2.8).
+const KEY_CHARACTERS: &[(&str, char)] = &[
+    ("ampersand", '&'),
+    ("apostrophe", '\''),
+    ("asterisk", '*'),
+    ("backspace", '\u{8}'),
+    ("circumflex_accent", '^'),
+    ("colon", ':'),
+    ("comma", ','),
+    ("commercial_at", '@'),
+    ("delete", '\u{7f}'),
+    ("dollar_sign", '$'),
+    ("equals_sign", '='),
+    ("escape", '\u{1b}'),
+    ("exclamation_mark", '!'),
+    ("full_stop", '.'),
+    ("grave_accent", '`'),
+    ("greater_than_sign", '>'),
+    ("hyphen_minus", '-'),
+    ("left_curly_bracket", '{'),
+    ("left_parenthesis", '('),
+    ("left_square_bracket", '['),
+    ("less_than_sign", '<'),
+    ("low_line", '_'),
+    ("number_sign", '#'),
+    ("percent_sign", '%'),
+    ("plus_sign", '+'),
+    ("question_mark", '?'),
+    ("quotation_mark", '"'),
+    ("reverse_solidus", '\\'),
+    ("right_curly_bracket", '}'),
+    ("right_parenthesis", ')'),
+    ("right_square_bracket", ']'),
+    ("semicolon", ';'),
+    ("space", ' '),
+    ("tab", '\t'),
+    ("tilde", '~'),
+    ("vertical_line", '|'),
+];
+
+/// The character a key produces, if any (Textual's `key_to_character`): keys with a modifier
+/// have none; a single-character key is that character; some named keys map to one (`space`,
+/// `question_mark`, …). Note that, as in Textual, some names don't (e.g. `slash`, `minus`).
+pub fn key_to_character(key: &str) -> Option<char> {
+    if key.contains('+') && key != "+" {
+        return None;
     }
-    match key {
-        "enter" => "⏎".into(),
-        "escape" => "esc".into(),
-        "space" => "space".into(),
-        "up" => "↑".into(),
-        "down" => "↓".into(),
-        "left" => "←".into(),
-        "right" => "→".into(),
-        "tab" => "tab".into(),
-        "shift+tab" => "⇧tab".into(),
-        "backspace" => "⌫".into(),
-        other => other.to_string(),
+    let mut chars = key.chars();
+    if let (Some(c), None) = (chars.next(), chars.next()) {
+        return Some(c);
     }
+    KEY_CHARACTERS
+        .iter()
+        .find(|(name, _)| *name == key)
+        .map(|(_, c)| *c)
 }
+
+/// Whether a character is printable (Python's `str.isprintable` for one character, roughly).
+pub(crate) fn is_printable(c: char) -> bool {
+    !c.is_control()
+}
+
+pub fn format_key(key: &str) -> String {
+    if key == "+" {
+        return "+".into();
+    }
+    let mut modifiers: Vec<&str> = key.split('+').collect();
+    let name = modifiers.pop().unwrap_or_default();
+    let mut display = KEY_DISPLAY
+        .iter()
+        .find(|(k, _)| *k == name)
+        .map_or(name, |(_, d)| *d)
+        .to_string();
+    if let Some(i) = modifiers.iter().position(|m| *m == "ctrl") {
+        modifiers.remove(i);
+        display = format!("^{display}");
+    }
+    modifiers.push(&display);
+    modifiers.join("+")
+}
+
+// Generated from Textual 8.2.8 `textual.keys.format_key` (key names whose display differs).
+const KEY_DISPLAY: &[(&str, &str)] = &[
+    ("ampersand", "&"),
+    ("apostrophe", "'"),
+    ("asterisk", "*"),
+    ("at", "@"),
+    ("backslash", "\\"),
+    ("backspace", "⌫"),
+    ("circumflex_accent", "^"),
+    ("colon", ":"),
+    ("comma", ","),
+    ("delete", "del"),
+    ("dollar_sign", "$"),
+    ("down", "↓"),
+    ("enter", "⏎"),
+    ("equals_sign", "="),
+    ("escape", "esc"),
+    ("exclamation_mark", "!"),
+    ("full_stop", "."),
+    ("grave_accent", "`"),
+    ("greater_than_sign", ">"),
+    ("left", "←"),
+    ("left_curly_bracket", "{"),
+    ("left_parenthesis", "("),
+    ("left_square_bracket", "["),
+    ("less_than_sign", "<"),
+    ("minus", "-"),
+    ("number_sign", "#"),
+    ("pagedown", "pgdn"),
+    ("pageup", "pgup"),
+    ("percent_sign", "%"),
+    ("plus", "+"),
+    ("question_mark", "?"),
+    ("quotation_mark", "\""),
+    ("right", "→"),
+    ("right_curly_bracket", "}"),
+    ("right_parenthesis", ")"),
+    ("right_square_bracket", "]"),
+    ("semicolon", ";"),
+    ("slash", "/"),
+    ("tilde", "~"),
+    ("underscore", "_"),
+    ("up", "↑"),
+    ("vertical_line", "|"),
+];
 
 /// A parsed action string.
 #[derive(Debug, Clone, PartialEq, Eq)]

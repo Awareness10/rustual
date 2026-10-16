@@ -107,7 +107,7 @@ impl Widget for Dashboard {
             Binding::new("n", "notify_me", "Notify"),
             Binding::new("r", "reset", "Reset progress"),
             Binding::new("d", "app.toggle_dark", "Dark mode"),
-            Binding::new("ctrl+q", "quit", "Quit"),
+            Binding::new("ctrl+q", "quit", "Quit").priority(),
         ]
     }
 

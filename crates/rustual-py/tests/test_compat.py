@@ -338,3 +338,31 @@ async def test_getters():
         with pytest.raises(NoMatches):
             app.missing
         assert Probe("x").app is app
+
+
+async def test_footer_shows_custom_bindings_like_textual():
+    from rustual.binding import Binding
+    from rustual.widgets import Footer
+
+    class KeysApp(App):
+        BINDINGS = [
+            Binding("ctrl+q", "quit", "Quit"),
+            Binding("ctrl+s", "save", "Save"),
+            Binding("escape", "back", "Back"),
+            Binding("question_mark", "about", "About"),
+            Binding("f2", "hidden", "Hidden", show=False),
+        ]
+
+        def compose(self) -> ComposeResult:
+            yield Footer()
+
+        def action_save(self) -> None:
+            pass
+
+    app = KeysApp()
+    async with app.run_test(size=(100, 3)) as pilot:
+        footer = pilot.screen_text().splitlines()[-1]
+        assert footer.startswith(" ^q Quit  ^s Save  esc Back  ? About "), footer
+        assert "Hidden" not in footer
+        await pilot.press("ctrl+q")
+    assert app.return_code == 0 or app.return_code is None

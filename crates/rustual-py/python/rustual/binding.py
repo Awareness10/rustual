@@ -57,7 +57,9 @@ def collect_bindings(cls: type) -> list[Binding]:
     for klass in reversed(classes):
         for b in klass.__dict__["BINDINGS"]:
             binding = make_binding(b)
-            result[f"{binding.key}\x00{binding.action}"] = binding
+            # Keyed by key, as Textual's `_merge_bindings`: a subclass binding replaces the
+            # base class's binding for the same key, keeping its position.
+            result[binding.key] = binding
     return list(result.values())
 
 

@@ -73,10 +73,7 @@ pub fn normalize_key(key: &str) -> String {
     } else {
         base
     };
-    // shift is implied by the character for single printable keys
-    if base.chars().count() == 1 && !ctrl && !alt {
-        shift = false;
-    }
+    // `shift+a` stays a key of its own (as in Textual), distinct from `a` and `A`.
     // with ctrl/alt, letters are reported lowercase (`ctrl+c`, not `ctrl+C`)
     let base = if base.chars().count() == 1 && (ctrl || alt) {
         base.to_lowercase()
@@ -97,15 +94,10 @@ pub fn normalize_key(key: &str) -> String {
     out
 }
 
+/// The printable character of a key name: `"a"`, `"space"`, `"question_mark"` (as Textual's
+/// pilot does with `key_to_character`).
 fn printable_char(key: &str) -> Option<char> {
-    if key == "space" {
-        return Some(' ');
-    }
-    let mut chars = key.chars();
-    match (chars.next(), chars.next()) {
-        (Some(c), None) if !c.is_control() => Some(c),
-        _ => None,
-    }
+    crate::binding::key_to_character(key).filter(|c| crate::binding::is_printable(*c))
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -237,7 +229,8 @@ mod tests {
     fn normalize() {
         assert_eq!(normalize_key("Ctrl+C"), "ctrl+c");
         assert_eq!(normalize_key("shift+ctrl+up"), "ctrl+shift+up");
-        assert_eq!(normalize_key("shift+A"), "A");
+        assert_eq!(normalize_key("shift+a"), "shift+a");
+        assert_eq!(normalize_key("A"), "A");
         assert_eq!(normalize_key("return"), "enter");
         assert_eq!(normalize_key("backtab"), "shift+tab");
         assert_eq!(normalize_key(" "), "space");
