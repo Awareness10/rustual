@@ -102,6 +102,9 @@ pub(crate) fn register(r: &mut Registry) {
         if let Some(icon) = kw::<String>(k, "icon")? {
             h = h.icon(&icon);
         }
+        if let Some(format) = kw::<String>(k, "time_format")? {
+            h = h.time_format(&format);
+        }
         Ok(Box::new(h))
     });
     r.kind("Footer", |_, k, _| {
@@ -207,6 +210,7 @@ fn get(py: Python<'_>, wd: &dyn Widget, attr: &str) -> Option<PyResult<Py<PyAny>
     if let Some(h) = as_ref::<w::Header>(wd) {
         return match attr {
             "tall" => Some(to_py(py, h.is_tall())),
+            "time_format" => Some(to_py(py, h.get_time_format())),
             _ => None,
         };
     }
@@ -263,6 +267,7 @@ fn set(
     if let Some(h) = as_mut::<w::Header>(wd) {
         return match attr {
             "tall" => Some(v.extract::<bool>().map(|t| h.set_tall(t, ctx))),
+            "time_format" => Some(v.extract::<String>().map(|f| h.set_time_format(&f, ctx))),
             _ => None,
         };
     }

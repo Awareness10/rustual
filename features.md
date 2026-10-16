@@ -98,7 +98,7 @@ _Last updated: 2026-10-16._
 | TabbedContent / TabPane | ✅ | 90 | |
 | ContentSwitcher | ✅ | 95 | |
 | Collapsible | ✅ | 95 | |
-| Header | ✅ | 90 | clock in UTC (offset configurable); icon opens the command palette |
+| Header | ✅ | 95 | clock in local time with a strftime `time_format` (default `%X`; changeable at runtime, Python `Header(time_format=...)` / `header.time_format`), `clock_utc_offset` pins a fixed offset; icon opens the command palette |
 | Footer | ✅ | 92 | Textual 8 order (focused widget → screen → app); `^p palette` key docked right (`show_command_palette`); click replays the key; binding groups (`Binding::group(BindingGroup)`, compact groups) |
 | Log | ✅ | 90 | |
 | RichLog | ✅ | 90 | `highlight(true)`: Rich `ReprHighlighter` port (`pretty::tokenize_text`), ANSI-theme colors at write time; no custom highlighter object |
