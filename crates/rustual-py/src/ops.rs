@@ -918,3 +918,73 @@ pub fn help_panel(show: bool) -> PyResult<()> {
         Ok(())
     })
 }
+
+/// `Matcher.match` / `highlight`: fuzzy score (the Textual scale) and matched char offsets.
+#[pyfunction]
+pub fn fuzzy_match(query: &str, candidate: &str, case_sensitive: bool) -> (f64, Vec<usize>) {
+    rustual::command::FuzzySearch::new(case_sensitive).match_offsets(query, candidate)
+}
+
+/// The built-in system commands for the active screen: `(title, help, action)`.
+#[pyfunction]
+pub fn system_commands() -> PyResult<Vec<(String, String, String)>> {
+    with_ctx(|ctx| {
+        Ok(ctx
+            .system_commands()
+            .into_iter()
+            .filter_map(|c| match c.action {
+                rustual::command::CommandAction::Action(a) => Some((c.name, c.help, a)),
+                rustual::command::CommandAction::Callback(_) => None,
+            })
+            .collect())
+    })
+}
+
+/// Deliver provider hits to an open palette:
+/// `(score or None for discovery, display markup, text, help, callback id)`.
+#[pyfunction]
+pub fn palette_add_hits(
+    palette: Node,
+    generation: u64,
+    hits: Vec<(Option<f64>, String, String, String, u64)>,
+) -> PyResult<()> {
+    let commands = hits
+        .into_iter()
+        .map(|(score, display, text, help, id)| {
+            let mut c = rustual::Command::new(&text, &help, &format!("app._rs_palette_callback({id})"))
+                .display(rustual::Text::from_markup(&display));
+            if let Some(s) = score {
+                c = c.score(s);
+            }
+            c
+        })
+        .collect();
+    with_ctx(|ctx| {
+        ctx.add_command_hits(n(palette), generation, commands);
+        Ok(())
+    })
+}
+
+/// Open a command palette searching the app's providers (`builtin`: also the Rust-side
+/// commands, i.e. widgets' `commands()`).
+#[pyfunction]
+pub fn open_command_palette(placeholder: &str, builtin: bool) -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.open_command_palette_searching(Vec::new(), placeholder, builtin);
+        Ok(())
+    })
+}
+
+/// The plain text of Textual markup.
+#[pyfunction]
+pub fn markup_plain(markup: &str) -> String {
+    rustual::Text::from_markup(markup).plain_text()
+}
+
+/// Named colors (`COLOR_NAME_TO_RGB`): name → (r, g, b) or (r, g, b, a) when translucent.
+#[pyfunction]
+pub fn color_names() -> Vec<(&'static str, Vec<u8>)> {
+    rustual::Color::named_colors()
+        .map(|(name, (r, g, b, a))| (name, if a == 255 { vec![r, g, b] } else { vec![r, g, b, a] }))
+        .collect()
+}

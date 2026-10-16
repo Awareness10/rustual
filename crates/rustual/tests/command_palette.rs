@@ -210,3 +210,96 @@ fn fuzzy_ranking() {
     let (_, offsets) = FuzzySearch::default().match_offsets("fb", "foo bar");
     assert_eq!(offsets, vec![0, 4]);
 }
+
+/// Search hook log: events, and the palette / generation of the latest query.
+#[derive(Default)]
+struct SearchLog {
+    events: Vec<String>,
+    palette: Option<NodeId>,
+    generation: u64,
+}
+
+#[tokio::test]
+async fn search_hooks_get_queries_and_deliver_hits_later() {
+    use rustual::command::SearchEvent;
+    use std::sync::{Arc, Mutex};
+
+    let log: Arc<Mutex<SearchLog>> = Default::default();
+    let hook_log = log.clone();
+    let mut p = App::new(PaletteApp::default())
+        .command_search(move |palette, event, _ctx: &mut Ctx| {
+            let mut l = hook_log.lock().unwrap();
+            l.palette = Some(palette);
+            match event {
+                SearchEvent::Opened => l.events.push("opened".into()),
+                SearchEvent::Query { query, generation } => {
+                    l.events.push(format!("query {query:?} #{generation}"));
+                    l.generation = generation;
+                }
+                SearchEvent::Closed => l.events.push("closed".into()),
+            }
+        })
+        .test(Size::new(70, 24))
+        .await;
+    p.press(&["ctrl+p"]).await;
+    // Discovery: hits arrive after the query, in order, after the built-in commands.
+    let (palette, generation) = {
+        let l = log.lock().unwrap();
+        assert_eq!(l.events, vec!["opened", "query \"\" #1"]);
+        (l.palette.unwrap(), l.generation)
+    };
+    let deliver = |hits: Vec<Command>, generation: u64| {
+        move |_: &mut PaletteApp, ctx: &mut Ctx| ctx.add_command_hits(palette, generation, hits)
+    };
+    p.with::<PaletteApp, _>(
+        "App",
+        deliver(vec![Command::new("Remote one", "From a provider", "app.bell")], generation),
+    )
+    .await;
+    assert_eq!(hits(&p).last().map(String::as_str), Some("Remote one"));
+
+    // A search: scored hits merge with the palette's own matches by score.
+    p.type_text("re").await;
+    let generation = log.lock().unwrap().generation;
+    assert_eq!(generation, 3, "{:?}", log.lock().unwrap().events);
+    p.with::<PaletteApp, _>(
+        "App",
+        deliver(
+            vec![
+                // Scores are on the matcher's scale (Textual's): "re" in "Focus previous" is 6.
+                Command::callback("Remote best", "", |ctx| ctx.notify("ran remote"))
+                    .score(100.0)
+                    .display(Text::from_markup("[b]Re[/]mote best")),
+                Command::new("Remote worst", "", "app.bell").score(0.01),
+            ],
+            generation,
+        ),
+    )
+    .await;
+    let names = hits(&p);
+    assert_eq!(names.first().map(String::as_str), Some("Remote best"), "{names:?}");
+    assert_eq!(names.last().map(String::as_str), Some("Remote worst"), "{names:?}");
+    // Stale hits (an older generation) are ignored.
+    p.with::<PaletteApp, _>(
+        "App",
+        deliver(vec![Command::new("Stale", "", "app.bell").score(1.0)], 1),
+    )
+    .await;
+    assert!(!hits(&p).iter().any(|n| n == "Stale"));
+    // Running a delivered hit; the hook hears the palette close.
+    p.press(&["enter"]).await;
+    assert_eq!(p.notifications(), vec!["ran remote".to_string()]);
+    assert_eq!(log.lock().unwrap().events.last().map(String::as_str), Some("closed"));
+}
+
+#[tokio::test]
+async fn system_commands_can_be_turned_off() {
+    let mut p = App::new(PaletteApp::default())
+        .system_commands(false)
+        .test(Size::new(70, 24))
+        .await;
+    p.press(&["ctrl+p"]).await;
+    let names = hits(&p);
+    assert!(names.iter().any(|n| n == "Ring bell"), "{names:?}");
+    assert!(!names.iter().any(|n| n == "Quit"), "{names:?}");
+}

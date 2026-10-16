@@ -92,6 +92,25 @@ fn build_app(py: Python<'_>, app: &Bound<'_, PyAny>, cfg: AppConfig) -> PyResult
     let root = build_root(py, app)?;
     let mut a = App::new(root).title(&cfg.title).sub_title(&cfg.sub_title);
     a = a.enable_command_palette(cfg.command_palette);
+    // Python apps search with `App.COMMANDS` providers (system commands included, via
+    // `App.get_system_commands`), driven by `App._rs_command_search`.
+    let app_obj = app.clone().unbind();
+    a = a.system_commands(false).command_search(move |palette, event, ctx| {
+        use rustual::command::SearchEvent;
+        let (kind, generation, query) = match event {
+            SearchEvent::Opened => ("opened", 0, ""),
+            SearchEvent::Query { query, generation } => ("query", generation, query),
+            SearchEvent::Closed => ("closed", 0, ""),
+        };
+        let _frame = bridge::push(bridge::ctx_frame(ctx, None, None));
+        bridge::call_py(|py| {
+            app_obj.bind(py).call_method1(
+                "_rs_command_search",
+                (kind, crate::bridge::node_to_int(palette), generation, query),
+            )?;
+            Ok(())
+        });
+    });
     for theme in cfg.themes {
         a = a.register_theme(theme.into_theme());
     }

@@ -34,6 +34,8 @@ class Screen(Widget, Generic[ScreenResultType]):
     AUTO_FOCUS: ClassVar[str | None] = None
     TITLE: ClassVar[str | None] = None
     SUB_TITLE: ClassVar[str | None] = None
+    COMMANDS: ClassVar[set[Any]] = set()
+    """Command palette providers of this screen (added to ``App.COMMANDS``)."""
 
     def __init__(self, name: str | None = None, id: str | None = None, classes: str | None = None) -> None:
         super().__init__(name=name, id=id, classes=classes)

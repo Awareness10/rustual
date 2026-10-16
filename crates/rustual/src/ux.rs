@@ -17,7 +17,9 @@ use std::rc::Rc;
 pub(crate) struct UxState {
     pub tooltip: crate::tooltip::TooltipState,
     pub providers: Vec<Rc<dyn CommandProvider>>,
+    pub search_hooks: Vec<crate::command::SearchHook>,
     pub palette_enabled: bool,
+    pub system_commands: bool,
 }
 
 impl Default for UxState {
@@ -25,7 +27,9 @@ impl Default for UxState {
         UxState {
             tooltip: Default::default(),
             providers: Vec::new(),
+            search_hooks: Vec::new(),
             palette_enabled: true,
+            system_commands: true,
         }
     }
 }

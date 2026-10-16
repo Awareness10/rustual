@@ -23,9 +23,13 @@
 //! # ;
 //! ```
 //!
-//! Deviations from Textual: providers return all their commands up front (synchronously) and
-//! the palette does the fuzzy matching; there is no async `search`/`discover` split, so
-//! "discovery" (empty input) lists every command whose [`Command::discover`] flag is set.
+//! [`CommandProvider`]s return all their commands up front and the palette does the fuzzy
+//! matching; "discovery" (empty input) lists every command whose [`Command::discover`] flag is
+//! set. Searches that produce results later (Textual's async `Provider.search` / `discover`)
+//! use a [`SearchHook`] ([`App::command_search`]): it is told about each query and delivers
+//! scored hits with [`Ctx::add_command_hits`].
+
+use crate::dom::NodeId;
 
 use crate::app::{App, AppState};
 use crate::binding::Binding;
@@ -274,6 +278,12 @@ pub struct Command {
     pub action: CommandAction,
     /// Listed when the input is empty (Textual's `discover`). Default `true`.
     pub discover: bool,
+    /// A score from an external search (see [`SearchHook`]), on the scale of
+    /// [`Matcher::score`] (like Textual's, not limited to 0..1); the palette doesn't match such
+    /// commands itself.
+    pub score: Option<f64>,
+    /// What the list shows instead of the name (e.g. with the matched letters highlighted).
+    pub display: Option<Text>,
 }
 
 impl Command {
@@ -284,6 +294,8 @@ impl Command {
             help: help.to_string(),
             action: CommandAction::Action(action.to_string()),
             discover: true,
+            score: None,
+            display: None,
         }
     }
 
@@ -294,6 +306,8 @@ impl Command {
             help: help.to_string(),
             action: CommandAction::Callback(Rc::new(f)),
             discover: true,
+            score: None,
+            display: None,
         }
     }
 
@@ -301,7 +315,36 @@ impl Command {
         self.discover = discover;
         self
     }
+
+    /// The score of an externally matched hit (see [`Command::score`]).
+    pub fn score(mut self, score: f64) -> Self {
+        self.score = Some(score);
+        self
+    }
+
+    /// Show `display` in the list instead of the name.
+    pub fn display(mut self, display: Text) -> Self {
+        self.display = Some(display);
+        self
+    }
 }
+
+/// What a [`SearchHook`] is told about an open palette.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SearchEvent<'a> {
+    /// The palette opened (Textual: providers' `startup`).
+    Opened,
+    /// The input changed to `query` (empty: discovery). Hits for it must carry `generation`
+    /// (older generations are ignored).
+    Query { query: &'a str, generation: u64 },
+    /// The palette closed (Textual: providers' `shutdown`).
+    Closed,
+}
+
+/// A search that delivers hits later, e.g. from async work: called with the palette's node,
+/// the event and a `Ctx`; answers with [`Ctx::add_command_hits`]. Registered with
+/// [`App::command_search`].
+pub type SearchHook = Rc<dyn Fn(NodeId, SearchEvent<'_>, &mut Ctx)>;
 
 /// A source of commands (Textual: `command.Provider`). Called each time the palette opens,
 /// with a `Ctx` for the app root (the palette is not open yet, so `ctx.screen()` and
@@ -431,7 +474,9 @@ pub(crate) fn gather_commands(state: &mut AppState) -> Vec<Command> {
         for p in &providers {
             out.extend(p.commands(&mut ctx));
         }
-        out.extend(SystemCommandsProvider.commands(&mut ctx));
+        if ctx.app.ux.system_commands {
+            out.extend(SystemCommandsProvider.commands(&mut ctx));
+        }
     }
     state.dirty = true;
     if let Some(screen) = screen.filter(|s| *s != root) {
@@ -442,14 +487,20 @@ pub(crate) fn gather_commands(state: &mut AppState) -> Vec<Command> {
     out
 }
 
-/// Push a command palette listing `commands` (no-op if one is open or the palette is disabled).
-pub(crate) fn push_palette(state: &mut AppState, commands: Vec<Command>, placeholder: &str) {
+/// Push a command palette listing `commands`, asking `hooks` for more (no-op if one is open).
+pub(crate) fn push_palette(
+    state: &mut AppState,
+    commands: Vec<Command>,
+    placeholder: &str,
+    hooks: Vec<SearchHook>,
+) {
     if is_open(state) {
         return;
     }
     crate::tooltip::clear(state);
-    let palette =
-        crate::widgets::command_palette::CommandPalette::new(commands).placeholder(placeholder);
+    let palette = crate::widgets::command_palette::CommandPalette::new(commands)
+        .placeholder(placeholder)
+        .search_hooks(hooks);
     let root = state.root;
     state.push_screen(
         root,
@@ -464,7 +515,8 @@ pub(crate) fn open_palette(state: &mut AppState) {
         return;
     }
     let commands = gather_commands(state);
-    push_palette(state, commands, "Search for commands…");
+    let hooks = state.ux.search_hooks.clone();
+    push_palette(state, commands, "Search for commands…", hooks);
 }
 
 /// The `change_theme` action: a palette listing every registered theme (Textual: `search_themes`).
@@ -475,7 +527,7 @@ pub(crate) fn open_theme_palette(state: &mut AppState) {
         .iter()
         .map(|n| Command::new(n, "", &format!("app.set_theme('{n}')")))
         .collect();
-    push_palette(state, commands, "Search for themes…");
+    push_palette(state, commands, "Search for themes…", Vec::new());
 }
 
 impl App {
@@ -491,6 +543,23 @@ impl App {
         self.state.ux.palette_enabled = enabled;
         self
     }
+
+    /// Register a search that delivers hits later (see [`SearchHook`]); like Textual's async
+    /// `Provider`s.
+    pub fn command_search(
+        mut self,
+        hook: impl Fn(NodeId, SearchEvent<'_>, &mut Ctx) + 'static,
+    ) -> Self {
+        self.state.ux.search_hooks.push(Rc::new(hook));
+        self
+    }
+
+    /// Include the built-in system commands (theme, quit, keys, ...) in the palette. On by
+    /// default; turn off to provide them yourself.
+    pub fn system_commands(mut self, enabled: bool) -> Self {
+        self.state.ux.system_commands = enabled;
+        self
+    }
 }
 
 impl Ctx<'_> {
@@ -502,7 +571,37 @@ impl Ctx<'_> {
     /// Open a command palette with the given commands only (Textual:
     /// `push_screen(CommandPalette(providers=...))`).
     pub fn open_command_palette_with(&mut self, commands: Vec<Command>, placeholder: &str) {
-        push_palette(self.app, commands, placeholder);
+        push_palette(self.app, commands, placeholder, Vec::new());
+    }
+
+    /// Open a command palette with `commands` plus the hits of the registered
+    /// [search hooks](App::command_search) (`builtin`: also every built-in source, as
+    /// [`Ctx::open_command_palette`]).
+    pub fn open_command_palette_searching(
+        &mut self,
+        commands: Vec<Command>,
+        placeholder: &str,
+        builtin: bool,
+    ) {
+        let mut commands = commands;
+        if builtin {
+            commands.extend(gather_commands(self.app));
+        }
+        let hooks = self.app.ux.search_hooks.clone();
+        push_palette(self.app, commands, placeholder, hooks);
+    }
+
+    /// Deliver hits for a query of the palette `palette` (see [`SearchHook`]); hits for an
+    /// older `generation` are dropped.
+    pub fn add_command_hits(&mut self, palette: NodeId, generation: u64, hits: Vec<Command>) {
+        self.with_id::<crate::widgets::command_palette::CommandPalette, _>(palette, |p, ctx| {
+            p.add_hits(generation, hits, ctx)
+        });
+    }
+
+    /// The built-in system commands for the current screen (theme, quit, keys, ...).
+    pub fn system_commands(&mut self) -> Vec<Command> {
+        SystemCommandsProvider.commands(self)
     }
 
     /// Open a palette listing the registered themes (Textual: `App.search_themes`).
