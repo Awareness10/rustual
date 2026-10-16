@@ -35,7 +35,7 @@ _Last updated: 2026-10-16._
 | Suspend (`ctrl+z`), inline mode | 🟡 | 50 | `suspend_process` action / `ctx.suspend_process` (unix SIGTSTP via `kill`, terminal restored + full redraw on resume; not bound by default, like Textual 8); no inline mode |
 | ANSI themes, `ansi_color`, `NO_COLOR` | ✅ | 90 | `ansi-dark` / `ansi-light` (variables identical to Textual's `_generate_ansi`); `ansi_*` / `ansi_default` colors are written as terminal ANSI codes when native (`App::ansi_color`, else the theme's `ansi`; `ctx.set_ansi_color`), otherwise converted with Textual's MONOKAI / ALABASTER terminal themes, with `dim` turned into a blended color (`ANSIToTruecolor`); `NO_COLOR` gives default colors (native) or a gray scale (`NoColor` / `Monochrome`); widgets' `:ansi` rules ported; screenshots use Rich's SVG export theme; no `TEXTUAL_DIM_FACTOR` / `TEXTUAL_FILTERS` env vars |
 | Devtools console / logging | ❌ | 0 | |
-| Testing: Pilot | ✅ | 90 | press, type, click, hover, scroll, resize, wait (paused time), query, canvas |
+| Testing: Pilot | ✅ | 90 | press, type, click, hover, scroll, resize, wait (paused time), query, canvas; Python `Pilot` methods wait for running animations, like Textual's |
 | Snapshot testing (SVG compare) | ❌ | 0 | text snapshots via `screen_text()` |
 
 ## CSS (TCSS)
@@ -69,7 +69,7 @@ _Last updated: 2026-10-16._
 |---|---|---|---|
 | Vertical / horizontal / grid layouts | ✅ | 95 | port of Textual's `layouts/*` |
 | Breakpoints | ✅ | 100 | `App::horizontal_breakpoints` / `vertical_breakpoints` (Textual `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS`), per-screen overrides (`ctx.set_screen_breakpoints`); classes follow the terminal size |
-| Stream layout | ❌ | 0 | falls back to vertical |
+| Stream layout | ✅ | 95 | `layout: stream` (port of `layouts/stream.py`): full-width, auto-height children, collapsing vertical margins, only cell `min-height` / `max-height`, no offset / absolute; child regions match Textual 8.2.8 exactly in side-by-side tests; Textual's between-frame placement cache isn't ported (rustual lays out every frame, so stream is only ~3% faster than vertical here) |
 | Scrolling: containers, self-scrolling (ScrollView) | ✅ | 90 | keyboard / scrollbar-track scrolling animates (out_cubic, 50 cells/s); wheel and drag are immediate |
 | Compositor: clipping, layers, opacity, modal dimming | ✅ | 90 | full-frame paint + diff (~2 ms per frame at 1000 widgets, release build) |
 | Content markup (`[b red on $panel]`, `[/]`, `\[`) | ✅ | 90 | |

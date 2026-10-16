@@ -43,8 +43,7 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 - [ ] **Devtools** (L): `textual console`-style log sink, `log()` API, DOM inspector.
 - [ ] **CSS hot reload** (S): watch `css_path` files and re-apply on change (Textual `--dev`).
 - [ ] **Unsupported CSS properties** (M): `keyline`, `constrain`, `overlay: screen` (would simplify
-  Select and the command palette), `expand`, `line-pad`, `pointer` (mouse cursor shapes via OSC 22),
-  `layout: stream`.
+  Select and the command palette), `expand`, `line-pad`, `pointer` (mouse cursor shapes via OSC 22).
 - [ ] **Snapshot testing** (M): SVG snapshot compare helper (`pilot.assert_snapshot("name")` storing
   baselines), like pytest-textual-snapshot.
 - [ ] **`@click` links** (S): `link-*-hover` styles; `@mouse.down` / `@mouse.up` handlers.

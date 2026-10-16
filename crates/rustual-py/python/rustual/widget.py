@@ -906,6 +906,13 @@ class Widget:
         return self.content_region.size
 
     @property
+    def virtual_size(self) -> Size:
+        """The size of the scrollable content (for a scrolling container, all its children)."""
+        if not self.is_mounted:
+            return Size(0, 0)
+        return Size(*native.region(self._node, "virtual")[2:])
+
+    @property
     def content_size(self) -> Size:
         return self.content_region.size
 

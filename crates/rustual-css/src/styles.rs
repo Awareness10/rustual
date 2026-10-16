@@ -41,6 +41,8 @@ pub enum LayoutKind {
     Vertical,
     Horizontal,
     Grid,
+    /// A faster vertical layout for long lists: full-width, auto-height children.
+    Stream,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]

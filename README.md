@@ -279,7 +279,7 @@ in about 2 ms.
 
 - Textual CSS: variables, nesting, `!important`, pseudo-classes, themes (including ANSI themes that use
   the terminal's own colors, and `NO_COLOR`) and the design system
-- Layouts: vertical, horizontal, grid, dock, layers, offsets, scrolling with scrollbars
+- Layouts: vertical, horizontal, grid, stream, dock, layers, offsets, breakpoints, scrolling with scrollbars
 - Screens, modal screens, modes, maximize, loading overlays
 - Bindings with keymaps, `check_action`, actions with namespaces and arguments
 - Animations with Textual's easing functions, CSS transitions, timers

@@ -187,6 +187,10 @@ impl<'a> LayoutCx<'a> {
             if self.dom.children(id).is_empty() {
                 return 0;
             }
+            if self.layout_kind(id) == LayoutKind::Stream {
+                // Stream children are full width: the content is as wide as the space.
+                return container.width.max(0);
+            }
             let arr = self.arrange(id, Size::new(container.width, 0), false);
             return arr.total_region().right();
         }
@@ -212,6 +216,12 @@ impl<'a> LayoutCx<'a> {
         if self.is_container(id) {
             if self.dom.children(id).is_empty() {
                 return 0;
+            }
+            if self.layout_kind(id) == LayoutKind::Stream {
+                return self
+                    .arrange(id, Size::new(width, 0), true)
+                    .total_region()
+                    .height;
             }
             let st = self.styles(id);
             let all_dynamic = self
