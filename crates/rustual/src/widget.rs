@@ -10,6 +10,7 @@ use rustual_css::{
 };
 use rustual_render::{Color, Justify, Offset, Size, Strip, Style, Text, TextOverflow};
 use std::any::Any;
+use std::collections::HashMap;
 
 /// What a widget renders inside its content region.
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -143,6 +144,14 @@ pub trait Widget: Any {
     /// to the rest of the app (e.g. to look at another widget's state).
     fn check_action(&self, _action: &str, _args: &[String], _dom: &Dom) -> Option<bool> {
         Some(true)
+    }
+
+    /// Whether this widget may consume `key` itself when it (or a descendant) has focus
+    /// (Textual's `check_consume_key`), e.g. an input takes printable keys. Bindings for such
+    /// keys further up the focus chain are then neither shown in the footer nor run.
+    /// `character` is the key's character ([`crate::binding::key_to_character`]).
+    fn check_consume_key(&self, _key: &str, _character: Option<char>) -> bool {
+        false
     }
 
     /// Commands offered in the command palette when this widget is the app root or the
@@ -314,6 +323,27 @@ macro_rules! compose {
     };
 }
 
+/// The bindings of one screen: shown ones in footer order and every binding grouped per node
+/// (see [`RenderEnv::active_bindings`] and [`RenderEnv::all_bindings`]).
+#[derive(Debug, Clone, Default)]
+pub struct ScreenBindings {
+    pub active: Vec<Binding>,
+    pub all: Vec<Vec<Binding>>,
+}
+
+impl RenderEnv {
+    /// The bindings for a widget's footer: those of the screen `node` is on.
+    pub fn bindings_for(&self, dom: &Dom, node: NodeId) -> (&[Binding], &[Vec<Binding>]) {
+        match dom
+            .screen_of(node)
+            .and_then(|s| self.screen_bindings.get(&s))
+        {
+            Some(b) => (&b.active, &b.all),
+            None => (&self.active_bindings, &self.all_bindings),
+        }
+    }
+}
+
 /// App-wide information available while rendering.
 #[derive(Default)]
 pub struct RenderEnv {
@@ -323,6 +353,9 @@ pub struct RenderEnv {
     /// Bindings active for the focused widget chain (focused → screen → app), deduplicated by key,
     /// in display order. Used by `Footer`.
     pub active_bindings: Vec<Binding>,
+    /// The bindings of each visible screen (a footer shows its own screen's, as in Textual: a
+    /// footer beneath a modal keeps showing the bindings of the screen it's on).
+    pub screen_bindings: HashMap<NodeId, ScreenBindings>,
     pub dark: bool,
     /// Active notifications (oldest first), for toast widgets.
     pub notifications: Vec<crate::app::Notification>,
@@ -391,7 +424,15 @@ impl<'a> RenderCtx<'a> {
     /// Theme variable as a color (`"primary"`, `"accent"`, ... without `$`).
     pub fn var_color(&self, name: &str) -> Option<Color> {
         let v = self.env.stylesheet.variables().get(name)?;
-        parse_color_value(v)
+        match rustual_css::parse_color_value(v).ok()? {
+            ColorValue::Color(c) => Some(c),
+            // `auto N%` (e.g. `$text-muted`): the contrasting text color over this widget's
+            // background, as for CSS `color: auto 60%`.
+            ColorValue::Auto(alpha) => {
+                let bg = self.background();
+                Some(bg.composite(bg.get_contrast_text(alpha)))
+            }
+        }
     }
 
     /// Parse markup with `$variable` colors resolved from the theme.

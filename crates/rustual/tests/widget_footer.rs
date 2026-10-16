@@ -197,3 +197,183 @@ async fn palette_key_can_be_hidden() {
     let mut pilot = App::new(NoPalette).test(Size::new(60, 3)).await;
     assert_eq!(footer_line(&mut pilot), " q Quit");
 }
+
+struct Keys {
+    hits: Vec<String>,
+}
+impl Widget for Keys {
+    fn compose(&mut self) -> Vec<Child> {
+        compose![Footer::new()]
+    }
+    fn bindings(&self) -> Vec<Binding> {
+        vec![
+            Binding::new("ctrl+q", "quit", "Quit"),
+            Binding::new("delete", "hit('del')", "Delete"),
+            Binding::new("question_mark", "hit('?')", "About"),
+            Binding::new("ctrl+shift+p", "hit('p')", "Palette"),
+            Binding::new("pagedown", "hit('pd')", "Page"),
+            Binding::new("plus", "hit('+')", "Zoom"),
+            Binding::new("a", "hit('a')", "Add"),
+            Binding::new("shift+a", "hit('A')", "Add all"),
+            Binding::new("tab", "hit('tab')", "Next"),
+        ]
+    }
+    fn run_action(&mut self, action: &str, args: &[String], _ctx: &mut Ctx) -> bool {
+        if action == "hit" {
+            self.hits.push(args.join(","));
+            return true;
+        }
+        false
+    }
+}
+
+/// Key labels as Textual 8.2.8 shows them for the same bindings.
+#[tokio::test]
+async fn footer_shows_keys_like_textual() {
+    let mut p = App::new(Keys { hits: vec![] })
+        .test(Size::new(160, 3))
+        .await;
+    let text = p.screen_text();
+    let footer = text.lines().last().unwrap();
+    assert!(
+        footer.starts_with(" ^q Quit  del Delete  ? About  shift+^p Palette  pgdn Page  + Zoom  a Add  shift+a Add all "),
+        "{footer:?}"
+    );
+    // The screen's own (hidden) `tab` binding is closer to the focus and wins, as in Textual.
+    assert!(!footer.contains("tab Next"), "{footer:?}");
+    // `shift+a` is its own key.
+    p.press(&["shift+a"]).await;
+    p.press(&["a"]).await;
+    assert_eq!(p.app::<Keys>().unwrap().hits, vec!["A", "a"]);
+    // The app's shown `ctrl+q` replaced the built-in (hidden) one, and still quits.
+    p.press(&["ctrl+q"]).await;
+    assert!(p.has_exited());
+}
+
+struct Editor {
+    hits: Vec<String>,
+}
+
+impl Widget for Editor {
+    fn compose(&mut self) -> Vec<Child> {
+        compose![Input::new().id("input"), Button::new("Go"), Footer::new()]
+    }
+
+    fn bindings(&self) -> Vec<Binding> {
+        vec![
+            Binding::new("n", "hit('n')", "New"),
+            Binding::new("question_mark", "hit('?')", "Help"),
+            Binding::new("slash", "hit('/')", "Find"),
+            Binding::new("ctrl+s", "hit('save')", "Save"),
+            Binding::new("ctrl+q", "quit", "Quit"),
+        ]
+    }
+
+    fn run_action(&mut self, action: &str, args: &[String], _ctx: &mut Ctx) -> bool {
+        if action == "hit" {
+            self.hits.extend(args.iter().cloned());
+            return true;
+        }
+        false
+    }
+}
+
+/// Keys the focused input would type are neither shown nor run (Textual's `check_consume_key`;
+/// `slash` has no character in Textual, so it stays).
+#[tokio::test]
+async fn focused_input_hides_bindings_for_printable_keys() {
+    let mut p = App::new(Editor { hits: vec![] })
+        .test(Size::new(100, 5))
+        .await;
+    assert_eq!(p.focused_id().as_deref(), Some("input"));
+    let footer = footer_line(&mut p);
+    assert!(
+        footer.starts_with(" ^q Quit  / Find  ^s Save "),
+        "{footer:?}"
+    );
+    p.press(&["n", "question_mark", "ctrl+s"]).await;
+    assert_eq!(p.query_one::<Input>("#input").unwrap().get_value(), "n?");
+    assert_eq!(p.app::<Editor>().unwrap().hits, vec!["save"]);
+    p.press(&["tab"]).await;
+    let footer = footer_line(&mut p);
+    assert!(
+        footer.starts_with(" ^q Quit  n New  ? Help  / Find  ^s Save "),
+        "{footer:?}"
+    );
+}
+
+struct Dialog;
+
+impl Widget for Dialog {
+    fn type_names(&self) -> &'static [&'static str] {
+        &["Dialog"]
+    }
+
+    fn compose(&mut self) -> Vec<Child> {
+        compose![Label::new("Sure?"), Footer::new()]
+    }
+
+    fn bindings(&self) -> Vec<Binding> {
+        vec![Binding::new("y", "app.hit('yes')", "Yes")]
+    }
+}
+
+struct Base {
+    hits: Vec<String>,
+}
+
+impl Widget for Base {
+    fn compose(&mut self) -> Vec<Child> {
+        compose![Label::new("base"), Footer::new()]
+    }
+
+    fn bindings(&self) -> Vec<Binding> {
+        vec![
+            Binding::new("e", "hit('e')", "Edit"),
+            Binding::new("d", "dialog", "Dialog"),
+            // Without `priority` (which replaces the built-in priority binding) it wouldn't
+            // reach past the modal, as in Textual.
+            Binding::new("ctrl+q", "quit", "Quit").priority(),
+        ]
+    }
+
+    fn run_action(&mut self, action: &str, args: &[String], ctx: &mut Ctx) -> bool {
+        match action {
+            "hit" => self.hits.extend(args.iter().cloned()),
+            "dialog" => {
+                ctx.push_modal(Dialog);
+            }
+            _ => return false,
+        }
+        true
+    }
+}
+
+/// As in Textual: only priority bindings reach past a modal screen, a modal's footer shows the
+/// modal's bindings, and the footer beneath keeps showing its own screen's.
+#[tokio::test]
+async fn modal_screens_stop_the_binding_chain() {
+    let mut p = App::new(Base { hits: vec![] }).test(Size::new(80, 6)).await;
+    p.press(&["d"]).await;
+    let text = p.screen_text();
+    let lines: Vec<&str> = text.lines().collect();
+    // The dialog fills the screen here; its footer is the last line.
+    // Only the modal's own binding: the app's `^p` palette binding doesn't reach past it either.
+    assert_eq!(lines.last().unwrap().trim_end(), " y Yes", "{text}");
+    p.press(&["e", "y"]).await;
+    assert_eq!(p.app::<Base>().unwrap().hits, vec!["yes"]);
+    p.press(&["ctrl+q"]).await;
+    assert!(p.has_exited());
+}
+
+#[tokio::test]
+async fn footer_beneath_a_modal_shows_its_own_screen() {
+    let mut p = App::new(Base { hits: vec![] })
+        .css("Dialog { height: 3; } Dialog Footer { display: none; }")
+        .test(Size::new(80, 6))
+        .await;
+    p.press(&["d"]).await;
+    let text = p.screen_text();
+    let footer = text.lines().last().unwrap();
+    assert!(footer.starts_with(" ^q Quit  e Edit  d Dialog "), "{text}");
+}

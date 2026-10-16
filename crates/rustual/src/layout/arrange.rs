@@ -1,7 +1,7 @@
 //! Port of `_arrange.py`: layers, docking, layout dispatch and `align`.
 
 use super::box_model::{floor, resolve_scalar, union_raw, LayoutCx};
-use super::{dock, grid, horizontal, vertical};
+use super::{dock, grid, horizontal, stream, vertical};
 use crate::dom::NodeId;
 use rustual_css::{AlignH, AlignV, Dimension, LayoutKind, Position, Styles};
 use rustual_render::{Offset, Region, Size, Spacing};
@@ -109,6 +109,7 @@ pub(crate) fn arrange(cx: &LayoutCx, parent: NodeId, size: Size, greedy: bool) -
             LayoutKind::Vertical => vertical::arrange(cx, &flow, dock_region.size(), greedy),
             LayoutKind::Horizontal => horizontal::arrange(cx, &flow, dock_region.size(), greedy),
             LayoutKind::Grid => grid::arrange(cx, parent, &flow, dock_region.size(), greedy),
+            LayoutKind::Stream => stream::arrange(cx, &flow, dock_region.size()),
         };
         scroll_spacing = scroll_spacing.max(dock_spacing);
         let mut placement_offset = dock_region.offset();

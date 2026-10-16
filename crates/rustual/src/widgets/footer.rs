@@ -226,7 +226,8 @@ impl Widget for Footer {
         match event {
             Event::MouseMove(m) => {
                 let x = Self::content_x(ctx, m.x);
-                self.hover = self.item_at(&ctx.app.env.active_bindings, x);
+                let (active, _) = ctx.app.env.bindings_for(&ctx.app.dom, ctx.node);
+                self.hover = self.item_at(active, x);
                 Flow::Continue
             }
             Event::Leave => {
@@ -235,16 +236,20 @@ impl Widget for Footer {
             }
             Event::MouseDown(m) => {
                 let x = Self::content_x(ctx, m.x);
-                if let Some(b) = self.palette_binding(&ctx.app.env.all_bindings) {
+                let (active, all) = ctx.app.env.bindings_for(&ctx.app.dom, ctx.node);
+                let palette_key = self
+                    .palette_binding(all)
+                    .map(|b| (self.palette_width(b), b.keys.first().cloned()));
+                let items = self.layout_items(active);
+                if let Some((palette_width, key)) = palette_key {
                     let width = ctx.content_region().width;
-                    if x >= width - self.palette_width(b) {
-                        if let Some(key) = b.keys.first().cloned() {
+                    if x >= width - palette_width {
+                        if let Some(key) = key {
                             ctx.app.handle_key(KeyEvent::new(key.as_str()));
                         }
                         return Flow::Stop;
                     }
                 }
-                let items = self.layout_items(&ctx.app.env.active_bindings);
                 let Some(item) = items
                     .into_iter()
                     .find(|i| x >= i.start && x < i.end && !i.group_label)
@@ -268,7 +273,7 @@ impl Widget for Footer {
         let mut spans = Vec::new();
         let mut x = 0;
         for (i, item) in self
-            .layout_items(&ctx.env.active_bindings)
+            .layout_items(ctx.env.bindings_for(ctx.dom, ctx.node).0)
             .iter()
             .enumerate()
         {
@@ -300,7 +305,7 @@ impl Widget for Footer {
         }
         let width = ctx.size.width;
         let palette = self
-            .palette_binding(&ctx.env.all_bindings)
+            .palette_binding(ctx.env.bindings_for(ctx.dom, ctx.node).1)
             .map(|b| (b, self.palette_width(b)))
             .filter(|(_, w)| *w < width);
         let Some((b, pw)) = palette else {

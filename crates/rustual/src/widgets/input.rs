@@ -862,6 +862,10 @@ impl Input {
 }
 
 impl Widget for Input {
+    fn check_consume_key(&self, _key: &str, character: Option<char>) -> bool {
+        character.is_some_and(crate::binding::is_printable)
+    }
+
     fn type_names(&self) -> &'static [&'static str] {
         &["Input"]
     }

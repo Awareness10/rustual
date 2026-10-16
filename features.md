@@ -18,7 +18,7 @@ _Last updated: 2026-10-16._
 | Mouse capture / drag | ✅ | 85 | `ctx.capture_mouse/release_mouse`; drags go to the MouseDown widget; scrollbar thumb drag + track paging; no `MouseCapture`/`MouseRelease` events |
 | Focus chain, tab/shift+tab, auto-focus | ✅ | 90 | `can_focus_children`, focus on click, restore on screen pop |
 | Messages (bubbling) | ✅ | 95 | typed payloads, `Flow::Stop`, `sender_id()` |
-| Bindings & actions | ✅ | 90 | priority, namespaces `app.`/`screen.`/`focused.`, args; keymaps (`Binding::id`, `App::keymap`, `ctx.set_keymap/update_keymap`, clashing keys dropped); runtime bindings (`ctx.bind`, Textual `bind`); `check_action` (hide / disable bindings, footer dims) |
+| Bindings & actions | ✅ | 90 | priority, namespaces `app.`/`screen.`/`focused.`, args; keymaps (`Binding::id`, `App::keymap`, `ctx.set_keymap/update_keymap`, clashing keys dropped); runtime bindings (`ctx.bind`, Textual `bind`); `check_action` (hide / disable bindings, footer dims); `check_consume_key` (a focused input hides / skips printable-key bindings); modal screens stop the chain (only priority bindings reach the app) |
 | Builtin actions | ✅ | 85 | quit, bell, toggle_dark, set_theme, focus, focus_next/previous, pop_screen, push_screen/switch_screen/switch_mode('name'), maximize, minimize, screenshot, suspend_process, add/remove/toggle_class, notify, scroll_* |
 | Timers (`set_timer`, `set_interval`) | ✅ | 95 | |
 | Workers (async + blocking) | ✅ | 90 | result posted as message; `run_worker_with`/`run_blocking_with` + `WorkerOptions { name, group, exclusive }` post `worker::StateChanged` (Pending/Running/Success/Error=panic/Cancelled); `cancel_workers(group)`, `WorkerHandle::state()`; errors don't exit the app; plain `run_worker` posts no state events |
@@ -35,7 +35,7 @@ _Last updated: 2026-10-16._
 | Suspend (`ctrl+z`), inline mode | 🟡 | 50 | `suspend_process` action / `ctx.suspend_process` (unix SIGTSTP via `kill`, terminal restored + full redraw on resume; not bound by default, like Textual 8); no inline mode |
 | ANSI themes, `ansi_color`, `NO_COLOR` | ✅ | 90 | `ansi-dark` / `ansi-light` (variables identical to Textual's `_generate_ansi`); `ansi_*` / `ansi_default` colors are written as terminal ANSI codes when native (`App::ansi_color`, else the theme's `ansi`; `ctx.set_ansi_color`), otherwise converted with Textual's MONOKAI / ALABASTER terminal themes, with `dim` turned into a blended color (`ANSIToTruecolor`); `NO_COLOR` gives default colors (native) or a gray scale (`NoColor` / `Monochrome`); widgets' `:ansi` rules ported; screenshots use Rich's SVG export theme; no `TEXTUAL_DIM_FACTOR` / `TEXTUAL_FILTERS` env vars |
 | Devtools console / logging | ❌ | 0 | |
-| Testing: Pilot | ✅ | 90 | press, type, click, hover, scroll, resize, wait (paused time), query, canvas |
+| Testing: Pilot | ✅ | 90 | press, type, click, hover, scroll, resize, wait (paused time), query, canvas; Python `Pilot` methods wait for running animations, like Textual's |
 | Snapshot testing (SVG compare) | ❌ | 0 | text snapshots via `screen_text()` |
 
 ## CSS (TCSS)
@@ -69,7 +69,7 @@ _Last updated: 2026-10-16._
 |---|---|---|---|
 | Vertical / horizontal / grid layouts | ✅ | 95 | port of Textual's `layouts/*` |
 | Breakpoints | ✅ | 100 | `App::horizontal_breakpoints` / `vertical_breakpoints` (Textual `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS`), per-screen overrides (`ctx.set_screen_breakpoints`); classes follow the terminal size |
-| Stream layout | ❌ | 0 | falls back to vertical |
+| Stream layout | ✅ | 95 | `layout: stream` (port of `layouts/stream.py`): full-width, auto-height children, collapsing vertical margins, only cell `min-height` / `max-height`, no offset / absolute; child regions match Textual 8.2.8 exactly in side-by-side tests; Textual's between-frame placement cache isn't ported (rustual lays out every frame, so stream is only ~3% faster than vertical here) |
 | Scrolling: containers, self-scrolling (ScrollView) | ✅ | 90 | keyboard / scrollbar-track scrolling animates (out_cubic, 50 cells/s); wheel and drag are immediate |
 | Compositor: clipping, layers, opacity, modal dimming | ✅ | 90 | full-frame paint + diff (~2 ms per frame at 1000 widgets, release build) |
 | Content markup (`[b red on $panel]`, `[/]`, `\[`) | ✅ | 90 | |
@@ -101,7 +101,7 @@ _Last updated: 2026-10-16._
 | ContentSwitcher | ✅ | 95 | |
 | Collapsible | ✅ | 95 | |
 | Header | ✅ | 95 | shows the screen's own title / sub-title when set (Textual `Screen.title`); clock in local time with a strftime `time_format` (default `%X`; changeable at runtime, Python `Header(time_format=...)` / `header.time_format`), `clock_utc_offset` pins a fixed offset; icon opens the command palette |
-| Footer | ✅ | 92 | Textual 8 order (focused widget → screen → app); `^p palette` key docked right (`show_command_palette`); click replays the key; binding groups (`Binding::group(BindingGroup)`, compact groups) |
+| Footer | ✅ | 92 | key labels as Textual's (`^q`, `del`, `shift+^p`); shows its own screen's bindings (also beneath a modal); Textual 8 order (focused widget → screen → app); `^p palette` key docked right (`show_command_palette`); click replays the key; binding groups (`Binding::group(BindingGroup)`, compact groups) |
 | Log | ✅ | 90 | |
 | RichLog | ✅ | 90 | `highlight(true)`: Rich `ReprHighlighter` port (`pretty::tokenize_text`), ANSI-theme colors at write time; `write_renderable` renders tables / panels / syntax once at write time (measured width, shrunk to the region, at least `min_width`; `write_renderable_with` for `width` / `expand`), as Textual does; no custom highlighter object |
 | ProgressBar | ✅ | 95 | ETA, indeterminate, gradients |
@@ -112,7 +112,7 @@ _Last updated: 2026-10-16._
 | Rule | ✅ | 100 | |
 | Toast / ToastRack | ✅ | 90 | |
 | Containers (Container, Vertical, Horizontal, Grid, Center, Middle, ScrollableContainer, ...) | ✅ | 95 | |
-| Markdown / MarkdownViewer | 🟡 | 85 | pulldown-cmark (GFM tables, strikethrough, task lists); all block types, inline styles, clickable links, TOC + goto_anchor, viewer with TOC tree and file history; fences highlighted by default with the TextArea keyword highlighter (python/rust/js/json/toml; monokai dark / github_light light; replaceable hook), `open_links` (default on: scheme links via `open_url`); no streaming / incremental append |
+| Markdown / MarkdownViewer | 🟡 | 85 | pulldown-cmark (GFM tables, strikethrough, task lists); all block types, inline styles, clickable links, TOC + goto_anchor, viewer with TOC tree and file history; fences highlighted by default with the TextArea keyword highlighter (python/rust/js/json/toml; monokai dark / github_light light; replaceable hook), `open_links` (default on: scheme links via `open_url`); tables sized like Textual's grid (proportional expand, shrink to the longest word, "…" for overlong words); `append` re-renders the whole document (no incremental `MarkdownStream`) |
 | Link | ✅ | 90 | opener stubbable via `link::set_url_opener`; posts `link::Opened` |
 | Pretty | 🟡 | 75 | `Debug` repr, one-line or expanded, hand-written repr highlighter; all-or-nothing expansion, no indent guides |
 | Tooltip | ✅ | 90 | runtime-positioned (no `constrain` CSS) |

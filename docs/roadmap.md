@@ -43,8 +43,7 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 - [ ] **Devtools** (L): `textual console`-style log sink, `log()` API, DOM inspector.
 - [ ] **CSS hot reload** (S): watch `css_path` files and re-apply on change (Textual `--dev`).
 - [ ] **Unsupported CSS properties** (M): `keyline`, `constrain`, `overlay: screen` (would simplify
-  Select and the command palette), `expand`, `line-pad`, `pointer` (mouse cursor shapes via OSC 22),
-  `layout: stream`.
+  Select and the command palette), `expand`, `line-pad`, `pointer` (mouse cursor shapes via OSC 22).
 - [ ] **Snapshot testing** (M): SVG snapshot compare helper (`pilot.assert_snapshot("name")` storing
   baselines), like pytest-textual-snapshot.
 - [ ] **`@click` links** (S): `link-*-hover` styles; `@mouse.down` / `@mouse.up` handlers.
@@ -111,7 +110,7 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 
 - [ ] **Guide** (M): port the essential parts of Textual's guide (app basics, CSS, layout, events, actions,
   screens, workers, testing) to Rust idioms.
-- [ ] **Gallery script** (S): a script that regenerates `docs/assets/screenshots/` from every example via
-  `TEXTUAL_SCREENSHOT` (the README gallery currently uses hand-made captures of 10 examples).
-- [ ] **Bundled examples** (S): more demos in `rustual.demo` (the `rustual-py` launcher), e.g. ports of
-  Textual's calculator and five-by-five.
+- [ ] **Gallery script** (S): a script that regenerates `docs/assets/screenshots/` from the examples via
+  `TEXTUAL_SCREENSHOT` (the README gallery's five captures are currently made by hand).
+- [ ] **Bundled examples** (S): more demos in `rustual.demo` (the `rustual-py` launcher), e.g. ports
+  of Textual's calculator and five-by-five.

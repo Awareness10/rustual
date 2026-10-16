@@ -21,6 +21,12 @@ use crate::message::Flow;
 use crate::widget::{Content, RenderCtx, Widget};
 use rustual_css::Overflow;
 use rustual_render::cells::cell_len;
+
+/// Markup parsed for its text only: `$variables` resolve to a placeholder color, so markup such
+/// as `[$success]✓[/]` measures and sorts as `✓` (colors are resolved when rendering).
+fn styleless_markup(s: &str) -> Text {
+    Text::from_markup_with(s, &|_| Some(rustual_render::Color::WHITE))
+}
 pub use rustual_render::Justify;
 use rustual_render::{Region, Size, Span, Strip, Style, Text, TextOverflow};
 use std::cmp::Ordering;
@@ -278,12 +284,12 @@ impl CellValue {
 
     /// Displayed text without styles.
     pub fn plain(&self) -> String {
-        self.to_text(&|s| Text::from_markup(s)).plain_text()
+        self.to_text(&styleless_markup).plain_text()
     }
 
     /// (width, line count) when rendered without wrapping.
     fn measure(&self) -> (i32, usize) {
-        let t = self.to_text(&|s| Text::from_markup(s));
+        let t = self.to_text(&styleless_markup);
         (t.cell_len(), t.lines().len().max(1))
     }
 

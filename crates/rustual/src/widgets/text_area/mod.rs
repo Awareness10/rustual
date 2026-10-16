@@ -1603,6 +1603,16 @@ impl TextArea {
 }
 
 impl Widget for TextArea {
+    fn check_consume_key(&self, key: &str, character: Option<char>) -> bool {
+        if self.read_only {
+            return false;
+        }
+        if self.tab_behavior == TabBehavior::Indent && key == "tab" {
+            return true;
+        }
+        character.is_some_and(crate::binding::is_printable)
+    }
+
     fn type_names(&self) -> &'static [&'static str] {
         &["TextArea", "ScrollView"]
     }

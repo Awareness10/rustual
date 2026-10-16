@@ -306,6 +306,12 @@ impl PilotHandle {
         self.step(py, async |p| p.pump())
     }
 
+    /// Whether animations or CSS transitions are running.
+    fn animating(&self) -> PyResult<bool> {
+        let p = self.pilot()?;
+        Ok(p.animations_running() + p.transitions_running() > 0)
+    }
+
     fn wait(&self, py: Python<'_>, seconds: f64) -> PyResult<()> {
         let d = Duration::from_secs_f64(seconds.max(0.0));
         self.step(py, async |p| p.wait(d).await)

@@ -133,9 +133,8 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-Or try the bundled examples: `cargo run -p rustual --example dashboard`
-(also `hello`, `form`, `table`, `navigator`, `editor`, `markdown`, `palette`, `modes`,
-`renderables`, `widgets_extra`). `ctrl+p` opens the command palette, `ctrl+q` quits.
+Or try the example apps: `cargo run -p rustual --example tasks` (a task manager), `monitor`
+(a live process monitor) or `chat` (a streaming Markdown chat). `ctrl+p` opens the command palette, `ctrl+q` quits.
 
 </details>
 
@@ -223,20 +222,16 @@ Details: [`crates/rustual-py`](crates/rustual-py/README.md) ·
 
 <table>
 <tr>
-<td width="50%"><img src="docs/assets/screenshots/dashboard.svg" alt="Dashboard"><br><sub><b>Dashboard</b>: grid, sparkline, progress, digits · <a href="crates/rustual/examples/dashboard.rs">Rust</a></sub></td>
-<td width="50%"><img src="docs/assets/screenshots/table.svg" alt="DataTable"><br><sub><b>DataTable</b>: sorting, cursors, filtering · <a href="crates/rustual/examples/table.rs">Rust</a></sub></td>
+<td width="50%"><img src="docs/assets/screenshots/tasks.svg" alt="Task manager"><br><sub><b>Tasks</b>: projects, a task table, filtering, saving · <a href="crates/rustual/examples/tasks.rs">Rust</a> · <a href="crates/rustual-py/python/rustual/demo/tasks.py">Python</a></sub></td>
+<td width="50%"><img src="docs/assets/screenshots/tasks_form.svg" alt="Task form in a modal screen"><br><sub><b>Tasks</b>: modal form with validation, footer keys · <a href="crates/rustual/examples/tasks.rs">Rust</a> · <a href="crates/rustual-py/python/rustual/demo/tasks.py">Python</a></sub></td>
 </tr>
 <tr>
-<td><img src="docs/assets/screenshots/editor.svg" alt="TextArea editor"><br><sub><b>Editor</b>: TextArea with highlighting and themes · <a href="crates/rustual/examples/editor.rs">Rust</a></sub></td>
-<td><img src="docs/assets/screenshots/markdown.svg" alt="Markdown viewer"><br><sub><b>Markdown</b>: viewer with table of contents · <a href="crates/rustual/examples/markdown.rs">Rust</a></sub></td>
-</tr>
-<tr>
-<td><img src="docs/assets/screenshots/py_data.svg" alt="Data widgets from Python"><br><sub><b>Data widgets</b>: DataTable, Tree, RichLog · <a href="crates/rustual-py/python/rustual/demo/data.py">Python</a></sub></td>
-<td><img src="docs/assets/screenshots/py_forms.svg" alt="Form controls from Python"><br><sub><b>Forms</b>: Checkbox, Switch, RadioSet, Select, OptionList · <a href="crates/rustual-py/python/rustual/demo/forms.py">Python</a></sub></td>
+<td><img src="docs/assets/screenshots/monitor.svg" alt="System monitor"><br><sub><b>Monitor</b>: live digits, sparklines, a sortable process table · <a href="crates/rustual/examples/monitor.rs">Rust</a> · <a href="crates/rustual-py/python/rustual/demo/monitor.py">Python</a></sub></td>
+<td><img src="docs/assets/screenshots/chat.svg" alt="Chat client"><br><sub><b>Chat</b>: Markdown replies streamed into a stream layout · <a href="crates/rustual/examples/chat.rs">Rust</a> · <a href="crates/rustual-py/python/rustual/demo/chat.py">Python</a></sub></td>
 </tr>
 </table>
 
-Make your own: `TEXTUAL_SCREENSHOT=shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=tab,down cargo run -p rustual --example table`
+Make your own: `TEXTUAL_SCREENSHOT=shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=down,e cargo run -p rustual --example tasks`
 (works for Python apps too).
 
 ## Benchmarks
@@ -279,7 +274,7 @@ in about 2 ms.
 
 - Textual CSS: variables, nesting, `!important`, pseudo-classes, themes (including ANSI themes that use
   the terminal's own colors, and `NO_COLOR`) and the design system
-- Layouts: vertical, horizontal, grid, dock, layers, offsets, scrolling with scrollbars
+- Layouts: vertical, horizontal, grid, stream, dock, layers, offsets, breakpoints, scrolling with scrollbars
 - Screens, modal screens, modes, maximize, loading overlays
 - Bindings with keymaps, `check_action`, actions with namespaces and arguments
 - Animations with Textual's easing functions, CSS transitions, timers

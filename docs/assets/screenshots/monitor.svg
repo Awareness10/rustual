@@ -1,0 +1,354 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1004" height="660" viewBox="0 0 1004 660">
+<style>
+  .t { font-family: "Fira Code", "DejaVu Sans Mono", Menlo, Consolas, monospace; font-size: 16px; white-space: pre; dominant-baseline: central; }
+  .b { font-weight: bold; } .i { font-style: italic; } .u { text-decoration: underline; } .s { text-decoration: line-through; }
+</style>
+<rect width="1004" height="660" rx="8" fill="#292929"/>
+<circle cx="20" cy="18" r="6" fill="#ff5f57"/><circle cx="40" cy="18" r="6" fill="#febc2e"/><circle cx="60" cy="18" r="6" fill="#28c840"/>
+<text class="t" x="502" y="18" fill="#c5c8c6" text-anchor="middle">Monitor</text>
+<g transform="translate(12, 48)">
+<rect x="0.0" y="0.0" width="882.5" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+<rect x="882.0" y="0.0" width="98.5" height="20" fill="#2C363F" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="10.0" fill="#E0E0E0" textLength="9.8" lengthAdjust="spacingAndGlyphs">⭘</text>
+<text xml:space="preserve" class="t" x="294.0" y="10.0" fill="#E0E0E0" textLength="68.6" lengthAdjust="spacingAndGlyphs">Monitor</text>
+<text xml:space="preserve" class="t" x="372.4" y="10.0" fill="#A0A3A6" textLength="294.0" lengthAdjust="spacingAndGlyphs">— 40 processes · sorted by CPU</text>
+<text xml:space="preserve" class="t" x="891.8" y="10.0" fill="#C5C6C7" textLength="78.4" lengthAdjust="spacingAndGlyphs">22:17:22</text>
+<rect x="0.0" y="20.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="30.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">╭─</text>
+<text xml:space="preserve" class="t" x="29.4" y="30.0" fill="#E0E0E0" textLength="29.4" lengthAdjust="spacingAndGlyphs">CPU</text>
+<text xml:space="preserve" class="t" x="68.6" y="30.0" fill="#0178D4" textLength="274.4" lengthAdjust="spacingAndGlyphs">─────────────────────────╮╭─</text>
+<text xml:space="preserve" class="t" x="352.8" y="30.0" fill="#E0E0E0" textLength="58.8" lengthAdjust="spacingAndGlyphs">Memory</text>
+<text xml:space="preserve" class="t" x="421.4" y="30.0" fill="#0178D4" textLength="245.0" lengthAdjust="spacingAndGlyphs">──────────────────────╮╭─</text>
+<text xml:space="preserve" class="t" x="676.2" y="30.0" fill="#E0E0E0" textLength="68.6" lengthAdjust="spacingAndGlyphs">Network</text>
+<text xml:space="preserve" class="t" x="754.6" y="30.0" fill="#0178D4" textLength="225.4" lengthAdjust="spacingAndGlyphs">──────────────────────╮</text>
+<rect x="0.0" y="40.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="50.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="19.6" y="50.0" fill="#E0E0E0" textLength="58.8" lengthAdjust="spacingAndGlyphs">╭─╴╭─╮</text>
+<text xml:space="preserve" class="t" x="313.6" y="50.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="343.0" y="50.0" fill="#E0E0E0" textLength="68.6" lengthAdjust="spacingAndGlyphs">╶─┐ ╷ ╷</text>
+<text xml:space="preserve" class="t" x="637.0" y="50.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="666.4" y="50.0" fill="#E0E0E0" textLength="58.8" lengthAdjust="spacingAndGlyphs">╶─┐╭─╮</text>
+<text xml:space="preserve" class="t" x="970.2" y="50.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="60.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="70.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="19.6" y="70.0" fill="#E0E0E0" textLength="58.8" lengthAdjust="spacingAndGlyphs">╰─╮├─┤</text>
+<text xml:space="preserve" class="t" x="313.6" y="70.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="362.6" y="70.0" fill="#E0E0E0" textLength="49.0" lengthAdjust="spacingAndGlyphs">│ ╰─┤</text>
+<text xml:space="preserve" class="t" x="637.0" y="70.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="686.0" y="70.0" fill="#E0E0E0" textLength="39.2" lengthAdjust="spacingAndGlyphs">│├─┤</text>
+<text xml:space="preserve" class="t" x="970.2" y="70.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="80.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="90.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="19.6" y="90.0" fill="#E0E0E0" textLength="68.6" lengthAdjust="spacingAndGlyphs">╶─╯╰─╯%</text>
+<text xml:space="preserve" class="t" x="313.6" y="90.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="362.6" y="90.0" fill="#E0E0E0" textLength="58.8" lengthAdjust="spacingAndGlyphs">╵•  ╵G</text>
+<text xml:space="preserve" class="t" x="637.0" y="90.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="686.0" y="90.0" fill="#E0E0E0" textLength="49.0" lengthAdjust="spacingAndGlyphs">╵╰─╯M</text>
+<text xml:space="preserve" class="t" x="970.2" y="90.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="100.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="110.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="313.6" y="110.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="637.0" y="110.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="970.2" y="110.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="120.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="130.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="127.4" y="130.0" fill="#055DA1" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
+<text xml:space="preserve" class="t" x="137.2" y="130.0" fill="#055CA0" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
+<text xml:space="preserve" class="t" x="147.0" y="130.0" fill="#05599A" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
+<text xml:space="preserve" class="t" x="156.8" y="130.0" fill="#0463AC" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
+<text xml:space="preserve" class="t" x="205.8" y="130.0" fill="#05599A" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
+<text xml:space="preserve" class="t" x="215.6" y="130.0" fill="#0463AE" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
+<text xml:space="preserve" class="t" x="225.4" y="130.0" fill="#0366B2" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="235.2" y="130.0" fill="#0364AF" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
+<text xml:space="preserve" class="t" x="245.0" y="130.0" fill="#026CBD" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="254.8" y="130.0" fill="#045FA6" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
+<text xml:space="preserve" class="t" x="264.6" y="130.0" fill="#0369B8" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="274.4" y="130.0" fill="#0367B4" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="284.2" y="130.0" fill="#055898" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
+<text xml:space="preserve" class="t" x="294.0" y="130.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="313.6" y="130.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="343.0" y="130.0" fill="#0270C5" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
+<text xml:space="preserve" class="t" x="352.8" y="130.0" fill="#036ABA" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="362.6" y="130.0" fill="#026CBE" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="372.4" y="130.0" fill="#026BBC" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="382.2" y="130.0" fill="#026CBE" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="392.0" y="130.0" fill="#026DBF" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="401.8" y="130.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="411.6" y="130.0" fill="#0174CE" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
+<text xml:space="preserve" class="t" x="421.4" y="130.0" fill="#0364AF" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
+<text xml:space="preserve" class="t" x="431.2" y="130.0" fill="#0366B2" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="441.0" y="130.0" fill="#0368B7" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="450.8" y="130.0" fill="#0461A9" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
+<text xml:space="preserve" class="t" x="460.6" y="130.0" fill="#0462AA" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
+<text xml:space="preserve" class="t" x="470.4" y="130.0" fill="#0463AD" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
+<text xml:space="preserve" class="t" x="480.2" y="130.0" fill="#045EA3" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
+<text xml:space="preserve" class="t" x="490.0" y="130.0" fill="#055DA1" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
+<text xml:space="preserve" class="t" x="637.0" y="130.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="676.2" y="130.0" fill="#0463AC" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
+<text xml:space="preserve" class="t" x="695.8" y="130.0" fill="#0175D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
+<text xml:space="preserve" class="t" x="715.4" y="130.0" fill="#026BBB" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="725.2" y="130.0" fill="#026DBF" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="754.6" y="130.0" fill="#0366B3" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="774.2" y="130.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="784.0" y="130.0" fill="#055899" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
+<text xml:space="preserve" class="t" x="793.8" y="130.0" fill="#036ABA" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="803.6" y="130.0" fill="#0172C9" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
+<text xml:space="preserve" class="t" x="823.2" y="130.0" fill="#0172CA" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
+<text xml:space="preserve" class="t" x="842.8" y="130.0" fill="#026CBE" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="872.2" y="130.0" fill="#0365B0" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="901.6" y="130.0" fill="#026CBD" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="911.4" y="130.0" fill="#065695" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
+<text xml:space="preserve" class="t" x="921.2" y="130.0" fill="#0366B3" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="931.0" y="130.0" fill="#0270C5" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
+<text xml:space="preserve" class="t" x="950.6" y="130.0" fill="#0175CF" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
+<text xml:space="preserve" class="t" x="970.2" y="130.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="140.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="150.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="19.6" y="150.0" fill="#0A385B" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
+<text xml:space="preserve" class="t" x="29.4" y="150.0" fill="#0B3556" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
+<text xml:space="preserve" class="t" x="39.2" y="150.0" fill="#09416D" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="49.0" y="150.0" fill="#084778" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="58.8" y="150.0" fill="#0A3C64" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
+<text xml:space="preserve" class="t" x="68.6" y="150.0" fill="#093D64" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
+<text xml:space="preserve" class="t" x="78.4" y="150.0" fill="#0A395D" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
+<text xml:space="preserve" class="t" x="88.2" y="150.0" fill="#0B3556" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
+<text xml:space="preserve" class="t" x="98.0" y="150.0" fill="#0B304C" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
+<text xml:space="preserve" class="t" x="107.8" y="150.0" fill="#0B3352" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
+<text xml:space="preserve" class="t" x="117.6" y="150.0" fill="#08497C" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
+<text xml:space="preserve" class="t" x="127.4" y="150.0" fill="#055DA1" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="137.2" y="150.0" fill="#055CA0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="147.0" y="150.0" fill="#05599A" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="156.8" y="150.0" fill="#0463AC" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="166.6" y="150.0" fill="#06528D" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="176.4" y="150.0" fill="#065490" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="186.2" y="150.0" fill="#08497B" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
+<text xml:space="preserve" class="t" x="196.0" y="150.0" fill="#08497D" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
+<text xml:space="preserve" class="t" x="205.8" y="150.0" fill="#05599A" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="215.6" y="150.0" fill="#0463AE" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="225.4" y="150.0" fill="#0366B2" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="235.2" y="150.0" fill="#0364AF" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="245.0" y="150.0" fill="#026CBD" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="254.8" y="150.0" fill="#045FA6" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="264.6" y="150.0" fill="#0369B8" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="274.4" y="150.0" fill="#0367B4" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="284.2" y="150.0" fill="#055898" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="294.0" y="150.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="313.6" y="150.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="343.0" y="150.0" fill="#0270C5" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="352.8" y="150.0" fill="#036ABA" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="362.6" y="150.0" fill="#026CBE" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="372.4" y="150.0" fill="#026BBC" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="382.2" y="150.0" fill="#026CBE" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="392.0" y="150.0" fill="#026DBF" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="401.8" y="150.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="411.6" y="150.0" fill="#0174CE" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="421.4" y="150.0" fill="#0364AF" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="431.2" y="150.0" fill="#0366B2" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="441.0" y="150.0" fill="#0368B7" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="450.8" y="150.0" fill="#0461A9" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="460.6" y="150.0" fill="#0462AA" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="470.4" y="150.0" fill="#0463AD" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="480.2" y="150.0" fill="#045EA3" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="490.0" y="150.0" fill="#055DA1" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="499.8" y="150.0" fill="#065592" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="509.6" y="150.0" fill="#06518B" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="519.4" y="150.0" fill="#074E84" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
+<text xml:space="preserve" class="t" x="529.2" y="150.0" fill="#06538E" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="539.0" y="150.0" fill="#074E85" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
+<text xml:space="preserve" class="t" x="548.8" y="150.0" fill="#06528D" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="558.6" y="150.0" fill="#074C82" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
+<text xml:space="preserve" class="t" x="568.4" y="150.0" fill="#074B7F" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
+<text xml:space="preserve" class="t" x="578.2" y="150.0" fill="#084574" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="588.0" y="150.0" fill="#09416D" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="597.8" y="150.0" fill="#0A3D64" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
+<text xml:space="preserve" class="t" x="607.6" y="150.0" fill="#0A385B" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
+<text xml:space="preserve" class="t" x="617.4" y="150.0" fill="#0B3555" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
+<text xml:space="preserve" class="t" x="637.0" y="150.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="666.4" y="150.0" fill="#0A3B61" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
+<text xml:space="preserve" class="t" x="676.2" y="150.0" fill="#0463AC" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="686.0" y="150.0" fill="#074F87" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
+<text xml:space="preserve" class="t" x="695.8" y="150.0" fill="#0175D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="705.6" y="150.0" fill="#065593" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="715.4" y="150.0" fill="#026BBB" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="725.2" y="150.0" fill="#026DBF" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="735.0" y="150.0" fill="#084778" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
+<text xml:space="preserve" class="t" x="744.8" y="150.0" fill="#0B3555" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
+<text xml:space="preserve" class="t" x="754.6" y="150.0" fill="#0366B3" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="764.4" y="150.0" fill="#074F87" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
+<text xml:space="preserve" class="t" x="774.2" y="150.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="784.0" y="150.0" fill="#055899" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="793.8" y="150.0" fill="#036ABA" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="803.6" y="150.0" fill="#0172C9" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="813.4" y="150.0" fill="#093E67" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="823.2" y="150.0" fill="#0172CA" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="833.0" y="150.0" fill="#074B7F" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
+<text xml:space="preserve" class="t" x="842.8" y="150.0" fill="#026CBE" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="852.6" y="150.0" fill="#093E67" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="862.4" y="150.0" fill="#093F69" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="872.2" y="150.0" fill="#0365B0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="882.0" y="150.0" fill="#093E68" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
+<text xml:space="preserve" class="t" x="891.8" y="150.0" fill="#065491" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="901.6" y="150.0" fill="#026CBD" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="911.4" y="150.0" fill="#065695" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="921.2" y="150.0" fill="#0366B3" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="931.0" y="150.0" fill="#0270C5" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="940.8" y="150.0" fill="#0C304C" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
+<text xml:space="preserve" class="t" x="950.6" y="150.0" fill="#0175CF" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
+<text xml:space="preserve" class="t" x="970.2" y="150.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="160.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="170.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="313.6" y="170.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="343.0" y="170.0" fill="#0178D4" textLength="147.0" lengthAdjust="spacingAndGlyphs">━━━━━━━━━━━━━━━</text>
+<text xml:space="preserve" class="t" x="490.0" y="170.0" fill="#1E1E1E" textLength="137.2" lengthAdjust="spacingAndGlyphs">╺━━━━━━━━━━━━━</text>
+<text xml:space="preserve" class="t" x="637.0" y="170.0" fill="#0178D4" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
+<text xml:space="preserve" class="t" x="970.2" y="170.0" fill="#0178D4" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="180.0" width="980.5" height="20" fill="#121212" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="190.0" fill="#0178D4" textLength="980.0" lengthAdjust="spacingAndGlyphs">╰───────────────────────────────╯╰───────────────────────────────╯╰────────────────────────────────╯</text>
+<rect x="0.0" y="200.0" width="980.5" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="210.0" fill="#004578" textLength="19.6" lengthAdjust="spacingAndGlyphs">╭─</text>
+<text xml:space="preserve" class="t" x="29.4" y="210.0" fill="#E0E0E0" textLength="88.2" lengthAdjust="spacingAndGlyphs">Processes</text>
+<text xml:space="preserve" class="t" x="127.4" y="210.0" fill="#004578" textLength="852.6" lengthAdjust="spacingAndGlyphs">──────────────────────────────────────────────────────────────────────────────────────╮</text>
+<rect x="0.0" y="220.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="9.8" y="220.0" width="941.3" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+<rect x="950.6" y="220.0" width="20.1" height="20" fill="#003054" shape-rendering="crispEdges"/>
+<rect x="970.2" y="220.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="230.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t b" x="19.6" y="230.0" fill="#E0E0E0" textLength="421.4" lengthAdjust="spacingAndGlyphs">PID   Name           CPU %  Mem MB  Threads</text>
+<text xml:space="preserve" class="t" x="970.2" y="230.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="240.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="9.8" y="240.0" width="941.3" height="20" fill="#0178D4" shape-rendering="crispEdges"/>
+<rect x="950.6" y="240.0" width="20.1" height="20" fill="#003054" shape-rendering="crispEdges"/>
+<rect x="970.2" y="240.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="250.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t b" x="19.6" y="250.0" fill="#DDEDF9" textLength="421.4" lengthAdjust="spacingAndGlyphs">1410  kworker         34.4     386        1</text>
+<text xml:space="preserve" class="t" x="970.2" y="250.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="260.0" width="951.1" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="260.0" width="20.1" height="20" fill="#003054" shape-rendering="crispEdges"/>
+<rect x="970.2" y="260.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="270.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="29.4" y="270.0" fill="#E0E0E0" textLength="117.6" lengthAdjust="spacingAndGlyphs">448  firefox</text>
+<text xml:space="preserve" class="t" x="235.2" y="270.0" fill="#FEA62B" textLength="39.2" lengthAdjust="spacingAndGlyphs">33.8</text>
+<text xml:space="preserve" class="t" x="333.2" y="270.0" fill="#E0E0E0" textLength="107.8" lengthAdjust="spacingAndGlyphs">36       37</text>
+<text xml:space="preserve" class="t" x="970.2" y="270.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="280.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="9.8" y="280.0" width="941.3" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="280.0" width="20.1" height="20" fill="#003054" shape-rendering="crispEdges"/>
+<rect x="970.2" y="280.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="290.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="29.4" y="290.0" fill="#E0E0E0" textLength="117.6" lengthAdjust="spacingAndGlyphs">855  rustual</text>
+<text xml:space="preserve" class="t" x="235.2" y="290.0" fill="#FEA62B" textLength="39.2" lengthAdjust="spacingAndGlyphs">31.8</text>
+<text xml:space="preserve" class="t" x="333.2" y="290.0" fill="#E0E0E0" textLength="107.8" lengthAdjust="spacingAndGlyphs">60        5</text>
+<text xml:space="preserve" class="t" x="970.2" y="290.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="300.0" width="951.1" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="300.0" width="20.1" height="20" fill="#003054" shape-rendering="crispEdges"/>
+<rect x="970.2" y="300.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="310.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="29.4" y="310.0" fill="#E0E0E0" textLength="166.6" lengthAdjust="spacingAndGlyphs">596  redis-server</text>
+<text xml:space="preserve" class="t" x="235.2" y="310.0" fill="#FEA62B" textLength="39.2" lengthAdjust="spacingAndGlyphs">31.8</text>
+<text xml:space="preserve" class="t" x="323.4" y="310.0" fill="#E0E0E0" textLength="117.6" lengthAdjust="spacingAndGlyphs">103       16</text>
+<text xml:space="preserve" class="t" x="970.2" y="310.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="320.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="9.8" y="320.0" width="941.3" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="320.0" width="20.1" height="20" fill="#003054" shape-rendering="crispEdges"/>
+<rect x="970.2" y="320.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="330.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="29.4" y="330.0" fill="#E0E0E0" textLength="127.4" lengthAdjust="spacingAndGlyphs">892  postgres</text>
+<text xml:space="preserve" class="t" x="235.2" y="330.0" fill="#FEA62B" textLength="39.2" lengthAdjust="spacingAndGlyphs">30.0</text>
+<text xml:space="preserve" class="t" x="333.2" y="330.0" fill="#E0E0E0" textLength="107.8" lengthAdjust="spacingAndGlyphs">55       21</text>
+<text xml:space="preserve" class="t" x="970.2" y="330.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="340.0" width="951.1" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="340.0" width="20.1" height="20" fill="#003054" shape-rendering="crispEdges"/>
+<rect x="970.2" y="340.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="350.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="19.6" y="350.0" fill="#E0E0E0" textLength="98.0" lengthAdjust="spacingAndGlyphs">1151  sshd</text>
+<text xml:space="preserve" class="t" x="235.2" y="350.0" fill="#FEA62B" textLength="39.2" lengthAdjust="spacingAndGlyphs">29.8</text>
+<text xml:space="preserve" class="t" x="323.4" y="350.0" fill="#E0E0E0" textLength="117.6" lengthAdjust="spacingAndGlyphs">247        4</text>
+<text xml:space="preserve" class="t" x="970.2" y="350.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="360.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="9.8" y="360.0" width="941.3" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="360.0" width="20.1" height="20" fill="#003054" shape-rendering="crispEdges"/>
+<rect x="970.2" y="360.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="370.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="29.4" y="370.0" fill="#E0E0E0" textLength="411.6" lengthAdjust="spacingAndGlyphs">485  code            24.7     110        3</text>
+<text xml:space="preserve" class="t" x="950.6" y="370.0" fill="#000000" textLength="19.6" lengthAdjust="spacingAndGlyphs">▇▇</text>
+<text xml:space="preserve" class="t" x="970.2" y="370.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="380.0" width="951.1" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="380.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="380.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="390.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="19.6" y="390.0" fill="#E0E0E0" textLength="421.4" lengthAdjust="spacingAndGlyphs">1669  code            22.2     177       37</text>
+<text xml:space="preserve" class="t" x="970.2" y="390.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="400.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="9.8" y="400.0" width="941.3" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="400.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="400.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="410.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="29.4" y="410.0" fill="#E0E0E0" textLength="411.6" lengthAdjust="spacingAndGlyphs">670  node            20.0     104       33</text>
+<text xml:space="preserve" class="t" x="970.2" y="410.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="420.0" width="951.1" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="420.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="420.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="430.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="29.4" y="430.0" fill="#E0E0E0" textLength="411.6" lengthAdjust="spacingAndGlyphs">411  cargo           19.3     100       39</text>
+<text xml:space="preserve" class="t" x="970.2" y="430.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="440.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="9.8" y="440.0" width="941.3" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="440.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="440.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="450.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="29.4" y="450.0" fill="#E0E0E0" textLength="411.6" lengthAdjust="spacingAndGlyphs">744  pipewire        18.3     160       20</text>
+<text xml:space="preserve" class="t" x="970.2" y="450.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="460.0" width="951.1" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="460.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="460.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="470.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="29.4" y="470.0" fill="#E0E0E0" textLength="411.6" lengthAdjust="spacingAndGlyphs">633  python3         16.4     319       25</text>
+<text xml:space="preserve" class="t" x="970.2" y="470.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="480.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="9.8" y="480.0" width="941.3" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="480.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="480.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="490.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="29.4" y="490.0" fill="#E0E0E0" textLength="411.6" lengthAdjust="spacingAndGlyphs">559  sshd            13.4     185       26</text>
+<text xml:space="preserve" class="t" x="970.2" y="490.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="500.0" width="951.1" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="500.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="500.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="510.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="19.6" y="510.0" fill="#E0E0E0" textLength="421.4" lengthAdjust="spacingAndGlyphs">1521  nginx           13.3     250       33</text>
+<text xml:space="preserve" class="t" x="970.2" y="510.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="520.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="9.8" y="520.0" width="941.3" height="20" fill="#171717" shape-rendering="crispEdges"/>
+<rect x="950.6" y="520.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="520.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="530.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="19.6" y="530.0" fill="#E0E0E0" textLength="421.4" lengthAdjust="spacingAndGlyphs">1077  code            13.2     247       38</text>
+<text xml:space="preserve" class="t" x="970.2" y="530.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="540.0" width="951.1" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<rect x="950.6" y="540.0" width="20.1" height="20" fill="#000000" shape-rendering="crispEdges"/>
+<rect x="970.2" y="540.0" width="10.3" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="550.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<text xml:space="preserve" class="t" x="19.6" y="550.0" fill="#E0E0E0" textLength="421.4" lengthAdjust="spacingAndGlyphs">1336  pipewire        11.5      20        1</text>
+<text xml:space="preserve" class="t" x="970.2" y="550.0" fill="#004578" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
+<rect x="0.0" y="560.0" width="980.5" height="20" fill="#272727" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="0.0" y="570.0" fill="#004578" textLength="980.0" lengthAdjust="spacingAndGlyphs">╰──────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
+<rect x="0.0" y="580.0" width="980.5" height="20" fill="#242F38" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t b" x="9.8" y="590.0" fill="#FFA62B" textLength="19.6" lengthAdjust="spacingAndGlyphs">^q</text>
+<text xml:space="preserve" class="t" x="39.2" y="590.0" fill="#E0E0E0" textLength="39.2" lengthAdjust="spacingAndGlyphs">Quit</text>
+<text xml:space="preserve" class="t b" x="98.0" y="590.0" fill="#FFA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">c</text>
+<text xml:space="preserve" class="t" x="117.6" y="590.0" fill="#E0E0E0" textLength="29.4" lengthAdjust="spacingAndGlyphs">CPU</text>
+<text xml:space="preserve" class="t b" x="166.6" y="590.0" fill="#FFA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">m</text>
+<text xml:space="preserve" class="t" x="186.2" y="590.0" fill="#E0E0E0" textLength="58.8" lengthAdjust="spacingAndGlyphs">Memory</text>
+<text xml:space="preserve" class="t b" x="264.6" y="590.0" fill="#FFA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">n</text>
+<text xml:space="preserve" class="t" x="284.2" y="590.0" fill="#E0E0E0" textLength="39.2" lengthAdjust="spacingAndGlyphs">Name</text>
+<text xml:space="preserve" class="t b" x="343.0" y="590.0" fill="#FFA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">d</text>
+<text xml:space="preserve" class="t" x="362.6" y="590.0" fill="#E0E0E0" textLength="68.6" lengthAdjust="spacingAndGlyphs">Details</text>
+<text xml:space="preserve" class="t b" x="450.8" y="590.0" fill="#FFA62B" textLength="9.8" lengthAdjust="spacingAndGlyphs">k</text>
+<text xml:space="preserve" class="t" x="470.4" y="590.0" fill="#E0E0E0" textLength="39.2" lengthAdjust="spacingAndGlyphs">Kill</text>
+<text xml:space="preserve" class="t b" x="529.2" y="590.0" fill="#FFA62B" textLength="49.0" lengthAdjust="spacingAndGlyphs">space</text>
+<text xml:space="preserve" class="t" x="588.0" y="590.0" fill="#E0E0E0" textLength="49.0" lengthAdjust="spacingAndGlyphs">Pause</text>
+<text xml:space="preserve" class="t" x="862.4" y="590.0" fill="#495259" textLength="9.8" lengthAdjust="spacingAndGlyphs">▏</text>
+<text xml:space="preserve" class="t b" x="872.2" y="590.0" fill="#FFA62B" textLength="19.6" lengthAdjust="spacingAndGlyphs">^p</text>
+<text xml:space="preserve" class="t" x="901.6" y="590.0" fill="#E0E0E0" textLength="68.6" lengthAdjust="spacingAndGlyphs">palette</text>
+</g>
+</svg>
