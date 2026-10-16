@@ -129,8 +129,8 @@ Also check `pilot.css_errors()` is empty in at least one test per widget (your D
 Render any example to an image and look at it:
 
 ```sh
-TEXTUAL_SCREENSHOT=/tmp/shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=tab,down,enter \
-    cargo run -q -p rustual --example table
+TEXTUAL_SCREENSHOT=/tmp/shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=down,e \
+    cargo run -q -p rustual --example tasks
 rsvg-convert /tmp/shot.svg -o /tmp/shot.png   # then view the PNG
 ```
 

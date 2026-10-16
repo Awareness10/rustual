@@ -10,13 +10,22 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 ### Added
 - `layout: stream` (Textual's stream layout for long lists: full-width, auto-height children);
   child regions match Textual 8.2.8 exactly. Python `Widget.virtual_size`.
+- The README gallery shows the new example apps.
 - Realistic example apps: `tasks` (task manager with modal forms, validation, filtering, palette
   commands, saving), `monitor` (live process monitor with sparklines, sorting, breakpoints) and
   `chat` (a streaming Markdown chat in a `layout: stream` log), with tests run by `cargo test`.
-  Python: a `tasks` demo in the `rustual-py` launcher that also runs unchanged under Textual.
+  Python: `tasks`, `monitor` and `chat` demos in the `rustual-py` launcher, which also run
+  unchanged under Textual (with identical screens).
 - `Widget::check_consume_key` (Python `check_consume_key`), as in Textual: bindings for keys the
   focused widget would consume (printable keys in `Input`, `MaskedInput`, `TextArea`, `Select`)
   are neither shown in the footer nor run. `rustual::binding::key_to_character`.
+
+### Removed
+- The small single-feature examples (`dashboard`, `editor`, `form`, `hello`, `markdown`, `modes`,
+  `navigator`, `palette`, `readme`, `renderables`, `table`, `widgets_extra`) and Python demos
+  (`content`, `counter`, `data`, `forms`, `stopwatch`, `workers`), in favour of the `tasks`,
+  `monitor` and `chat` apps (the README's example stays covered by `tests/readme.rs`); Textual's
+  stopwatch tutorial remains as a Python test.
 
 ### Fixed
 - Footer key labels match Textual (`^q`, `del`, `pgdn`, `?`, `shift+^p`, ...); `shift+a` is its
@@ -29,6 +38,9 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 - A modal whose `type_names` already include `ModalScreen` didn't get the translucent background.
 - `$variable` colors with `auto` values (such as `$text-muted`) in widget markup, and DataTable
   column widths for cells with `$variable` markup.
+- Markdown table column widths now match Textual's (extra width shared in proportion to the
+  columns, shrinking down to each column's longest word); words too long for a column end with
+  "…" instead of breaking across lines.
 - `pilot.press("question_mark")` (and other named keys) now types the character, as Textual's.
 - The Python `Pilot` (`press`, `click`, `pause`, ...) could return while an animation such as
   smooth scrolling was still running (when frames were fast); it now waits for animations, like
