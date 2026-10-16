@@ -4,13 +4,15 @@
 //! [`RenderEnv`](crate::widget::RenderEnv)) and either a [`HeaderClock`] or a [`HeaderClockSpace`]
 //! (right). Clicking the header toggles the tall (3 line) mode.
 //!
-//! The clock shows `HH:MM:SS` in **UTC** by default (the standard library has no portable
-//! local-timezone API); use [`Header::clock_utc_offset`] to shift it to a local zone.
+//! The clock shows the local time formatted with [`Header::time_format`] (strftime, default
+//! `%X` = `HH:MM:SS`), like Textual; [`Header::clock_utc_offset`] pins it to a fixed offset.
 
 use crate::context::Ctx;
 use crate::events::Event;
 use crate::message::Flow;
 use crate::widget::{Child, Content, RenderCtx, Widget};
+use chrono::format::StrftimeItems;
+use chrono::{DateTime, FixedOffset, Local, Utc};
 use rustual_render::{Style, Text};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::time::Instant;
@@ -75,8 +77,12 @@ pub struct Header {
     show_clock: bool,
     icon: String,
     tall: bool,
-    utc_offset: i64,
+    time_format: String,
+    utc_offset: Option<i64>,
 }
+
+/// Textual's default clock format (`HeaderClock.time_format`).
+pub const DEFAULT_TIME_FORMAT: &str = "%X";
 
 impl Default for Header {
     fn default() -> Self {
@@ -90,7 +96,8 @@ impl Header {
             show_clock: false,
             icon: "⭘".to_string(),
             tall: false,
-            utc_offset: 0,
+            time_format: DEFAULT_TIME_FORMAT.to_string(),
+            utc_offset: None,
         }
     }
 
@@ -112,10 +119,31 @@ impl Header {
         self
     }
 
-    /// Offset of the clock from UTC, in seconds (e.g. `3600` for UTC+1).
-    pub fn clock_utc_offset(mut self, seconds: i64) -> Self {
-        self.utc_offset = seconds;
+    /// The clock's strftime format (default `%X`, e.g. `%H:%M` or `%a %H:%M`).
+    pub fn time_format(mut self, format: &str) -> Self {
+        self.time_format = format.to_string();
         self
+    }
+
+    /// Show the clock at a fixed offset from UTC, in seconds (e.g. `3600` for UTC+1), instead
+    /// of the system's local time zone.
+    pub fn clock_utc_offset(mut self, seconds: i64) -> Self {
+        self.utc_offset = Some(seconds);
+        self
+    }
+
+    pub fn get_time_format(&self) -> &str {
+        &self.time_format
+    }
+
+    /// Change the clock format (Textual: `header.time_format = ...`).
+    pub fn set_time_format(&mut self, format: &str, ctx: &mut Ctx) {
+        self.time_format = format.to_string();
+        for child in ctx.children() {
+            if let Some(clock) = ctx.get::<HeaderClock>(child) {
+                clock.time_format = self.time_format.clone();
+            }
+        }
     }
 
     pub fn is_tall(&self) -> bool {
@@ -140,7 +168,12 @@ impl Widget for Header {
 
     fn compose(&mut self) -> Vec<Child> {
         let right: Child = if self.show_clock {
-            HeaderClock::new().utc_offset(self.utc_offset).into()
+            HeaderClock {
+                time_format: self.time_format.clone(),
+                utc_offset: self.utc_offset,
+                ..HeaderClock::new()
+            }
+            .into()
         } else {
             HeaderClockSpace.into()
         };
@@ -235,13 +268,15 @@ impl Widget for HeaderClockSpace {
     }
 }
 
-/// A clock (`HH:MM:SS`) on the right of the header, refreshed every second.
+/// A clock on the right of the header (local time, `HH:MM:SS` by default), refreshed every
+/// second.
 ///
 /// Time is measured as the wall-clock time at mount plus the (tokio) time elapsed since, so it
 /// advances deterministically under `tokio::time::pause`.
 #[derive(Debug, Clone)]
 pub struct HeaderClock {
-    utc_offset: i64,
+    time_format: String,
+    utc_offset: Option<i64>,
     base: Duration,
     started: Option<Instant>,
 }
@@ -255,24 +290,47 @@ impl Default for HeaderClock {
 impl HeaderClock {
     pub fn new() -> Self {
         HeaderClock {
-            utc_offset: 0,
+            time_format: DEFAULT_TIME_FORMAT.to_string(),
+            utc_offset: None,
             base: Duration::ZERO,
             started: None,
         }
     }
 
-    /// Offset from UTC in seconds.
+    /// Fixed offset from UTC in seconds (default: the system's local time zone).
     pub fn utc_offset(mut self, seconds: i64) -> Self {
-        self.utc_offset = seconds;
+        self.utc_offset = Some(seconds);
         self
     }
 
-    /// The displayed time, `HH:MM:SS`.
+    /// strftime format (default `%X`).
+    pub fn time_format(mut self, format: &str) -> Self {
+        self.time_format = format.to_string();
+        self
+    }
+
+    /// The displayed time.
     pub fn time_text(&self) -> String {
         let elapsed = self.started.map(|s| s.elapsed()).unwrap_or_default();
-        let secs = (self.base + elapsed).as_secs() as i64 + self.utc_offset;
-        format_hms(secs)
+        format_clock(self.base + elapsed, self.utc_offset, &self.time_format)
     }
+}
+
+/// Format a time (since the Unix epoch) with a strftime `format`, in the system's local time
+/// zone or at a fixed `utc_offset` (seconds). An invalid format is returned as-is.
+pub fn format_clock(since_epoch: Duration, utc_offset: Option<i64>, format: &str) -> String {
+    let Ok(items) = StrftimeItems::new(format).parse() else {
+        return format.to_string();
+    };
+    let utc =
+        DateTime::<Utc>::from_timestamp(since_epoch.as_secs() as i64, since_epoch.subsec_nanos())
+            .unwrap_or_default();
+    let offset = utc_offset.and_then(|s| FixedOffset::east_opt(i32::try_from(s).ok()?));
+    match offset {
+        Some(offset) => utc.with_timezone(&offset).format_with_items(items.iter()),
+        None => utc.with_timezone(&Local).format_with_items(items.iter()),
+    }
+    .to_string()
 }
 
 /// Format seconds since midnight (mod one day) as `HH:MM:SS`.

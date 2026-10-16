@@ -21,6 +21,7 @@ futures.workspace = true
 slotmap.workspace = true
 unicode-width.workspace = true
 pulldown-cmark.workspace = true
+chrono.workspace = true
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync", "test-util"] }

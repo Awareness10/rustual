@@ -80,7 +80,6 @@ run today), then Textual's demo:
   `validators=` via `rustual.validation`).
 - [ ] **Select** (S): render the dropdown as an overlay instead of a modal screen (after `overlay: screen`).
 - [ ] **ListView** (S): `-hovered` class semantics instead of `:hover` (which also matches descendants).
-- [ ] **Header** (S): local timezone clock (currently UTC with configurable offset), strftime formats.
 - [ ] **Footer** (S): clickable group descriptions.
 - [ ] **Pretty** (S): per-container expansion like Rich (instead of all-or-nothing), indent guides.
 - [ ] **DirectoryTree** (S): load directories in a worker for slow filesystems.

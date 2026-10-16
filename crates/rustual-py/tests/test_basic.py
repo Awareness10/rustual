@@ -60,3 +60,25 @@ async def test_counter_app():
         await pilot.press("h", "i")
         assert app.query_one(Input).value == "hi"
         assert "Hello hi" in pilot.screen_text()
+
+
+async def test_header_clock_local_time_and_format():
+    import re
+    from datetime import datetime
+
+    class ClockApp(App):
+        def compose(self) -> ComposeResult:
+            yield Header(show_clock=True, time_format="%H:%M", id="h")
+
+    app = ClockApp()
+    before = datetime.now().strftime("%H:%M")
+    async with app.run_test(size=(40, 3)) as pilot:
+        header = app.query_one("#h", Header)
+        assert header.time_format == "%H:%M"
+        first = pilot.screen_text().splitlines()[0].rstrip()
+        # Local time like Textual's datetime.now() (either side of a minute boundary).
+        assert first[-5:] in {before, datetime.now().strftime("%H:%M")}, first
+        header.time_format = "<%S>"
+        await pilot.pause()
+        assert header.time_format == "<%S>"
+        assert re.search(r"<\d\d>$", pilot.screen_text().splitlines()[0].rstrip())
