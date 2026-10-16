@@ -26,7 +26,7 @@ async fn key_panel_lists_bindings_and_toggles() {
     assert!(text.contains("Save file"), "{text}");
     assert!(text.contains("f1 Toggle"), "{text}");
     assert!(text.contains("palette"), "{text}");
-    assert!(text.contains("shift+left Move"), "{text}");
+    assert!(text.contains("shift+← Move"), "{text}");
     assert!(text.contains("tab Focus next"), "{text}");
     // Docked right: the panel is on the right part of the screen.
     let id = p.query("KeyPanel")[0];

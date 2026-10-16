@@ -197,3 +197,55 @@ async fn palette_key_can_be_hidden() {
     let mut pilot = App::new(NoPalette).test(Size::new(60, 3)).await;
     assert_eq!(footer_line(&mut pilot), " q Quit");
 }
+
+struct Keys {
+    hits: Vec<String>,
+}
+impl Widget for Keys {
+    fn compose(&mut self) -> Vec<Child> {
+        compose![Footer::new()]
+    }
+    fn bindings(&self) -> Vec<Binding> {
+        vec![
+            Binding::new("ctrl+q", "quit", "Quit"),
+            Binding::new("delete", "hit('del')", "Delete"),
+            Binding::new("question_mark", "hit('?')", "About"),
+            Binding::new("ctrl+shift+p", "hit('p')", "Palette"),
+            Binding::new("pagedown", "hit('pd')", "Page"),
+            Binding::new("plus", "hit('+')", "Zoom"),
+            Binding::new("a", "hit('a')", "Add"),
+            Binding::new("shift+a", "hit('A')", "Add all"),
+            Binding::new("tab", "hit('tab')", "Next"),
+        ]
+    }
+    fn run_action(&mut self, action: &str, args: &[String], _ctx: &mut Ctx) -> bool {
+        if action == "hit" {
+            self.hits.push(args.join(","));
+            return true;
+        }
+        false
+    }
+}
+
+/// Key labels as Textual 8.2.8 shows them for the same bindings.
+#[tokio::test]
+async fn footer_shows_keys_like_textual() {
+    let mut p = App::new(Keys { hits: vec![] })
+        .test(Size::new(160, 3))
+        .await;
+    let text = p.screen_text();
+    let footer = text.lines().last().unwrap();
+    assert!(
+        footer.starts_with(" ^q Quit  del Delete  ? About  shift+^p Palette  pgdn Page  + Zoom  a Add  shift+a Add all "),
+        "{footer:?}"
+    );
+    // The screen's own (hidden) `tab` binding is closer to the focus and wins, as in Textual.
+    assert!(!footer.contains("tab Next"), "{footer:?}");
+    // `shift+a` is its own key.
+    p.press(&["shift+a"]).await;
+    p.press(&["a"]).await;
+    assert_eq!(p.app::<Keys>().unwrap().hits, vec!["A", "a"]);
+    // The app's shown `ctrl+q` replaced the built-in (hidden) one, and still quits.
+    p.press(&["ctrl+q"]).await;
+    assert!(p.has_exited());
+}

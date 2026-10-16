@@ -73,10 +73,7 @@ pub fn normalize_key(key: &str) -> String {
     } else {
         base
     };
-    // shift is implied by the character for single printable keys
-    if base.chars().count() == 1 && !ctrl && !alt {
-        shift = false;
-    }
+    // `shift+a` stays a key of its own (as in Textual), distinct from `a` and `A`.
     // with ctrl/alt, letters are reported lowercase (`ctrl+c`, not `ctrl+C`)
     let base = if base.chars().count() == 1 && (ctrl || alt) {
         base.to_lowercase()
@@ -237,7 +234,8 @@ mod tests {
     fn normalize() {
         assert_eq!(normalize_key("Ctrl+C"), "ctrl+c");
         assert_eq!(normalize_key("shift+ctrl+up"), "ctrl+shift+up");
-        assert_eq!(normalize_key("shift+A"), "A");
+        assert_eq!(normalize_key("shift+a"), "shift+a");
+        assert_eq!(normalize_key("A"), "A");
         assert_eq!(normalize_key("return"), "enter");
         assert_eq!(normalize_key("backtab"), "shift+tab");
         assert_eq!(normalize_key(" "), "space");

@@ -1219,16 +1219,28 @@ impl AppState {
         if let Some(n) = self.dom.get(id) {
             b.extend(n.extra_bindings.iter().cloned());
         }
+        // Built-in bindings are defaults: a key the widget binds itself replaces them (as a
+        // subclass's `BINDINGS` replace the base class's in Textual).
+        let mut defaults = Vec::new();
         if id == self.root {
-            b.push(Binding::new("ctrl+q", "quit", "Quit").hidden().priority());
-            b.push(Binding::new("ctrl+c", "quit", "Quit").hidden());
+            defaults.push(Binding::new("ctrl+q", "quit", "Quit").hidden().priority());
+            defaults.push(Binding::new("ctrl+c", "quit", "Quit").hidden());
             if self.ux.palette_enabled {
-                b.push(crate::command::palette_binding());
+                defaults.push(crate::command::palette_binding());
             }
         }
         if self.dom.get(id).map(|n| n.is_screen).unwrap_or(false) {
-            b.push(Binding::new("tab", "app.focus_next", "Focus next").hidden());
-            b.push(Binding::new("shift+tab", "app.focus_previous", "Focus previous").hidden());
+            defaults.push(Binding::new("tab", "app.focus_next", "Focus next").hidden());
+            defaults
+                .push(Binding::new("shift+tab", "app.focus_previous", "Focus previous").hidden());
+        }
+        for default in defaults {
+            if !b
+                .iter()
+                .any(|own| own.keys.iter().any(|k| default.keys.contains(k)))
+            {
+                b.push(default);
+            }
         }
         crate::binding::apply_keymap(&mut b, &self.keymap);
         b
@@ -1597,13 +1609,15 @@ impl AppState {
 
     /// Compute bindings shown in the footer: focus chain inner → outer, first binding per key wins.
     fn update_active_bindings(&mut self) {
-        let mut seen: Vec<String> = Vec::new();
         let mut seen_all: Vec<String> = Vec::new();
-        let mut groups: Vec<Vec<Binding>> = Vec::new();
+        // Textual's `Screen.active_bindings` (8.x): one binding per key, from the focused widget
+        // up to the app; the first one wins, unless a later one is a priority binding (it then
+        // takes the earlier one's place). Hidden bindings take part too: a hidden binding near
+        // the focus hides a shown one for the same key further up.
+        let mut active: Vec<(String, Binding)> = Vec::new();
         let mut all_groups: Vec<Vec<Binding>> = Vec::new();
         let chain = self.binding_chain();
         for id in chain {
-            let mut group = Vec::new();
             let mut all_group = Vec::new();
             for mut b in self.node_bindings(id) {
                 match self.action_state(id, &b.action) {
@@ -1616,23 +1630,25 @@ impl AppState {
                     seen_all.push(k.clone());
                     all_group.push(b.clone());
                 }
-                if !b.show {
-                    continue;
+                match active.iter_mut().find(|(key, _)| *key == k) {
+                    Some((_, existing)) => {
+                        if b.priority && !existing.priority {
+                            *existing = b;
+                        }
+                    }
+                    None => active.push((k, b)),
                 }
-                if seen.contains(&k) {
-                    continue;
-                }
-                seen.push(k);
-                group.push(b);
             }
-            groups.push(group);
             all_groups.push(all_group);
         }
-        // Like Textual's `Screen.active_bindings` (8.x): the focused widget's bindings first, then
-        // its ancestors', the screen's and the app's; each node's in declaration order.
-        // (The key panel lists the app first.)
+        // The footer shows them in that order (focused widget first); the key panel lists the
+        // app first.
         all_groups.reverse();
-        self.env.active_bindings = groups.into_iter().flatten().collect();
+        self.env.active_bindings = active
+            .into_iter()
+            .map(|(_, b)| b)
+            .filter(|b| b.show)
+            .collect();
         self.env.all_bindings = all_groups;
     }
 
