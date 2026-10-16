@@ -3,7 +3,7 @@
 Parity tracker against Python Textual 8.2.8. Percentages are rough estimates of how much of
 Textual's behaviour for that item is implemented here. Status: ✅ done (≥ 90%) · 🟡 partial · ❌ missing.
 
-**Overall: ~90% of commonly used Textual functionality, ~70% of full parity.** Test counts and coverage: see the badges in the [README](README.md#testing) (updated by CI). CI tests Linux, macOS and Windows; Python wheels for all three are on [GitHub releases](https://github.com/Awareness10/rustual/releases).
+**Overall: ~90% of commonly used Textual functionality, ~70% of full parity.** Test counts and coverage: see the badges in the [README](README.md#testing) (updated by CI). CI tests Linux, macOS and Windows; Python wheels for all three are on [PyPI](https://pypi.org/project/rustual-py/) and [GitHub releases](https://github.com/Awareness10/rustual/releases).
 
 _Last updated: 2026-10-16._
 
@@ -25,10 +25,10 @@ _Last updated: 2026-10-16._
 | Screens: push/pop/dismiss, modal, switch, named, modes | ✅ | 90 | modal dims the screen below; `ctx.switch_screen`, `App::screen/modal_screen` (installed, kept when popped) + `push_screen_named/switch_screen_named/install_screen`; `App::mode` + `default_mode` + `ctx.switch_mode` (per-mode stacks); no ScreenSuspend/Resume events, no `remove_mode` |
 | Notifications (toasts) | ✅ | 90 | `ctx.notify`, severity, timeout, click to dismiss |
 | Animation (`animate`, easing, transitions) | ✅ | 90 | all 33 easings, `ctx.animate_value`, `animate_style` (opacity/offset/width/height), `animate_color` (background/color/tint/background-tint, `Color::blend`), `AnimateOptions` (`delay`, `speed`, easing, level) via `*_opts`, smooth scroll, animation levels, CSS transitions, Tabs/Switch animate; delayed style animations read their start value at request time |
-| Tooltips | ✅ | 85 | `Child::tooltip`, `ctx.set_tooltip`; 0.5s delay, ancestor inheritance, flip above / keep on screen; no Rich renderables, no `_disable_tooltips` |
+| Tooltips | ✅ | 85 | `Child::tooltip`, `ctx.set_tooltip`; 0.5s delay, ancestor inheritance, flip above / keep on screen; markup content only (no renderables), no `_disable_tooltips` |
 | Command palette | ✅ | 80 | `ctrl+p`, fuzzy `Matcher` port, `CommandProvider` / `App::command_provider` / `Widget::commands`, system commands, theme picker, header icon; synchronous providers (no async search / busy indicator) |
 | Text selection & copy (screen selection) | ❌ | 0 | Input has its own selection + internal clipboard |
-| Clipboard (OSC 52) | ✅ | 90 | `ctx.copy_to_clipboard` queues OSC 52, flushed after the next frame; Input/TextArea copy/cut use it; paste reads the app clipboard; `pilot.clipboard()` |
+| Clipboard (OSC 52) | ✅ | 90 | `ctx.copy_to_clipboard` queues OSC 52, flushed after the next frame; Input/TextArea copy/cut use it; paste reads the app clipboard (falling back to a process-wide one); `pilot.clipboard()` |
 | `@click` markup links | 🟡 | 75 | click runs the action with the widget as owner; no `link-*-hover` styles, no `@mouse.down`/`@mouse.up` |
 | Screenshots (SVG / ANSI / text export) | ✅ | 90 | `canvas.to_svg()`, `to_ansi()`, `pilot.export_svg()`, `TEXTUAL_SCREENSHOT=out.svg` env mode (+ `TEXTUAL_SIZE`, `TEXTUAL_PRESS`); `screenshot(filename?, path?)` action + "Screenshot" palette command (CWD, Textual filename scheme, UTC timestamp), `ctx.save_screenshot` |
 | Maximize, `loading` overlay, `disabled` | ✅ | 85 | `ctx.maximize/maximize_exact/minimize`, `maximize`/`minimize` actions + palette commands, escape minimizes, `Widget::allow_maximize`, Footer/toasts kept, hatched background around the maximized widget; `ctx.set_loading(id, bool)` covers with a LoadingIndicator (blocks input, leaves focus chain); no custom loading widget |
@@ -72,13 +72,13 @@ _Last updated: 2026-10-16._
 | Compositor: clipping, layers, opacity, modal dimming | ✅ | 90 | full-frame paint + diff (~2 ms per frame at 1000 widgets, release build) |
 | Content markup (`[b red on $panel]`, `[/]`, `\[`) | ✅ | 90 | |
 | Unicode cell widths (CJK, emoji, ZWJ) | ✅ | 90 | |
-| Rich renderables (tables, syntax, pretty) | 🟡 | 40 | Python: any Rich renderable (`Table`, `Syntax`, `Panel`, ...) via the `rich` package in `Static`, `render()` and `RichLog`; Rust: no Rich equivalent beyond styled text |
+| Rich renderables (tables, syntax, panels) | 🟡 | 80 | Rust: `rustual::renderables` ports rich 15's `Table` (columns, ratios, sections, footers, row styles, title/caption, grids, every `rich.box` style), `Panel`, `Columns`, `Padding`, `Group` and `Syntax` (keyword highlighter + TextArea themes; line numbers, highlighted lines, word wrap, padding, dedent), checked line by line against rich's output (`scripts/rich_golden.py`); shown with `Static::renderable` (auto width = rich's measurement) and `RichLog::write_renderable`. Not ported: `Syntax` indent guides / line ranges, other rich renderables (`Rule`, `Tree`, `Layout`, `Progress`, ...). Python: any Rich renderable via the `rich` package in `Static`, `render()` and `RichLog` |
 
 ## Widgets
 
 | Widget | Status | % | Notes |
 |---|---|---|---|
-| Static | ✅ | 95 | markup / plain / Text content, `update` |
+| Static | ✅ | 95 | markup / plain / Text content, Rich-style renderables (`Static::renderable`, `update_renderable`), `update` |
 | Label | ✅ | 95 | variants via classes |
 | Button | ✅ | 95 | variants, flat, action, active effect |
 | Input | ✅ | 85 | password, restrict (char predicate or whole-value `restrict_value`), max length, integer/number, selection; no suggester; validators only in Python (`rustual.validation`) |
@@ -101,10 +101,10 @@ _Last updated: 2026-10-16._
 | Header | ✅ | 95 | clock in local time with a strftime `time_format` (default `%X`; changeable at runtime, Python `Header(time_format=...)` / `header.time_format`), `clock_utc_offset` pins a fixed offset; icon opens the command palette |
 | Footer | ✅ | 92 | Textual 8 order (focused widget → screen → app); `^p palette` key docked right (`show_command_palette`); click replays the key; binding groups (`Binding::group(BindingGroup)`, compact groups) |
 | Log | ✅ | 90 | |
-| RichLog | ✅ | 90 | `highlight(true)`: Rich `ReprHighlighter` port (`pretty::tokenize_text`), ANSI-theme colors at write time; no custom highlighter object |
+| RichLog | ✅ | 90 | `highlight(true)`: Rich `ReprHighlighter` port (`pretty::tokenize_text`), ANSI-theme colors at write time; `write_renderable` renders tables / panels / syntax once at write time (measured width, shrunk to the region, at least `min_width`; `write_renderable_with` for `width` / `expand`), as Textual does; no custom highlighter object |
 | ProgressBar | ✅ | 95 | ETA, indeterminate, gradients |
 | LoadingIndicator | ✅ | 95 | used by the `loading` overlay |
-| Sparkline | ✅ | 85 | no gradient |
+| Sparkline | ✅ | 95 | bars blended from `sparkline--min-color` to `sparkline--max-color`, `summary_function`, bucketing like Textual |
 | Digits | ✅ | 95 | |
 | Placeholder | ✅ | 95 | |
 | Rule | ✅ | 100 | |
@@ -133,7 +133,7 @@ See [`docs/python-bindings.md`](docs/python-bindings.md).
 | Themes, validation | ✅ | 90 | `Theme`/`register_theme`; `rustual.validation`; Input `restrict` regex |
 | Bindings | ✅ | 90 | `BINDINGS` (tuples / `Binding`), MRO merge, `check_action` / `refresh_bindings` |
 | Built-in widgets | ✅ | 85 | every built-in widget is bound (see below) |
-| Packaging | ✅ | 90 | abi3 wheels (CPython 3.10+) for manylinux_2_28 / musllinux_1_2 x86_64, Windows x86_64, macOS universal2 + sdist on GitHub releases; not on PyPI yet |
+| Packaging | ✅ | 90 | `rustual-py` on PyPI (`pip install rustual-py`, `uvx rustual-py`): abi3 wheels (CPython 3.10+) for manylinux_2_28 / musllinux_1_2 x86_64, Windows x86_64, macOS universal2 + sdist, also on GitHub releases; Rust crates on crates.io |
 | Textual helper modules | ✅ | 80 | `rustual.color` (Color, Gradient), `renderables.gradient` (LinearGradient, VerticalGradient), `highlight` (Pygments, theme-aware), `signal`, `widget.prevent()`, `auto_refresh`, `App.current_theme` / `theme_changed_signal` |
 | Not yet | ❌ | 0 | command palette providers, devtools/`log`, `App.suspend`, `render_line`, inline mode |
 

@@ -31,7 +31,7 @@ run today), then Textual's demo:
 - [ ] **Public API review** (M): naming consistency (`get_value` vs `value`, builder vs setter patterns,
   which methods take `ctx`), `#[non_exhaustive]` on public enums, hide internals that leaked as `pub`.
 - [ ] **Rustdoc pass** (M): a crate-level tutorial and docs on every public widget. Done: all doc examples
-  are compiled doc-tests (25, `no_run` only where they start a terminal) and `cargo doc` runs warning-free in
+  are compiled doc-tests (`no_run` only where they start a terminal) and `cargo doc` runs warning-free in
   CI.
 - [ ] **Clipboard fallback** (S): copy now goes through the app (OSC 52 + per-app clipboard), but paste still
   falls back to a process-global clipboard shared by Input/TextArea; remove the global so parallel tests
@@ -71,8 +71,9 @@ run today), then Textual's demo:
 ## Widgets
 
 - [ ] **TextArea** (M): autocomplete suggestions, more themes, 3-cell scroll margin.
-- [ ] **Syntax highlighting** (L): Markdown fences and TextArea use a line-based keyword highlighter (python,
-  rust, js, json, toml); replace with tree-sitter (or syntect) for multi-line constructs and more languages.
+- [ ] **Syntax highlighting** (L): Markdown fences, TextArea and the `Syntax` renderable use a line-based
+  keyword highlighter (python, rust, js, json, toml); replace with tree-sitter (or syntect) for multi-line
+  constructs and more languages.
 - [ ] **Markdown** (M): streaming / incremental `append` (`MarkdownStream`), horizontal scrolling in code
   fences, custom block classes (`parser_factory`).
 - [ ] **DataTable** (S): re-measure row heights on column changes; wrap long cells in auto-height rows.
@@ -84,9 +85,8 @@ run today), then Textual's demo:
 - [ ] **Pretty** (S): per-container expansion like Rich (instead of all-or-nothing), indent guides.
 - [ ] **DirectoryTree** (S): load directories in a worker for slow filesystems.
 - [ ] **Welcome** (S): render the welcome text with the Markdown widget.
-- [ ] **Rich renderables in Rust** (L): Rich-style `Table`, `Syntax`, `Panel`, `Columns` renderables usable
-  in `Static` / `RichLog` from Rust (Python apps already render any Rich renderable through the `rich`
-  package).
+- [ ] **Renderables** (S): `Syntax` indent guides and `line_range`; more rich renderables when needed (`Rule`,
+  `Tree`, `Align` with vertical alignment); renderables in tooltips and as `Widget::render` content.
 - [ ] **Static** (S): empty content should still be one line tall with `height: auto` (Textual measures
   `""` as one line); visible in `code_browser`, where Textual's empty `#code` row is not hatched.
 - [ ] **Placeholder** (S): per-app color cycling counter like Textual.

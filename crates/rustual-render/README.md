@@ -2,7 +2,8 @@
 
 Rendering primitives for [rustual](https://github.com/Awareness10/rustual), playing the role that [Rich](https://github.com/Textualize/rich)
 plays for Python Textual: colors and styles, Textual / Rich-style markup, styled text with
-cell-width-aware wrapping, line strips, border glyphs, and a 2D cell canvas with diffing and SVG / ANSI export.
+cell-width-aware wrapping, line strips, border glyphs, Rich-style renderables (`Table`, `Panel`, `Columns`,
+`Padding`, `Group`; see `renderables`), and a 2D cell canvas with diffing and SVG / ANSI export.
 
 ```rust
 use rustual_render::{Color, Text};

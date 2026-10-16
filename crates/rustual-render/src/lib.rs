@@ -22,6 +22,7 @@ mod color_names;
 pub mod export;
 pub mod geometry;
 pub mod markup;
+pub mod renderables;
 pub mod strip;
 pub mod style;
 pub mod text;
