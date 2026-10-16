@@ -1,6 +1,6 @@
 """Textual's stopwatch tutorial, run against rustual."""
 
-from rustual.demo.stopwatch import Stopwatch, StopwatchApp, TimeDisplay
+from apps.stopwatch import Stopwatch, StopwatchApp, TimeDisplay
 
 
 async def test_stopwatch_tutorial():

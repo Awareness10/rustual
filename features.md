@@ -112,7 +112,7 @@ _Last updated: 2026-10-16._
 | Rule | ✅ | 100 | |
 | Toast / ToastRack | ✅ | 90 | |
 | Containers (Container, Vertical, Horizontal, Grid, Center, Middle, ScrollableContainer, ...) | ✅ | 95 | |
-| Markdown / MarkdownViewer | 🟡 | 85 | pulldown-cmark (GFM tables, strikethrough, task lists); all block types, inline styles, clickable links, TOC + goto_anchor, viewer with TOC tree and file history; fences highlighted by default with the TextArea keyword highlighter (python/rust/js/json/toml; monokai dark / github_light light; replaceable hook), `open_links` (default on: scheme links via `open_url`); no streaming / incremental append |
+| Markdown / MarkdownViewer | 🟡 | 85 | pulldown-cmark (GFM tables, strikethrough, task lists); all block types, inline styles, clickable links, TOC + goto_anchor, viewer with TOC tree and file history; fences highlighted by default with the TextArea keyword highlighter (python/rust/js/json/toml; monokai dark / github_light light; replaceable hook), `open_links` (default on: scheme links via `open_url`); tables sized like Textual's grid (proportional expand, shrink to the longest word, "…" for overlong words); `append` re-renders the whole document (no incremental `MarkdownStream`) |
 | Link | ✅ | 90 | opener stubbable via `link::set_url_opener`; posts `link::Opened` |
 | Pretty | 🟡 | 75 | `Debug` repr, one-line or expanded, hand-written repr highlighter; all-or-nothing expansion, no indent guides |
 | Tooltip | ✅ | 90 | runtime-positioned (no `constrain` CSS) |

@@ -10,9 +10,9 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://github.com/Awareness10/rustual/tree/main/crates/rustual-py)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/Awareness10/rustual/blob/main/LICENSE)
 
-<img src="https://raw.githubusercontent.com/Awareness10/rustual/main/docs/assets/screenshots/py_stopwatch.svg" alt="Textual's stopwatch tutorial running on rustual" width="720">
+<img src="https://raw.githubusercontent.com/Awareness10/rustual/main/docs/assets/screenshots/py_tasks.svg" alt="The task manager demo running on rustual" width="720">
 
-<sub>Textual's stopwatch tutorial, unchanged except for its imports.</sub>
+<sub>The bundled task manager demo (<code>uvx rustual-py tasks</code>), which also runs unchanged under Textual.</sub>
 
 </div>
 
@@ -75,7 +75,7 @@ pip install rustual-py        # or: uv add rustual-py
 ```
 
 Once installed, `rustual-py` (or `python -m rustual`) opens the same launcher;
-`rustual-py stopwatch` runs one example directly and `rustual-py --list` lists them.
+`rustual-py tasks` (or `monitor`, `chat`) runs one example directly and `rustual-py --list` lists them.
 
 Prebuilt wheels (CPython 3.10+, one per platform: Linux x86_64 glibc and musl, Windows x86_64,
 macOS Intel + Apple silicon) are on [PyPI](https://pypi.org/project/rustual-py/) and attached to
@@ -88,7 +88,7 @@ Requires Rust (stable) and [uv](https://docs.astral.sh/uv/).
 ```sh
 cd crates/rustual-py
 uv sync                                   # builds the extension with maturin
-uv run rustual-py counter            # or just `uv run rustual-py` for the launcher
+uv run rustual-py tasks              # or just `uv run rustual-py` for the launcher
 uv run pytest                             # headless tests
 uv sync --reinstall-package rustual-py    # rebuild after changing Rust code
 ```

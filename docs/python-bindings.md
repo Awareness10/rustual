@@ -21,7 +21,7 @@ cd crates/rustual-py
 uv sync                                  # builds the extension (maturin) into .venv
 uv sync --reinstall-package rustual-py   # rebuild after changing Rust code
 uv run pytest                            # Python tests (headless, via Pilot)
-uv run rustual-py                        # the example launcher (or: uv run rustual-py counter)
+uv run rustual-py                        # the example launcher (or: uv run rustual-py tasks)
 ```
 
 Python-only changes don't need a rebuild (the package is installed in editable mode).

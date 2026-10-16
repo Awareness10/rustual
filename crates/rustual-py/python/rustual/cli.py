@@ -1,7 +1,7 @@
 """``rustual-py`` / ``python -m rustual``: run the bundled examples.
 
     rustual-py              open the launcher
-    rustual-py stopwatch    run one example
+    rustual-py tasks        run one example
     rustual-py --list       list the examples
 """
 
