@@ -28,9 +28,9 @@
 
 <br>
 
-<img src="docs/assets/screenshots/py_stopwatch.svg" alt="Textual's stopwatch tutorial running on rustual" width="760">
+<img src="docs/assets/screenshots/py_tasks.svg" alt="The task manager demo running on rustual" width="760">
 
-<sub>Textual's stopwatch tutorial in Python, unchanged except for its imports, running on rustual.<br>
+<sub>The task manager demo in Python (it also runs unchanged under Textual), running on rustual.<br>
 Every screenshot in this README was rendered by rustual itself.</sub>
 
 </div>
