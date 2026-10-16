@@ -16,6 +16,7 @@ pub mod events;
 pub mod layout;
 pub mod message;
 pub mod pilot;
+pub mod renderables;
 pub mod screen;
 pub mod screens;
 pub mod scrollbar;

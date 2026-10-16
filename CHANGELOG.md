@@ -11,6 +11,11 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 - `hatch` CSS (`hatch: right $panel`, `hatch: "x" red 50%`, `hatch: none`) and Python
   `styles.hatch = ("cross", "red")`: hatched backgrounds as in Textual. A maximized widget's screen is
   now hatched around it, like Textual's.
+- Rich-style renderables for Rust (`rustual::renderables`): ports of rich's `Table`, `Panel`,
+  `Columns`, `Padding` and `Group`, plus `Syntax` (keyword highlighting, line numbers, highlighted
+  lines, word wrap). Their layout matches rich 15 line for line. Show them with
+  `Static::renderable` / `update_renderable` or `RichLog::write_renderable`; see the `renderables`
+  example.
 - `Header::time_format` / `set_time_format` (Python `Header(time_format=...)`, `header.time_format`):
   strftime formats for the header clock (default `%X`).
 

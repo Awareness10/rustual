@@ -222,6 +222,7 @@ fn static_text(s: &w::Static) -> String {
         w::StaticContent::Markup(m) => m.clone(),
         w::StaticContent::Plain(p) => p.clone(),
         w::StaticContent::Text(t) => t.plain_text(),
+        w::StaticContent::Renderable(_) => s.plain_text(),
     }
 }
 
