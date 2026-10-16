@@ -7,6 +7,8 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+## 0.5.0 - 2026-10-16
+
 ### Added
 - `layout: stream` (Textual's stream layout for long lists: full-width, auto-height children);
   child regions match Textual 8.2.8 exactly. Python `Widget.virtual_size`.
