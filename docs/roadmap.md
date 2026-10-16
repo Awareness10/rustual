@@ -12,8 +12,6 @@ Latest release: **v0.3.0** on [PyPI](https://pypi.org/project/rustual-py/),
 Make every one of Textual's own example apps run unchanged with only the imports swapped (11 of the 15
 run today), then Textual's demo:
 
-- [ ] **ANSI themes** (M): `textual-ansi` / `ansi-dark` / `ansi-light`, `ansi_default`, `:ansi` / `:nocolor`,
-  `NO_COLOR` (`theme_sandbox` lists them).
 - [ ] **Command palette providers from Python** (M): `Provider` classes and `COMMANDS` (`color_command`).
 - [ ] **Breakpoints** (S): `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS` classes on resize (`breakpoints`).
 - [ ] **Textual's demo** (L): run `python -m textual`'s `DemoApp` with the imports swapped; fix what it exposes.
@@ -79,6 +77,8 @@ run today), then Textual's demo:
 - [ ] **DataTable** (S): re-measure row heights on column changes; wrap long cells in auto-height rows.
 - [ ] **Input** (S): `Suggester` (inline completion); pluggable validators in the Rust API (Python has
   `validators=` via `rustual.validation`).
+- [ ] **Button** (S): the focus style (`b reverse`) should cover the padded label like Textual (an empty
+  label shows one reversed cell; visible in `calculator` and `five_by_five`).
 - [ ] **Select** (S): render the dropdown as an overlay instead of a modal screen (after `overlay: screen`).
 - [ ] **ListView** (S): `-hovered` class semantics instead of `:hover` (which also matches descendants).
 - [ ] **Footer** (S): clickable group descriptions.

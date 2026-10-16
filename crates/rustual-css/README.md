@@ -2,7 +2,7 @@
 
 Textual CSS (TCSS) for [rustual](https://github.com/Awareness10/rustual): tokenizer, parser (variables, nesting, `!important`),
 selectors and specificity, typed `Styles`, the cascade, CSS transitions, and the theme / design system
-that generates Textual's `$primary`, `$surface`, ... variables (19 built-in themes).
+that generates Textual's `$primary`, `$surface`, ... variables (22 built-in themes, including the ANSI themes `ansi-dark` / `ansi-light`).
 
 ```rust
 use rustual_css::{Display, SelectorList, Styles, Theme};

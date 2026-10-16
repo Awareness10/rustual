@@ -42,6 +42,40 @@ Widget {
 Screen.-maximized-view {
     hatch: right $panel;
 }
+
+/* ANSI themes (Textual `:ansi`). */
+App {
+    &:ansi {
+        background: ansi_default;
+        color: ansi_default;
+
+        .-ansi-scrollbar {
+            scrollbar-background: ansi_default;
+            scrollbar-background-hover: ansi_default;
+            scrollbar-background-active: ansi_default;
+            scrollbar-color: ansi_blue;
+            scrollbar-color-active: ansi_bright_blue;
+            scrollbar-color-hover: ansi_bright_blue;
+            scrollbar-corner-color: ansi_default;
+        }
+
+        .bindings-table--key {
+            color: ansi_magenta;
+        }
+        .bindings-table--description {
+            color: ansi_default;
+        }
+
+        .bindings-table--header {
+            color: ansi_default;
+        }
+
+        .bindings-table--divider {
+            color: transparent;
+            text-style: dim;
+        }
+    }
+}
 ";
 
 /// Lines scrolled per mouse-wheel tick.
@@ -147,6 +181,11 @@ pub(crate) struct AppState {
     pub arrangements: HashMap<NodeId, Arrangement>,
     pub themes: Vec<Theme>,
     pub theme: String,
+    /// `App.ansi_color`: native ANSI colors if `Some(true)`, truecolor if `Some(false)`,
+    /// the theme's `ansi` flag if `None`.
+    pub ansi_color: Option<bool>,
+    /// `NO_COLOR` was set (or [`App::no_color`]).
+    pub no_color: bool,
     pub app_css: Vec<(String, String)>,
     pub css_errors: Vec<String>,
     pub mouse_down_on: Option<NodeId>,
@@ -231,6 +270,8 @@ impl App {
             arrangements: HashMap::new(),
             themes: Theme::builtin(),
             theme: "textual-dark".to_string(),
+            ansi_color: None,
+            no_color: std::env::var_os("NO_COLOR").is_some(),
             app_css: Vec::new(),
             css_errors: Vec::new(),
             mouse_down_on: None,
@@ -284,6 +325,20 @@ impl App {
     /// Select a theme by name (see [`Theme::builtin`]).
     pub fn theme(mut self, name: &str) -> Self {
         self.state.theme = name.to_string();
+        self
+    }
+
+    /// Native ANSI colors (`true`), ANSI colors converted to truecolor (`false`); without this,
+    /// the theme decides (ANSI themes such as `ansi-dark` use native colors). Textual's
+    /// `App(ansi_color=...)`.
+    pub fn ansi_color(mut self, ansi_color: bool) -> Self {
+        self.state.ansi_color = Some(ansi_color);
+        self
+    }
+
+    /// Remove colors, as when `NO_COLOR` is set (which this overrides).
+    pub fn no_color(mut self, no_color: bool) -> Self {
+        self.state.no_color = no_color;
         self
     }
 
@@ -480,6 +535,8 @@ impl AppState {
         self.theme = name.to_string();
         self.dom.dark = theme.dark;
         self.env.dark = theme.dark;
+        self.dom.ansi = self.ansi_color.unwrap_or(theme.ansi);
+        self.dom.no_color = self.no_color;
         for e in self.env.stylesheet.set_variables(theme.to_variables()) {
             self.css_errors.push(e.to_string());
         }
@@ -1578,9 +1635,38 @@ impl AppState {
             .iter()
             .filter_map(|s| self.arrangements.get(s).map(|a| (*s, a)))
             .collect();
-        let canvas = compositor::render(&self.dom, &self.env, &layers, self.size);
+        let mut canvas = compositor::render(&self.dom, &self.env, &layers, self.size);
+        crate::filter::apply(&mut canvas, self.output_mode());
         self.dirty = false;
         canvas
+    }
+
+    /// How frames are written: native ANSI colors, dark theme, `NO_COLOR`.
+    pub(crate) fn output_mode(&self) -> crate::filter::OutputMode {
+        crate::filter::OutputMode {
+            native_ansi: self.dom.ansi,
+            dark: self.dom.dark,
+            no_color: self.no_color,
+        }
+    }
+
+    /// The current frame for a screenshot: ANSI colors shown with the terminal theme.
+    pub(crate) fn screenshot_frame(&mut self) -> Canvas {
+        let mut canvas = self.render_frame();
+        crate::filter::to_truecolor(&mut canvas);
+        canvas
+    }
+
+    /// Change `ansi_color` at runtime (`None`: follow the theme).
+    pub(crate) fn set_ansi_color(&mut self, ansi_color: Option<bool>) {
+        self.ansi_color = ansi_color;
+        let theme_ansi = self
+            .themes
+            .iter()
+            .find(|t| t.name == self.theme)
+            .is_some_and(|t| t.ansi);
+        self.dom.ansi = ansi_color.unwrap_or(theme_ansi);
+        self.dirty = true;
     }
 
     /// Region of a node from the last layout.

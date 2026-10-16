@@ -1,6 +1,6 @@
 //! Compatibility tests against real Textual data:
 //! - `fixtures/theme_variables.tsv`: output of Textual 8.2.8's `ColorSystem.generate()` (+ theme
-//!   variables) for every non-ANSI builtin theme.
+//!   variables) for every builtin theme, ANSI themes included.
 //! - `fixtures/default_css/*.tcss`: `DEFAULT_CSS` of Textual's widgets, extracted verbatim.
 
 use rustual_css::{Origin, Stylesheet, Theme};

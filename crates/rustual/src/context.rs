@@ -544,6 +544,22 @@ impl<'a> Ctx<'a> {
         self.app.dom.dark
     }
 
+    /// Whether ANSI colors are written natively (`App.native_ansi_color`; `:ansi` matches).
+    pub fn native_ansi_color(&self) -> bool {
+        self.app.dom.ansi
+    }
+
+    /// Set `App.ansi_color`: `Some(true)` native ANSI colors, `Some(false)` truecolor, `None`
+    /// the theme's choice.
+    pub fn set_ansi_color(&mut self, ansi_color: Option<bool>) {
+        self.app.set_ansi_color(ansi_color);
+    }
+
+    /// Whether colors are removed (`NO_COLOR`; `:nocolor` matches).
+    pub fn no_color(&self) -> bool {
+        self.app.no_color
+    }
+
     /// Push a screen; this widget receives the dismissal result as a message.
     pub fn push_screen(&mut self, screen: impl Into<Child>) -> NodeId {
         let pusher = self.node;

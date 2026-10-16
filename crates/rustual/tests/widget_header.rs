@@ -35,16 +35,17 @@ async fn header_shows_title_and_sub_title() {
     assert!(first.starts_with(" ⭘"), "{first:?}");
     // The body is laid out below the docked header.
     assert_eq!(text.lines().nth(1).unwrap().trim(), "body");
-    // The sub-title is dimmed; the header background ($panel) differs from the screen's.
+    // The sub-title is dim: Textual (in truecolor mode) shows `dim` as the text color blended
+    // 66% from the background. The header background ($panel) differs from the screen's.
     let c = pilot.canvas();
     let x = first[..first.find("subtitle").unwrap()].chars().count() as i32;
     let cell = c.get(x, 0).unwrap();
-    assert!(cell.attrs.contains(rustual::render::Attrs::DIM));
-    assert!(!c
-        .get(x - 4, 0)
-        .unwrap()
-        .attrs
-        .contains(rustual::render::Attrs::DIM));
+    let title = c.get(x - 4, 0).unwrap();
+    assert!(!cell.attrs.contains(rustual::render::Attrs::DIM));
+    assert_eq!(
+        cell.fg,
+        cell.bg.blend(title.fg, rustual::filter::DIM_FACTOR)
+    );
     assert_ne!(cell.bg, c.get(0, 3).unwrap().bg);
 }
 

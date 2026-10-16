@@ -26,6 +26,8 @@ pub struct AppConfig {
     default_mode: Option<String>,
     themes: Vec<ThemeSpec>,
     command_palette: bool,
+    /// `App(ansi_color=...)`: `None` follows the theme.
+    ansi_color: Option<bool>,
 }
 
 /// A theme from Python (`rustual.theme.Theme`, passed as a dict).
@@ -48,6 +50,7 @@ pub struct ThemeSpec {
     luminosity_spread: f32,
     text_alpha: f32,
     variables: std::collections::HashMap<String, String>,
+    ansi: bool,
 }
 
 impl ThemeSpec {
@@ -67,6 +70,7 @@ impl ThemeSpec {
         t.luminosity_spread = self.luminosity_spread;
         t.text_alpha = self.text_alpha;
         t.variables = self.variables;
+        t.ansi = self.ansi;
         t
     }
 }
@@ -97,6 +101,9 @@ fn build_app(py: Python<'_>, app: &Bound<'_, PyAny>, cfg: AppConfig) -> PyResult
     }
     if let Some(t) = &cfg.theme {
         a = a.theme(t);
+    }
+    if let Some(ansi) = cfg.ansi_color {
+        a = a.ansi_color(ansi);
     }
     for (name, f, modal) in cfg.screens {
         a = if modal {

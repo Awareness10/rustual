@@ -90,6 +90,17 @@ Tree {
         }
     }
 }
+
+/* ANSI themes (Textual `:ansi`). */
+Tree:ansi {
+    color: ansi_default;
+    & > .tree--guides {
+        color: $ansi-background;
+    }
+    &:nocolor > .tree--cursor{
+        text-style: reverse;
+    }
+}
 "#;
 
 /// Icon for an expandable (collapsed) node.

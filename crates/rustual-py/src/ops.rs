@@ -535,6 +535,22 @@ pub fn theme_names() -> PyResult<Vec<String>> {
     with_ctx(|ctx| Ok(ctx.theme_names()))
 }
 
+/// `App.native_ansi_color`.
+#[pyfunction]
+pub fn native_ansi_color() -> PyResult<bool> {
+    with_ctx(|ctx| Ok(ctx.native_ansi_color()))
+}
+
+/// Set `App.ansi_color` (`None`: follow the theme).
+#[pyfunction]
+#[pyo3(signature = (ansi_color))]
+pub fn set_ansi_color(ansi_color: Option<bool>) -> PyResult<()> {
+    with_ctx(|ctx| {
+        ctx.set_ansi_color(ansi_color);
+        Ok(())
+    })
+}
+
 #[pyfunction]
 pub fn copy_to_clipboard(text: &str) -> PyResult<()> {
     with_ctx(|ctx| {
@@ -772,5 +788,6 @@ pub fn builtin_theme(py: Python<'_>, name: &str) -> PyResult<Option<Py<pyo3::typ
     d.set_item("luminosity_spread", t.luminosity_spread)?;
     d.set_item("text_alpha", t.text_alpha)?;
     d.set_item("variables", t.variables.clone())?;
+    d.set_item("ansi", t.ansi)?;
     Ok(Some(d.unbind()))
 }

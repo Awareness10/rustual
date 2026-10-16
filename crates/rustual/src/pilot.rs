@@ -430,7 +430,7 @@ impl Pilot {
     /// Current frame as an SVG screenshot (Textual's `export_screenshot`).
     pub fn export_svg(&mut self) -> String {
         let title = self.state.env.title.clone();
-        self.canvas().to_svg(&title)
+        self.state.screenshot_frame().to_svg(&title)
     }
 
     /// Current frame as a string with ANSI color codes.

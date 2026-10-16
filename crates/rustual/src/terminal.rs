@@ -182,7 +182,7 @@ pub(crate) fn save_screenshot(
     };
     let dir = path.filter(|p| !p.is_empty()).unwrap_or(".");
     let file = Path::new(dir).join(name);
-    let svg = state.render_frame().to_svg(&title);
+    let svg = state.screenshot_frame().to_svg(&title);
     std::fs::write(&file, svg)?;
     state.dirty = true;
     Ok(file)

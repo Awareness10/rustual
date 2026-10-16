@@ -110,6 +110,14 @@ DataTable {
         background: $block-hover-background;
     }
 }
+
+/* ANSI themes (Textual `:ansi`). */
+DataTable {
+    &:ansi > .datatable--header {
+        background: ansi_bright_blue;
+        color: ansi_default;
+    }
+}
 "#;
 
 // ---------------------------------------------------------------------- keys & values

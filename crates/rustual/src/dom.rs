@@ -169,6 +169,10 @@ pub struct Dom {
     pub focused: Option<NodeId>,
     pub hovered: Option<NodeId>,
     pub dark: bool,
+    /// Native ANSI colors are in use (`:ansi`).
+    pub ansi: bool,
+    /// `NO_COLOR` is set (`:nocolor`).
+    pub no_color: bool,
     /// The active (top) screen as of the last layout / key dispatch, for read-only observers
     /// (the runtime itself uses its screen stack).
     pub active_screen: Option<NodeId>,
@@ -443,6 +447,8 @@ impl<'a> SelectorNode for NodeRef<'a> {
             "enabled" => !dom.is_disabled(self.id),
             "dark" => dom.dark,
             "light" => !dom.dark,
+            "ansi" => dom.ansi,
+            "nocolor" => dom.no_color,
             "can-focus" => self.node().map(|n| n.can_focus).unwrap_or(false),
             "empty" => dom.children(self.id).is_empty(),
             "first-child" | "first-of-type" => {

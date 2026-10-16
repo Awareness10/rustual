@@ -16,10 +16,20 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
   lines, word wrap). Their layout matches rich 15 line for line. Show them with
   `Static::renderable` / `update_renderable` or `RichLog::write_renderable`; see the `renderables`
   example.
+- ANSI themes `ansi-dark` / `ansi-light` (Textual's, with identical variables) that use the
+  terminal's own colors: `ansi_*` / `ansi_default` colors are written as ANSI codes, `:ansi` /
+  `:nocolor` pseudo-classes and the widgets' `:ansi` rules apply. `App::ansi_color` /
+  `ctx.set_ansi_color` (Python `App(ansi_color=...)`, `app.ansi_color`) choose native ANSI colors
+  or truecolor; `NO_COLOR` removes colors (`App::no_color`). `Theme::ansi` / Python `Theme(ansi=True)`.
 - `Header::time_format` / `set_time_format` (Python `Header(time_format=...)`, `header.time_format`):
   strftime formats for the header clock (default `%X`).
 
 ### Changed
+- `ansi_*` colors are the terminal's own colors (`Color::ansi`): `ansi_default` is no longer
+  transparent, and without native ANSI colors they are shown with Textual's terminal themes
+  (MONOKAI / ALABASTER) instead of fixed RGB values. `Color` has a new `ansi` field.
+- `dim` text is drawn as a color blended towards the background (like Textual) unless ANSI
+  colors are native.
 - The header clock shows the local time (it was UTC), like Textual. `clock_utc_offset` still pins a
   fixed offset. rustual now depends on `chrono` for time zones and formatting.
 

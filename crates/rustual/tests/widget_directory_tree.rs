@@ -114,7 +114,15 @@ async fn loads_root_sorted_folders_first() {
     let attrs = |row: usize, s: &str| c.get(col(row, s), row as i32).unwrap().attrs;
     use rustual::render::Attrs;
     assert!(attrs(1, "Docs").contains(Attrs::BOLD));
-    assert!(attrs(3, ".hidden").contains(Attrs::DIM));
+    // Dotfiles are dim: rendered (as in Textual's truecolor mode) as a color blended 66% from
+    // the background towards the text color, dimmer than a normal file name.
+    let cell = |row: usize, s: &str| c.get(col(row, s), row as i32).unwrap().clone();
+    let (hidden, normal) = (cell(3, ".hidden"), cell(4, "A.md"));
+    assert!(!hidden.attrs.contains(Attrs::DIM));
+    assert_eq!(
+        hidden.fg,
+        hidden.bg.blend(normal.fg, rustual::filter::DIM_FACTOR)
+    );
     assert!(!attrs(4, "A.md").contains(Attrs::ITALIC));
     assert!(attrs(4, ".md").contains(Attrs::ITALIC));
 }

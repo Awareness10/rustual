@@ -3,13 +3,41 @@
 use std::fmt;
 
 /// An RGB color with a floating point alpha in `0.0..=1.0`.
+///
+/// A color may also be one of the terminal's 16 ANSI colors (`ansi_red`, ...) or its default
+/// color (`ansi_default`), as in Textual: [`Color::ansi`] is then `Some(index)` (`-1` for the
+/// default) and `r`/`g`/`b` hold a standard approximation. ANSI colors are opaque, ignore alpha
+/// changes, win when composited over another color, and are written to the terminal as ANSI
+/// codes when the app uses native ANSI colors (otherwise converted with a [`TerminalTheme`]).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
     pub b: u8,
     pub a: f32,
+    /// Terminal ANSI color index (0-15), `-1` for the terminal's default color, or `None`.
+    pub ansi: Option<i8>,
 }
+
+/// The ANSI color names, in index order (`ansi_<name>`).
+pub const ANSI_COLORS: [&str; 16] = [
+    "black",
+    "red",
+    "green",
+    "yellow",
+    "blue",
+    "magenta",
+    "cyan",
+    "white",
+    "bright_black",
+    "bright_red",
+    "bright_green",
+    "bright_yellow",
+    "bright_blue",
+    "bright_magenta",
+    "bright_cyan",
+    "bright_white",
+];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ColorParseError(pub String);
@@ -34,11 +62,72 @@ impl Color {
     pub const BLACK: Color = Color::rgb(0, 0, 0);
 
     pub const fn rgb(r: u8, g: u8, b: u8) -> Self {
-        Color { r, g, b, a: 1.0 }
+        Color {
+            r,
+            g,
+            b,
+            a: 1.0,
+            ansi: None,
+        }
     }
 
     pub const fn rgba(r: u8, g: u8, b: u8, a: f32) -> Self {
-        Color { r, g, b, a }
+        Color {
+            r,
+            g,
+            b,
+            a,
+            ansi: None,
+        }
+    }
+
+    /// The terminal's default color (`ansi_default`).
+    pub const ANSI_DEFAULT: Color = Color {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 1.0,
+        ansi: Some(-1),
+    };
+
+    /// ANSI color `index` (0-15; see [`ANSI_COLORS`]), or the default color for other values.
+    pub fn from_ansi(index: i8) -> Color {
+        let Some(name) = usize::try_from(index).ok().and_then(|i| ANSI_COLORS.get(i)) else {
+            return Color::ANSI_DEFAULT;
+        };
+        let rgb = Color::parse(&format!("ansi_{name}")).unwrap_or(Color::BLACK);
+        Color {
+            ansi: Some(index),
+            ..rgb
+        }
+    }
+
+    /// `ansi_<name>` / `ansi_default` for ANSI colors.
+    pub fn ansi_name(&self) -> Option<String> {
+        match self.ansi? {
+            -1 => Some("ansi_default".into()),
+            i => ANSI_COLORS
+                .get(i as usize)
+                .map(|name| format!("ansi_{name}")),
+        }
+    }
+
+    /// This color as a truecolor RGB color (ANSI colors via `theme`; the default color is the
+    /// theme's foreground or background).
+    pub fn to_truecolor(&self, theme: &TerminalTheme, foreground: bool) -> Color {
+        match self.ansi {
+            None => *self,
+            Some(-1) if foreground => theme.foreground,
+            Some(-1) => theme.background,
+            Some(i) => theme.ansi[(i as usize) % 16],
+        }
+    }
+
+    /// Black and white version (Textual's `Color.monochrome`).
+    pub fn monochrome(&self) -> Color {
+        let gray = (self.r as f32 * 0.2126 + self.g as f32 * 0.7152 + self.b as f32 * 0.0722)
+            .round_ties_even() as u8;
+        Color::rgba(gray, gray, gray, self.a)
     }
 
     /// Parse a CSS color: named colors (Textual's table incl. `ansi_*`), `#rgb`, `#rgba`,
@@ -125,6 +214,25 @@ impl Color {
             };
         }
         let name = lower.replace('-', "_");
+        if name == "ansi_default" {
+            return Ok(Color::ANSI_DEFAULT);
+        }
+        if let Some(index) = name
+            .strip_prefix("ansi_")
+            .and_then(|n| ANSI_COLORS.iter().position(|c| *c == n))
+        {
+            let (r, g, b, _) = crate::color_names::NAMED_COLORS[crate::color_names::NAMED_COLORS
+                .binary_search_by(|(n, _)| (*n).cmp(name.as_str()))
+                .map_err(|_| err())?]
+            .1;
+            return Ok(Color {
+                r,
+                g,
+                b,
+                a: 1.0,
+                ansi: Some(index as i8),
+            });
+        }
         crate::color_names::NAMED_COLORS
             .binary_search_by(|(n, _)| (*n).cmp(name.as_str()))
             .map(|i| {
@@ -198,23 +306,33 @@ impl Color {
         (h * 60.0, s, l)
     }
 
+    /// The RGB color with alpha `a` (an ANSI color becomes its RGB approximation, as in Textual).
     pub fn with_alpha(&self, a: f32) -> Color {
-        Color { a, ..*self }
+        Color::rgba(self.r, self.g, self.b, a)
     }
 
+    /// Alpha multiplied by `f` (ANSI colors are unchanged).
     pub fn multiply_alpha(&self, f: f32) -> Color {
+        if self.ansi.is_some() {
+            return *self;
+        }
         Color {
             a: self.a * f,
             ..*self
         }
     }
 
+    /// Fully transparent (ANSI colors never are).
     pub fn is_transparent(&self) -> bool {
-        self.a <= 0.0
+        self.a <= 0.0 && self.ansi.is_none()
     }
 
     /// Linear interpolation of all channels (including alpha) towards `dest` by `factor` (0..1).
+    /// An ANSI `dest` is returned as is.
     pub fn blend(&self, dest: Color, factor: f32) -> Color {
+        if dest.ansi.is_some() {
+            return dest;
+        }
         if factor <= 0.0 {
             return *self;
         }
@@ -233,14 +351,24 @@ impl Color {
     /// Composite `top` over `self` (self is the background), using `top.a` as the blend factor.
     /// The result keeps `self`'s alpha. Equivalent to Textual's `self + top`.
     pub fn composite(&self, top: Color) -> Color {
+        if top.ansi.is_some() {
+            return top;
+        }
+        if top.a <= 0.0 {
+            return *self;
+        }
         if top.a >= 1.0 {
             return Color { a: self.a, ..top };
         }
         self.blend(top, top.a).with_alpha(self.a)
     }
 
-    /// Tint: blend RGB towards `tint`'s RGB by `tint.a`, keeping own alpha.
+    /// Tint: blend RGB towards `tint`'s RGB by `tint.a`, keeping own alpha (no effect when
+    /// either color is ANSI).
     pub fn tint(&self, tint: Color) -> Color {
+        if self.ansi.is_some() || tint.ansi.is_some() {
+            return *self;
+        }
         let lerp = |a: u8, b: u8| (a as f32 + (b as f32 - a as f32) * tint.a) as u8;
         Color::rgba(
             lerp(self.r, tint.r),
@@ -552,4 +680,89 @@ mod tests {
         assert_eq!(Color::BLACK.get_contrast_text(1.0), Color::WHITE);
         assert_eq!(Color::rgb(1, 2, 3).hex(), "#010203");
     }
+}
+
+/// RGB values for the terminal's colors, used to show ANSI colors as truecolor (Rich's
+/// `TerminalTheme`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TerminalTheme {
+    pub background: Color,
+    pub foreground: Color,
+    /// The 16 ANSI colors.
+    pub ansi: [Color; 16],
+}
+
+impl TerminalTheme {
+    /// Textual's terminal theme for dark themes (`textual._ansi_theme.MONOKAI`).
+    pub const MONOKAI: TerminalTheme = TerminalTheme {
+        background: Color::rgb(12, 12, 12),
+        foreground: Color::rgb(217, 217, 217),
+        ansi: [
+            Color::rgb(26, 26, 26),
+            Color::rgb(244, 0, 95),
+            Color::rgb(152, 224, 36),
+            Color::rgb(253, 151, 31),
+            Color::rgb(157, 101, 255),
+            Color::rgb(244, 0, 95),
+            Color::rgb(88, 209, 235),
+            Color::rgb(196, 197, 181),
+            Color::rgb(98, 94, 76),
+            Color::rgb(244, 0, 95),
+            Color::rgb(152, 224, 36),
+            Color::rgb(224, 213, 97),
+            Color::rgb(157, 101, 255),
+            Color::rgb(244, 0, 95),
+            Color::rgb(88, 209, 235),
+            Color::rgb(246, 246, 239),
+        ],
+    };
+
+    /// Rich's theme for SVG exports (`rich.terminal_theme.SVG_EXPORT_THEME`), which Textual's
+    /// screenshots use for ANSI colors.
+    pub const SVG_EXPORT: TerminalTheme = TerminalTheme {
+        background: Color::rgb(41, 41, 41),
+        foreground: Color::rgb(197, 200, 198),
+        ansi: [
+            Color::rgb(75, 78, 85),
+            Color::rgb(204, 85, 90),
+            Color::rgb(152, 168, 75),
+            Color::rgb(208, 179, 68),
+            Color::rgb(96, 138, 177),
+            Color::rgb(152, 114, 159),
+            Color::rgb(104, 160, 179),
+            Color::rgb(197, 200, 198),
+            Color::rgb(154, 155, 153),
+            Color::rgb(255, 38, 39),
+            Color::rgb(0, 130, 61),
+            Color::rgb(208, 132, 66),
+            Color::rgb(25, 132, 233),
+            Color::rgb(255, 44, 122),
+            Color::rgb(57, 130, 128),
+            Color::rgb(253, 253, 197),
+        ],
+    };
+
+    /// Textual's terminal theme for light themes (`textual._ansi_theme.ALABASTER`).
+    pub const ALABASTER: TerminalTheme = TerminalTheme {
+        background: Color::rgb(247, 247, 247),
+        foreground: Color::rgb(0, 0, 0),
+        ansi: [
+            Color::rgb(0, 0, 0),
+            Color::rgb(170, 55, 49),
+            Color::rgb(68, 140, 39),
+            Color::rgb(203, 144, 0),
+            Color::rgb(50, 92, 192),
+            Color::rgb(122, 62, 157),
+            Color::rgb(0, 131, 178),
+            Color::rgb(247, 247, 247),
+            Color::rgb(119, 119, 119),
+            Color::rgb(240, 80, 80),
+            Color::rgb(96, 203, 0),
+            Color::rgb(255, 188, 93),
+            Color::rgb(0, 122, 204),
+            Color::rgb(230, 76, 230),
+            Color::rgb(0, 170, 203),
+            Color::rgb(247, 247, 247),
+        ],
+    };
 }

@@ -75,9 +75,10 @@ class App(Widget, Generic[ReturnType]):
         driver_class: Any = None,
         css_path: CSSPathType | None = None,
         watch_css: bool = False,
-        ansi_color: bool = False,
+        ansi_color: bool | None = None,
     ) -> None:
         super().__init__()
+        self._ansi_color = ansi_color
         self._title = self.TITLE if self.TITLE is not None else type(self).__name__
         self._sub_title = self.SUB_TITLE or ""
         self._css_path = css_path
@@ -121,6 +122,7 @@ class App(Widget, Generic[ReturnType]):
             "default_mode": self.DEFAULT_MODE,
             "themes": [t._native() for t in self._themes.values()],
             "command_palette": bool(self.ENABLE_COMMAND_PALETTE),
+            "ansi_color": self._ansi_color,
         }
 
     # -- running ------------------------------------------------------------------------------
@@ -285,6 +287,34 @@ class App(Widget, Generic[ReturnType]):
         if not ok:
             raise ValueError(f"unknown theme {name!r}")
         self.theme_changed_signal.publish(self._themes.get(name, name))
+
+    @property
+    def ansi_color(self) -> bool | None:
+        """Native ANSI colors (``True``), truecolor (``False``), or the theme's choice (``None``)."""
+        return self._ansi_color
+
+    @ansi_color.setter
+    def ansi_color(self, value: bool | None) -> None:
+        self._ansi_color = value
+        if self._running:
+            native.set_ansi_color(value)
+
+    @property
+    def native_ansi_color(self) -> bool:
+        """Whether ANSI colors are written natively (``ansi_color``, else the theme's ``ansi``)."""
+        if self._running:
+            try:
+                return native.native_ansi_color()
+            except RuntimeError:
+                pass
+        if self._ansi_color is not None:
+            return self._ansi_color
+        return bool(getattr(self.get_theme(self.theme), "ansi", False))
+
+    @property
+    def no_color(self) -> bool:
+        """Whether ``NO_COLOR`` is set (colors are removed)."""
+        return "NO_COLOR" in os.environ
 
     @property
     def theme_changed_signal(self) -> Any:
