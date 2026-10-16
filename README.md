@@ -99,7 +99,7 @@ rustual is on [crates.io](https://crates.io/crates/rustual) and [PyPI](https://p
 ```toml
 # cargo add rustual tokio --features tokio/full
 [dependencies]
-rustual = "0.2"
+rustual = "0.4"
 tokio = { version = "1", features = ["full"] }
 ```
 
@@ -135,7 +135,7 @@ async fn main() -> std::io::Result<()> {
 
 Or try the bundled examples: `cargo run -p rustual --example dashboard`
 (also `hello`, `form`, `table`, `navigator`, `editor`, `markdown`, `palette`, `modes`,
-`widgets_extra`). `ctrl+p` opens the command palette, `ctrl+q` quits.
+`renderables`, `widgets_extra`). `ctrl+p` opens the command palette, `ctrl+q` quits.
 
 </details>
 
