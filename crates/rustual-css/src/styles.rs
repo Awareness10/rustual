@@ -141,6 +141,36 @@ pub enum ColorValue {
     Auto(f32),
 }
 
+/// `hatch: <left|right|cross|horizontal|vertical|"c"> <color> [<alpha>%]`: blank cells inside
+/// the padding box are drawn as `character` in `color` over the background (Textual `hatch`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Hatch {
+    pub character: char,
+    pub color: Color,
+}
+
+impl Hatch {
+    /// `hatch: none`: stored like any value (so it overrides a less specific rule) but inactive.
+    pub const NONE: Hatch = Hatch {
+        character: ' ',
+        color: Color::TRANSPARENT,
+    };
+
+    /// Keyword → character (Textual `HATCHES`).
+    pub const KEYWORDS: &'static [(&'static str, char)] = &[
+        ("left", '╲'),
+        ("right", '╱'),
+        ("cross", '╳'),
+        ("horizontal", '─'),
+        ("vertical", '│'),
+    ];
+
+    /// Whether the hatch draws anything (Textual skips a space character or a transparent color).
+    pub fn is_active(&self) -> bool {
+        self.character != ' ' && !self.color.is_transparent()
+    }
+}
+
 /// All supported style properties. Field names map to CSS names with `_` → `-`
 /// (e.g. `content_align_horizontal` ← `content-align-horizontal`, also set by `content-align: center middle`).
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -185,6 +215,7 @@ pub struct Styles {
     pub background: Option<Color>,
     pub background_tint: Option<Color>,
     pub tint: Option<Color>,
+    pub hatch: Option<Hatch>,
     pub opacity: Option<f32>,
     pub text_opacity: Option<f32>,
     pub text_style: Option<TextStyle>,
@@ -286,6 +317,7 @@ impl Styles {
             background,
             background_tint,
             tint,
+            hatch,
             opacity,
             text_opacity,
             text_style,
@@ -329,7 +361,7 @@ impl Styles {
             link_style_hover,
             transitions,
         } = other;
-        overlay!(self; display, visibility, layout, position, width, height, min_width, min_height, max_width, max_height, box_sizing, margin, padding, border_top, border_right, border_bottom, border_left, outline_top, outline_right, outline_bottom, outline_left, border_title_align, border_subtitle_align, border_title_color, border_title_background, border_title_style, border_subtitle_color, border_subtitle_background, border_subtitle_style, color, background, background_tint, tint, opacity, text_opacity, text_style, text_align, text_wrap, text_overflow, content_align_horizontal, content_align_vertical, align_horizontal, align_vertical, dock, offset_x, offset_y, layer, layers, overflow_x, overflow_y, scrollbar_gutter, scrollbar_size_vertical, scrollbar_size_horizontal, scrollbar_color, scrollbar_color_hover, scrollbar_color_active, scrollbar_background, scrollbar_background_hover, scrollbar_background_active, scrollbar_corner_color, grid_size_columns, grid_size_rows, grid_columns, grid_rows, grid_gutter_horizontal, grid_gutter_vertical, column_span, row_span, link_color, link_background, link_style, link_color_hover, link_background_hover, link_style_hover, transitions);
+        overlay!(self; display, visibility, layout, position, width, height, min_width, min_height, max_width, max_height, box_sizing, margin, padding, border_top, border_right, border_bottom, border_left, outline_top, outline_right, outline_bottom, outline_left, border_title_align, border_subtitle_align, border_title_color, border_title_background, border_title_style, border_subtitle_color, border_subtitle_background, border_subtitle_style, color, background, background_tint, tint, hatch, opacity, text_opacity, text_style, text_align, text_wrap, text_overflow, content_align_horizontal, content_align_vertical, align_horizontal, align_vertical, dock, offset_x, offset_y, layer, layers, overflow_x, overflow_y, scrollbar_gutter, scrollbar_size_vertical, scrollbar_size_horizontal, scrollbar_color, scrollbar_color_hover, scrollbar_color_active, scrollbar_background, scrollbar_background_hover, scrollbar_background_active, scrollbar_corner_color, grid_size_columns, grid_size_rows, grid_columns, grid_rows, grid_gutter_horizontal, grid_gutter_vertical, column_span, row_span, link_color, link_background, link_style, link_color_hover, link_background_hover, link_style_hover, transitions);
     }
 
     /// Fill unset *inherited* properties from the parent's computed styles. Inherited:
@@ -376,6 +408,10 @@ impl Styles {
     }
     pub fn get_background(&self) -> Color {
         self.background.unwrap_or(Color::TRANSPARENT)
+    }
+    /// The hatch to draw, if any (`None` when unset, `none`, or invisible).
+    pub fn get_hatch(&self) -> Option<Hatch> {
+        self.hatch.filter(Hatch::is_active)
     }
     pub fn get_opacity(&self) -> f32 {
         self.opacity.unwrap_or(1.0)

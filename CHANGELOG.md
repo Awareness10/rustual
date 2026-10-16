@@ -7,6 +7,11 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+### Added
+- `hatch` CSS (`hatch: right $panel`, `hatch: "x" red 50%`, `hatch: none`) and Python
+  `styles.hatch = ("cross", "red")`: hatched backgrounds as in Textual. A maximized widget's screen is
+  now hatched around it, like Textual's.
+
 ## 0.3.0 - 2026-10-15
 
 ### Added

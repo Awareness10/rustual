@@ -175,6 +175,16 @@ def _css_value(value: Any) -> str:
     return str(value)
 
 
+_HATCH_KEYWORDS = frozenset({"left", "right", "cross", "horizontal", "vertical"})
+
+
+def _hatch_character(character: str) -> str:
+    """A hatch keyword as-is; a literal character quoted, as CSS requires (``hatch: "x" red``)."""
+    if character in _HATCH_KEYWORDS:
+        return character
+    return f"'{character}'" if character == '"' else f'"{character}"'
+
+
 class Styles:
     """``widget.styles``: set CSS properties inline (``widget.styles.background = "red"``)."""
 
@@ -185,7 +195,10 @@ class Styles:
         widget: Widget = object.__getattribute__(self, "_widget")
         prop = name.replace("_", "-")
         widget._inline[prop] = value
-        widget._apply_inline(f"{prop}: {_css_value(value)}")
+        css = value
+        if prop == "hatch" and isinstance(value, (tuple, list)) and value:
+            css = (_hatch_character(str(value[0])), *value[1:])
+        widget._apply_inline(f"{prop}: {_css_value(css)}")
 
     def __getattr__(self, name: str) -> Any:
         widget: Widget = object.__getattribute__(self, "_widget")

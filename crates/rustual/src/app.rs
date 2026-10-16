@@ -39,6 +39,9 @@ Widget {
     scrollbar-color-hover: $scrollbar-hover;
     scrollbar-corner-color: $scrollbar-corner-color;
 }
+Screen.-maximized-view {
+    hatch: right $panel;
+}
 ";
 
 /// Lines scrolled per mouse-wheel tick.
