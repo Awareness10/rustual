@@ -81,6 +81,12 @@ impl Color {
         }
     }
 
+    /// Every named color (Textual's `COLOR_NAME_TO_RGB`, including `ansi_*`), sorted by name:
+    /// `(name, (r, g, b, a))`.
+    pub fn named_colors() -> impl Iterator<Item = (&'static str, (u8, u8, u8, u8))> {
+        crate::color_names::NAMED_COLORS.iter().copied()
+    }
+
     /// The terminal's default color (`ansi_default`).
     pub const ANSI_DEFAULT: Color = Color {
         r: 0,

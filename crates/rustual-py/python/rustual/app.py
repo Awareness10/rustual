@@ -7,7 +7,7 @@ import inspect
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, AsyncIterator, Callable, ClassVar, Generic, Iterable, TypeVar, Union
+from typing import Any, AsyncIterator, Callable, ClassVar, Generic, Iterable, NamedTuple, TypeVar, Union
 
 from . import _bridge, _context
 from ._bridge import _native, native
@@ -29,6 +29,26 @@ CSSPathType = Union[str, Path, list[Union[str, Path]]]
 
 class AppError(Exception):
     pass
+
+
+class SystemCommand(NamedTuple):
+    """A command from :meth:`App.get_system_commands`."""
+
+    title: str
+    help: str
+    callback: Callable[[], Any]
+    discover: bool = True
+
+
+def get_system_commands_provider() -> type:
+    """The provider of :meth:`App.get_system_commands` (lazily imported, as in Textual)."""
+    from .system_commands import SystemCommandsProvider
+
+    return SystemCommandsProvider
+
+
+class InvalidThemeError(ValueError):
+    """Raised when setting ``App.theme`` to a theme that isn't registered."""
 
 
 def _read_css_paths(cls: type, css_path: CSSPathType) -> list[str]:
@@ -68,6 +88,13 @@ class App(Widget, Generic[ReturnType]):
     AUTO_FOCUS: ClassVar[str | None] = "*"
     ENABLE_COMMAND_PALETTE: ClassVar[bool] = True
     COMMAND_PALETTE_BINDING: ClassVar[str] = "ctrl+p"
+    HORIZONTAL_BREAKPOINTS: ClassVar[list[tuple[int, str]] | None] = []
+    """``(min width, class)`` pairs: the screen gets the class of the largest width not above
+    the terminal's (e.g. ``[(0, "-narrow"), (80, "-wide")]``)."""
+    VERTICAL_BREAKPOINTS: ClassVar[list[tuple[int, str]] | None] = []
+    """Like ``HORIZONTAL_BREAKPOINTS``, for the terminal height."""
+    COMMANDS: ClassVar[set[Any]] = {get_system_commands_provider}
+    """Command palette providers: ``Provider`` classes, or callables returning one."""
     NOTIFICATION_TIMEOUT: ClassVar[float] = 5
 
     def __init__(
@@ -123,6 +150,8 @@ class App(Widget, Generic[ReturnType]):
             "themes": [t._native() for t in self._themes.values()],
             "command_palette": bool(self.ENABLE_COMMAND_PALETTE),
             "ansi_color": self._ansi_color,
+            "horizontal_breakpoints": [(int(n), str(c)) for n, c in (self.HORIZONTAL_BREAKPOINTS or [])],
+            "vertical_breakpoints": [(int(n), str(c)) for n, c in (self.VERTICAL_BREAKPOINTS or [])],
         }
 
     # -- running ------------------------------------------------------------------------------
@@ -214,6 +243,142 @@ class App(Widget, Generic[ReturnType]):
     def is_running(self) -> bool:
         return self._running
 
+    @property
+    def debug(self) -> bool:
+        """Debug mode (``TEXTUAL=debug``)."""
+        return "debug" in {f.strip() for f in os.environ.get("TEXTUAL", "").split(",")}
+
+    def clear_notifications(self) -> None:
+        """Remove every notification."""
+        native.clear_notifications()
+
+    def set_keymap(self, keymap: dict[str, str]) -> None:
+        """Replace the keymap (binding id → keys, e.g. ``{"save": "ctrl+s"}``)."""
+        self._keymap = dict(keymap)
+        if self._running:
+            native.set_keymap(self._keymap, True)
+
+    def update_keymap(self, keymap: dict[str, str]) -> None:
+        """Merge entries into the keymap."""
+        self._keymap = {**getattr(self, "_keymap", {}), **keymap}
+        if self._running:
+            native.set_keymap(dict(keymap), False)
+
+    def get_key_display(self, binding: Any) -> str:
+        """How a binding's key is shown (its ``key_display``, else e.g. ``ctrl+s`` → ``^s``)."""
+        if getattr(binding, "key_display", None):
+            return binding.key_display
+        key = binding if isinstance(binding, str) else binding.key
+        return _native.format_key(key.split(",")[0].strip())
+
+    # -- command palette -----------------------------------------------------------------------
+
+    def get_system_commands(self, screen: Screen[Any]) -> Iterable[SystemCommand]:
+        """The system commands of the palette (theme, quit, keys, ...). Override to add your
+        own: ``yield from super().get_system_commands(screen)`` then ``yield SystemCommand(...)``."""
+        for title, help_text, action in native.system_commands():
+
+            def run(action: str = action) -> None:
+                self.run_action(action)
+
+            yield SystemCommand(title, help_text, run)
+
+    def action_command_palette(self) -> None:
+        """Open the command palette."""
+        if self.ENABLE_COMMAND_PALETTE:
+            native.open_command_palette("Search for commands…", True)
+
+    def search_commands(self, commands: Iterable[Any], placeholder: str = "Search for commands…") -> AwaitComplete:
+        """Open a palette searching ``commands`` (``SimpleCommand`` or ``(name, callback[, help])``)."""
+        from .command import CommandPalette, SimpleProvider
+
+        return self.push_screen(CommandPalette(providers=[SimpleProvider(self.screen, list(commands))], placeholder=placeholder))
+
+    def _open_command_palette(self, palette: Any) -> None:
+        self.__dict__["_pending_palette_providers"] = palette.providers
+        native.open_command_palette(palette.placeholder, palette.providers is None)
+
+    def _palette_providers(self, sources: Any, screen: Screen[Any], match_style: Any) -> list[Any]:
+        from .command import Provider, SimpleProvider
+
+        providers = []
+        for source in sources:
+            if isinstance(source, SimpleProvider):
+                providers.append(source(screen, match_style))
+            elif inspect.isclass(source) and issubclass(source, Provider):
+                providers.append(source(screen, match_style))
+            else:
+                providers.append(source()(screen, match_style))  # lazily loaded provider class
+        return providers
+
+    def _rs_command_search(self, event: str, palette: int, generation: int, query: str) -> None:
+        """Drive the providers of an open palette (called by the runtime)."""
+        state = self.__dict__.setdefault("_palette", {})
+        if event == "opened":
+            stack = self.screen_stack
+            screen = stack[-2] if len(stack) > 1 else stack[-1]
+            sources = self.__dict__.pop("_pending_palette_providers", None)
+            if sources is None:
+                sources = [*self.COMMANDS, *getattr(screen, "COMMANDS", ())]
+            color, bgcolor, attrs = native.widget_style(palette, "command-palette--highlight", True)
+            style = " ".join(name for name, on in attrs.items() if on) or "reverse"
+            providers = self._palette_providers(sources, screen, style)
+            for provider in providers:
+                provider._post_init()
+            state.update(palette=palette, providers=providers, task=None)
+            self.__dict__["_palette_callbacks"] = {}
+        elif event == "query":
+            task = state.get("task")
+            if task is not None:
+                task.cancel()
+            state["task"] = _context.run_coroutine(self._palette_search(palette, generation, query, state.get("providers", [])))
+        elif event == "closed":
+            task = state.pop("task", None)
+            if task is not None:
+                task.cancel()
+            for provider in state.pop("providers", []):
+                _context.run_coroutine(provider._shutdown())
+
+    async def _palette_search(self, palette: int, generation: int, query: str, providers: list[Any]) -> None:
+        from .command import Hit
+        from .content import to_markup
+        from .content import escape as escape_markup
+
+        callbacks = self.__dict__.setdefault("_palette_callbacks", {})
+
+        def native_hit(hit: Any) -> tuple:
+            key = len(callbacks)
+            callbacks[key] = hit.command
+            text, is_markup = to_markup(hit.prompt)
+            display = text if is_markup else escape_markup(text)
+            score = hit.score if isinstance(hit, Hit) else None
+            return (score, display, hit.text or "", hit.help or "", key)
+
+        async def consume(provider: Any) -> None:
+            batch: list[tuple] = []
+            async for hit in provider._search(query):
+                batch.append(native_hit(hit))
+                if len(batch) >= 50:
+                    native.palette_add_hits(palette, generation, batch)
+                    batch = []
+            if batch:
+                native.palette_add_hits(palette, generation, batch)
+
+        await asyncio.gather(*(consume(p) for p in providers))
+
+    def action__rs_palette_callback(self, key: int) -> None:
+        callback = self.__dict__.get("_palette_callbacks", {}).get(key)
+        if callback is not None:
+            result = callback()
+            if inspect.isawaitable(result):
+                _context.run_coroutine(result)
+
+    def action_show_help_panel(self) -> None:
+        native.help_panel(True)
+
+    def action_hide_help_panel(self) -> None:
+        native.help_panel(False)
+
     def call_from_thread(self, callback: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
         """Run ``callback`` on the app thread from another thread and return its result."""
 
@@ -228,6 +393,8 @@ class App(Widget, Generic[ReturnType]):
     # -- engine hooks ---------------------------------------------------------------------------
 
     def _rs_on_mount(self) -> None:
+        if getattr(self, "_keymap", None):
+            native.set_keymap(self._keymap, True)
         super()._rs_on_mount()
         from . import events
 
@@ -285,7 +452,7 @@ class App(Widget, Generic[ReturnType]):
             _context.defer(lambda: native.set_theme(name))
             return
         if not ok:
-            raise ValueError(f"unknown theme {name!r}")
+            raise InvalidThemeError(f"unknown theme {name!r}")
         self.theme_changed_signal.publish(self._themes.get(name, name))
 
     @property
@@ -437,6 +604,11 @@ class App(Widget, Generic[ReturnType]):
             except RuntimeError:
                 raise RuntimeError("push_screen(wait_for_dismiss=True) must be awaited from a worker or async handler") from None
             future = loop.create_future()
+        from .command import CommandPalette
+
+        if isinstance(screen, CommandPalette):
+            self._open_command_palette(screen)
+            return AwaitComplete()
         if isinstance(screen, str):
             node = native.named_screen("push", screen)
             target = _widget_for(node)

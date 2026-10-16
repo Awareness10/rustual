@@ -377,7 +377,10 @@ impl Widget for HeaderTitle {
     }
 
     fn render(&self, ctx: &RenderCtx) -> Content {
-        Content::Text(format_title(&ctx.env.title, &ctx.env.sub_title))
+        // A screen's own title wins over the app's (Textual `Header.screen_title`).
+        let title = ctx.dom.screen_title(ctx.node, &ctx.env.title);
+        let sub_title = ctx.dom.screen_sub_title(ctx.node, &ctx.env.sub_title);
+        Content::Text(format_title(title, sub_title))
     }
 }
 

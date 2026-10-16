@@ -40,6 +40,40 @@ class Blur(Event, bubble=False):
     pass
 
 
+class DescendantFocus(Event, bubble=True):
+    """Sent (bubbling) to the ancestors of a widget that received focus."""
+
+    @property
+    def widget(self) -> Any:
+        """The widget that was focused."""
+        return self.sender
+
+    @property
+    def control(self) -> Any:
+        return self.widget
+
+
+class DescendantBlur(Event, bubble=True):
+    """Sent (bubbling) to the ancestors of a widget that lost focus."""
+
+    @property
+    def widget(self) -> Any:
+        """The widget that was blurred."""
+        return self.sender
+
+    @property
+    def control(self) -> Any:
+        return self.widget
+
+
+class ScreenResume(Event, bubble=False):
+    """Sent to a screen when it becomes the active screen."""
+
+
+class ScreenSuspend(Event, bubble=False):
+    """Sent to a screen when it stops being the active screen."""
+
+
 class Enter(Event, bubble=False):
     pass
 
@@ -242,3 +276,13 @@ def from_native(data: tuple) -> Event:
     if issubclass(cls, MouseEvent):
         return cls(*data[1:])
     return cls()
+
+
+def _register_native() -> None:
+    from ._bridge import _native
+
+    for cls in (DescendantFocus, DescendantBlur, ScreenResume, ScreenSuspend):
+        _native.register_class(cls.__name__, lambda cls=cls, **kw: cls())
+
+
+_register_native()

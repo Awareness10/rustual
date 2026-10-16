@@ -55,6 +55,10 @@ class Message:
         cls.handler_name = f"on_{name}"
 
     def __init__(self) -> None:
+        self.__post_init__()
+
+    def __post_init__(self) -> None:
+        """Initialize message state (also run by the ``__init__`` of ``@dataclass`` messages)."""
         self._sender: Any = None
         self._stop_propagation = False
         self._no_default_action = False

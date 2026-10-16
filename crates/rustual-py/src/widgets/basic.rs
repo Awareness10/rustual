@@ -117,6 +117,18 @@ pub(crate) fn register(r: &mut Registry) {
 
     r.getter(get).setter(set).caller(call);
 
+    r.message::<rustual::events::DescendantFocus>("on_descendant_focus", |py, _m: &Message| {
+        new_py(py, "DescendantFocus", &PyDict::new(py))
+    });
+    r.message::<rustual::events::DescendantBlur>("on_descendant_blur", |py, _m: &Message| {
+        new_py(py, "DescendantBlur", &PyDict::new(py))
+    });
+    r.message::<rustual::events::ScreenResume>("on_screen_resume", |py, _m: &Message| {
+        new_py(py, "ScreenResume", &PyDict::new(py))
+    });
+    r.message::<rustual::events::ScreenSuspend>("on_screen_suspend", |py, _m: &Message| {
+        new_py(py, "ScreenSuspend", &PyDict::new(py))
+    });
     r.message::<button::Pressed>("on_button_pressed", |py, m: &Message| {
         let _p = m.get::<button::Pressed>().expect("Pressed");
         new_py(py, "Button.Pressed", &PyDict::new(py))
