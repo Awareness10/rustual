@@ -52,7 +52,67 @@ def to_markup(content: Any, markup: bool = True) -> tuple[str, bool]:
     rs = getattr(content, "__rs_markup__", None)
     if isinstance(rs, str):
         return rs, True
+    if hasattr(content, "spans") and hasattr(content, "plain"):
+        return _rich_text_markup(content), True
     rich_markup = getattr(content, "markup", None)
     if isinstance(rich_markup, str) and hasattr(content, "plain"):
         return rich_markup, True
     return str(content), False
+
+
+_ANSI_NAMES = ("black", "red", "green", "yellow", "blue", "magenta", "cyan", "white")
+
+
+def _rich_color(color: Any) -> str | None:
+    """A Rich color as a rustual color word: the 16 standard colors become ``ansi_*`` (so they
+    follow the ANSI theme, like Textual), other colors become hex."""
+    if color is None or color.is_default:
+        return None
+    from rich.color import ColorType
+
+    if color.type == ColorType.STANDARD and color.number is not None and color.number < 16:
+        name = _ANSI_NAMES[color.number % 8]
+        return f"ansi_{'bright_' if color.number >= 8 else ''}{name}"
+    return color.get_truecolor().hex
+
+
+def _rich_style_markup(style: Any) -> str:
+    """A Rich style (or style name such as ``repr.str``) as rustual markup style words."""
+    from rich.style import Style as RichStyle
+
+    if isinstance(style, str):
+        from rich.default_styles import DEFAULT_STYLES
+
+        try:
+            style = DEFAULT_STYLES.get(style) or RichStyle.parse(style)
+        except Exception:
+            return ""
+    words = []
+    for attr in ("bold", "dim", "italic", "underline", "strike", "reverse"):
+        value = getattr(style, attr)
+        if value is not None:
+            words.append(attr if value else f"not {attr}")
+    fg = _rich_color(style.color)
+    if fg:
+        words.append(fg)
+    bg = _rich_color(style.bgcolor)
+    if bg:
+        words.append(f"on {bg}")
+    return " ".join(words)
+
+
+def _rich_text_markup(text: Any) -> str:
+    """Markup for a Rich ``Text``, with theme style names resolved (Textual resolves them
+    through the console theme in ``Content.from_rich_text``)."""
+    from rich.text import Span, Text
+
+    resolved = Text(text.plain)
+    spans = []
+    if text.style:
+        spans.append(Span(0, len(text.plain), text.style))
+    spans.extend(text.spans)
+    for span in spans:
+        style = _rich_style_markup(span.style)
+        if style and span.end > span.start:
+            resolved.spans.append(Span(span.start, span.end, style))
+    return resolved.markup

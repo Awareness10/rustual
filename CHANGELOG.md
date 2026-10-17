@@ -7,6 +7,18 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+### Fixed
+- A terminal resize while the app was starting was lost, so the app kept its initial size (e.g.
+  the right-hand pane in `rustual-examples`' `compare.sh`, which tmux resizes on attach).
+- Python: Rich `Text` labels and content lost their styles when they used theme style names
+  (`ReprHighlighter`'s `repr.str`, `repr.number`, ...): the raw markup was shown instead (Textual's
+  `json_tree` example). These names are now resolved like Textual does, with standard colors
+  following the ANSI theme.
+- Markup tags with words that aren't styles (`[foo]x[/foo]`, `[on $unknown]`) are kept as tags
+  with no effect, as in Textual, instead of making the whole string literal text.
+- DirectoryTree: the cursor starts on the root (so a focused tree highlights its guides, as in
+  Textual) and the loaded root is labelled with the folder name (`./` shows an empty label).
+
 ## 0.5.0 - 2026-10-16
 
 ### Added

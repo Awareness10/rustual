@@ -5,7 +5,7 @@ Textual's behaviour for that item is implemented here. Status: ✅ done (≥ 90%
 
 **Overall: ~90% of commonly used Textual functionality, ~70% of full parity.** Test counts and coverage: see the badges in the [README](README.md#testing) (updated by CI). CI tests Linux, macOS and Windows; Python wheels for all three are on [PyPI](https://pypi.org/project/rustual-py/) and [GitHub releases](https://github.com/Awareness10/rustual/releases).
 
-_Last updated: 2026-10-16._
+_Last updated: 2026-10-17._
 
 ## Core runtime
 
@@ -72,7 +72,7 @@ _Last updated: 2026-10-16._
 | Stream layout | ✅ | 95 | `layout: stream` (port of `layouts/stream.py`): full-width, auto-height children, collapsing vertical margins, only cell `min-height` / `max-height`, no offset / absolute; child regions match Textual 8.2.8 exactly in side-by-side tests; Textual's between-frame placement cache isn't ported (rustual lays out every frame, so stream is only ~3% faster than vertical here) |
 | Scrolling: containers, self-scrolling (ScrollView) | ✅ | 90 | keyboard / scrollbar-track scrolling animates (out_cubic, 50 cells/s); wheel and drag are immediate |
 | Compositor: clipping, layers, opacity, modal dimming | ✅ | 90 | full-frame paint + diff (~2 ms per frame at 1000 widgets, release build) |
-| Content markup (`[b red on $panel]`, `[/]`, `\[`) | ✅ | 90 | |
+| Content markup (`[b red on $panel]`, `[/]`, `\[`) | ✅ | 90 | tags with unknown style words (`[foo]`, `[on $unknown]`) are kept with no effect, as in Textual; Python Rich `Text` keeps its styles (theme names such as `repr.str` are resolved, as Textual does) |
 | Unicode cell widths (CJK, emoji, ZWJ) | ✅ | 90 | |
 | Rich renderables (tables, syntax, panels) | 🟡 | 80 | Rust: `rustual::renderables` ports rich 15's `Table` (columns, ratios, sections, footers, row styles, title/caption, grids, every `rich.box` style), `Panel`, `Columns`, `Padding`, `Group` and `Syntax` (keyword highlighter + TextArea themes; line numbers, highlighted lines, word wrap, padding, dedent), checked line by line against rich's output (`scripts/rich_golden.py`); shown with `Static::renderable` (auto width = rich's measurement) and `RichLog::write_renderable`. Not ported: `Syntax` indent guides / line ranges, other rich renderables (`Rule`, `Tree`, `Layout`, `Progress`, ...). Python: any Rich renderable via the `rich` package in `Static`, `render()` and `RichLog` |
 
@@ -95,7 +95,7 @@ _Last updated: 2026-10-16._
 | ListView / ListItem | ✅ | 90 | |
 | DataTable | ✅ | 88 | cursors, sorting, fixed rows/cols, zebra, hover; per-cell alignment (`CellValue::right/center/justify`; numbers left by default, as Textual) |
 | Tree | ✅ | 92 | generic data payload, guides, keyboard + mouse; cursor starts on the first line (as Textual) |
-| DirectoryTree | 🟡 | 85 | lazy loading, sorting, icons, filter predicate, reload keeping expansion; synchronous I/O |
+| DirectoryTree | 🟡 | 85 | lazy loading, sorting, icons, filter predicate, reload keeping expansion; cursor starts on the root and the root is labelled with the folder name, as in Textual; synchronous I/O |
 | Tabs / Tab | ✅ | 95 | underline slides over 0.3s |
 | TabbedContent / TabPane | ✅ | 90 | |
 | ContentSwitcher | ✅ | 95 | |

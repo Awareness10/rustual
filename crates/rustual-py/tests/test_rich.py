@@ -47,3 +47,41 @@ async def test_rich_table_in_static_and_update():
         static.update(make_table())
         await pilot.pause()
         assert "Planets" in pilot.screen_text()
+
+
+def test_rich_text_theme_styles_become_markup():
+    """Rich theme style names (``repr.str``) resolve to real styles, as in Textual."""
+    from rich.highlighter import ReprHighlighter
+
+    from rustual.content import to_markup
+
+    label = Text.assemble(Text.from_markup("[b]code[/b]="), ReprHighlighter()(repr("x")))
+    markup, is_markup = to_markup(label)
+    assert is_markup
+    assert "repr." not in markup
+    assert "[bold]code[/bold]=" in markup.replace("not bold ", "")
+    assert "ansi_green" in markup
+    assert Text("a [b] c").markup and to_markup(Text("a [b] c"))[0] == r"a \[b] c"
+
+
+async def test_tree_label_from_highlighted_rich_text():
+    """Textual's json_tree example: labels built with ReprHighlighter are styled, not literal."""
+    from rich.highlighter import ReprHighlighter
+
+    from rustual.widgets import Tree
+
+    class TreeApp(App):
+        def compose(self) -> ComposeResult:
+            yield Tree("Root")
+
+        def on_mount(self) -> None:
+            tree = self.query_one(Tree)
+            label = Text.assemble(Text.from_markup("[b]n[/b]="), ReprHighlighter()(repr(2)))
+            tree.root.add_leaf(label)
+            tree.root.expand()
+
+    app = TreeApp()
+    async with app.run_test(size=(40, 5)) as pilot:
+        text = pilot.screen_text()
+        assert "n=2" in text
+        assert "[" not in text.replace("[]", "")

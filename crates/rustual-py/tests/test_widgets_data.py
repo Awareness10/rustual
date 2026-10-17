@@ -366,7 +366,7 @@ async def test_directory_tree(tmp_path: Path):
         assert labels == ["sub", "a.py"]
         assert dt.root.data == DirEntry(tmp_path, True)
         assert "skip.log" not in pilot.screen_text()
-        await pilot.press("down", "down")
+        await pilot.press("down")
         await pilot.press("enter")
         assert events[-1] == ("dir", tmp_path / "sub")
         assert [c.label for c in dt.root.children[0].children] == ["inner.txt"]
