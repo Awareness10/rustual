@@ -13,7 +13,7 @@ _Last updated: 2026-10-17._
 |---|---|---|---|
 | App, compose, mount/remove | ✅ | 95 | `App::new(root)`, `compose![...]`, `.with([...])`, `ctx.mount/remove` |
 | Event loop (tokio + crossterm) | ✅ | 90 | raw mode, alt screen, synchronized output, frame diffing |
-| Keyboard input & key names | ✅ | 90 | Textual-style names; no kitty keyboard protocol |
+| Keyboard input & key names | ✅ | 90 | Textual-style names; bindings may use Textual's character names (`slash`, `question_mark`, ...), which match the typed character; no kitty keyboard protocol |
 | Mouse: click, hover, wheel | ✅ | 90 | `:hover`, Enter/Leave, Click (+ `ctx.click_chain()` for double/triple clicks), wheel scrolls nearest scrollable |
 | Mouse capture / drag | ✅ | 85 | `ctx.capture_mouse/release_mouse`; drags go to the MouseDown widget; scrollbar thumb drag + track paging; no `MouseCapture`/`MouseRelease` events |
 | Focus chain, tab/shift+tab, auto-focus | ✅ | 90 | `can_focus_children`, focus on click, restore on screen pop |

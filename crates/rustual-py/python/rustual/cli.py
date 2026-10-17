@@ -33,13 +33,20 @@ def main(argv: list[str] | None = None) -> int:
         BY_NAME[args.example].load()().run()
         return 0
 
+    from ._bridge import _native
     from .demo.launcher import Launcher
 
-    while True:
-        choice = Launcher().run()
-        if not choice:
-            break
-        BY_NAME[choice].load()().run()
+    # Stay on the alternate screen while switching between the launcher and the examples, so
+    # the shell doesn't flash up in between.
+    _native.keep_terminal(True)
+    try:
+        while True:
+            choice = Launcher().run()
+            if not choice:
+                break
+            BY_NAME[choice].load()().run()
+    finally:
+        _native.keep_terminal(False)
     print("rustual: https://github.com/Awareness10/rustual")
     return 0
 

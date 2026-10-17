@@ -415,22 +415,6 @@ impl CommandProvider for SystemCommandsProvider {
             "Save an SVG 'screenshot' of the current screen",
             "app.screenshot",
         ));
-        // Not in Textual 8 (which dropped `toggle_dark` in favour of themes), kept for convenience.
-        commands.push(Command::new(
-            "Toggle dark mode",
-            "Switch between the light and dark default themes",
-            "app.toggle_dark",
-        ));
-        commands.push(Command::new(
-            "Focus next",
-            "Move focus to the next widget",
-            "app.focus_next",
-        ));
-        commands.push(Command::new(
-            "Focus previous",
-            "Move focus to the previous widget",
-            "app.focus_previous",
-        ));
         commands.sort_by(|a, b| a.name.cmp(&b.name));
         commands
     }

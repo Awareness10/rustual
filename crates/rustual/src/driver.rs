@@ -14,6 +14,8 @@ use crossterm::terminal::{self, BeginSynchronizedUpdate, EndSynchronizedUpdate};
 use crossterm::{cursor, execute, queue};
 use rustual_render::{Attrs, Canvas, Cell, Color, Size};
 use std::io::{self, Write};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Once;
 
 /// Input converted to framework terms.
 #[derive(Debug, Clone, PartialEq)]
@@ -26,6 +28,23 @@ pub enum DriverEvent {
 
 pub struct CrosstermDriver {
     out: io::BufWriter<io::Stdout>,
+}
+
+/// The terminal is in application mode (raw, alternate screen, mouse).
+static ACTIVE: AtomicBool = AtomicBool::new(false);
+/// Leave the terminal in application mode when an app stops (see [`keep_terminal`]).
+static KEEP: AtomicBool = AtomicBool::new(false);
+static PANIC_HOOK: Once = Once::new();
+
+/// Keep the terminal in application mode between consecutive app runs in this process (e.g.
+/// a launcher that runs one app after another), so it doesn't flash back to the shell in
+/// between. `keep_terminal(false)` restores the terminal if no app is running.
+#[doc(hidden)]
+pub fn keep_terminal(keep: bool) {
+    KEEP.store(keep, Ordering::SeqCst);
+    if !keep && ACTIVE.swap(false, Ordering::SeqCst) {
+        restore_terminal();
+    }
 }
 
 fn restore_terminal() {
@@ -55,12 +74,21 @@ fn enter_application_mode() -> io::Result<()> {
 
 impl CrosstermDriver {
     pub fn start() -> io::Result<Self> {
-        enter_application_mode()?;
-        let prev = std::panic::take_hook();
-        std::panic::set_hook(Box::new(move |info| {
-            restore_terminal();
-            prev(info);
-        }));
+        // Still in application mode from a previous run (`keep_terminal`): the first frame is
+        // drawn in full, so there is nothing to set up.
+        if !ACTIVE.swap(true, Ordering::SeqCst) {
+            if let Err(e) = enter_application_mode() {
+                ACTIVE.store(false, Ordering::SeqCst);
+                return Err(e);
+            }
+        }
+        PANIC_HOOK.call_once(|| {
+            let prev = std::panic::take_hook();
+            std::panic::set_hook(Box::new(move |info| {
+                restore_terminal();
+                prev(info);
+            }));
+        });
         Ok(CrosstermDriver {
             out: io::BufWriter::with_capacity(1 << 16, io::stdout()),
         })
@@ -68,7 +96,9 @@ impl CrosstermDriver {
 
     pub fn stop(&mut self) -> io::Result<()> {
         self.out.flush()?;
-        restore_terminal();
+        if !KEEP.load(Ordering::SeqCst) && ACTIVE.swap(false, Ordering::SeqCst) {
+            restore_terminal();
+        }
         Ok(())
     }
 
@@ -306,6 +336,12 @@ mod tests {
         assert_eq!(key(KeyCode::BackTab, KeyModifiers::SHIFT), "shift+tab");
         assert_eq!(key(KeyCode::Up, KeyModifiers::SHIFT), "shift+up");
         assert_eq!(key(KeyCode::F(5), KeyModifiers::NONE), "f5");
+        // `/` typed as shift+7 (some layouts report the shift): still the `slash` binding.
+        let slash = crate::binding::Binding::new("slash", "filter", "Filter");
+        assert!(slash.matches(&key(KeyCode::Char('/'), KeyModifiers::SHIFT)));
+        assert!(slash.matches(&key(KeyCode::Char('/'), KeyModifiers::NONE)));
+        let question = crate::binding::Binding::new("question_mark", "help", "Help");
+        assert!(question.matches(&key(KeyCode::Char('?'), KeyModifiers::SHIFT)));
     }
 
     #[test]

@@ -278,8 +278,9 @@ impl Widget for Editor {
     }
 }
 
-/// Keys the focused input would type are neither shown nor run (Textual's `check_consume_key`;
-/// `slash` has no character in Textual, so it stays).
+/// Keys the focused input would type are neither shown nor run (Textual's `check_consume_key`).
+/// Textual still lists `slash` (it has no character for that name) although typing `/` goes to
+/// the input; rustual hides it like the other printable keys.
 #[tokio::test]
 async fn focused_input_hides_bindings_for_printable_keys() {
     let mut p = App::new(Editor { hits: vec![] })
@@ -287,12 +288,9 @@ async fn focused_input_hides_bindings_for_printable_keys() {
         .await;
     assert_eq!(p.focused_id().as_deref(), Some("input"));
     let footer = footer_line(&mut p);
-    assert!(
-        footer.starts_with(" ^q Quit  / Find  ^s Save "),
-        "{footer:?}"
-    );
-    p.press(&["n", "question_mark", "ctrl+s"]).await;
-    assert_eq!(p.query_one::<Input>("#input").unwrap().get_value(), "n?");
+    assert!(footer.starts_with(" ^q Quit  ^s Save "), "{footer:?}");
+    p.press(&["n", "question_mark", "slash", "ctrl+s"]).await;
+    assert_eq!(p.query_one::<Input>("#input").unwrap().get_value(), "n?/");
     assert_eq!(p.app::<Editor>().unwrap().hits, vec!["save"]);
     p.press(&["tab"]).await;
     let footer = footer_line(&mut p);
