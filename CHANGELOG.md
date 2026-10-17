@@ -7,6 +7,8 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+## 0.5.1 - 2026-10-17
+
 ### Fixed
 - A terminal resize while the app was starting was lost, so the app kept its initial size (e.g.
   the right-hand pane in `rustual-examples`' `compare.sh`, which tmux resizes on attach).

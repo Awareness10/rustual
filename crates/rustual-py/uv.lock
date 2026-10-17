@@ -307,7 +307,7 @@ wheels = [
 
 [[package]]
 name = "rustual-py"
-version = "0.5.1.dev0"
+version = "0.5.1"
 source = { editable = "." }
 
 [package.optional-dependencies]
