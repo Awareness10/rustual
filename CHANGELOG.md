@@ -16,6 +16,11 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
   following the ANSI theme.
 - Markup tags with words that aren't styles (`[foo]x[/foo]`, `[on $unknown]`) are kept as tags
   with no effect, as in Textual, instead of making the whole string literal text.
+- The command palette was empty in Python apps run in a terminal (`uv run -m rustual`, any app
+  with `App.run()`): hits that a search delivered while the palette was still handling the query
+  (Python's event loop runs it inline outside tests) were dropped. Hits delivered synchronously
+  from a Rust `command_search` hook were lost the same way.
+- "No matches found" in the command palette is centred, as in Textual.
 - DirectoryTree: the cursor starts on the root (so a focused tree highlights its guides, as in
   Textual) and the loaded root is labelled with the folder name (`./` shows an empty label).
 

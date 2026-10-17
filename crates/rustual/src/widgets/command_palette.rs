@@ -338,10 +338,19 @@ impl CommandPalette {
         self.rebuild(ctx);
     }
 
-    fn notify_hooks(&self, event: SearchEvent<'_>, ctx: &mut Ctx) {
+    fn notify_hooks(&mut self, event: SearchEvent<'_>, ctx: &mut Ctx) {
         let me = ctx.id();
         for hook in self.hooks.clone() {
             hook(me, event, ctx);
+        }
+        // Hits a hook delivered synchronously (the palette was busy, so they were queued).
+        let pending = std::mem::take(&mut ctx.app.ux.pending_hits);
+        let (mine, others): (Vec<_>, Vec<_>) = pending.into_iter().partition(|(p, ..)| *p == me);
+        ctx.app.ux.pending_hits = others;
+        for (_, generation, hits) in mine {
+            if generation == self.generation {
+                self.external.extend(hits);
+            }
         }
     }
 
@@ -433,7 +442,8 @@ impl CommandPalette {
                 let _ = l.list.add_option(
                     OptionItem::new("No matches found")
                         .id(NO_MATCHES)
-                        .disabled(true),
+                        .disabled(true)
+                        .centered(),
                 );
             } else {
                 let _ = l.list.add_options(options);
