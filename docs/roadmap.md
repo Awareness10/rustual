@@ -92,7 +92,8 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 
 ## Python bindings
 
-- [ ] **Widget API gaps** (M): see the per-widget notes in [`features.md`](../features.md) (e.g. TextArea `register_language`,
+- [ ] **Widget API gaps** (M): `scripts/api_coverage.py` lists every missing public name (58% of Textual's are
+  present); see also the per-widget notes in [`features.md`](../features.md) (e.g. TextArea `register_language`,
   DataTable per-row updates, Tree label styling, reactive-style watchers on widget properties such as
   `Checkbox.value`, TabPane `Disabled`/`Enabled` messages).
 - [ ] **`render_line` / Line API** (M): Python `ScrollView` subclasses rendering strips per line.

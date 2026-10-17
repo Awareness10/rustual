@@ -1,9 +1,20 @@
 # rustual feature status
 
-Parity tracker against Python Textual 8.2.8. Percentages are rough estimates of how much of
-Textual's behaviour for that item is implemented here. Status: ✅ done (≥ 90%) · 🟡 partial · ❌ missing.
+Parity tracker against Python Textual 8.2.8. Status: ✅ done (≥ 90%) · 🟡 partial · ❌ missing.
 
-**Overall: ~90% of commonly used Textual functionality, ~70% of full parity.** Test counts and coverage: see the badges in the [README](README.md#testing) (updated by CI). CI tests Linux, macOS and Windows; Python wheels for all three are on [PyPI](https://pypi.org/project/rustual-py/) and [GitHub releases](https://github.com/Awareness10/rustual/releases).
+How the percentages are made:
+- **Behaviour rows** (core, CSS, layout, widgets) are estimates of how much of Textual's behaviour
+  for that item works here, judged from the known gaps in the notes (and the roadmap). They are
+  re-estimated whenever work lands on the item, up or down (real-terminal bugs count against it).
+- **Python API rows** are anchored on a measurement: `scripts/api_coverage.py` counts which of
+  Textual's public names (module members, class attributes and methods; not handler hooks or
+  `action_*`) exist in `rustual`. The % blends that count with how much the missing names
+  matter in practice.
+
+**Overall: ~90% of commonly used Textual functionality, ~70% of full parity** (estimates).
+**Python API surface: 58% of Textual's public names** (measured: 763 / 1306 class attributes,
+140 / 247 module names, 2026-10-17); the commonly used part is far higher, the misses are mostly
+internals and rarely used hooks. Test counts and coverage: see the badges in the [README](README.md#testing) (updated by CI). CI tests Linux, macOS and Windows; Python wheels for all three are on [PyPI](https://pypi.org/project/rustual-py/) and [GitHub releases](https://github.com/Awareness10/rustual/releases).
 
 _Last updated: 2026-10-17._
 
@@ -12,7 +23,7 @@ _Last updated: 2026-10-17._
 | Feature | Status | % | Notes |
 |---|---|---|---|
 | App, compose, mount/remove | ✅ | 95 | `App::new(root)`, `compose![...]`, `.with([...])`, `ctx.mount/remove` |
-| Event loop (tokio + crossterm) | ✅ | 90 | raw mode, alt screen, synchronized output, frame diffing |
+| Event loop (tokio + crossterm) | ✅ | 92 | raw mode, alt screen, synchronized output, frame diffing; resizes during startup are kept; consecutive runs can stay on the alternate screen (launcher) |
 | Keyboard input & key names | ✅ | 90 | Textual-style names; bindings may use Textual's character names (`slash`, `question_mark`, ...), which match the typed character; no kitty keyboard protocol |
 | Mouse: click, hover, wheel | ✅ | 90 | `:hover`, Enter/Leave, Click (+ `ctx.click_chain()` for double/triple clicks), wheel scrolls nearest scrollable |
 | Mouse capture / drag | ✅ | 85 | `ctx.capture_mouse/release_mouse`; drags go to the MouseDown widget; scrollbar thumb drag + track paging; no `MouseCapture`/`MouseRelease` events |
@@ -26,7 +37,7 @@ _Last updated: 2026-10-17._
 | Notifications (toasts) | ✅ | 90 | `ctx.notify`, severity, timeout, click to dismiss |
 | Animation (`animate`, easing, transitions) | ✅ | 90 | all 33 easings, `ctx.animate_value`, `animate_style` (opacity/offset/width/height), `animate_color` (background/color/tint/background-tint, `Color::blend`), `AnimateOptions` (`delay`, `speed`, easing, level) via `*_opts`, smooth scroll, animation levels, CSS transitions, Tabs/Switch animate; delayed style animations read their start value at request time |
 | Tooltips | ✅ | 85 | `Child::tooltip`, `ctx.set_tooltip`; 0.5s delay, ancestor inheritance, flip above / keep on screen; markup content only (no renderables), no `_disable_tooltips` |
-| Command palette | ✅ | 90 | `ctrl+p`, fuzzy `Matcher` port (Textual's score scale), `CommandProvider` / `App::command_provider` / `Widget::commands`, system commands (`App::system_commands` to replace them), theme picker, header icon; search hooks (`App::command_search`) deliver scored / discovery hits (synchronously or later), merged by score as they arrive (stale queries dropped), which is how Python's async `Provider`s run; no busy indicator, "No matches" shows without Textual's delay |
+| Command palette | ✅ | 92 | `ctrl+p`, fuzzy `Matcher` port (Textual's score scale), `CommandProvider` / `App::command_provider` / `Widget::commands`, system commands as Textual's (Theme, Quit, Keys, Maximize / Minimize, Screenshot; `App::system_commands` to replace them), theme picker, header icon; search hooks (`App::command_search`) deliver scored / discovery hits (synchronously or later), merged by score as they arrive (stale queries dropped), which is how Python's async `Provider`s run; no busy indicator, "No matches" (centred) shows without Textual's delay |
 | Text selection & copy (screen selection) | ❌ | 0 | Input has its own selection + internal clipboard |
 | Clipboard (OSC 52) | ✅ | 90 | `ctx.copy_to_clipboard` queues OSC 52, flushed after the next frame; Input/TextArea copy/cut use it; paste reads the app clipboard (falling back to a process-wide one); `pilot.clipboard()` |
 | `@click` markup links | 🟡 | 75 | click runs the action with the widget as owner; no `link-*-hover` styles, no `@mouse.down`/`@mouse.up` |
@@ -72,7 +83,7 @@ _Last updated: 2026-10-17._
 | Stream layout | ✅ | 95 | `layout: stream` (port of `layouts/stream.py`): full-width, auto-height children, collapsing vertical margins, only cell `min-height` / `max-height`, no offset / absolute; child regions match Textual 8.2.8 exactly in side-by-side tests; Textual's between-frame placement cache isn't ported (rustual lays out every frame, so stream is only ~3% faster than vertical here) |
 | Scrolling: containers, self-scrolling (ScrollView) | ✅ | 90 | keyboard / scrollbar-track scrolling animates (out_cubic, 50 cells/s); wheel and drag are immediate |
 | Compositor: clipping, layers, opacity, modal dimming | ✅ | 90 | full-frame paint + diff (~2 ms per frame at 1000 widgets, release build) |
-| Content markup (`[b red on $panel]`, `[/]`, `\[`) | ✅ | 90 | tags with unknown style words (`[foo]`, `[on $unknown]`) are kept with no effect, as in Textual; Python Rich `Text` keeps its styles (theme names such as `repr.str` are resolved, as Textual does) |
+| Content markup (`[b red on $panel]`, `[/]`, `\[`) | ✅ | 95 | tags with unknown style words (`[foo]`, `[on $unknown]`) are kept with no effect, as in Textual; Python Rich `Text` keeps its styles (theme names such as `repr.str` are resolved, as Textual does) |
 | Unicode cell widths (CJK, emoji, ZWJ) | ✅ | 90 | |
 | Rich renderables (tables, syntax, panels) | 🟡 | 80 | Rust: `rustual::renderables` ports rich 15's `Table` (columns, ratios, sections, footers, row styles, title/caption, grids, every `rich.box` style), `Panel`, `Columns`, `Padding`, `Group` and `Syntax` (keyword highlighter + TextArea themes; line numbers, highlighted lines, word wrap, padding, dedent), checked line by line against rich's output (`scripts/rich_golden.py`); shown with `Static::renderable` (auto width = rich's measurement) and `RichLog::write_renderable`. Not ported: `Syntax` indent guides / line ranges, other rich renderables (`Rule`, `Tree`, `Layout`, `Progress`, ...). Python: any Rich renderable via the `rich` package in `Static`, `render()` and `RichLog` |
 
@@ -95,7 +106,7 @@ _Last updated: 2026-10-17._
 | ListView / ListItem | ✅ | 90 | |
 | DataTable | ✅ | 88 | cursors, sorting, fixed rows/cols, zebra, hover; per-cell alignment (`CellValue::right/center/justify`; numbers left by default, as Textual) |
 | Tree | ✅ | 92 | generic data payload, guides, keyboard + mouse; cursor starts on the first line (as Textual) |
-| DirectoryTree | 🟡 | 85 | lazy loading, sorting, icons, filter predicate, reload keeping expansion; cursor starts on the root and the root is labelled with the folder name, as in Textual; synchronous I/O |
+| DirectoryTree | ✅ | 90 | lazy loading, sorting, icons, filter predicate, reload keeping expansion; cursor starts on the root and the root is labelled with the folder name, as in Textual; synchronous I/O |
 | Tabs / Tab | ✅ | 95 | underline slides over 0.3s |
 | TabbedContent / TabPane | ✅ | 90 | |
 | ContentSwitcher | ✅ | 95 | |
@@ -126,34 +137,35 @@ See [`docs/python-bindings.md`](docs/python-bindings.md).
 
 | Feature | Status | % | Notes |
 |---|---|---|---|
-| App lifecycle | ✅ | 90 | `run()` with GIL released (returns `exit()` value), `run_async`, `run_test` + `Pilot`; handler exceptions exit cleanly and re-raise |
-| Widget API | ✅ | 90 | compose (incl. `with` blocks), render (markup / Content / Rich renderables), DEFAULT_CSS, BINDINGS + `bind()`, queries + `getters` (`query_one`, `child_by_id`, `app`), classes, styles (write), `rich_style` / `get_component_rich_style` (partial, default), `data_bind`, `set_reactive`, display/visible/disabled/loading, mount/remove/recompose, focus, scrolling, timers, `animate()`, `log` (to `TEXTUAL_LOG` and Python `logging`); no `render_line` |
+| App lifecycle | ✅ | 85 | `run()` with GIL released (returns `exit()` value), `run_async`, `run_test` + `Pilot`; handler exceptions exit cleanly and re-raise; measured 54% of `App`'s public names: no `save_screenshot` / `export_screenshot`, `suspend`, `simulate_key`, `get_widget_at`, `refresh_css`, `unregister_theme` |
+| Widget API | 🟡 | 80 | compose (incl. `with` blocks), render (markup / Content / Rich renderables), DEFAULT_CSS, BINDINGS + `bind()`, queries + `getters` (`query_one`, `child_by_id`, `app`), classes, styles (write), `rich_style` / `get_component_rich_style` (partial, default), `data_bind`, `set_reactive`, display/visible/disabled/loading, mount/remove/recompose, focus, scrolling, timers, `animate()`, `log` (to `TEXTUAL_LOG` and Python `logging`); measured 43% of `Widget`'s public names: missing `render_line` / `render_lines`, `move_child` / `sort_children`, `query_one_optional` / `query_ancestor`, `first_child` / `siblings`, `scroll_to_region`, `BORDER_TITLE` / `BORDER_SUBTITLE` class vars, `allow_focus*`, text selection, and many internals |
 | Reactivity | ✅ | 90 | reactive/var with watch/validate/compute, init, always_update, layout, recompose, toggle_class, `watch()` |
 | Messages & events | ✅ | 90 | custom messages (incl. `@dataclass` ones), bubbling, stop/prevent_default, `@on` with selectors, MRO dispatch, `key_*` methods, mouse/focus/enter/leave/resize/paste, `DescendantFocus` / `DescendantBlur`, `ScreenResume` / `ScreenSuspend` |
-| Screens & modes | ✅ | 90 | Screen/ModalScreen, dismiss + callback, `push_screen_wait`, SCREENS/MODES, screen CSS, `title` / `sub_title` (`TITLE` / `SUB_TITLE`), `COMMANDS`, `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS`, `is_active`, `focus_next` / `focus_previous` |
+| Screens & modes | ✅ | 85 | Screen/ModalScreen, dismiss + callback, `push_screen_wait`, SCREENS/MODES, screen CSS, `title` / `sub_title` (`TITLE` / `SUB_TITLE`), `COMMANDS`, `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS`, `is_active`, `focus_next` / `focus_previous`; no `add_mode` / `remove_mode` / `get_screen_stack`, no `active_bindings` |
 | Workers & async | ✅ | 90 | async handlers/workers on an app-thread asyncio loop; thread workers; widget calls from threads auto-marshalled |
 | Themes, validation | ✅ | 90 | `Theme` (incl. `ansi=`) / `register_theme`, `App(ansi_color=...)`, `app.ansi_color` / `native_ansi_color` / `no_color`; `rustual.validation`; Input `restrict` regex |
 | Bindings | ✅ | 90 | `BINDINGS` (tuples / `Binding`), MRO merge, `check_action` / `refresh_bindings` |
-| Built-in widgets | ✅ | 85 | every built-in widget is bound (see below) |
+| Built-in widgets | ✅ | 85 | every built-in widget is bound except `Tooltip` (see below) |
 | Packaging | ✅ | 90 | `rustual-py` on PyPI (`pip install rustual-py`, `uvx rustual-py`): abi3 wheels (CPython 3.10+) for manylinux_2_28 / musllinux_1_2 x86_64, Windows x86_64, macOS universal2 + sdist, also on GitHub releases; Rust crates on crates.io |
-| Textual helper modules | ✅ | 80 | `rustual.color` (Color, Gradient), `renderables.gradient` (LinearGradient, VerticalGradient), `highlight` (Pygments, theme-aware), `signal`, `widget.prevent()`, `auto_refresh`, `App.current_theme` / `theme_changed_signal`, `command` (`Provider`, `Hit`, `DiscoveryHit`, `SimpleProvider`, `CommandPalette`), `fuzzy.Matcher`, `system_commands`, `getters`, `lazy` (`Lazy` / `Reveal` mount at once), `cache` (`LRUCache`, `FIFOCache`), `design.ColorSystem`, `theme.BUILTIN_THEMES`, `markup.escape`, `types`, `errors`, `dom`, `timer`, `notifications`, `geometry.clamp`, `_color_constants`; app `get_system_commands` / `SystemCommand`, `search_commands`, `clear_notifications`, `set_keymap` / `update_keymap`, `get_key_display`, `InvalidThemeError` |
+| Textual helper modules | 🟡 | 70 | `rustual.color` (Color, Gradient), `renderables.gradient` (LinearGradient, VerticalGradient), `highlight` (Pygments, theme-aware), `signal`, `widget.prevent()`, `auto_refresh`, `App.current_theme` / `theme_changed_signal`, `command` (`Provider`, `Hit`, `DiscoveryHit`, `SimpleProvider`, `CommandPalette`), `fuzzy.Matcher`, `system_commands`, `getters`, `lazy` (`Lazy` / `Reveal` mount at once), `cache` (`LRUCache`, `FIFOCache`), `design.ColorSystem`, `theme.BUILTIN_THEMES`, `markup.escape`, `types`, `errors`, `dom`, `timer`, `notifications`, `geometry.clamp`, `_color_constants`; app `get_system_commands` / `SystemCommand`, `search_commands`, `clear_notifications`, `set_keymap` / `update_keymap`, `get_key_display`, `InvalidThemeError`; measured 57% of module names: `strip`, `style`, `suggester`, `keys`, `actions`, `notifications` are missing, `markup` / `design` / `color` partial |
 | Not yet | ❌ | 0 | `render_line` / `Strip` (Line API), `App.suspend`, `App.active_bindings`, custom TextArea themes (`TextAreaTheme`), Input `Suggester`, `textual.style`, devtools console, inline mode |
 
-Python widget coverage (gaps vs Textual's Python API; the Rust widget's own gaps are listed above):
+Python widget coverage (gaps vs Textual's Python API; the Rust widget's own gaps are listed above).
+"Names" is the measured share of the widget's own public API (`scripts/api_coverage.py`).
 
-| Widget(s) | % | Gaps |
-|---|---|---|
-| Static, Label, Button, Input, MaskedInput | 90 | Input `suggester`; MaskedInput lacks insert/delete/replace/selection setters |
-| Checkbox, RadioButton, RadioSet, Switch | 85 | `value` is a property, not a reactive (no `watch_value` in subclasses) |
-| Select, SelectionList, OptionList | 80 | `Option.disabled` must be changed via enable/disable methods; Select `type_to_search` always on |
-| DataTable | 80 | `get_cell` returns plain values (Rich `Text` as markup); no per-row height/label updates |
-| Tree, DirectoryTree | 80 | labels are `str`; no `render_label`; DirectoryTree loads synchronously |
-| ListView, Log, RichLog, Pretty | 85 | RichLog pretty-printing via `str()`; Pretty uses `pprint` |
-| ProgressBar, Sparkline, Digits | 90 | ProgressBar `gradient`/`clock` ignored |
-| TabbedContent, Tabs, ContentSwitcher, Collapsible | 85 | TabPane `Disabled`/`Enabled`/`Focused` and Tab `Clicked`/`Relabelled` messages missing |
-| Markdown, MarkdownViewer | 75 | no `MarkdownStream` / `parser_factory`; viewer navigation methods aren't coroutines |
-| TextArea | 75 | no `register_language` / `register_theme` / `edit(Edit)`; keyword highlighter instead of tree-sitter |
-| Header, Footer, Rule, Placeholder, LoadingIndicator, Link, Welcome, HelpPanel, KeyPanel | 90 | HelpPanel/KeyPanel `update_help` |
+| Widget(s) | % | Names | Gaps |
+|---|---|---|---|
+| Static, Label, Button, Input, MaskedInput | 80 | 100 / 100 / 78 / 55 / 56% | Input `suggester`, `max_length` / `cursor_at_start` / `cursor_at_end` / `delete_selection`, `compact`; Button `compact` / `flat`; MaskedInput lacks insert/delete/replace/selection setters |
+| Checkbox, RadioButton, RadioSet, Switch | 85 | 100% | `value` is a property, not a reactive (no `watch_value` in subclasses) |
+| Select, SelectionList, OptionList | 88 | 100 / 95 / 92% | `Option.disabled` must be changed via enable/disable methods; Select `type_to_search` always on |
+| DataTable | 85 | 91% | `get_cell` returns plain values (Rich `Text` as markup); no per-row height/label updates |
+| Tree, DirectoryTree | 75 | 75 / 71% | labels are stored as markup (Rich `Text` labels keep their styles); no `render_label` / `process_label`, `center_scroll`, `LINES`; DirectoryTree loads synchronously |
+| ListView, Log, RichLog, Pretty | 85 | 100 / 80 / 80 / 100% | RichLog pretty-printing via `str()`; Pretty uses `pprint` |
+| ProgressBar, Sparkline, Digits | 80 | 71 / 50 / 100% | ProgressBar `gradient`/`clock` ignored; Sparkline `summary_function` |
+| TabbedContent, Tabs, ContentSwitcher, Collapsible | 80 | 100 / 100 / 100 / 83% | TabPane `Disabled`/`Enabled`/`Focused` and Tab `Clicked`/`Relabelled` messages missing |
+| Markdown, MarkdownViewer | 75 | 60 / 89% | no `MarkdownStream` / `parser_factory`; viewer navigation methods aren't coroutines |
+| TextArea | 70 | 63% | no `register_language` / `register_theme` / `edit(Edit)`; keyword highlighter instead of tree-sitter |
+| Header, Footer, Rule, Placeholder, LoadingIndicator, Link, Welcome, HelpPanel, KeyPanel, Tooltip | 75 | Header 33, Footer 25, Link 40, Welcome 0% | Header `icon` / `format_title` / `screen_title`; Footer `show_command_palette` / `combine_groups`; Link `update`; Welcome `update`; HelpPanel `update_help`; no `Tooltip` widget class |
 
 ## Roadmap
 
