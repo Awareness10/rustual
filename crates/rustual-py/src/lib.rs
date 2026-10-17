@@ -90,6 +90,7 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
         palette_add_hits,
         open_command_palette,
         markup_plain,
+        keep_terminal,
         color_names,
         set_screen_breakpoints,
         theme,

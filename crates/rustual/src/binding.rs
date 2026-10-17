@@ -230,9 +230,55 @@ const KEY_CHARACTERS: &[(&str, char)] = &[
     ("vertical_line", '|'),
 ];
 
+/// Textual's key names (`textual.keys._character_to_key`) for characters whose name isn't in
+/// [`KEY_CHARACTERS`]: the short replacements (`slash` for `solidus`, ...) and common Latin-1
+/// symbols.
+const MORE_KEY_CHARACTERS: &[(&str, char)] = &[
+    ("slash", '/'),
+    ("backslash", '\\'),
+    ("at", '@'),
+    ("minus", '-'),
+    ("plus", '+'),
+    ("underscore", '_'),
+    ("solidus", '/'),
+    ("pound_sign", '£'),
+    ("euro_sign", '€'),
+    ("section_sign", '§'),
+    ("degree_sign", '°'),
+    ("plus_minus_sign", '±'),
+    ("multiplication_sign", '×'),
+    ("division_sign", '÷'),
+    ("not_sign", '¬'),
+    ("broken_bar", '¦'),
+    ("diaeresis", '¨'),
+    ("acute_accent", '´'),
+    ("cedilla", '¸'),
+    ("currency_sign", '¤'),
+    ("yen_sign", '¥'),
+    ("copyright_sign", '©'),
+    ("registered_sign", '®'),
+    ("pilcrow_sign", '¶'),
+    ("middle_dot", '·'),
+    ("inverted_question_mark", '¿'),
+    ("inverted_exclamation_mark", '¡'),
+    ("left_pointing_double_angle_quotation_mark", '«'),
+    ("right_pointing_double_angle_quotation_mark", '»'),
+];
+
+/// The printable character a Textual key name stands for (`slash` → `/`, `question_mark` →
+/// `?`); `None` for other names, including `space`, `tab` and other non-printable keys.
+pub(crate) fn name_to_character(name: &str) -> Option<char> {
+    KEY_CHARACTERS
+        .iter()
+        .chain(MORE_KEY_CHARACTERS)
+        .find(|(n, _)| *n == name)
+        .map(|(_, c)| *c)
+        .filter(|c| *c != ' ' && is_printable(*c))
+}
+
 /// The character a key produces, if any (Textual's `key_to_character`): keys with a modifier
-/// have none; a single-character key is that character; some named keys map to one (`space`,
-/// `question_mark`, …). Note that, as in Textual, some names don't (e.g. `slash`, `minus`).
+/// have none; a single-character key is that character; named keys map to theirs (`space`,
+/// `question_mark`, `slash`, …).
 pub fn key_to_character(key: &str) -> Option<char> {
     if key.contains('+') && key != "+" {
         return None;
@@ -245,6 +291,7 @@ pub fn key_to_character(key: &str) -> Option<char> {
         .iter()
         .find(|(name, _)| *name == key)
         .map(|(_, c)| *c)
+        .or_else(|| name_to_character(key))
 }
 
 /// Whether a character is printable (Python's `str.isprintable` for one character, roughly).

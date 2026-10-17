@@ -81,11 +81,66 @@ fn parse_tag(body: &str, vars: &dyn Fn(&str) -> Option<Color>) -> Option<Style> 
         }
         style_words.push(word);
     }
-    let mut style = Style::parse_with(&style_words.join(" "), vars).ok()?;
+    let mut style = match Style::parse_with(&style_words.join(" "), vars) {
+        Ok(style) => style,
+        Err(_) => parse_lenient(&style_words, vars)?,
+    };
     if link.is_some() {
         style.link = link;
     }
     Some(style)
+}
+
+/// Is `word` a token Textual's markup tokenizer accepts in a tag (identifier, `$variable`,
+/// color or percentage)? Tags made only of such tokens are tags even when a word isn't a known
+/// style (`[foo]`, `[on $unknown]`); anything else (`[1, 2]`, `[repr.str]`) is literal text.
+fn is_style_token(word: &str) -> bool {
+    let ident = |w: &str, first_digit_ok: bool| {
+        let mut chars = w.chars();
+        matches!(chars.next(), Some(c) if c == '_' || c.is_ascii_alphabetic()
+            || (first_digit_ok && (c == '-' || c.is_ascii_alphanumeric())))
+            && chars.all(|c| c == '_' || c == '-' || c.is_ascii_alphanumeric())
+    };
+    if let Some(var) = word.strip_prefix('$') {
+        return ident(var, true);
+    }
+    if let Some(hex) = word.strip_prefix('#') {
+        return matches!(hex.len(), 3 | 4 | 6 | 8) && hex.chars().all(|c| c.is_ascii_hexdigit());
+    }
+    let lower = word.to_ascii_lowercase();
+    if ["rgb(", "rgba(", "hsl(", "hsla("]
+        .iter()
+        .any(|p| lower.starts_with(p))
+        && lower.ends_with(')')
+    {
+        return true;
+    }
+    if let Some(num) = word.strip_suffix('%') {
+        return num.trim_start_matches('-').parse::<f32>().is_ok();
+    }
+    ident(word, false)
+}
+
+/// Parse style words, skipping the ones that aren't styles (as Textual does). `on` / `not`
+/// are kept together with the following word. Returns `None` if a word isn't a valid token.
+fn parse_lenient(words: &[&str], vars: &dyn Fn(&str) -> Option<Color>) -> Option<Style> {
+    if !words.iter().all(|w| is_style_token(w)) {
+        return None;
+    }
+    let mut kept: Vec<&str> = Vec::new();
+    let mut i = 0;
+    while i < words.len() {
+        let pair = matches!(words[i].to_ascii_lowercase().as_str(), "on" | "not");
+        let take = if pair { 2 } else { 1 }.min(words.len() - i);
+        let chunk = &words[i..i + take];
+        let mut trial = kept.clone();
+        trial.extend_from_slice(chunk);
+        if Style::parse_with(&trial.join(" "), vars).is_ok() {
+            kept = trial;
+        }
+        i += take;
+    }
+    Style::parse_with(&kept.join(" "), vars).ok()
 }
 
 /// Find the `]` closing a tag opened at byte `open` (which holds `[`). Returns `None` if the
@@ -279,9 +334,10 @@ mod tests {
         let vars = |n: &str| (n == "panel").then_some(Color::rgb(1, 2, 3));
         let t = parse_markup("[on $panel]x[/on $panel]", &vars).unwrap();
         assert_eq!(t.spans[0].style.bg, Some(Color::rgb(1, 2, 3)));
-        // unknown variable: tag is literal text
+        // unknown variable: no effect (Textual)
         let t = parse("[on $panel]x");
-        assert_eq!(t.plain_text(), "[on $panel]x");
+        assert_eq!(t.plain_text(), "x");
+        assert_eq!(t.spans[0].style.bg, None);
     }
 
     #[test]
@@ -314,7 +370,6 @@ mod tests {
         assert_eq!(parse("list [1, 2]").plain_text(), "list [1, 2]");
         assert_eq!(parse("[ ]").plain_text(), "[ ]");
         assert_eq!(parse("[]").plain_text(), "[]");
-        assert_eq!(parse("[x] done").plain_text(), "[x] done");
         assert_eq!(parse("a [ b").plain_text(), "a [ b");
         assert_eq!(parse("trailing [").plain_text(), "trailing [");
         let t = parse("[[b]x]");
@@ -352,5 +407,31 @@ mod tests {
         let t = parse("[b]中文[/b]😀");
         assert_eq!(t.plain_text(), "中文😀");
         assert_eq!(t.spans.len(), 2);
+    }
+
+    #[test]
+    fn unknown_style_words_are_ignored() {
+        // Textual keeps tags made of valid tokens; words that aren't styles have no effect.
+        let t = parse("[foo]x[/foo]y");
+        assert_eq!(t.plain_text(), "xy");
+        assert!(t.spans.iter().all(|s| s.style.is_empty()));
+        assert_eq!(parse("[x] done").plain_text(), " done");
+        assert_eq!(parse("[foo]x[/]y").plain_text(), "xy");
+        let t = parse("[b]a[/b]=[foo]x[/foo]");
+        assert_eq!(t.plain_text(), "a=x");
+        assert_eq!(t.spans[0].style.bold, Some(true));
+        let t = parse("[bold foo]x[/bold foo]y");
+        assert_eq!(t.plain_text(), "xy");
+        assert_eq!(t.spans[0].style.bold, Some(true));
+        assert_eq!(t.spans[1].style.bold, None);
+        let t = parse("[red foo 50%]x");
+        assert_eq!(t.spans[0].style.fg, Some(red().multiply_alpha(0.5)));
+        assert_eq!(parse("[on $nope]x").plain_text(), "x");
+        assert_eq!(parse("[$nope]x").plain_text(), "x");
+        assert_eq!(parse("[on]x").plain_text(), "x");
+        assert_eq!(parse("[Foo-Bar_2]x[/Foo-Bar_2]").plain_text(), "x");
+        // not valid tokens: still literal text
+        assert_eq!(parse("[repr.str]x").plain_text(), "[repr.str]x");
+        assert_eq!(parse("list [1, 2]").plain_text(), "list [1, 2]");
     }
 }

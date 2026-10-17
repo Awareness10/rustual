@@ -111,6 +111,8 @@ pub struct OptionItem {
     disabled: bool,
     /// A separator line follows this option.
     divider: bool,
+    /// Centre the prompt (the command palette's "No matches found").
+    centered: bool,
 }
 
 impl OptionItem {
@@ -121,6 +123,7 @@ impl OptionItem {
             id: None,
             disabled: false,
             divider: false,
+            centered: false,
         }
     }
 
@@ -131,6 +134,7 @@ impl OptionItem {
             id: None,
             disabled: false,
             divider: false,
+            centered: false,
         }
     }
 
@@ -141,6 +145,11 @@ impl OptionItem {
 
     pub fn disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
+        self
+    }
+
+    pub(crate) fn centered(mut self) -> Self {
+        self.centered = true;
         self
     }
 
@@ -634,7 +643,12 @@ impl OptionList {
         };
         for (index, option) in self.options.iter().enumerate() {
             let text = self.prompt_text(option, markup);
-            let mut strips = text.wrap(width.max(1), Justify::Left, TextOverflow::Fold, false);
+            let justify = if option.centered {
+                Justify::Center
+            } else {
+                Justify::Left
+            };
+            let mut strips = text.wrap(width.max(1), justify, TextOverflow::Fold, false);
             if strips.is_empty() {
                 strips.push(Strip::default());
             }

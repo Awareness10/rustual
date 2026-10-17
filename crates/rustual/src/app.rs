@@ -398,10 +398,14 @@ impl App {
         }
         let mut state = self.state;
         let mut driver = CrosstermDriver::start()?;
+        // Start listening for events (including resizes) before reading the size: a resize
+        // that lands in between would otherwise be lost and the app would keep the old size
+        // (e.g. a tmux pane resized while the app starts).
+        let events = driver.event_stream();
         state.size = driver.size();
         state.startup();
         let mut rx = state.signal_rx.take().expect("signal receiver");
-        let result = run_loop(&mut state, &mut driver, &mut rx).await;
+        let result = run_loop(&mut state, &mut driver, &mut rx, events).await;
         state.shutdown();
         driver.stop()?;
         result
@@ -456,9 +460,9 @@ async fn run_loop(
     state: &mut AppState,
     driver: &mut CrosstermDriver,
     rx: &mut mpsc::UnboundedReceiver<Signal>,
+    mut events: crossterm::event::EventStream,
 ) -> io::Result<()> {
     use futures::StreamExt;
-    let mut events = driver.event_stream();
     loop {
         state.process_queue();
         if state.exit_requested {

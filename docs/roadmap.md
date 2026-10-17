@@ -4,10 +4,10 @@ Where rustual is heading: full parity with Python Textual 8.2.8, and production 
 Per-feature status lives in [`features.md`](../features.md); releases follow
 [`RELEASING.md`](../RELEASING.md). Items are sized **S** (hours), **M** (a day) or **L** (several days).
 
-Latest release: **v0.4.0** on [PyPI](https://pypi.org/project/rustual-py/),
+Latest release: **v0.5.0** on [PyPI](https://pypi.org/project/rustual-py/),
 [crates.io](https://crates.io/crates/rustual) and [GitHub](https://github.com/Awareness10/rustual/releases).
 
-## Next up (0.5)
+## Next up
 
 Textual's own example apps run unchanged with only the imports swapped: 11 of the 15 are in the
 side-by-side `rustual-examples`, and `color_command` and `breakpoints` now pass in tests too (`dictionary`
@@ -92,7 +92,8 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 
 ## Python bindings
 
-- [ ] **Widget API gaps** (M): see the per-widget notes in [`features.md`](../features.md) (e.g. TextArea `register_language`,
+- [ ] **Widget API gaps** (M): `scripts/api_coverage.py` lists every missing public name (58% of Textual's are
+  present); see also the per-widget notes in [`features.md`](../features.md) (e.g. TextArea `register_language`,
   DataTable per-row updates, Tree label styling, reactive-style watchers on widget properties such as
   `Checkbox.value`, TabPane `Disabled`/`Enabled` messages).
 - [ ] **`render_line` / Line API** (M): Python `ScrollView` subclasses rendering strips per line.
@@ -102,6 +103,8 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 - [ ] **Compatibility leftovers** (S each), from scanning popular Textual apps: `App.active_bindings`
   (`ActiveBinding`), custom TextArea themes (`TextAreaTheme`, `register_theme`), Input `Suggester`,
   `textual.style.Style`, `MarkdownStream`.
+- [ ] **`App.save_screenshot` / `export_screenshot`** (S): Textual's screenshot methods are missing on the
+  Python `App` (only the `screenshot` action and `pilot.export_svg()` exist).
 - [ ] **Type stubs** (S): a `_native.pyi` stub (the package already ships `py.typed`).
 - [ ] **Python CI on Windows/macOS** (S): the Python test suite runs on Linux only (release wheels are
   smoke-tested on all platforms).

@@ -3,7 +3,8 @@
 use rustual_render::Size;
 
 /// A key press. `key` is a normalized Textual-style key name:
-/// printable characters are themselves (`"a"`, `"A"`, `"?"`), `"space"`, `"enter"`, `"tab"`,
+/// printable characters are themselves (`"a"`, `"A"`, `"?"`; Textual names such as
+/// `"question_mark"` or `"slash"` are normalized to the character), `"space"`, `"enter"`, `"tab"`,
 /// `"shift+tab"`, `"escape"`, `"backspace"`, `"delete"`, `"up"`, `"down"`, `"left"`, `"right"`,
 /// `"home"`, `"end"`, `"pageup"`, `"pagedown"`, `"insert"`, `"f1"`..`"f24"`; modifiers are
 /// prefixed in the order `ctrl+alt+shift+` (shift only for non-printable keys), e.g. `"ctrl+c"`.
@@ -70,6 +71,11 @@ pub fn normalize_key(key: &str) -> String {
     };
     let base = if base == " " {
         "space".to_string()
+    } else if base.chars().count() > 1 {
+        // Textual's names for characters (`slash`, `question_mark`) mean the character a
+        // terminal sends, so `Binding("slash")` matches a typed `/`.
+        crate::binding::name_to_character(&base.to_ascii_lowercase())
+            .map_or(base, |c| c.to_string())
     } else {
         base
     };
@@ -235,6 +241,16 @@ mod tests {
         assert_eq!(normalize_key("backtab"), "shift+tab");
         assert_eq!(normalize_key(" "), "space");
         assert_eq!(normalize_key("ctrl++"), "ctrl++");
+        // Textual's names for characters mean the character (what a terminal sends).
+        assert_eq!(normalize_key("slash"), "/");
+        assert_eq!(normalize_key("question_mark"), "?");
+        assert_eq!(normalize_key("full_stop"), ".");
+        assert_eq!(normalize_key("minus"), "-");
+        assert_eq!(normalize_key("plus"), "+");
+        assert_eq!(normalize_key("ctrl+slash"), "ctrl+/");
+        assert_eq!(normalize_key("euro_sign"), "€");
+        assert_eq!(normalize_key("space"), "space");
+        assert_eq!(normalize_key("delete"), "delete");
         assert_eq!(KeyEvent::new("space").character, Some(' '));
         assert_eq!(KeyEvent::new("enter").character, None);
     }

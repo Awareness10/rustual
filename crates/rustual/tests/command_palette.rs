@@ -118,6 +118,14 @@ async fn no_matches_and_navigation() {
     p.type_text("zzzz").await;
     assert!(hits(&p).is_empty());
     assert!(p.screen_text().contains("No matches found"));
+    // Centred, as in Textual.
+    let text = p.screen_text();
+    let line = text
+        .lines()
+        .find(|l| l.contains("No matches found"))
+        .unwrap();
+    let indent = line.find("No matches").unwrap();
+    assert!(indent > 10, "{line:?}");
     p.press(&["enter"]).await;
     assert_eq!(p.screen_count(), 2);
     // Clear and navigate down then up.
@@ -316,4 +324,31 @@ async fn system_commands_can_be_turned_off() {
     let names = hits(&p);
     assert!(names.iter().any(|n| n == "Ring bell"), "{names:?}");
     assert!(!names.iter().any(|n| n == "Quit"), "{names:?}");
+}
+
+#[tokio::test]
+async fn search_hook_can_deliver_hits_synchronously() {
+    // A hook that answers inside the query callback (as Python providers do when the event loop
+    // runs them inline) must not lose its hits.
+    use rustual::command::SearchEvent;
+    let mut p = App::new(PaletteApp::default())
+        .command_search(|palette, event, ctx: &mut Ctx| {
+            if let SearchEvent::Query { generation, .. } = event {
+                ctx.add_command_hits(
+                    palette,
+                    generation,
+                    vec![Command::new("Instant hit", "", "app.bell").score(100.0)],
+                );
+            }
+        })
+        .test(Size::new(70, 24))
+        .await;
+    p.press(&["ctrl+p"]).await;
+    assert!(
+        hits(&p).iter().any(|n| n == "Instant hit"),
+        "{:?}",
+        hits(&p)
+    );
+    p.type_text("in").await;
+    assert_eq!(hits(&p).first().map(String::as_str), Some("Instant hit"));
 }

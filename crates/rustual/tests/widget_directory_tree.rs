@@ -139,7 +139,7 @@ async fn expanding_loads_lazily_and_selection_messages() {
     let dir = TempDir::new("lazy");
     let mut p = pilot(&dir, true).await;
     // Cursor to "src" (line 2) and select it: expands + DirectorySelected.
-    p.press(&["down", "down", "down", "enter"]).await;
+    p.press(&["down", "down", "enter"]).await;
     let l = labels(&p);
     assert_eq!(&l[1..5], ["Docs", "src", "nested", "main.rs"], "{l:?}");
     assert!(p.screen_text().contains("📂 src"));
@@ -168,8 +168,7 @@ async fn click_selects_file() {
 async fn reload_keeps_expanded_and_cursor() {
     let dir = TempDir::new("reload");
     let mut p = pilot(&dir, true).await;
-    p.press(&["down", "down", "down", "enter", "down", "down"])
-        .await;
+    p.press(&["down", "down", "enter", "down", "down"]).await;
     let dt = p.query_one::<DirectoryTree>("#dt").unwrap();
     assert_eq!(dt.cursor_path().unwrap(), dir.0.join("src/main.rs"));
     fs::write(dir.0.join("src/lib.rs"), "").unwrap();
@@ -190,4 +189,15 @@ async fn reload_keeps_expanded_and_cursor() {
         .await;
     let dt = p.query_one::<DirectoryTree>("#dt").unwrap();
     assert_eq!(dt.cursor_path().unwrap(), dir.0.join("src"));
+}
+
+#[tokio::test]
+async fn cursor_starts_on_root_and_root_label_is_folder_name() {
+    // Like Textual: the cursor starts on the first line (so the focused tree highlights the
+    // root's guides), and the loaded root is labelled with the folder name (`Path.name`).
+    let dir = TempDir::new("rootlabel");
+    let p = pilot(&dir, false).await;
+    let dt = p.query_one::<DirectoryTree>("#dt").unwrap();
+    assert_eq!(dt.cursor_line(), 0);
+    assert_eq!(labels(&p)[0], dir.0.file_name().unwrap().to_string_lossy());
 }

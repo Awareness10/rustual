@@ -7,6 +7,35 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+## 0.5.1 - 2026-10-17
+
+### Fixed
+- A terminal resize while the app was starting was lost, so the app kept its initial size (e.g.
+  the right-hand pane in `rustual-examples`' `compare.sh`, which tmux resizes on attach).
+- Python: Rich `Text` labels and content lost their styles when they used theme style names
+  (`ReprHighlighter`'s `repr.str`, `repr.number`, ...): the raw markup was shown instead (Textual's
+  `json_tree` example). These names are now resolved like Textual does, with standard colors
+  following the ANSI theme.
+- Markup tags with words that aren't styles (`[foo]x[/foo]`, `[on $unknown]`) are kept as tags
+  with no effect, as in Textual, instead of making the whole string literal text.
+- The command palette was empty in Python apps run in a terminal (`uv run -m rustual`, any app
+  with `App.run()`): hits that a search delivered while the palette was still handling the query
+  (Python's event loop runs it inline outside tests) were dropped. Hits delivered synchronously
+  from a Rust `command_search` hook were lost the same way.
+- "No matches found" in the command palette is centred, as in Textual.
+- DirectoryTree: the cursor starts on the root (so a focused tree highlights its guides, as in
+  Textual) and the loaded root is labelled with the folder name (`./` shows an empty label).
+- Bindings to Textual's character key names other than single characters (`slash`,
+  `question_mark`, `minus`, `full_stop`, ...) didn't fire when the key was typed in a terminal
+  (e.g. the `tasks` demo's `/` filter); they only worked from `pilot.press`.
+- The `rustual-py` launcher no longer flashes back to the shell when opening or closing an
+  example: the terminal stays on the alternate screen until the launcher exits.
+
+### Changed
+- The command palette's system commands are Textual's (Theme, Quit, Keys, Maximize / Minimize,
+  Screenshot): the extra "Focus next", "Focus previous" and "Toggle dark mode" are gone (tab /
+  shift+tab and the `toggle_dark` action still work).
+
 ## 0.5.0 - 2026-10-16
 
 ### Added

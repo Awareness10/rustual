@@ -167,6 +167,17 @@ fn node_label(n: &TreeNode<DirEntry>, ctx: &RenderCtx) -> Text {
     text
 }
 
+/// The root's label once loaded: the last path component, like Python's `Path.name`
+/// (empty for `.`, `./` and `/`).
+fn root_label(path: &Path) -> String {
+    use std::path::Component;
+    match path.components().next_back() {
+        Some(Component::Normal(name)) => name.to_string_lossy().into_owned(),
+        Some(Component::ParentDir) => "..".into(),
+        _ => String::new(),
+    }
+}
+
 impl DirectoryTree {
     /// A tree rooted at `path` (loaded when mounted).
     pub fn new(path: impl Into<PathBuf>) -> Self {
@@ -286,6 +297,8 @@ impl DirectoryTree {
 
     fn load_root(&mut self) {
         let root = self.tree.root();
+        // Textual relabels loaded nodes with `Path.name` (so `./` shows an empty label).
+        self.tree.set_label(root, escape(&root_label(&self.path)));
         self.load_node(root);
     }
 
@@ -386,8 +399,10 @@ impl Widget for DirectoryTree {
         true
     }
 
-    fn on_mount(&mut self, _ctx: &mut Ctx) {
+    fn on_mount(&mut self, ctx: &mut Ctx) {
         self.load_root();
+        // Puts the cursor on the first line, as Textual does.
+        self.tree.on_mount(ctx);
     }
 
     fn bindings(&self) -> Vec<Binding> {
@@ -458,5 +473,22 @@ impl Widget for DirectoryTree {
 
     fn render(&self, ctx: &RenderCtx) -> Content {
         self.tree.render(ctx)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::root_label;
+    use std::path::Path;
+
+    #[test]
+    fn root_label_follows_path_name() {
+        assert_eq!(root_label(Path::new("./")), "");
+        assert_eq!(root_label(Path::new(".")), "");
+        assert_eq!(root_label(Path::new("/")), "");
+        assert_eq!(root_label(Path::new("/tmp")), "tmp");
+        assert_eq!(root_label(Path::new("../textual")), "textual");
+        assert_eq!(root_label(Path::new("sub/dir/")), "dir");
+        assert_eq!(root_label(Path::new("..")), "..");
     }
 }

@@ -20,6 +20,9 @@ pub(crate) struct UxState {
     pub search_hooks: Vec<crate::command::SearchHook>,
     pub palette_enabled: bool,
     pub system_commands: bool,
+    /// Hits delivered while their palette was busy (e.g. from inside its own search hook):
+    /// `(palette, generation, hits)`, picked up by the palette once its hooks return.
+    pub pending_hits: Vec<(crate::dom::NodeId, u64, Vec<crate::command::Command>)>,
 }
 
 impl Default for UxState {
@@ -30,6 +33,7 @@ impl Default for UxState {
             search_hooks: Vec::new(),
             palette_enabled: true,
             system_commands: true,
+            pending_hits: Vec::new(),
         }
     }
 }

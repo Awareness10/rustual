@@ -980,6 +980,12 @@ pub fn open_command_palette(placeholder: &str, builtin: bool) -> PyResult<()> {
     })
 }
 
+/// Keep the terminal in application mode between app runs (the launcher), or restore it.
+#[pyfunction]
+pub fn keep_terminal(keep: bool) {
+    rustual::driver::keep_terminal(keep);
+}
+
 /// The plain text of Textual markup.
 #[pyfunction]
 pub fn markup_plain(markup: &str) -> String {
