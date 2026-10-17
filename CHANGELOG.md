@@ -21,6 +21,8 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
   (Python's event loop runs it inline outside tests) were dropped. Hits delivered synchronously
   from a Rust `command_search` hook were lost the same way.
 - "No matches found" in the command palette is centred, as in Textual.
+- DirectoryTree: the cursor starts on the root (so a focused tree highlights its guides, as in
+  Textual) and the loaded root is labelled with the folder name (`./` shows an empty label).
 - Bindings to Textual's character key names other than single characters (`slash`,
   `question_mark`, `minus`, `full_stop`, ...) didn't fire when the key was typed in a terminal
   (e.g. the `tasks` demo's `/` filter); they only worked from `pilot.press`.
@@ -31,8 +33,6 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 - The command palette's system commands are Textual's (Theme, Quit, Keys, Maximize / Minimize,
   Screenshot): the extra "Focus next", "Focus previous" and "Toggle dark mode" are gone (tab /
   shift+tab and the `toggle_dark` action still work).
-- DirectoryTree: the cursor starts on the root (so a focused tree highlights its guides, as in
-  Textual) and the loaded root is labelled with the folder name (`./` shows an empty label).
 
 ## 0.5.0 - 2026-10-16
 
