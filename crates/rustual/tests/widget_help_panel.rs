@@ -199,7 +199,10 @@ async fn palette_keys_command_follows_help_panel() {
 
     p.press(&["f1"]).await;
     let (text, help) = keys_help(&mut p, &seen).await;
-    assert!(text.contains("Hide the keys and widget help panel"), "{text}");
+    assert!(
+        text.contains("Hide the keys and widget help panel"),
+        "{text}"
+    );
     assert!(help.starts_with("Hide"), "{help}");
 
     // A stand-alone key panel is not a help panel (Textual queries `HelpPanel`).
