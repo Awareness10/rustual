@@ -103,3 +103,42 @@ async def test_chat_demo():
         assert app.query_one("#prompt").value == "python"
         await pilot.press("ctrl+l")
         assert not list(app.query(".assistant"))
+
+
+async def test_waves_demo():
+    from rustual.demo.waves import WAVES, WavesApp, samples, theme_cycle
+
+    app = WavesApp()
+    async with app.run_test(size=(100, 30)) as pilot:
+        await pilot.pause(0.1)
+        text = pilot.screen_text()
+        for title in ["Sine", "Beats", "Wave packets", "Tide"]:
+            assert title in text
+        assert "textual-dark · 12 columns/s" in text
+        footer = text.splitlines()[-1]
+        assert footer.startswith(" ^q Quit  t Theme  + Faster  - Slower  space Pause ")
+
+        # One sample per column, from the formula at the current position of the stream.
+        sine = app.query_one("#sine")
+        await pilot.pause(0.2)
+        assert app.offset > 0
+        assert len(sine.data) == sine.size.width
+        assert sine.data == samples(WAVES[0][3], app.offset, app.time, sine.size.width)
+
+        await pilot.press("t")
+        assert (
+            app.theme
+            == theme_cycle(list(app.available_themes))[
+                theme_cycle(list(app.available_themes)).index("textual-dark") + 1
+            ]
+        )
+        assert f"{app.theme} · 12 columns/s" in pilot.screen_text()
+
+        await pilot.press("space")
+        frozen = list(app.query_one("#tide").data)
+        await pilot.pause(0.3)
+        assert app.query_one("#tide").data == frozen
+        await pilot.press("space", "plus", "plus", "plus", "plus", "plus")
+        assert "96 columns/s" in pilot.screen_text()
+        await pilot.press("minus")
+        assert "48 columns/s" in pilot.screen_text()

@@ -4,7 +4,7 @@ from typing import Any, ClassVar
 
 from .._rich import is_rich_renderable
 from ..content import to_markup
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 
 
 class Static(Widget):

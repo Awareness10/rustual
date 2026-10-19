@@ -6,7 +6,6 @@ import asyncio
 import time
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
-from . import _context
 from ._bridge import _native
 from .geometry import Offset
 from .widget import Widget, _selector

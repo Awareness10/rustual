@@ -1,5 +1,6 @@
 """Built-in widgets (Textual's ``textual.widgets``), backed by the Rust implementations."""
 
+from ..widget import Widget
 from ._button import Button
 from ._checkbox import Checkbox
 from ._collapsible import Collapsible
@@ -37,7 +38,6 @@ from ._text_area import TextArea
 from ._toggle_button import ToggleButton
 from ._tree import Tree
 from ._welcome import Welcome
-from ..widget import Widget
 
 __all__ = [
     "Button",
@@ -75,8 +75,8 @@ __all__ = [
     "Static",
     "Switch",
     "Tab",
-    "TabbedContent",
     "TabPane",
+    "TabbedContent",
     "Tabs",
     "TextArea",
     "ToggleButton",

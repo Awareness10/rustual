@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from typing import Any, Callable, ClassVar, Iterable, Literal, NamedTuple
+from typing import Any, ClassVar, Literal, NamedTuple
 
 from .._bridge import _native
 from ..coordinate import Coordinate
 from ..message import Message
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 from ._detached import DetachedNative, markup_of
 
 CursorType = Literal["cell", "row", "column", "none"]
@@ -334,10 +335,7 @@ class DataTable(DetachedNative, Widget):
 
     @property
     def ordered_rows(self) -> list[Row]:
-        return [
-            Row(RowKey._from_rs(key), self._call("get_row_height", key))
-            for key in self._get("row_keys")
-        ]
+        return [Row(RowKey._from_rs(key), self._call("get_row_height", key)) for key in self._get("row_keys")]
 
     @property
     def rows(self) -> dict[RowKey, Row]:
@@ -490,7 +488,9 @@ def _register() -> None:
         )
     reg(
         "DataTable.HeaderSelected",
-        lambda **kw: DataTable.HeaderSelected(None, ColumnKey._from_rs(kw["column_key"]), kw["column_index"], kw["label"]),
+        lambda **kw: DataTable.HeaderSelected(
+            None, ColumnKey._from_rs(kw["column_key"]), kw["column_index"], kw["label"]
+        ),
     )
     reg(
         "DataTable.RowLabelSelected",

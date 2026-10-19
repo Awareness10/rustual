@@ -3,11 +3,11 @@ expected classes, messages and results are what Textual produced for the same co
 
 from __future__ import annotations
 
+import pytest
+
 from rustual.app import App, ComposeResult
 from rustual.validation import Failure, Function, Integer, Length, Number, ValidationResult, Validator
 from rustual.widgets import Button, Input, MaskedInput
-
-import pytest
 
 
 def descriptions(result: ValidationResult | None) -> list[str] | None:
@@ -134,7 +134,11 @@ async def test_failure_objects_reach_handlers() -> None:
             pass
 
         def validate(self, value: str) -> ValidationResult:
-            return self.success() if value.isdigit() and int(value) % 2 == 0 else self.failure(failures=Even.Odd(self, value, "odd"))
+            return (
+                self.success()
+                if value.isdigit() and int(value) % 2 == 0
+                else self.failure(failures=Even.Odd(self, value, "odd"))
+            )
 
     even = Even()
 

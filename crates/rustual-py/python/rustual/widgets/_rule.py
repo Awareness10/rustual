@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import ClassVar, Literal
 
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 
 RuleOrientation = Literal["horizontal", "vertical"]
 """The valid orientations of the rule widget."""

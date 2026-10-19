@@ -2,4 +2,4 @@
 
 from ._select import NULL, EmptySelectError, InvalidSelectValueError, NoSelection
 
-__all__ = ["EmptySelectError", "InvalidSelectValueError", "NoSelection", "NULL"]
+__all__ = ["NULL", "EmptySelectError", "InvalidSelectValueError", "NoSelection"]

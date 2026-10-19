@@ -91,7 +91,7 @@ async def test_data_table_api():
         assert table.get_cell_coordinate("ada", "age") == Coordinate(0, 1)
         assert "Ada" in pilot.screen_text() and "Age" in pilot.screen_text()
         assert [c.label for c in table.ordered_columns] == ["Name", "Age"]
-        assert list(table.rows)[0] == "ada"
+        assert next(iter(table.rows)) == "ada"
 
         with pytest.raises(DuplicateKey):
             table.add_row("x", 1, key="ada")
@@ -131,7 +131,12 @@ async def test_data_table_cursor_and_messages():
         app.events.clear()
         await pilot.press("down")
         assert table.cursor_coordinate == Coordinate(1, 0)
-        assert app.events[-1] == ("cell_h", "Bob", Coordinate(1, 0), CellKey(table.coordinate_to_cell_key((1, 0)).row_key, table.coordinate_to_cell_key((1, 0)).column_key))
+        assert app.events[-1] == (
+            "cell_h",
+            "Bob",
+            Coordinate(1, 0),
+            CellKey(table.coordinate_to_cell_key((1, 0)).row_key, table.coordinate_to_cell_key((1, 0)).column_key),
+        )
         await pilot.press("right", "enter")
         assert app.events[-1] == ("cell_s", 25, Coordinate(1, 1), True)
         table.cursor_coordinate = Coordinate(2, 0)
@@ -144,7 +149,7 @@ async def test_data_table_cursor_and_messages():
         await pilot.press("down")
         assert app.events[-1][0] == "row_h" and app.events[-1][1] == 1
         await pilot.press("enter")
-        kind, row, key, table_id = app.events[-1]
+        kind, row, key, _table_id = app.events[-1]
         assert (kind, row) == ("row_s", 1)
         assert table.get_row(key) == ["Bob", 25]
 

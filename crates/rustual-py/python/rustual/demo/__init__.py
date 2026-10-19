@@ -49,6 +49,16 @@ DEMOS: list[Demo] = [
         "prompts, escape stops a reply, `ctrl+l` clears.\n\n"
         "*Shows:* `Markdown.append`, mounting messages, timers. Runs unchanged under Textual.",
     ),
+    Demo(
+        "waves",
+        "Waves",
+        "WavesApp",
+        "Four waves streaming through `Sparkline`s at 60 frames a second, colored from the theme: "
+        "`t` switches theme (or pick one with `ctrl+p`), `+` / `-` change the speed, space "
+        "pauses.\n\n"
+        "*Shows:* a 60 Hz `set_interval`, component classes (`.sparkline--max-color`) styled with "
+        "theme variables. Runs unchanged under Textual.",
+    ),
 ]
 
 BY_NAME = {demo.name: demo for demo in DEMOS}

@@ -198,7 +198,9 @@ class TaskCommands(Provider):
             ("Clear completed", app.action_clear_done, "Delete every completed task"),
             ("Save", app.action_save, "Write the tasks to disk"),
         ]
-        commands += [(f"Show {name}", partial(app.show_project, key), "Switch project") for key, name in PROJECTS.items()]
+        commands += [
+            (f"Show {name}", partial(app.show_project, key), "Switch project") for key, name in PROJECTS.items()
+        ]
         matcher = self.matcher(query)
         for name, callback, help in commands:
             score = matcher.match(name)
@@ -242,7 +244,9 @@ class TasksApp(App):
     def compose(self) -> ComposeResult:
         yield Header()
         with Horizontal(id="body"):
-            projects = ListView(*[ListItem(Label(name, id=f"label-{key}"), id=key) for key, name in PROJECTS.items()], id="projects")
+            projects = ListView(
+                *[ListItem(Label(name, id=f"label-{key}"), id=key) for key, name in PROJECTS.items()], id="projects"
+            )
             projects.border_title = "Projects"
             yield projects
             with Vertical(id="main"):
@@ -255,7 +259,13 @@ class TasksApp(App):
 
     def on_mount(self) -> None:
         table = self.query_one("#tasks", DataTable)
-        for label, key in [("", "done"), ("Task", "title"), ("Project", "project"), ("Priority", "priority"), ("Due", "due")]:
+        for label, key in [
+            ("", "done"),
+            ("Task", "title"),
+            ("Project", "project"),
+            ("Priority", "priority"),
+            ("Due", "due"),
+        ]:
             table.add_column(label, key=key)
         self.refresh_tasks()
         table.focus()
@@ -266,9 +276,7 @@ class TasksApp(App):
     def visible(self) -> list[Task]:
         needle = self.filter.lower()
         tasks = [
-            t
-            for t in self.tasks
-            if (self.project == "all" or t.project == self.project) and needle in t.title.lower()
+            t for t in self.tasks if (self.project == "all" or t.project == self.project) and needle in t.title.lower()
         ]
         return sorted(tasks, key=lambda t: t.sort_key)
 

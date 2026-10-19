@@ -44,3 +44,7 @@ test = true
 [[example]]
 name = "live_json"
 test = true
+
+[[example]]
+name = "waves"
+test = true

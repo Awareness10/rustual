@@ -16,7 +16,7 @@ try:
     from importlib.metadata import version as _version
 
     __version__ = _version("rustual-py")
-except Exception:  # noqa: BLE001 - not installed (e.g. running from a source tree)
+except Exception:
     __version__ = "0.0.0"
 
-__all__ = ["Logger", "log", "on", "work", "__version__"]
+__all__ = ["Logger", "__version__", "log", "on", "work"]

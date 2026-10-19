@@ -106,7 +106,11 @@ async def scenario_scroll() -> float:
 
 async def main() -> None:
     results = {}
-    for name, fn in [("startup (1000 rows)", scenario_startup), ("100 key presses", scenario_keys), ("100 scroll steps", scenario_scroll)]:
+    for name, fn in [
+        ("startup (1000 rows)", scenario_startup),
+        ("100 key presses", scenario_keys),
+        ("100 scroll steps", scenario_scroll),
+    ]:
         runs = [await fn() for _ in range(3)]
         results[name] = statistics.median(runs)
     for name, secs in results.items():

@@ -7,7 +7,7 @@ from .._bridge import _native
 from ..content import to_markup
 from ..css.query import NoMatches
 from ..message import Message
-from ..widget import AwaitComplete, Widget, _NATIVE_CLASSES, _widget_for
+from ..widget import _NATIVE_CLASSES, AwaitComplete, Widget, _widget_for
 from ._tabs import Tab, Tabs
 
 

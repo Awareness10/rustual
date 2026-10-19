@@ -3,7 +3,8 @@
 Each scenario is rendered with Console.render_lines(pad=True) at the given widths, as plain
 text. Output: Rust `const` items for crates/rustual-render/src/renderables/golden.rs:
 
-    uv run --no-project --with rich==15.0.0 python scripts/rich_golden.py > crates/rustual-render/src/renderables/golden.rs
+    uv run --no-project --with rich==15.0.0 python scripts/rich_golden.py \\
+        > crates/rustual-render/src/renderables/golden.rs
     uv run --no-project --with rich==15.0.0 python scripts/rich_golden.py syntax > crates/rustual/tests/golden/syntax.rs
 
 Syntax scenarios use the plain "text" lexer: rustual highlights with its own keyword
@@ -139,9 +140,7 @@ SCENARIOS = {
     ),
     "PANEL_LONG_TITLE": (lambda: Panel.fit("x", title="a much longer title"), [40, 12]),
     "PANEL_WRAP": (
-        lambda: Panel(
-            "The quick brown fox jumps over the lazy dog", box=box.DOUBLE, padding=(1, 2)
-        ),
+        lambda: Panel("The quick brown fox jumps over the lazy dog", box=box.DOUBLE, padding=(1, 2)),
         [24],
     ),
     "PANEL_HEIGHT": (lambda: Panel("x", height=5, title="t", title_align="left"), [12]),

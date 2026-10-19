@@ -20,7 +20,8 @@ import os
 import select
 import sys
 import threading
-from typing import TYPE_CHECKING, Any, Awaitable, Coroutine
+from collections.abc import Awaitable, Coroutine
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from .app import App

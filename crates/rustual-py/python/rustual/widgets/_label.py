@@ -25,7 +25,9 @@ class Label(Static):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
-        super().__init__(content, expand=expand, shrink=shrink, markup=markup, name=name, id=id, classes=classes, disabled=disabled)
+        super().__init__(
+            content, expand=expand, shrink=shrink, markup=markup, name=name, id=id, classes=classes, disabled=disabled
+        )
         if variant:
             self.add_class(variant)
 

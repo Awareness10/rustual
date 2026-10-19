@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from math import cos, pi, sin
-from typing import Any, Sequence
+from typing import Any
 
 from ..color import Color, Gradient
 

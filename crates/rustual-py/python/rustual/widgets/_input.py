@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import re
-from typing import Any, ClassVar, Iterable, Literal
+from typing import Any, ClassVar, Literal
 
 from .._bridge import _native
 from ..message import Message
 from ..validation import ValidationResult, Validator
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 
 InputType = Literal["integer", "number", "text"]
 InputValidationOn = Literal["blur", "changed", "submitted"]
@@ -23,7 +23,9 @@ class Input(Widget):
     _rs_framework: ClassVar[bool] = True
 
     class _InputMessage(Message):
-        def __init__(self, input: Input | None = None, value: str = "", validation_result: ValidationResult | None = None) -> None:
+        def __init__(
+            self, input: Input | None = None, value: str = "", validation_result: ValidationResult | None = None
+        ) -> None:
             super().__init__()
             self._input = input
             self.value = value

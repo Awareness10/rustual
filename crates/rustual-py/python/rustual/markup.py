@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import re
-from typing import Callable, Match
+from collections.abc import Callable
+from re import Match
 
 _escape_sub: Callable[..., str] = re.compile(r"(\\*)(\[[a-z#/@][^[]*?])").sub
 

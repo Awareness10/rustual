@@ -6,16 +6,17 @@ import asyncio
 import inspect
 import os
 import threading
+from collections.abc import AsyncIterator, Callable, Iterable
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, AsyncIterator, Callable, ClassVar, Generic, Iterable, NamedTuple, TypeVar, Union
+from typing import Any, ClassVar, Generic, NamedTuple, TypeVar
 
 from . import _bridge, _context
 from ._bridge import _native, native
 from .css.query import NoMatches, WrongType
 from .geometry import Size
 from .screen import ModalScreen, Screen
-from .widget import AwaitComplete, AwaitMount, Widget, _invoke, _proxies, _selector, _widget_for
+from .widget import AwaitComplete, AwaitMount, Widget, _invoke, _proxies, _widget_for
 
 ReturnType = TypeVar("ReturnType")
 
@@ -25,7 +26,7 @@ try:
     from rich.console import RenderableType
 except ImportError:  # rich is optional
     RenderableType = Any  # type: ignore[misc,assignment]
-CSSPathType = Union[str, Path, list[Union[str, Path]]]
+CSSPathType = str | Path | list[str | Path]
 
 
 class AppError(Exception):
@@ -128,7 +129,7 @@ class App(Widget, Generic[ReturnType]):
             css.append(("app-css", self.CSS))
         screens = []
         for name, value in self.SCREENS.items():
-            modal = isinstance(value, type) and issubclass(value, ModalScreen) or isinstance(value, ModalScreen)
+            modal = (isinstance(value, type) and issubclass(value, ModalScreen)) or isinstance(value, ModalScreen)
             screens.append((name, _screen_factory(value), modal))
             if isinstance(value, type) and issubclass(value, Screen):
                 css.extend(value._rs_css())
@@ -294,7 +295,9 @@ class App(Widget, Generic[ReturnType]):
         """Open a palette searching ``commands`` (``SimpleCommand`` or ``(name, callback[, help])``)."""
         from .command import CommandPalette, SimpleProvider
 
-        return self.push_screen(CommandPalette(providers=[SimpleProvider(self.screen, list(commands))], placeholder=placeholder))
+        return self.push_screen(
+            CommandPalette(providers=[SimpleProvider(self.screen, list(commands))], placeholder=placeholder)
+        )
 
     def _open_command_palette(self, palette: Any) -> None:
         self.__dict__["_pending_palette_providers"] = palette.providers
@@ -322,7 +325,7 @@ class App(Widget, Generic[ReturnType]):
             sources = self.__dict__.pop("_pending_palette_providers", None)
             if sources is None:
                 sources = [*self.COMMANDS, *getattr(screen, "COMMANDS", ())]
-            color, bgcolor, attrs = native.widget_style(palette, "command-palette--highlight", True)
+            _color, _bgcolor, attrs = native.widget_style(palette, "command-palette--highlight", True)
             style = " ".join(name for name, on in attrs.items() if on) or "reverse"
             providers = self._palette_providers(sources, screen, style)
             for provider in providers:
@@ -333,7 +336,9 @@ class App(Widget, Generic[ReturnType]):
             task = state.get("task")
             if task is not None:
                 task.cancel()
-            state["task"] = _context.run_coroutine(self._palette_search(palette, generation, query, state.get("providers", [])))
+            state["task"] = _context.run_coroutine(
+                self._palette_search(palette, generation, query, state.get("providers", []))
+            )
         elif event == "closed":
             task = state.pop("task", None)
             if task is not None:
@@ -343,8 +348,8 @@ class App(Widget, Generic[ReturnType]):
 
     async def _palette_search(self, palette: int, generation: int, query: str, providers: list[Any]) -> None:
         from .command import Hit
-        from .content import to_markup
         from .content import escape as escape_markup
+        from .content import to_markup
 
         callbacks = self.__dict__.setdefault("_palette_callbacks", {})
 
@@ -398,7 +403,7 @@ class App(Widget, Generic[ReturnType]):
         async def finish(awaitable: Any) -> None:
             try:
                 box["result"] = await awaitable
-            except BaseException as error:  # noqa: BLE001 - re-raised in the caller's thread
+            except BaseException as error:
                 box["error"] = error
             finally:
                 done.set()
@@ -406,7 +411,7 @@ class App(Widget, Generic[ReturnType]):
         def run() -> None:
             try:
                 result = callback(*args, **kwargs)
-            except BaseException as error:  # noqa: BLE001
+            except BaseException as error:
                 box["error"] = error
                 done.set()
                 return
@@ -637,7 +642,9 @@ class App(Widget, Generic[ReturnType]):
             try:
                 loop = asyncio.get_running_loop()
             except RuntimeError:
-                raise RuntimeError("push_screen(wait_for_dismiss=True) must be awaited from a worker or async handler") from None
+                raise RuntimeError(
+                    "push_screen(wait_for_dismiss=True) must be awaited from a worker or async handler"
+                ) from None
             future = loop.create_future()
         from .command import CommandPalette
 
@@ -739,8 +746,8 @@ __all__ = [
     "App",
     "AppError",
     "ComposeResult",
+    "NoMatches",
     "RenderResult",
     "ReturnType",
-    "NoMatches",
     "WrongType",
 ]

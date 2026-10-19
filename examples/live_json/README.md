@@ -1,7 +1,8 @@
 # Live JSON form
 
 JSON objects arrive over TCP (one per line) and are written into a form of input fields as they
-come in, 60 times a second by default. The same app exists three times:
+come in, 60 times a second by default. It is a test bed for workers, `post_message` and fast
+input updates (its tests run in CI), not a showcase. The same app exists three times:
 
 | File | Runs on |
 |---|---|

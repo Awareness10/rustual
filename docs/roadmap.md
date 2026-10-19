@@ -113,7 +113,5 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 
 - [ ] **Guide** (M): port the essential parts of Textual's guide (app basics, CSS, layout, events, actions,
   screens, workers, testing) to Rust idioms.
-- [ ] **Gallery script** (S): a script that regenerates `docs/assets/screenshots/` from the examples via
-  `TEXTUAL_SCREENSHOT` (the README gallery's five captures are currently made by hand).
 - [ ] **Bundled examples** (S): more demos in `rustual.demo` (the `rustual-py` launcher), e.g. ports
-  of Textual's calculator and five-by-five, and the live JSON form (`examples/live_json`).
+  of Textual's calculator and five-by-five.

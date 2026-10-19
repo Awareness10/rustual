@@ -5,7 +5,7 @@ from typing import Any, ClassVar
 from .._bridge import _native
 from ..content import to_markup
 from ..message import Message
-from ..widget import AwaitComplete, Widget, _NATIVE_CLASSES, _widget_for
+from ..widget import _NATIVE_CLASSES, AwaitComplete, Widget, _widget_for
 
 
 class Tab(Widget):
@@ -169,7 +169,9 @@ class Tabs(Widget):
 
     # -- changing tabs ---------------------------------------------------------------------
 
-    def add_tab(self, tab: Tab | Any, *, before: Tab | str | None = None, after: Tab | str | None = None) -> AwaitComplete:
+    def add_tab(
+        self, tab: Tab | Any, *, before: Tab | str | None = None, after: Tab | str | None = None
+    ) -> AwaitComplete:
         """Add a tab (a :class:`Tab` or a label) at the end, or ``before`` / ``after`` another."""
         if before is not None and after is not None:
             raise Tabs.TabError("Unable to add a tab both 'before' and 'after' a tab")

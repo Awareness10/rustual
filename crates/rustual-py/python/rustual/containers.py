@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import ClassVar
 
-from .widget import Widget, _NATIVE_CLASSES
+from .widget import _NATIVE_CLASSES, Widget
 
 
 class _ContainerBase(Widget):

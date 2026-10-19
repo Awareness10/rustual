@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, ClassVar, Iterable
+from collections.abc import Iterable
+from typing import Any, ClassVar
 
 from .._rich import is_rich_renderable
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 from ._detached import DetachedNative
 
 

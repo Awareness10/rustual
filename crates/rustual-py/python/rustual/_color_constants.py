@@ -25,6 +25,7 @@ ANSI_COLORS = [
 """The 16 ANSI color names, in index order."""
 
 COLOR_NAME_TO_RGB: dict[str, tuple[int, int, int] | tuple[int, int, int, int]] = {
-    name: tuple(rgb) for name, rgb in _native.color_names()  # type: ignore[misc]
+    name: tuple(rgb)
+    for name, rgb in _native.color_names()  # type: ignore[misc]
 }
 """Named colors → RGB (RGBA for translucent ones such as ``transparent``)."""

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, ClassVar, Iterable
+from collections.abc import Iterable
+from typing import Any, ClassVar
 
 from .._bridge import _native
 from ..message import Message
-from ..widget import AwaitComplete, AwaitMount, Widget, _NATIVE_CLASSES, _widget_for
+from ..widget import _NATIVE_CLASSES, AwaitComplete, AwaitMount, Widget, _widget_for
 
 
 class ListItem(Widget):

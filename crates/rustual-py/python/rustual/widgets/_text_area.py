@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, ClassVar, Literal, NamedTuple, Tuple
+from typing import Any, ClassVar, Literal, NamedTuple
 
 from .._bridge import _native
 from ..content import Content
 from ..message import Message
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 
-Location = Tuple[int, int]
+Location = tuple[int, int]
 """A location (row, column) within a document."""
 
 BUILTIN_LANGUAGES = ["python", "rust", "javascript", "json", "toml"]
@@ -412,7 +412,9 @@ class TextArea(Widget):
     def cursor_at_end_of_text(self) -> bool:
         return self._native_get("cursor_at_end_of_text", True)
 
-    def move_cursor(self, location: Location, select: bool = False, center: bool = False, record_width: bool = True) -> None:
+    def move_cursor(
+        self, location: Location, select: bool = False, center: bool = False, record_width: bool = True
+    ) -> None:
         self._native_call("move_cursor", tuple(location), select)
 
     def move_cursor_relative(
@@ -431,7 +433,9 @@ class TextArea(Widget):
 
     # -- editing ---------------------------------------------------------------------------------
 
-    def insert(self, text: str, location: Location | None = None, *, maintain_selection_offset: bool = True) -> EditResult:
+    def insert(
+        self, text: str, location: Location | None = None, *, maintain_selection_offset: bool = True
+    ) -> EditResult:
         """Insert ``text`` at ``location`` (default: the cursor)."""
         end, replaced = self._native_call("insert", text, tuple(location) if location is not None else None)
         return EditResult(tuple(end), replaced)  # type: ignore[arg-type]
@@ -441,7 +445,9 @@ class TextArea(Widget):
         e, replaced = self._native_call("delete", tuple(start), tuple(end))
         return EditResult(tuple(e), replaced)  # type: ignore[arg-type]
 
-    def replace(self, insert: str, start: Location, end: Location, *, maintain_selection_offset: bool = True) -> EditResult:
+    def replace(
+        self, insert: str, start: Location, end: Location, *, maintain_selection_offset: bool = True
+    ) -> EditResult:
         """Replace the text between two locations with ``insert``."""
         e, replaced = self._native_call("replace", insert, tuple(start), tuple(end))
         return EditResult(tuple(e), replaced)  # type: ignore[arg-type]

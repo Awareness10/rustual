@@ -41,7 +41,7 @@ _Last updated: 2026-10-19._
 | Text selection & copy (screen selection) | ❌ | 0 | Input has its own selection + internal clipboard |
 | Clipboard (OSC 52) | ✅ | 90 | `ctx.copy_to_clipboard` queues OSC 52, flushed after the next frame; Input/TextArea copy/cut use it; paste reads the app clipboard (falling back to a process-wide one); `pilot.clipboard()` |
 | `@click` markup links | 🟡 | 75 | click runs the action with the widget as owner; no `link-*-hover` styles, no `@mouse.down`/`@mouse.up` |
-| Screenshots (SVG / ANSI / text export) | ✅ | 90 | `canvas.to_svg()`, `to_ansi()`, `pilot.export_svg()`, `TEXTUAL_SCREENSHOT=out.svg` env mode (+ `TEXTUAL_SIZE`, `TEXTUAL_PRESS`); `screenshot(filename?, path?)` action + "Screenshot" palette command (CWD, Textual filename scheme, UTC timestamp), `ctx.save_screenshot` |
+| Screenshots (SVG / ANSI / text export) | ✅ | 90 | `canvas.to_svg()`, `to_ansi()`, `pilot.export_svg()`, `TEXTUAL_SCREENSHOT=out.svg` env mode (+ `TEXTUAL_SIZE`, `TEXTUAL_PRESS`, `TEXTUAL_THEME`); `scripts/screenshots.py` regenerates the README gallery; `screenshot(filename?, path?)` action + "Screenshot" palette command (CWD, Textual filename scheme, UTC timestamp), `ctx.save_screenshot` |
 | Maximize, `loading` overlay, `disabled` | ✅ | 85 | `ctx.maximize/maximize_exact/minimize`, `maximize`/`minimize` actions + palette commands, escape minimizes, `Widget::allow_maximize`, Footer/toasts kept, hatched background around the maximized widget; `ctx.set_loading(id, bool)` covers with a LoadingIndicator (blocks input, leaves focus chain); no custom loading widget |
 | Suspend (`ctrl+z`), inline mode | 🟡 | 50 | `suspend_process` action / `ctx.suspend_process` (unix SIGTSTP via `kill`, terminal restored + full redraw on resume; not bound by default, like Textual 8); no inline mode |
 | ANSI themes, `ansi_color`, `NO_COLOR` | ✅ | 90 | `ansi-dark` / `ansi-light` (variables identical to Textual's `_generate_ansi`); `ansi_*` / `ansi_default` colors are written as terminal ANSI codes when native (`App::ansi_color`, else the theme's `ansi`; `ctx.set_ansi_color`), otherwise converted with Textual's MONOKAI / ALABASTER terminal themes, with `dim` turned into a blended color (`ANSIToTruecolor`); `NO_COLOR` gives default colors (native) or a gray scale (`NoColor` / `Monochrome`); widgets' `:ansi` rules ported; screenshots use Rich's SVG export theme; no `TEXTUAL_DIM_FACTOR` / `TEXTUAL_FILTERS` env vars |
@@ -57,12 +57,12 @@ _Last updated: 2026-10-19._
 | Selectors: type/class/id/universal, `>` and descendant, lists | ✅ | 95 | type selectors match "subclass" type names |
 | Pseudo-classes | ✅ | 90 | focus, focus-within, hover, disabled, enabled, dark, light, ansi, nocolor, first/last-child, even/odd, empty, can-focus; no `:inline` |
 | Variables (`$var`, theme vars) | ✅ | 100 | |
-| Themes & design system | ✅ | 95 | 22 built-in themes, including `ansi-dark` / `ansi-light`; variables match Python's output within ±2 per channel (ANSI themes exactly) |
+| Themes & design system | ✅ | 95 | 22 built-in themes, including `ansi-dark` / `ansi-light`; `TEXTUAL_THEME` picks the default (unknown names fall back to `textual-dark`); variables match Python's output within ±2 per channel (ANSI themes exactly) |
 | Cascade (specificity, origin, important) | ✅ | 95 | |
 | Box model: width/height/min/max, margin, padding, box-sizing | ✅ | 95 | |
 | Units: cells, %, fr, w, h, vw, vh, auto | ✅ | 95 | |
 | Colors: names, hex, rgb/hsl, alpha `%`, `auto` contrast | ✅ | 95 | `ansi_*` / `ansi_default` are the terminal's own colors (see ANSI themes): opaque, alpha ignored, they win when composited |
-| Borders (19 kinds), titles/subtitles, outline | ✅ | 95 | |
+| Borders (19 kinds), titles/subtitles, outline | ✅ | 95 | titles default to the left and subtitles to the right; `auto` label colors (e.g. `$text-muted`) contrast with the label's background |
 | Text: color, text-style, text-align, text-wrap, text-overflow, text-opacity | ✅ | 90 | `dim` is drawn as a color blended 66% towards the background unless ANSI colors are native (as Textual) |
 | background, background-tint, tint, opacity | ✅ | 85 | |
 | content-align, align | ✅ | 95 | |

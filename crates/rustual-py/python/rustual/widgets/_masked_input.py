@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, ClassVar, Iterable
+from collections.abc import Iterable
+from typing import Any, ClassVar
 
 from ..validation import ValidationResult, Validator
 from ..widget import _NATIVE_CLASSES

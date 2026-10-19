@@ -2,23 +2,24 @@
 
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable
 from pathlib import PurePath
-from typing import Any, Awaitable, Callable, Literal, Union
+from typing import Any, Literal, Union
 
+from .widgets._placeholder import PlaceholderVariant
 from .widgets.directory_tree import DirEntry
 from .widgets.option_list import DuplicateID, OptionDoesNotExist
 from .widgets.select import NoSelection
-from .widgets._placeholder import PlaceholderVariant
 
 CSSPathType = Union[str, PurePath, "list[str | PurePath]"]
 """Valid ways of specifying paths to CSS files."""
 AnimationLevel = Literal["none", "basic", "full"]
 """The levels that the ``TEXTUAL_ANIMATIONS`` env var can be set to."""
-CallbackType = Union[Callable[[], Awaitable[None]], Callable[[], None]]
+CallbackType = Callable[[], Awaitable[None]] | Callable[[], None]
 """Type used for arbitrary callables used in callbacks."""
-IgnoreReturnCallbackType = Union[Callable[[], Awaitable[Any]], Callable[[], Any]]
+IgnoreReturnCallbackType = Callable[[], Awaitable[Any]] | Callable[[], Any]
 """A callback whose return value is ignored."""
-WatchCallbackType = Union[Callable[..., Awaitable[None]], Callable[..., None]]
+WatchCallbackType = Callable[..., Awaitable[None]] | Callable[..., None]
 """Type for a watch callback."""
 InputValidationOn = Literal["blur", "changed", "submitted"]
 """When an ``Input`` validates its value."""
@@ -44,9 +45,9 @@ class NoActiveAppError(RuntimeError):
 
 __all__ = [
     "AnimationLevel",
-    "CallbackType",
     "CSSPathError",
     "CSSPathType",
+    "CallbackType",
     "DirEntry",
     "Direction",
     "DuplicateID",

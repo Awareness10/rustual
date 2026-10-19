@@ -18,11 +18,20 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
   a selector for the widget focused when a screen activates, or none. Python apps now honour both
   class variables (the first focusable widget always got focus before).
 - `TimerId::to_raw` / `TimerId::from_raw`.
-- A live JSON form example: JSON received over TCP is written into input fields at 60 Hz (or
-  faster), received by a thread or an asyncio / tokio worker that hands each object to the UI
-  with `post_message`. `cargo run -p rustual --example live_json` in Rust, and
-  `examples/live_json/` for Python Textual and rustual-py (the two files differ only in their
-  imports), with a stdlib feeder and benchmark numbers.
+- `TEXTUAL_THEME` sets the default theme in Rust apps too, as in Textual (an unknown name falls
+  back to `textual-dark`), so `TEXTUAL_SCREENSHOT` can capture any theme.
+- A waves example: four sparklines streaming at 60 fps, colored only from theme variables, so
+  `t` (next theme) recolors everything. `cargo run -p rustual --example waves`, and
+  `rustual-py waves` in Python (also runs unchanged under Textual).
+- `scripts/screenshots.py` regenerates the README gallery; the monitor and the task form are now
+  shown in the `nord` and `catppuccin-latte` themes, and the waves example in `tokyo-night` and
+  `solarized-light`.
+- A live JSON form, kept as a regression test for workers and `post_message`: JSON received over
+  TCP is written into input fields at 60 Hz (or faster), received by a thread or an asyncio /
+  tokio worker that hands each object to the UI with `post_message`. In Rust
+  (`cargo run -p rustual --example live_json`), and in `examples/live_json/` for Python Textual
+  and rustual-py (the two files differ only in their imports), with a stdlib feeder and benchmark
+  numbers.
 
 ### Changed
 - The run loop handles every message and call already queued by other threads (up to 1024)
@@ -38,6 +47,10 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
   behaviour; it used to run the callback directly and return a task for async ones).
 
 ### Fixed
+- Python: the `rich` extra no longer installs `pytest-cov`.
+- Border subtitles are aligned to the right by default, as in Textual (they were on the left).
+- `border-title-color` / `border-subtitle-color: auto [N%]` (e.g. `$text-muted`) gave invisible
+  labels; they now use a contrasting text color, as in Textual.
 - Python: the asyncio loop of `App.run()` was polled every 10 ms, so `await asyncio.sleep(1/60)`
   loops ran at 50 Hz and socket reads waited ~5 ms. It now wakes when its next timer is due and,
   on Linux, as soon as I/O is ready (a watcher thread polls the loop's epoll descriptor).

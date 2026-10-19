@@ -42,8 +42,7 @@ class Launcher(App[str]):
         demo = BY_NAME.get(event.option_id or "")
         if demo is not None:
             self.query_one("#description", Markdown).update(
-                f"{INTRO}\n## {demo.title}\n\n{demo.description}\n\n"
-                f"Run it directly with `rustual-py {demo.name}`."
+                f"{INTRO}\n## {demo.title}\n\n{demo.description}\n\nRun it directly with `rustual-py {demo.name}`."
             )
 
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from .message import Message
 
@@ -13,7 +14,9 @@ class OnDecoratorError(Exception):
     pass
 
 
-def on(message_type: type[Message], selector: str | None = None, **kwargs: str) -> Callable[[DecoratedType], DecoratedType]:
+def on(
+    message_type: type[Message], selector: str | None = None, **kwargs: str
+) -> Callable[[DecoratedType], DecoratedType]:
     """Handle ``message_type``, optionally only from widgets matching ``selector``.
 
     Extra keyword arguments match other widget attributes of the message, for messages
@@ -25,7 +28,8 @@ def on(message_type: type[Message], selector: str | None = None, **kwargs: str) 
     for attribute, css_selector in kwargs.items():
         if attribute not in message_type.ALLOW_SELECTOR_MATCH and attribute != "control":
             raise OnDecoratorError(
-                f"The attribute {attribute!r} can't be matched; have you added it to {message_type.__name__}.ALLOW_SELECTOR_MATCH?"
+                f"The attribute {attribute!r} can't be matched; "
+                f"have you added it to {message_type.__name__}.ALLOW_SELECTOR_MATCH?"
             )
         selectors[attribute] = css_selector
 

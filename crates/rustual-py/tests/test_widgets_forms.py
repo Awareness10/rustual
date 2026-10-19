@@ -22,7 +22,6 @@ from rustual.widgets.option_list import DuplicateID, Option, OptionDoesNotExist
 from rustual.widgets.select import NULL, EmptySelectError, InvalidSelectValueError
 from rustual.widgets.selection_list import Selection, SelectionError
 
-
 # ------------------------------------------------------------------------------ toggles
 
 

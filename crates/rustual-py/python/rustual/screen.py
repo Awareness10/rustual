@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, ClassVar, Generic, TypeVar
+from collections.abc import Callable
+from typing import Any, ClassVar, Generic, TypeVar
 
 from ._bridge import native
-from .widget import AwaitComplete, Widget, _invoke, _NATIVE_CLASSES, _widget_for
+from .widget import _NATIVE_CLASSES, AwaitComplete, Widget, _invoke, _widget_for
 
 ScreenResultType = TypeVar("ScreenResultType")
 

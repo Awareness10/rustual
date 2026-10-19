@@ -134,4 +134,8 @@ TEXTUAL_SCREENSHOT=/tmp/shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=down,e \
 rsvg-convert /tmp/shot.svg -o /tmp/shot.png   # then view the PNG
 ```
 
+Add `TEXTUAL_THEME=nord` (any built-in theme) to check other themes. The README gallery is made by
+`python scripts/screenshots.py` (`--out /tmp/shots --png` to try changes without touching it).
+rsvg-convert can draw box-drawing characters a little out of line; browsers don't.
+
 In tests: `pilot.export_svg()` / `pilot.export_ansi()`.

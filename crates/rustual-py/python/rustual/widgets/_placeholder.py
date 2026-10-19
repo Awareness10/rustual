@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import ClassVar, Literal
 
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 
 PlaceholderVariant = Literal["default", "size", "text"]
 _VALID_PLACEHOLDER_VARIANTS_ORDERED: list[str] = ["default", "size", "text"]
