@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, ClassVar, Iterable, Sequence, Union
+from collections.abc import Iterable, Sequence
+from typing import Any, ClassVar
 
 from .._bridge import _native
 from ..message import Message
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 from ._helpers import compact_property, prompt_markup
 
 
@@ -54,7 +55,7 @@ class Option:
         return f"{type(self).__name__}({', '.join(args)})"
 
 
-OptionListContent = Union[Option, Any, None]
+OptionListContent = Option | Any | None
 """The type of an item of content in the option list (``None`` adds a separator)."""
 
 

@@ -22,7 +22,13 @@ uv sync                                  # builds the extension (maturin) into .
 uv sync --reinstall-package rustual-py   # rebuild after changing Rust code
 uv run pytest                            # Python tests (headless, via Pilot)
 uv run rustual-py                        # the example launcher (or: uv run rustual-py tasks)
+uv run ruff check --fix . ../../scripts ../../examples   # lint (CI checks both)
+uv run ruff format . ../../scripts ../../examples        # format
 ```
+
+Ruff's settings are in `pyproject.toml` (`[tool.ruff]`) and cover every Python file in the
+repository (`scripts/` and `examples/` have no settings of their own, so they use these); CI fails
+on any finding or unformatted file. The pre-commit hook (`.githooks/`) runs the same checks.
 
 Python-only changes don't need a rebuild (the package is installed in editable mode).
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import ClassVar
 
-from ..widget import AwaitComplete, Widget, _NATIVE_CLASSES, _widget_for
+from ..widget import _NATIVE_CLASSES, AwaitComplete, Widget, _widget_for
 
 
 class ContentSwitcher(Widget):

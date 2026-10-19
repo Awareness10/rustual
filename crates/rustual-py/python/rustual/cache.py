@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Generic, KeysView, TypeVar, overload
+from collections.abc import KeysView
+from typing import TYPE_CHECKING, Generic, TypeVar, overload
 
 CacheKey = TypeVar("CacheKey")
 CacheValue = TypeVar("CacheValue")
 DefaultValue = TypeVar("DefaultValue")
 
-__all__ = ["LRUCache", "FIFOCache"]
+__all__ = ["FIFOCache", "LRUCache"]
 
 
 class LRUCache(Generic[CacheKey, CacheValue]):
@@ -31,10 +32,10 @@ class LRUCache(Generic[CacheKey, CacheValue]):
     """
 
     __slots__ = [
-        "_maxsize",
         "_cache",
         "_full",
         "_head",
+        "_maxsize",
         "hits",
         "misses",
     ]
@@ -46,7 +47,7 @@ class LRUCache(Generic[CacheKey, CacheValue]):
             maxsize: Maximum size of the cache, before old items are discarded.
         """
         self._maxsize = maxsize
-        self._cache: Dict[CacheKey, list[object]] = {}
+        self._cache: dict[CacheKey, list[object]] = {}
         self._full = False
         self._head: list[object] = []
         self.hits = 0
@@ -127,13 +128,9 @@ class LRUCache(Generic[CacheKey, CacheValue]):
         def get(self, key: CacheKey) -> CacheValue | None: ...
 
         @overload
-        def get(
-            self, key: CacheKey, default: DefaultValue
-        ) -> CacheValue | DefaultValue: ...
+        def get(self, key: CacheKey, default: DefaultValue) -> CacheValue | DefaultValue: ...
 
-    def get(
-        self, key: CacheKey, default: DefaultValue | None = None
-    ) -> CacheValue | DefaultValue | None:
+    def get(self, key: CacheKey, default: DefaultValue | None = None) -> CacheValue | DefaultValue | None:
         """Get a value from the cache, or return a default if the key is not present.
 
         Args:
@@ -211,8 +208,8 @@ class FIFOCache(Generic[CacheKey, CacheValue]):
     """
 
     __slots__ = [
-        "_maxsize",
         "_cache",
+        "_maxsize",
         "hits",
         "misses",
     ]
@@ -235,9 +232,7 @@ class FIFOCache(Generic[CacheKey, CacheValue]):
         return len(self._cache)
 
     def __repr__(self) -> str:
-        return (
-            f"<FIFOCache maxsize={self._maxsize} hits={self.hits} misses={self.misses}>"
-        )
+        return f"<FIFOCache maxsize={self._maxsize} hits={self.hits} misses={self.misses}>"
 
     def clear(self) -> None:
         """Clear the cache."""
@@ -269,13 +264,9 @@ class FIFOCache(Generic[CacheKey, CacheValue]):
         def get(self, key: CacheKey) -> CacheValue | None: ...
 
         @overload
-        def get(
-            self, key: CacheKey, default: DefaultValue
-        ) -> CacheValue | DefaultValue: ...
+        def get(self, key: CacheKey, default: DefaultValue) -> CacheValue | DefaultValue: ...
 
-    def get(
-        self, key: CacheKey, default: DefaultValue | None = None
-    ) -> CacheValue | DefaultValue | None:
+    def get(self, key: CacheKey, default: DefaultValue | None = None) -> CacheValue | DefaultValue | None:
         """Get a value from the cache, or return a default if the key is not present.
 
         Args:

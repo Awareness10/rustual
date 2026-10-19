@@ -223,8 +223,19 @@ def ci_succeeded(sha: str) -> bool | None:
     """Result of the latest CI run for `sha` (None if gh isn't available or no run exists)."""
     try:
         out = run(
-            "gh", "run", "list", "--workflow", "ci.yml", "--commit", sha, "--limit", "1",
-            "--json", "status,conclusion", capture=True, check=False,
+            "gh",
+            "run",
+            "list",
+            "--workflow",
+            "ci.yml",
+            "--commit",
+            sha,
+            "--limit",
+            "1",
+            "--json",
+            "status,conclusion",
+            capture=True,
+            check=False,
         )
         runs = json.loads(out or "[]")
     except (OSError, json.JSONDecodeError):
@@ -291,7 +302,9 @@ def cmd_check(_: argparse.Namespace) -> None:
         if dep != v.cargo:
             problems.append(f"workspace dependency {crate} = {dep!r}, expected {v.cargo!r}")
     ref = os.environ.get("GITHUB_REF", "")
-    branch = os.environ.get("GITHUB_HEAD_REF") or (ref.removeprefix("refs/heads/") if ref.startswith("refs/heads/") else "")
+    branch = os.environ.get("GITHUB_HEAD_REF") or (
+        ref.removeprefix("refs/heads/") if ref.startswith("refs/heads/") else ""
+    )
     if ref.startswith("refs/tags/"):
         tag = ref.removeprefix("refs/tags/")
         if tag != v.tag or v.is_dev:

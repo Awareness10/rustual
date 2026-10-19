@@ -12,7 +12,8 @@ The GIL is never held while waiting: the waiting thread blocks on a ``threading.
 from __future__ import annotations
 
 import threading
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from . import _native
 
@@ -35,7 +36,7 @@ def call_from_thread(callback: Callable[..., T], *args: Any, **kwargs: Any) -> T
     def run() -> None:
         try:
             box["result"] = callback(*args, **kwargs)
-        except BaseException as error:  # noqa: BLE001 - re-raised in the caller's thread
+        except BaseException as error:
             box["error"] = error
         finally:
             done.set()

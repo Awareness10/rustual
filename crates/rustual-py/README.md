@@ -75,7 +75,7 @@ pip install rustual-py        # or: uv add rustual-py
 ```
 
 Once installed, `rustual-py` (or `python -m rustual`) opens the same launcher;
-`rustual-py tasks` (or `monitor`, `chat`) runs one example directly and `rustual-py --list` lists them.
+`rustual-py tasks` (or `monitor`, `chat`, `waves`) runs one example directly and `rustual-py --list` lists them.
 
 Prebuilt wheels (CPython 3.10+, one per platform: Linux x86_64 glibc and musl, Windows x86_64,
 macOS Intel + Apple silicon) are on [PyPI](https://pypi.org/project/rustual-py/) and attached to

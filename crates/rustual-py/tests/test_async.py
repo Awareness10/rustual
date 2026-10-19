@@ -19,7 +19,6 @@ from rustual.app import App, ComposeResult
 from rustual.containers import Vertical
 from rustual.message import Message
 from rustual.screen import Screen
-from rustual.widget import Widget
 from rustual.widgets import Button, Input, Label
 from rustual.worker import WorkerState
 

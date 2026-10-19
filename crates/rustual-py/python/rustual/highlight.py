@@ -7,11 +7,10 @@ Uses Pygments for tokenizing and Textual's ``HighlightTheme`` (theme variables s
 from __future__ import annotations
 
 import os
-from typing import Tuple
 
 from .content import Content, escape
 
-TokenType = Tuple[str, ...]
+TokenType = tuple[str, ...]
 
 
 def _token_styles() -> dict[TokenType, str]:
@@ -78,7 +77,7 @@ def guess_language(code: str, path: str | None) -> str:
         if lexer is None:
             try:
                 lexer = guess_lexer(code)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
     if not lexer and path:
         try:

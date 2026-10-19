@@ -7,8 +7,9 @@ re-runs ``compute_<name>`` methods and refreshes the widget (repaint / layout / 
 from __future__ import annotations
 
 import inspect
+from collections.abc import Callable
 from functools import lru_cache
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 ReactiveType = TypeVar("ReactiveType")
 
@@ -84,7 +85,7 @@ def invoke_watcher(watcher_object: Any, watch_function: Callable[..., Any], old_
 class Reactive(Generic[ReactiveType]):
     """A reactive descriptor."""
 
-    _reactives_registry: dict[type, dict[str, "Reactive[Any]"]] = {}
+    _reactives_registry: dict[type, dict[str, Reactive[Any]]] = {}
 
     def __init__(
         self,
@@ -121,7 +122,7 @@ class Reactive(Generic[ReactiveType]):
             computes = owner.__dict__.get("_computes_")
             if computes is None:
                 computes = list(getattr(owner, "_computes_", []))
-                setattr(owner, "_computes_", computes)
+                owner._computes_ = computes
             if name not in computes:
                 computes.append(name)
 
@@ -290,7 +291,7 @@ def _reactives_of(cls: type) -> dict[str, Reactive[Any]]:
         for name, value in klass.__dict__.items():
             if isinstance(value, Reactive):
                 found[name] = value
-    setattr(cls, "_reactives_cache_", found)
+    cls._reactives_cache_ = found
     return found
 
 

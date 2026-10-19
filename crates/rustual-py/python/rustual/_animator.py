@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import math
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 from ._bridge import native
 
@@ -44,16 +45,28 @@ EASING: dict[str, Callable[[float], float]] = {
     "in_out_quint": lambda x: 16 * pow(x, 5) if x < 0.5 else 1 - pow(-2 * x + 2, 5) / 2,
     "out_quint": lambda x: 1 - pow(1 - x, 5),
     "in_expo": lambda x: 0 if x == 0 else pow(2, 10 * x - 10),
-    "in_out_expo": lambda x: 0 if x == 0 else 1 if x == 1 else (pow(2, 20 * x - 10) / 2 if x < 0.5 else (2 - pow(2, -20 * x + 10)) / 2),
+    "in_out_expo": lambda x: (
+        0 if x == 0 else 1 if x == 1 else (pow(2, 20 * x - 10) / 2 if x < 0.5 else (2 - pow(2, -20 * x + 10)) / 2)
+    ),
     "out_expo": lambda x: 1 if x == 1 else 1 - pow(2, -10 * x),
     "in_circ": lambda x: 1 - math.sqrt(1 - pow(x, 2)),
-    "in_out_circ": lambda x: (1 - math.sqrt(1 - pow(2 * x, 2))) / 2 if x < 0.5 else (math.sqrt(1 - pow(-2 * x + 2, 2)) + 1) / 2,
+    "in_out_circ": lambda x: (
+        (1 - math.sqrt(1 - pow(2 * x, 2))) / 2 if x < 0.5 else (math.sqrt(1 - pow(-2 * x + 2, 2)) + 1) / 2
+    ),
     "out_circ": lambda x: math.sqrt(1 - pow(x - 1, 2)),
     "in_back": lambda x: 2.70158 * x * x * x - 1.70158 * x * x,
-    "in_out_back": lambda x: (pow(2 * x, 2) * ((2.5949095 + 1) * 2 * x - 2.5949095)) / 2 if x < 0.5 else (pow(2 * x - 2, 2) * ((2.5949095 + 1) * (x * 2 - 2) + 2.5949095) + 2) / 2,
+    "in_out_back": lambda x: (
+        (pow(2 * x, 2) * ((2.5949095 + 1) * 2 * x - 2.5949095)) / 2
+        if x < 0.5
+        else (pow(2 * x - 2, 2) * ((2.5949095 + 1) * (x * 2 - 2) + 2.5949095) + 2) / 2
+    ),
     "out_back": lambda x: 1 + 2.70158 * pow(x - 1, 3) + 1.70158 * pow(x - 1, 2),
-    "in_elastic": lambda x: 0 if x == 0 else 1 if x == 1 else -pow(2, 10 * x - 10) * math.sin((x * 10 - 10.75) * ((2 * math.pi) / 3)),
-    "out_elastic": lambda x: 0 if x == 0 else 1 if x == 1 else pow(2, -10 * x) * math.sin((x * 10 - 0.75) * ((2 * math.pi) / 3)) + 1,
+    "in_elastic": lambda x: (
+        0 if x == 0 else 1 if x == 1 else -pow(2, 10 * x - 10) * math.sin((x * 10 - 10.75) * ((2 * math.pi) / 3))
+    ),
+    "out_elastic": lambda x: (
+        0 if x == 0 else 1 if x == 1 else pow(2, -10 * x) * math.sin((x * 10 - 0.75) * ((2 * math.pi) / 3)) + 1
+    ),
     "in_bounce": lambda x: 1 - _out_bounce(1 - x),
     "out_bounce": _out_bounce,
     "in_out_bounce": lambda x: (1 - _out_bounce(1 - 2 * x)) / 2 if x < 0.5 else (1 + _out_bounce(2 * x - 1)) / 2,

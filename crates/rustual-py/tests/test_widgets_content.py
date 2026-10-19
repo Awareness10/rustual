@@ -25,7 +25,6 @@ from rustual.widgets import (
 from rustual.widgets.rule import InvalidLineStyle
 from rustual.widgets.text_area import Selection, ThemeDoesNotExist
 
-
 # ---------------------------------------------------------------------------- TabbedContent
 
 

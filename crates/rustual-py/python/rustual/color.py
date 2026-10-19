@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import itertools
 import re
-from typing import NamedTuple, Sequence
+from collections.abc import Sequence
+from typing import NamedTuple
 
 _HEX = re.compile(r"#([0-9a-fA-F]{3,8})$")
 _RGB = re.compile(r"rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$")
@@ -44,7 +46,7 @@ class Color(NamedTuple):
 
             t = RichColor.parse(text).get_truecolor()
             return cls(t.red, t.green, t.blue)
-        except Exception as error:  # noqa: BLE001
+        except Exception as error:
             raise ColorParseError(f"invalid color {color!r}") from error
 
     @classmethod
@@ -71,7 +73,7 @@ class Color(NamedTuple):
         return Color(int(r), int(g), int(b), a)
 
     @property
-    def rich_color(self):  # noqa: ANN201 - rich is optional
+    def rich_color(self):
         from rich.color import Color as RichColor
 
         return RichColor.from_rgb(self.r, self.g, self.b)
@@ -108,12 +110,12 @@ class Gradient:
             return cached
         stops: Sequence[tuple[float, Color]] = self._stops
         color = stops[-1][1]
-        for (o1, c1), (o2, c2) in zip(stops, stops[1:]):
+        for (o1, c1), (o2, c2) in itertools.pairwise(stops):
             if o1 <= position <= o2:
                 color = c1.blend(c2, (position - o1) / (o2 - o1) if o2 > o1 else 0.0)
                 break
         self._cache[key] = color
         return color
 
-    def get_rich_color(self, position: float):  # noqa: ANN201 - rich is optional
+    def get_rich_color(self, position: float):
         return self.get_color(position).rich_color

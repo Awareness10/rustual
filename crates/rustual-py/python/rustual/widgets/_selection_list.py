@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, ClassVar, Generic, Iterable, TypeVar
+from collections.abc import Iterable
+from typing import Any, ClassVar, Generic, TypeVar
 
 from .._bridge import _native
 from ..message import Message
@@ -230,9 +231,7 @@ def _selection_message(cls: type[SelectionList.SelectionMessage[Any]]) -> Any:
     return lambda index=0: cls(None, index)
 
 
-_native.register_class(
-    "SelectionList.SelectionHighlighted", _selection_message(SelectionList.SelectionHighlighted)
-)
+_native.register_class("SelectionList.SelectionHighlighted", _selection_message(SelectionList.SelectionHighlighted))
 _native.register_class("SelectionList.SelectionToggled", _selection_message(SelectionList.SelectionToggled))
 _native.register_class(
     "SelectionList.SelectedChanged", lambda selected=None: SelectionList.SelectedChanged(None, selected)

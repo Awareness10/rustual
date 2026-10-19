@@ -22,7 +22,9 @@ def test_only_the_imports_differ_from_the_textual_version():
         return [line for line in lines if not line.startswith(("from textual", "from rustual"))]
 
     assert body("textual_app.py") == body("rustual_app.py")
-    imports = [line for line in (EXAMPLE / "rustual_app.py").read_text().splitlines() if line.startswith("from rustual")]
+    imports = [
+        line for line in (EXAMPLE / "rustual_app.py").read_text().splitlines() if line.startswith("from rustual")
+    ]
     assert len(imports) == 6
 
 

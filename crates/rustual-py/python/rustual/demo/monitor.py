@@ -193,7 +193,13 @@ class MonitorApp(App):
 
     def on_mount(self) -> None:
         table = self.query_one("#procs", DataTable)
-        for label, key in [("PID", "pid"), ("Name", "name"), ("CPU %", "cpu"), ("Mem MB", "mem"), ("Threads", "threads")]:
+        for label, key in [
+            ("PID", "pid"),
+            ("Name", "name"),
+            ("CPU %", "cpu"),
+            ("Mem MB", "mem"),
+            ("Threads", "threads"),
+        ]:
             table.add_column(label, key=key)
         self.refresh_view()
         table.focus()

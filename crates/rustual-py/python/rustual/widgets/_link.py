@@ -5,7 +5,7 @@ from typing import Any, ClassVar
 
 from .. import _context
 from .._bridge import _native
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 
 
 class Link(Widget):

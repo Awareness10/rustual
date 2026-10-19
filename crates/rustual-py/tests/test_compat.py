@@ -336,7 +336,7 @@ async def test_getters():
         assert app.field.id == "field" and app.first_input is app.field
         assert app.direct is app.field or app.direct.id == "field"
         with pytest.raises(NoMatches):
-            app.missing
+            _ = app.missing
         assert Probe("x").app is app
 
 

@@ -113,10 +113,12 @@ impl Styles {
             "border-subtitle-align" => {
                 self.border_subtitle_align = Some(enum_value(name, t, ALIGN_H)?)
             }
-            "border-title-color" => self.border_title_color = Some(plain_color(name, t)?),
+            "border-title-color" => self.border_title_color = Some(color_value(name, t, true)?),
             "border-title-background" => self.border_title_background = Some(plain_color(name, t)?),
             "border-title-style" => self.border_title_style = Some(text_style(t)?),
-            "border-subtitle-color" => self.border_subtitle_color = Some(plain_color(name, t)?),
+            "border-subtitle-color" => {
+                self.border_subtitle_color = Some(color_value(name, t, true)?)
+            }
             "border-subtitle-background" => {
                 self.border_subtitle_background = Some(plain_color(name, t)?)
             }
@@ -908,13 +910,16 @@ mod tests {
                     border-subtitle-background: black; border-subtitle-style: not bold");
         assert_eq!(st.border_title_align, Some(AlignH::Center));
         assert_eq!(st.border_subtitle_align, Some(AlignH::Right));
-        assert_eq!(st.border_title_color, Some(c("red")));
+        assert_eq!(st.border_title_color, Some(ColorValue::Color(c("red"))));
         assert_eq!(
             st.border_title_background,
             Some(c("blue").multiply_alpha(0.5))
         );
         assert_eq!(st.border_title_style, Some(Style::new().bold().italic()));
-        assert_eq!(st.border_subtitle_color, Some(c("green")));
+        assert_eq!(
+            st.border_subtitle_color,
+            Some(ColorValue::Color(c("green")))
+        );
         assert_eq!(st.border_subtitle_background, Some(c("black")));
         assert_eq!(st.border_subtitle_style.unwrap().bold, Some(false));
     }

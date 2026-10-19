@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, Union
 
 
 class BindingError(Exception):
@@ -34,7 +34,7 @@ class Binding:
         )
 
 
-BindingType = Union[Binding, tuple[str, str], tuple[str, str, str]]
+BindingType = Binding | tuple[str, str] | tuple[str, str, str]
 
 
 def make_binding(b: BindingType) -> Binding:

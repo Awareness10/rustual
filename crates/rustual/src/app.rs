@@ -415,7 +415,7 @@ impl App {
             exit_requested: false,
             arrangements: HashMap::new(),
             themes: Theme::builtin(),
-            theme: "textual-dark".to_string(),
+            theme: default_theme(),
             ansi_color: None,
             no_color: std::env::var_os("NO_COLOR").is_some(),
             last_active_screen: None,
@@ -473,7 +473,8 @@ impl App {
         self
     }
 
-    /// Select a theme by name (see [`Theme::builtin`]).
+    /// Select a theme by name (see [`Theme::builtin`]). The default is `TEXTUAL_THEME`, else
+    /// `textual-dark`; an unknown name falls back to `textual-dark`.
     pub fn theme(mut self, name: &str) -> Self {
         self.state.theme = name.to_string();
         self
@@ -695,6 +696,17 @@ async fn run_loop(
     Ok(())
 }
 
+const DEFAULT_THEME: &str = "textual-dark";
+
+/// `TEXTUAL_THEME`, else `textual-dark` (Textual's `constants.DEFAULT_THEME`).
+fn default_theme() -> String {
+    std::env::var("TEXTUAL_THEME")
+        .ok()
+        .map(|t| t.trim().to_string())
+        .filter(|t| !t.is_empty())
+        .unwrap_or_else(|| DEFAULT_THEME.to_string())
+}
+
 /// `TEXTUAL_FPS` (at least 1), else 60.
 fn default_max_fps() -> u32 {
     std::env::var("TEXTUAL_FPS")
@@ -720,7 +732,10 @@ impl AppState {
             .stylesheet
             .add_source("App", APP_DEFAULT_CSS, Origin::Default);
         let theme_name = self.theme.clone();
-        self.apply_theme(&theme_name);
+        if !self.apply_theme(&theme_name) {
+            // Unknown name (e.g. a typo in `TEXTUAL_THEME`): use the default theme.
+            self.apply_theme(DEFAULT_THEME);
+        }
         for (key, css) in self.app_css.clone() {
             for e in self.env.stylesheet.add_source(&key, &css, Origin::App) {
                 self.css_errors.push(format!("{key}:{e}"));

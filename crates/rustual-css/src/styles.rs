@@ -206,10 +206,10 @@ pub struct Styles {
     pub outline_left: Option<BorderEdge>,
     pub border_title_align: Option<AlignH>,
     pub border_subtitle_align: Option<AlignH>,
-    pub border_title_color: Option<Color>,
+    pub border_title_color: Option<ColorValue>,
     pub border_title_background: Option<Color>,
     pub border_title_style: Option<TextStyle>,
-    pub border_subtitle_color: Option<Color>,
+    pub border_subtitle_color: Option<ColorValue>,
     pub border_subtitle_background: Option<Color>,
     pub border_subtitle_style: Option<TextStyle>,
 

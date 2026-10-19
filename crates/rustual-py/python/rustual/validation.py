@@ -10,8 +10,10 @@ from __future__ import annotations
 import math
 import re
 from abc import ABC, abstractmethod
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable, Pattern, Sequence
+from re import Pattern
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 if TYPE_CHECKING:
@@ -26,7 +28,7 @@ class ValidationResult:
     """A list of reasons why the value was invalid. Empty if valid=True"""
 
     @staticmethod
-    def merge(results: Sequence["ValidationResult"]) -> "ValidationResult":
+    def merge(results: Sequence[ValidationResult]) -> ValidationResult:
         """Merge multiple ValidationResult objects into one.
 
         Args:

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Generic, Iterator, TypeVar, overload
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, overload
 
 if TYPE_CHECKING:
     from ..widget import Widget
@@ -138,7 +139,13 @@ class DOMQuery(Generic[QueryType]):
                 setattr(node.styles, k, v)
         return self
 
-    def set(self, display: bool | None = None, visible: bool | None = None, disabled: bool | None = None, loading: bool | None = None) -> DOMQuery[QueryType]:
+    def set(
+        self,
+        display: bool | None = None,
+        visible: bool | None = None,
+        disabled: bool | None = None,
+        loading: bool | None = None,
+    ) -> DOMQuery[QueryType]:
         for node in self._nodes:
             if display is not None:
                 node.display = display

@@ -439,7 +439,12 @@ fn paint_labels(
             std::mem::swap(&mut base.fg, &mut base.bg);
         }
         if let Some(c) = color {
-            base.fg = Some(base.bg.unwrap_or(inner).composite(*c));
+            let under = base.bg.unwrap_or(inner);
+            base.fg = Some(match c {
+                ColorValue::Color(c) => under.composite(*c),
+                // `auto N%` (e.g. `$text-muted`): contrasting text over the label's background.
+                ColorValue::Auto(alpha) => under.composite(under.get_contrast_text(*alpha)),
+            });
         }
         if let Some(b) = background {
             base.bg = Some(base.bg.unwrap_or(inner).composite(*b));
@@ -453,7 +458,13 @@ fn paint_labels(
         }
         let len = label_strip.cell_len();
         let space = (width - corners - len).max(0);
-        let start = match align.unwrap_or(AlignH::Left) {
+        // Textual: titles default to the left, subtitles to the right.
+        let default_align = if row == 0 {
+            AlignH::Left
+        } else {
+            AlignH::Right
+        };
+        let start = match align.unwrap_or(default_align) {
             AlignH::Left => {
                 if space > 0 {
                     1

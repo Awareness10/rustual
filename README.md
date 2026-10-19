@@ -134,9 +134,9 @@ async fn main() -> std::io::Result<()> {
 ```
 
 Or try the example apps: `cargo run -p rustual --example tasks` (a task manager), `monitor`
-(a live process monitor), `chat` (a streaming Markdown chat) or `live_json` (JSON received over
-TCP written into input fields at 60 Hz; also in Python for Textual and rustual-py in
-[`examples/live_json`](examples/live_json)). `ctrl+p` opens the command palette, `ctrl+q` quits.
+(a live process monitor), `chat` (a streaming Markdown chat) or `waves` (sparklines streaming at
+60 fps in the theme's colors). `ctrl+p` opens the command palette,
+`ctrl+q` quits.
 
 </details>
 
@@ -226,16 +226,20 @@ Details: [`crates/rustual-py`](crates/rustual-py/README.md) ·
 <table>
 <tr>
 <td width="50%"><img src="docs/assets/screenshots/tasks.svg" alt="Task manager"><br><sub><b>Tasks</b>: projects, a task table, filtering, saving · <a href="crates/rustual/examples/tasks.rs">Rust</a> · <a href="crates/rustual-py/python/rustual/demo/tasks.py">Python</a></sub></td>
-<td width="50%"><img src="docs/assets/screenshots/tasks_form.svg" alt="Task form in a modal screen"><br><sub><b>Tasks</b>: modal form with validation, footer keys · <a href="crates/rustual/examples/tasks.rs">Rust</a> · <a href="crates/rustual-py/python/rustual/demo/tasks.py">Python</a></sub></td>
+<td width="50%"><img src="docs/assets/screenshots/tasks_form.svg" alt="Task form in a modal screen, Catppuccin Latte theme"><br><sub><b>Tasks</b>: modal form with validation, footer keys (<code>catppuccin-latte</code> theme) · <a href="crates/rustual/examples/tasks.rs">Rust</a> · <a href="crates/rustual-py/python/rustual/demo/tasks.py">Python</a></sub></td>
 </tr>
 <tr>
-<td><img src="docs/assets/screenshots/monitor.svg" alt="System monitor"><br><sub><b>Monitor</b>: live digits, sparklines, a sortable process table · <a href="crates/rustual/examples/monitor.rs">Rust</a> · <a href="crates/rustual-py/python/rustual/demo/monitor.py">Python</a></sub></td>
+<td><img src="docs/assets/screenshots/monitor.svg" alt="System monitor, Nord theme"><br><sub><b>Monitor</b>: live digits, sparklines, a sortable process table (<code>nord</code> theme) · <a href="crates/rustual/examples/monitor.rs">Rust</a> · <a href="crates/rustual-py/python/rustual/demo/monitor.py">Python</a></sub></td>
 <td><img src="docs/assets/screenshots/chat.svg" alt="Chat client"><br><sub><b>Chat</b>: Markdown replies streamed into a stream layout · <a href="crates/rustual/examples/chat.rs">Rust</a> · <a href="crates/rustual-py/python/rustual/demo/chat.py">Python</a></sub></td>
+</tr>
+<tr>
+<td><img src="docs/assets/screenshots/waves.svg" alt="Streaming waves, Tokyo Night theme"><br><sub><b>Waves</b>: sparklines streaming at 60 fps (<code>tokyo-night</code> theme) · <a href="crates/rustual/examples/waves.rs">Rust</a> · <a href="crates/rustual-py/python/rustual/demo/waves.py">Python</a></sub></td>
+<td><img src="docs/assets/screenshots/waves_light.svg" alt="Streaming waves, Solarized Light theme"><br><sub><b>Waves</b>: every color is a theme variable, so <code>t</code> recolors it (<code>solarized-light</code>) · <a href="crates/rustual/examples/waves.rs">Rust</a> · <a href="crates/rustual-py/python/rustual/demo/waves.py">Python</a></sub></td>
 </tr>
 </table>
 
-Make your own: `TEXTUAL_SCREENSHOT=shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=down,e cargo run -p rustual --example tasks`
-(works for Python apps too).
+Make your own: `TEXTUAL_SCREENSHOT=shot.svg TEXTUAL_SIZE=100x30 TEXTUAL_PRESS=down,e TEXTUAL_THEME=nord cargo run -p rustual --example tasks`
+(works for Python apps too). `python scripts/screenshots.py` regenerates this gallery.
 
 ## Benchmarks
 
@@ -400,7 +404,11 @@ Issues and pull requests are welcome; work happens on the `dev` branch (`main` h
 ```sh
 cargo fmt --all && cargo clippy --workspace --all-targets -- -D warnings && cargo test
 cd crates/rustual-py && uv sync --reinstall-package rustual-py && uv run pytest
+uv run ruff check --fix . ../../scripts ../../examples && uv run ruff format . ../../scripts ../../examples
 ```
+
+`git config core.hooksPath .githooks` turns on a pre-commit hook with the fast checks
+(`cargo fmt`, ruff).
 
 New widgets follow the [widget guide](docs/widget-guide.md); Python bindings for them follow
 [docs/python-bindings.md](docs/python-bindings.md#adding-a-widget-binding).

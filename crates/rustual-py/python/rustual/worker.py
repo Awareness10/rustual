@@ -11,12 +11,13 @@ import asyncio
 import contextvars
 import inspect
 import threading
+from collections.abc import Callable
 from enum import Enum
 from functools import partial, wraps
-from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from . import _context
-from ._bridge import _native, native
+from ._bridge import _native
 from .message import Message
 
 if TYPE_CHECKING:
@@ -182,7 +183,7 @@ class Worker(Generic[ResultType]):
         except asyncio.CancelledError:
             self._cancelled = True
             self._set_state(WorkerState.CANCELLED)
-        except Exception as error:  # noqa: BLE001
+        except Exception as error:
             self._fail(error)
         finally:
             _current_worker.reset(token)
@@ -196,7 +197,7 @@ class Worker(Generic[ResultType]):
                 result = asyncio.run(_await(result))
             self._result = result
             self._set_state(WorkerState.CANCELLED if self._cancelled else WorkerState.SUCCESS)
-        except Exception as error:  # noqa: BLE001
+        except Exception as error:
             self._fail(error)
         finally:
             _thread_worker.worker = None
