@@ -266,7 +266,11 @@ async fn paste_inserts_first_line() {
     pilot.paste("XY\nignored").await;
     assert_eq!(value(&pilot, "#i"), "aXYb");
     assert_eq!(cursor(&pilot, "#i"), 3);
-    assert_eq!(log(&pilot), vec!["changed Some(\"i\") aXYb"]);
+    // The initial value posts `Changed` on mount (as in Textual), then the paste.
+    assert_eq!(
+        log(&pilot),
+        vec!["changed Some(\"i\") ab", "changed Some(\"i\") aXYb"]
+    );
 }
 
 #[tokio::test]

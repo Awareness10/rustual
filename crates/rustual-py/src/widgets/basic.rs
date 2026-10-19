@@ -93,6 +93,10 @@ pub(crate) fn register(r: &mut Registry) {
         if let Some(b) = kw(k, "select_on_focus")? {
             i = i.select_on_focus(b);
         }
+        if let Some(on) = kw::<Vec<String>>(k, "validate_on")? {
+            i = i.validate_on(super::validate_on(&on));
+        }
+        i = i.valid_empty(kw(k, "valid_empty")?.unwrap_or(false));
         Ok(Box::new(i))
     });
     r.kind("Header", |_, k, _| {
@@ -263,6 +267,7 @@ fn set(
             "password" => Some(v.extract::<bool>().map(|p| i.set_password(p))),
             "cursor_position" => Some(v.extract::<usize>().map(|p| i.set_cursor_position(p))),
             "max_length" => Some(v.extract::<usize>().map(|p| i.set_max_length(p))),
+            "valid_empty" => Some(v.extract::<bool>().map(|b| i.set_valid_empty(b, ctx))),
             "selection" => Some((|| {
                 let (s, e): (usize, usize) = v.extract()?;
                 i.set_selection(w::Selection::new(s, e));
@@ -371,7 +376,6 @@ fn call(
                 i.select_all();
                 none(py)
             }),
-            "validate" => Some(to_py(py, i.validate(ctx))),
             "action_submit" => Some({
                 i.action_submit(ctx);
                 none(py)

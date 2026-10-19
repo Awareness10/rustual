@@ -74,8 +74,7 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 - [ ] **Markdown** (M): streaming / incremental `append` (`MarkdownStream`), horizontal scrolling in code
   fences, custom block classes (`parser_factory`).
 - [ ] **DataTable** (S): re-measure row heights on column changes; wrap long cells in auto-height rows.
-- [ ] **Input** (S): `Suggester` (inline completion); pluggable validators in the Rust API (Python has
-  `validators=` via `rustual.validation`).
+- [ ] **Input** (S): `Suggester` (inline completion).
 - [ ] **Button** (S): the focus style (`b reverse`) should cover the padded label like Textual (an empty
   label shows one reversed cell; visible in `calculator` and `five_by_five`).
 - [ ] **Select** (S): render the dropdown as an overlay instead of a modal screen (after `overlay: screen`).

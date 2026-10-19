@@ -2,14 +2,35 @@
 //!
 //! Supports a placeholder, password masking, a (blinking) cursor, selection (shift+arrows,
 //! mouse drag, select-on-focus), word movement / deletion, paste, `max_length`, character
-//! restriction and the `integer` / `number` input types with validation (`-valid` / `-invalid`
-//! classes). The value scrolls horizontally to keep the cursor visible.
+//! restriction, the `integer` / `number` input types and validation. The value scrolls
+//! horizontally to keep the cursor visible.
+//!
+//! Validators ([`crate::validation`]) run when the value changes, on blur and on submit (see
+//! [`Input::validate_on`]); the input gets the `-valid` / `-invalid` class and the
+//! [`ValidationResult`] travels with [`Changed`], [`Blurred`] and [`Submitted`]:
+//!
+//! ```
+//! # use rustual::prelude::*;
+//! use rustual::validation::{Length, Number};
+//!
+//! let age = Input::new()
+//!     .placeholder("Age")
+//!     .validator(Number::new().minimum(0).maximum(150))
+//!     .id("age");
+//! let name = Input::new()
+//!     .validator(Length::new().minimum(1).failure_description("A name is required."))
+//!     .validate_on([ValidateOn::Submitted]);
+//! ```
+//!
+//! Without validators, the `integer` / `number` types validate with [`Integer`] / [`Number`]
+//! (Textual adds them when no validators are given).
 
 use crate::app::TimerId;
 use crate::binding::Binding;
 use crate::context::Ctx;
 use crate::events::Event;
 use crate::message::Flow;
+use crate::validation::{Integer, Number, ValidationResult, Validator};
 use crate::widget::{Content, RenderCtx, Widget};
 use rustual_render::cells::cell_len;
 use rustual_render::{Span, Strip, Style};
@@ -113,6 +134,9 @@ pub struct Changed {
     pub value: String,
     /// The CSS id of the input, if any.
     pub input_id: Option<String>,
+    /// The combined result of the validators, or `None` if validation didn't run (no
+    /// validators, an empty value with `valid_empty`, or `changed` not in `validate_on`).
+    pub validation_result: Option<ValidationResult>,
 }
 
 /// Posted when enter is pressed (Textual: `Input.Submitted`).
@@ -120,6 +144,8 @@ pub struct Changed {
 pub struct Submitted {
     pub value: String,
     pub input_id: Option<String>,
+    /// The validation result on submission (see [`Changed::validation_result`]).
+    pub validation_result: Option<ValidationResult>,
 }
 
 /// Posted when the input loses focus (Textual: `Input.Blurred`).
@@ -127,6 +153,19 @@ pub struct Submitted {
 pub struct Blurred {
     pub value: String,
     pub input_id: Option<String>,
+    /// The validation result on blur (see [`Changed::validation_result`]).
+    pub validation_result: Option<ValidationResult>,
+}
+
+/// When an [`Input`] validates its value (Textual: `InputValidationOn`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ValidateOn {
+    /// When the input loses focus.
+    Blur,
+    /// When the value changes.
+    Changed,
+    /// When the value is submitted (enter).
+    Submitted,
 }
 
 /// The kind of value accepted (Textual's `type` argument).
@@ -134,9 +173,11 @@ pub struct Blurred {
 pub enum InputType {
     #[default]
     Text,
-    /// Restricts edits to (partial) integers and validates with an integer parse.
+    /// Restricts edits to (partial) integers; validates with [`Integer`] when there are no
+    /// validators.
     Integer,
-    /// Restricts edits to (partial) numbers and validates with a float parse.
+    /// Restricts edits to (partial) numbers; validates with [`Number`] when there are no
+    /// validators.
     Number,
 }
 
@@ -170,6 +211,7 @@ impl Selection {
 }
 
 type Restrict = Rc<dyn Fn(char) -> bool>;
+type SharedValidator = Rc<dyn Validator>;
 type RestrictValue = Rc<dyn Fn(&str) -> bool>;
 
 /// A single-line text input.
@@ -188,6 +230,12 @@ pub struct Input {
     cursor_blink: bool,
     cursor_visible: bool,
     blink_timer: Option<TimerId>,
+    validators: Vec<SharedValidator>,
+    /// Validated on blur / changed / submitted.
+    validate_on: [bool; 3],
+    valid_empty: bool,
+    /// Always runs first, even without validators (`MaskedInput`'s template).
+    pub(crate) template_validator: Option<SharedValidator>,
     valid: bool,
     /// Mouse is pressed inside the input (drag-select).
     selecting: bool,
@@ -310,45 +358,6 @@ fn number_partial_ok(s: &str) -> bool {
     false
 }
 
-/// Python-style integer literal check (`int(value)`): sign, digits with single underscores between digits.
-fn valid_integer(s: &str) -> bool {
-    let t = strip_sign(s.trim());
-    !t.is_empty()
-        && !t.starts_with('_')
-        && !t.ends_with('_')
-        && !t.contains("__")
-        && t.chars().all(|c| c.is_ascii_digit() || c == '_')
-}
-
-/// Python-style float check (`float(value)`), rejecting NaN / infinity like Textual's `Number`.
-fn valid_number(s: &str) -> bool {
-    let t = s.trim();
-    if t.contains("__") || t.starts_with('_') || t.ends_with('_') {
-        return false;
-    }
-    let bytes = t.as_bytes();
-    for (i, c) in bytes.iter().enumerate() {
-        let between_digits = i > 0
-            && bytes[i - 1].is_ascii_digit()
-            && i + 1 < bytes.len()
-            && bytes[i + 1].is_ascii_digit();
-        if *c == b'_' && !between_digits {
-            return false;
-        }
-    }
-    let cleaned: String = t.chars().filter(|c| *c != '_').collect();
-    if !cleaned
-        .chars()
-        .all(|c| c.is_ascii_digit() || matches!(c, '.' | 'e' | 'E' | '+' | '-'))
-    {
-        return false;
-    }
-    cleaned
-        .parse::<f64>()
-        .map(|f| f.is_finite())
-        .unwrap_or(false)
-}
-
 impl Input {
     pub fn new() -> Self {
         Input {
@@ -365,6 +374,10 @@ impl Input {
             cursor_blink: true,
             cursor_visible: true,
             blink_timer: None,
+            validators: Vec::new(),
+            validate_on: [true; 3],
+            valid_empty: false,
+            template_validator: None,
             valid: true,
             selecting: false,
             mouse_placed_cursor: false,
@@ -440,6 +453,32 @@ impl Input {
         self
     }
 
+    /// Add a validator (Textual: `validators=`). All validators run, in the order added.
+    pub fn validator(mut self, validator: impl Validator + 'static) -> Self {
+        self.validators.push(Rc::new(validator));
+        self
+    }
+
+    /// Add validators (Textual: `validators=`).
+    pub fn validators(mut self, validators: impl IntoIterator<Item = Box<dyn Validator>>) -> Self {
+        self.validators
+            .extend(validators.into_iter().map(SharedValidator::from));
+        self
+    }
+
+    /// When to validate (Textual: `validate_on`; default: all three). An empty list never
+    /// validates automatically; [`validate`](Input::validate) still does.
+    pub fn validate_on(mut self, on: impl IntoIterator<Item = ValidateOn>) -> Self {
+        self.set_validate_on(on);
+        self
+    }
+
+    /// An empty value passes validation (Textual: `valid_empty`).
+    pub fn valid_empty(mut self, valid_empty: bool) -> Self {
+        self.valid_empty = valid_empty;
+        self
+    }
+
     // ------------------------------------------------------------------ accessors
 
     pub fn get_value(&self) -> &str {
@@ -480,9 +519,23 @@ impl Input {
         self.cursor_position() == char_len(&self.value)
     }
 
-    /// Whether the value passed validation (always true for `InputType::Text`).
+    /// Whether the value passed the last validation (true until the first one).
     pub fn is_valid(&self) -> bool {
         self.valid
+    }
+
+    /// The validators (without the implicit one of the `integer` / `number` types).
+    pub fn get_validators(&self) -> &[Rc<dyn Validator>] {
+        &self.validators
+    }
+
+    /// Whether the value is validated on `on`.
+    pub fn validates_on(&self, on: ValidateOn) -> bool {
+        self.validate_on[on as usize]
+    }
+
+    pub fn is_valid_empty(&self) -> bool {
+        self.valid_empty
     }
 
     /// Whether the cursor is currently shown (blink phase).
@@ -527,12 +580,39 @@ impl Input {
         self.value = value;
         let sel = self.selection;
         self.set_selection(sel);
-        self.validate(ctx);
+        self.post_changed(ctx);
+    }
+
+    /// Validate (if `changed` is in `validate_on`) and post [`Changed`] (Textual: `_watch_value`).
+    pub(crate) fn post_changed(&mut self, ctx: &mut Ctx) {
+        let validation_result = self.validate_for(ValidateOn::Changed, ctx);
         let input_id = ctx.css_id(ctx.id()).map(String::from);
         ctx.post_message(Changed {
             value: self.value.clone(),
             input_id,
+            validation_result,
         });
+    }
+
+    /// Replace the validators (re-validates nothing until the next trigger).
+    pub fn set_validators(&mut self, validators: impl IntoIterator<Item = Box<dyn Validator>>) {
+        self.validators = validators.into_iter().map(SharedValidator::from).collect();
+    }
+
+    /// Change `valid_empty`; like Textual, this re-validates and posts [`Changed`].
+    pub fn set_valid_empty(&mut self, valid_empty: bool, ctx: &mut Ctx) {
+        if self.valid_empty != valid_empty {
+            self.valid_empty = valid_empty;
+            self.post_changed(ctx);
+        }
+    }
+
+    /// Change when the value is validated.
+    pub fn set_validate_on(&mut self, on: impl IntoIterator<Item = ValidateOn>) {
+        self.validate_on = [false; 3];
+        for v in on {
+            self.validate_on[v as usize] = true;
+        }
     }
 
     pub fn clear(&mut self, ctx: &mut Ctx) {
@@ -597,16 +677,53 @@ impl Input {
         }
     }
 
-    /// Run validation (by input type) and set the `-valid` / `-invalid` classes.
-    pub fn validate(&mut self, ctx: &mut Ctx) -> bool {
-        self.valid = match self.input_type {
-            InputType::Text => true,
-            InputType::Integer => valid_integer(&self.value),
-            InputType::Number => valid_number(&self.value),
+    /// Validate the current value (see [`validate_value`](Input::validate_value)).
+    pub fn validate(&mut self, ctx: &mut Ctx) -> Option<ValidationResult> {
+        let value = self.value.clone();
+        self.validate_value(&value, ctx)
+    }
+
+    /// Run every validator on `value`, combine the results and set the `-valid` / `-invalid`
+    /// classes (Textual: `Input.validate`). `None` (and valid) when there are no validators, or
+    /// when `value` is empty and `valid_empty` is set.
+    pub fn validate_value(&mut self, value: &str, ctx: &mut Ctx) -> Option<ValidationResult> {
+        // Textual gives typed inputs a validator when none is given.
+        let implicit: Option<SharedValidator> = match self.input_type {
+            _ if !self.validators.is_empty() => None,
+            InputType::Text => None,
+            InputType::Integer => Some(Rc::new(Integer::new())),
+            InputType::Number => Some(Rc::new(Number::new())),
         };
+        let validators = match &implicit {
+            Some(v) => std::slice::from_ref(v),
+            None => &self.validators,
+        };
+        let result = if validators.is_empty() || (self.valid_empty && value.is_empty()) {
+            None
+        } else {
+            Some(ValidationResult::merge(
+                validators.iter().map(|v| v.validate(value)),
+            ))
+        };
+        let result = match &self.template_validator {
+            Some(template) => Some(ValidationResult::merge(
+                std::iter::once(template.validate(value)).chain(result),
+            )),
+            None => result,
+        };
+        self.valid = result.as_ref().is_none_or(ValidationResult::is_valid);
         ctx.set_class(!self.valid, "-invalid");
         ctx.set_class(self.valid, "-valid");
-        self.valid
+        result
+    }
+
+    /// Validate if `on` is in `validate_on`.
+    fn validate_for(&mut self, on: ValidateOn, ctx: &mut Ctx) -> Option<ValidationResult> {
+        if self.validates_on(on) {
+            self.validate(ctx)
+        } else {
+            None
+        }
     }
 
     // ------------------------------------------------------------------ blink
@@ -796,11 +913,12 @@ impl Input {
     }
 
     pub fn action_submit(&mut self, ctx: &mut Ctx) {
-        self.validate(ctx);
+        let validation_result = self.validate_for(ValidateOn::Submitted, ctx);
         let input_id = ctx.css_id(ctx.id()).map(String::from);
         ctx.post_message(Submitted {
             value: self.value.clone(),
             input_id,
+            validation_result,
         });
     }
 
@@ -880,6 +998,10 @@ impl Widget for Input {
 
     fn on_mount(&mut self, ctx: &mut Ctx) {
         ctx.set_class(self.compact, "-textual-compact");
+        // Textual's value watcher runs for an initial value: validate it and post `Changed`.
+        if !self.value.is_empty() {
+            self.post_changed(ctx);
+        }
     }
 
     fn on_unmount(&mut self, ctx: &mut Ctx) {
@@ -1032,11 +1154,12 @@ A single-line text input.
             Event::Blur => {
                 self.pause_blink(false, ctx);
                 self.selecting = false;
-                self.validate(ctx);
+                let validation_result = self.validate_for(ValidateOn::Blur, ctx);
                 let input_id = ctx.css_id(ctx.id()).map(String::from);
                 ctx.post_message(Blurred {
                     value: self.value.clone(),
                     input_id,
+                    validation_result,
                 });
                 Flow::Continue
             }
@@ -1180,17 +1303,26 @@ mod tests {
     }
 
     #[test]
-    fn validators() {
-        assert!(valid_integer("-12"));
-        assert!(valid_integer("1_000"));
-        assert!(!valid_integer(""));
-        assert!(!valid_integer("-"));
-        assert!(!valid_integer("1_"));
-        assert!(valid_number("1.5e3"));
-        assert!(valid_number(".5"));
-        assert!(!valid_number("1e"));
-        assert!(!valid_number("inf"));
-        assert!(!valid_number(""));
+    fn type_validators_are_textuals() {
+        use crate::validation::{Integer, Number, Validator};
+        for (v, ok) in [
+            ("-12", true),
+            ("1_000", true),
+            ("", false),
+            ("-", false),
+            ("1_", false),
+        ] {
+            assert_eq!(Integer::new().validate(v).is_valid(), ok, "{v:?}");
+        }
+        for (v, ok) in [
+            ("1.5e3", true),
+            (".5", true),
+            ("1e", false),
+            ("inf", false),
+            ("", false),
+        ] {
+            assert_eq!(Number::new().validate(v).is_valid(), ok, "{v:?}");
+        }
     }
 
     #[test]
