@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import pprint
-from typing import Any, Callable, ClassVar, Sequence
+from typing import Any, ClassVar
 
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 from ._detached import DetachedNative
 
 
@@ -11,7 +11,7 @@ def _reprs(obj: Any) -> tuple[str, str]:
     compact = repr(obj)
     try:
         expanded = pprint.pformat(obj, indent=1, width=40, sort_dicts=False)
-    except Exception:  # noqa: BLE001 - fall back to the plain repr
+    except Exception:
         expanded = compact
     return compact, expanded
 

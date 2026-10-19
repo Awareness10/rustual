@@ -9,8 +9,9 @@ as they arrive, best score first.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator, Callable, Iterable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, Iterable, NamedTuple, Union
+from typing import TYPE_CHECKING, Any, NamedTuple, Union
 
 from .fuzzy import Matcher
 
@@ -100,10 +101,10 @@ class DiscoveryHit:
             self.text = _plain(self.display)
 
 
-Hits = AsyncIterator[Union[DiscoveryHit, Hit]]
+Hits = AsyncIterator[DiscoveryHit | Hit]
 """What ``search`` / ``discover`` return."""
 
-ProviderSource = Iterable[Union[type["Provider"], Callable[[], type["Provider"]]]]
+ProviderSource = Iterable[type["Provider"] | Callable[[], type["Provider"]]]
 
 
 class Provider(ABC):
@@ -145,7 +146,7 @@ class Provider(ABC):
         async def post_init_task() -> None:
             try:
                 await self.startup()
-            except Exception:  # noqa: BLE001 - reported like Textual (logged)
+            except Exception:
                 import traceback
 
                 self.app.log.error(traceback.format_exc())
@@ -182,7 +183,7 @@ class Provider(ABC):
     async def _shutdown(self) -> None:
         try:
             await self.shutdown()
-        except Exception:  # noqa: BLE001
+        except Exception:
             import traceback
 
             self.app.log.error(traceback.format_exc())
@@ -263,7 +264,7 @@ class CommandPalette:
         """Whether a command palette is open."""
         try:
             return app.screen.has_class("--textual-command-palette")
-        except Exception:  # noqa: BLE001 - no active screen
+        except Exception:
             return False
 
 

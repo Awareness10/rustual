@@ -18,8 +18,13 @@
 //! # }
 //! ```
 //!
+//! As in Textual, removing a widget cancels its workers (a blocking closure keeps running, but
+//! its output is dropped).
+//!
 //! Deviations from Textual: a worker error does not exit the app (Textual's `exit_on_error`);
-//! the plain `run_worker` / `run_blocking` post no state messages (only their output).
+//! the plain `run_worker` / `run_blocking` post no state messages (only their output). To post
+//! messages while a worker runs, or to run code on the app thread from it, use the
+//! [`AppHandle`] from [`Ctx::app_handle`].
 
 use crate::app::AppHandle;
 use crate::context::Ctx;
@@ -167,6 +172,18 @@ impl Workers {
             }
         }
         n
+    }
+
+    /// Cancel the unfinished workers of every node in `nodes` (they are being removed).
+    pub(crate) fn cancel_nodes(&mut self, nodes: &[NodeId]) {
+        self.entries.retain(|e| {
+            if nodes.contains(&e.node) {
+                e.abort.abort();
+                false
+            } else {
+                !e.abort.is_finished()
+            }
+        });
     }
 
     /// Number of unfinished workers.

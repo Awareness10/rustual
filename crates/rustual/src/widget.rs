@@ -129,6 +129,13 @@ pub trait Widget: Any {
         true
     }
 
+    /// For screens (Textual `Screen.AUTO_FOCUS`): a selector for the widget to focus when the
+    /// screen becomes active with nothing on it focused (the first focusable match). `None`
+    /// uses the app's ([`App::auto_focus`](crate::App::auto_focus)); `Some("")` focuses nothing.
+    fn auto_focus(&self) -> Option<&str> {
+        None
+    }
+
     fn bindings(&self) -> Vec<Binding> {
         Vec::new()
     }

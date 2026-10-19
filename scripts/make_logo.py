@@ -7,6 +7,9 @@ everywhere, and the canvas is fitted to the artwork so the logo is centered.
     uv run --with fonttools python scripts/make_logo.py [path/to/JetBrainsMono-Bold.ttf]
 """
 
+# The SVG template below has long lines.
+# ruff: noqa: E501
+
 from __future__ import annotations
 
 import sys

@@ -69,6 +69,7 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
         post_message,
         run_action,
         post_call,
+        post_message_threadsafe,
         on_app_thread,
         app_running,
         set_timer,

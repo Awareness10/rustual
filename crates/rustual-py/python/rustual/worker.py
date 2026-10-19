@@ -11,12 +11,13 @@ import asyncio
 import contextvars
 import inspect
 import threading
+from collections.abc import Callable
 from enum import Enum
 from functools import partial, wraps
-from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from . import _context
-from ._bridge import _native, native
+from ._bridge import _native
 from .message import Message
 
 if TYPE_CHECKING:
@@ -141,7 +142,8 @@ class Worker(Generic[ResultType]):
         self._state = state
         node = self._node
         try:
-            if node.is_mounted:
+            # From a thread, `post_message` queues without waiting (and checks the node later).
+            if not _native.on_app_thread() or node.is_mounted:
                 node.post_message(Worker.StateChanged(self, state))
         except RuntimeError:
             pass
@@ -181,7 +183,7 @@ class Worker(Generic[ResultType]):
         except asyncio.CancelledError:
             self._cancelled = True
             self._set_state(WorkerState.CANCELLED)
-        except Exception as error:  # noqa: BLE001
+        except Exception as error:
             self._fail(error)
         finally:
             _current_worker.reset(token)
@@ -195,7 +197,7 @@ class Worker(Generic[ResultType]):
                 result = asyncio.run(_await(result))
             self._result = result
             self._set_state(WorkerState.CANCELLED if self._cancelled else WorkerState.SUCCESS)
-        except Exception as error:  # noqa: BLE001
+        except Exception as error:
             self._fail(error)
         finally:
             _thread_worker.worker = None
@@ -276,6 +278,11 @@ class WorkerManager:
         for w in workers:
             w.cancel()
         return workers
+
+    @classmethod
+    def _cancel_node(cls, node: Widget) -> None:
+        for w in [w for w in cls._workers if w.node is node]:
+            w.cancel()
 
     def cancel_node(self, node: Widget) -> list[Worker[Any]]:
         workers = [w for w in list(self._workers) if w.node is node]

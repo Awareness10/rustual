@@ -1,8 +1,8 @@
 """``rustual-py`` / ``python -m rustual``: run the bundled examples.
 
-    rustual-py              open the launcher
-    rustual-py tasks        run one example
-    rustual-py --list       list the examples
+rustual-py              open the launcher
+rustual-py tasks        run one example
+rustual-py --list       list the examples
 """
 
 from __future__ import annotations

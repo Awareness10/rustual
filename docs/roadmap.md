@@ -4,7 +4,7 @@ Where rustual is heading: full parity with Python Textual 8.2.8, and production 
 Per-feature status lives in [`features.md`](../features.md); releases follow
 [`RELEASING.md`](../RELEASING.md). Items are sized **S** (hours), **M** (a day) or **L** (several days).
 
-Latest release: **v0.5.2** on [PyPI](https://pypi.org/project/rustual-py/),
+Latest release: **v0.6.0** on [PyPI](https://pypi.org/project/rustual-py/),
 [crates.io](https://crates.io/crates/rustual) and [GitHub](https://github.com/Awareness10/rustual/releases).
 
 ## Next up
@@ -49,7 +49,6 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 - [ ] **`@click` links** (S): `link-*-hover` styles; `@mouse.down` / `@mouse.up` handlers.
 - [ ] **Screens & modes** (S): `remove_mode`, modes from screen names; unknown screen/mode names should be
   reported (currently return `None`/`false`).
-- [ ] **Workers** (S): cancel a widget's workers when it is removed (results are currently dropped).
 - [ ] **Loading** (S): refuse programmatic focus of loading widgets (Textual does); block their bindings.
 - [ ] **Screenshots** (S): local-time filenames and default to the Downloads folder like Textual.
 - [ ] **Command palette** (S): busy indicator while searches run; delay "No matches found" like Textual.
@@ -104,6 +103,8 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
   `textual.style.Style`, `MarkdownStream`.
 - [ ] **`App.save_screenshot` / `export_screenshot`** (S): Textual's screenshot methods are missing on the
   Python `App` (only the `screenshot` action and `pilot.export_svg()` exist).
+- [ ] **asyncio wake-ups on macOS / Windows** (S): only Linux watches the loop's selector (epoll) to
+  wake the app on I/O; macOS (kqueue) and Windows (proactor loop) poll pending tasks every 10 ms.
 - [ ] **Type stubs** (S): a `_native.pyi` stub (the package already ships `py.typed`).
 - [ ] **Python CI on Windows/macOS** (S): the Python test suite runs on Linux only (release wheels are
   smoke-tested on all platforms).
@@ -112,7 +113,5 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 
 - [ ] **Guide** (M): port the essential parts of Textual's guide (app basics, CSS, layout, events, actions,
   screens, workers, testing) to Rust idioms.
-- [ ] **Gallery script** (S): a script that regenerates `docs/assets/screenshots/` from the examples via
-  `TEXTUAL_SCREENSHOT` (the README gallery's five captures are currently made by hand).
 - [ ] **Bundled examples** (S): more demos in `rustual.demo` (the `rustual-py` launcher), e.g. ports
   of Textual's calculator and five-by-five.

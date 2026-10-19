@@ -9,14 +9,14 @@ node id. Built-in widgets (``Button``, ``Input``, ...) are Python subclasses who
 
 from __future__ import annotations
 
-import asyncio
 import contextvars
 import inspect
 import threading
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, ClassVar, Iterable, Iterator, TypeVar
+from collections.abc import Awaitable, Callable, Iterable, Iterator
+from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
 
 from . import _context, events
-from ._bridge import native
+from ._bridge import _native, native
 from .binding import Binding, collect_bindings
 from .css.query import DOMQuery, NoMatches, TooManyMatches, WrongType
 from .geometry import Offset, Region, Size
@@ -372,9 +372,7 @@ class Widget:
             if klass.__name__ not in type_names:
                 type_names.append(klass.__name__)
         css_parts = [
-            klass.__dict__["DEFAULT_CSS"]
-            for klass in reversed(cls.__mro__)
-            if "DEFAULT_CSS" in klass.__dict__ and klass.__dict__["DEFAULT_CSS"]
+            klass.__dict__["DEFAULT_CSS"] for klass in reversed(cls.__mro__) if klass.__dict__.get("DEFAULT_CSS")
         ]
         handlers: set[str] = set()
         for klass in cls.__mro__:
@@ -402,6 +400,8 @@ class Widget:
             "has_check_consume_key": user_defines("check_consume_key"),
             "bindings": [b._native() for b in collect_bindings(cls)],
             "help": cls.HELP,
+            # Screens only (Textual `Screen.AUTO_FOCUS`); the app's is passed with its config.
+            "auto_focus": getattr(cls, "AUTO_FOCUS", None) if _is_screen_class(cls) else None,
         }
 
     def _rs_spec(self) -> dict[str, Any]:
@@ -430,8 +430,7 @@ class Widget:
         if name in self.__dict__:
             return True
         return any(
-            name in klass.__dict__ and not klass.__dict__.get("_rs_framework", False)
-            for klass in type(self).__mro__
+            name in klass.__dict__ and not klass.__dict__.get("_rs_framework", False) for klass in type(self).__mro__
         ) or (self._rs_kind == "Widget" and name == "can_focus")
 
     def _rs_compose(self) -> list[Widget]:
@@ -449,6 +448,10 @@ class Widget:
 
     def _rs_on_unmount(self) -> None:
         self._dispatch(events.Unmount())
+        # Like Textual, a removed widget's workers are cancelled.
+        from .worker import WorkerManager
+
+        WorkerManager._cancel_node(self)
 
     def _rs_event(self, data: tuple) -> int:
         _context.flush_deferred()
@@ -698,7 +701,9 @@ class Widget:
             raise NoMatches(f"No nodes match {sel!r} on {self!r}")
         node = nodes[0]
         if expect_type is not None and not isinstance(node, expect_type):
-            raise WrongType(f"Node matching {sel!r} is the wrong type; expected {expect_type.__name__}, got {type(node).__name__}")
+            raise WrongType(
+                f"Node matching {sel!r} is the wrong type; expected {expect_type.__name__}, got {type(node).__name__}"
+            )
         return node
 
     def query_exactly_one(self, selector: str | type[WidgetType], expect_type: type[Any] | None = None) -> Any:
@@ -969,7 +974,7 @@ class Widget:
 
     @property
     def is_vertical_scroll_end(self) -> bool:
-        x, y, mx, my = self._scroll_state()
+        _x, y, _mx, my = self._scroll_state()
         return y >= my
 
     def scroll_to(self, x: float | None = None, y: float | None = None, *, animate: bool = True, **kwargs: Any) -> None:
@@ -984,7 +989,7 @@ class Widget:
         self.scroll_to(0, 0)
 
     def scroll_end(self, **kwargs: Any) -> None:
-        _, _, mx, my = self._scroll_state()
+        _, _, _mx, my = self._scroll_state()
         self.scroll_to(0, my)
 
     def scroll_up(self, **kwargs: Any) -> None:
@@ -1105,7 +1110,9 @@ class Widget:
         native.mount(self._node, compose(self), None)
         return AwaitComplete()
 
-    def refresh(self: WidgetType, *regions: Any, repaint: bool = True, layout: bool = False, recompose: bool = False) -> WidgetType:
+    def refresh(
+        self: WidgetType, *regions: Any, repaint: bool = True, layout: bool = False, recompose: bool = False
+    ) -> WidgetType:
         if not self.is_mounted:
             return self
         if recompose:
@@ -1117,6 +1124,14 @@ class Widget:
     # -- messages, timers, workers ---------------------------------------------------------------
 
     def post_message(self, message: Message) -> bool:
+        if not _native.on_app_thread():
+            # Thread-safe and non-blocking, as in Textual: queued for the app thread (in order),
+            # and dropped there if the widget has been removed by then.
+            if self._node is None:
+                return False
+            if message._sender is None:
+                message._sender = self
+            return bool(_native.post_message_threadsafe(self._node, message, type(message).bubble))
         if not self.is_mounted:
             return False
         if _context.is_prevented(message):
@@ -1131,7 +1146,9 @@ class Widget:
             native.run_action(self._node, action)
         return AwaitComplete()
 
-    def set_timer(self, delay: float, callback: Callable[..., Any] | None = None, *, name: str | None = None, pause: bool = False) -> Timer:
+    def set_timer(
+        self, delay: float, callback: Callable[..., Any] | None = None, *, name: str | None = None, pause: bool = False
+    ) -> Timer:
         return Timer(self, delay, callback, repeat=False, name=name, pause=pause)
 
     def set_interval(
@@ -1154,10 +1171,30 @@ class Widget:
     call_after_refresh = call_later
     call_next = call_later
 
-    def run_worker(self, work: Any, name: str | None = "", group: str = "default", description: str = "", exit_on_error: bool = True, start: bool = True, exclusive: bool = False, thread: bool = False) -> Worker[Any]:
+    def run_worker(
+        self,
+        work: Any,
+        name: str | None = "",
+        group: str = "default",
+        description: str = "",
+        exit_on_error: bool = True,
+        start: bool = True,
+        exclusive: bool = False,
+        thread: bool = False,
+    ) -> Worker[Any]:
         from .worker import run_worker
 
-        return run_worker(self, work, name=name, group=group, description=description, exit_on_error=exit_on_error, start=start, exclusive=exclusive, thread=thread)
+        return run_worker(
+            self,
+            work,
+            name=name,
+            group=group,
+            description=description,
+            exit_on_error=exit_on_error,
+            start=start,
+            exclusive=exclusive,
+            thread=thread,
+        )
 
     @property
     def workers(self) -> Any:
@@ -1165,7 +1202,15 @@ class Widget:
 
         return WorkerManager.for_node(self)
 
-    def notify(self, message: str, *, title: str = "", severity: str = "information", timeout: float | None = None, markup: bool = True) -> None:
+    def notify(
+        self,
+        message: str,
+        *,
+        title: str = "",
+        severity: str = "information",
+        timeout: float | None = None,
+        markup: bool = True,
+    ) -> None:
         self.app.notify(message, title=title, severity=severity, timeout=timeout, markup=markup)
 
     def bell(self) -> None:
@@ -1265,8 +1310,6 @@ class Widget:
         key_display: str | None = None,
     ) -> None:
         """Add a key binding at runtime (after the class ``BINDINGS``)."""
-        from .binding import Binding
-
         binding = Binding(keys, action, description, show=show, key_display=key_display)
         if self.is_mounted:
             native.bind(self._node, binding._native())
@@ -1372,6 +1415,12 @@ class _PreventContext:
                 native.prevent_pop()
             except RuntimeError:
                 pass
+
+
+def _is_screen_class(cls: type) -> bool:
+    from .screen import Screen
+
+    return issubclass(cls, Screen)
 
 
 class Timer:

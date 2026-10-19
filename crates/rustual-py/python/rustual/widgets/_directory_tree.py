@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, ClassVar, Iterable
+from typing import Any, ClassVar
 
 from .._bridge import _native
 from ..message import Message
-from ..widget import AwaitComplete, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, AwaitComplete
 from ._tree import Tree, TreeNode
 
 

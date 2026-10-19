@@ -35,7 +35,7 @@ async def test_compose_mount_order_and_query():
             events.append(("app", type(event).__name__))
 
     app = MyApp()
-    async with app.run_test() as pilot:
+    async with app.run_test():
         assert ("child", "a") in events and ("app", "Mount") in events
         assert [w.id for w in app.query(Child)] == ["a", "b"]
         b = app.query_one("#b", Child)

@@ -85,6 +85,18 @@ const WHEEL_LINES: i32 = 3;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct TimerId(pub(crate) u64);
 
+impl TimerId {
+    /// The id as a number (unique within an app), e.g. to hand it to another language.
+    pub fn to_raw(self) -> u64 {
+        self.0
+    }
+
+    /// The inverse of [`TimerId::to_raw`]. Cancelling an id that matches no timer does nothing.
+    pub fn from_raw(raw: u64) -> TimerId {
+        TimerId(raw)
+    }
+}
+
 pub(crate) type TimerCallback = Box<dyn FnMut(&mut dyn Widget, &mut Ctx)>;
 
 pub(crate) struct Timer {
@@ -117,34 +129,147 @@ pub struct Notification {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Notified(pub Notification);
 
+/// A closure sent to the app thread by [`AppHandle::call_later`] and friends.
+pub(crate) type AppCall = Box<dyn FnOnce(&mut AppState) + Send>;
+
 /// Signals sent to the app from other tasks or threads (see [`AppHandle`]).
 pub(crate) enum Signal {
     Message {
         target: NodeId,
         payload: Box<dyn Any + Send>,
+        bubble: bool,
     },
+    Call(AppCall),
     Exit,
 }
 
-/// A cloneable, `Send` handle for talking to the app from workers and other threads.
+/// Most signals handled in one go before the app renders again (so a flood of messages from
+/// a fast producer is batched into one frame without starving the terminal's input).
+pub(crate) const SIGNAL_BATCH: usize = 1024;
+
+/// A cloneable, `Send` handle for talking to the app from workers and other threads
+/// (Textual's thread-safe `post_message` and `App.call_from_thread`).
+///
+/// Everything sent through a handle is handled on the app thread, in the order it was sent.
+///
+/// ```
+/// # use rustual::prelude::*;
+/// struct Reading(f64);
+///
+/// fn start(ctx: &mut Ctx) {
+///     let handle = ctx.app_handle();
+///     let me = ctx.id();
+///     std::thread::spawn(move || {
+///         // Fire and forget: delivered to `me`'s `on_message` (and bubbles).
+///         handle.post_message(me, Reading(21.5));
+///         // Run code on the app thread against a widget, without defining a message.
+///         handle.call_on::<Input>(me, |input, ctx| input.set_value("21.5", ctx));
+///         // Or wait for a result (Textual's `call_from_thread`).
+///         let title = handle.call_from_thread(|ctx| ctx.title().to_string());
+///     });
+/// }
+/// ```
 #[derive(Clone)]
 pub struct AppHandle {
     tx: mpsc::UnboundedSender<Signal>,
 }
 
 impl AppHandle {
-    /// Post a message to `target` (it bubbles like any message). Returns false if the app has exited.
+    /// Post a message to `target` (it bubbles like any message). Returns false if the app has
+    /// exited. Never blocks: the message is queued for the app thread.
     pub fn post_message<T: Any + Send>(&self, target: NodeId, payload: T) -> bool {
-        self.tx
-            .send(Signal::Message {
-                target,
-                payload: Box::new(payload),
-            })
-            .is_ok()
+        self.send(Signal::Message {
+            target,
+            payload: Box::new(payload),
+            bubble: true,
+        })
+    }
+
+    /// Like [`AppHandle::post_message`] for a message that does not bubble.
+    pub fn post_message_no_bubble<T: Any + Send>(&self, target: NodeId, payload: T) -> bool {
+        self.send(Signal::Message {
+            target,
+            payload: Box::new(payload),
+            bubble: false,
+        })
+    }
+
+    /// Run `f` on the app thread, with a [`Ctx`] for the app root, after everything sent
+    /// before it (Textual's `call_later` from a thread). Returns false if the app has exited.
+    pub fn call_later(&self, f: impl FnOnce(&mut Ctx) + Send + 'static) -> bool {
+        self.send(Signal::Call(Box::new(move |app: &mut AppState| {
+            let mut ctx = Ctx {
+                node: app.root,
+                app,
+            };
+            f(&mut ctx);
+        })))
+    }
+
+    /// Run `f` on the app thread with the widget at `node` (which must be a `W`). `f` is
+    /// dropped without running if the node has been removed by then or is not a `W`.
+    /// Returns false if the app has exited.
+    pub fn call_on<W: Widget>(
+        &self,
+        node: NodeId,
+        f: impl FnOnce(&mut W, &mut Ctx) + Send + 'static,
+    ) -> bool {
+        self.send(Signal::Call(Box::new(move |app: &mut AppState| {
+            app.call_widget(node, |w, ctx| {
+                if let Some(w) = crate::widget::downcast_mut::<W>(w) {
+                    f(w, ctx);
+                }
+            });
+        })))
+    }
+
+    /// Run `f` on the app thread and wait for its result, for async workers. `None` if the
+    /// app exited before running it.
+    pub async fn call<R: Send + 'static>(
+        &self,
+        f: impl FnOnce(&mut Ctx) -> R + Send + 'static,
+    ) -> Option<R> {
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        if !self.call_later(move |ctx| {
+            let _ = tx.send(f(ctx));
+        }) {
+            return None;
+        }
+        rx.await.ok()
+    }
+
+    /// Run `f` on the app thread and block until it returns (Textual's
+    /// `App.call_from_thread`), for plain threads and [`Ctx::run_blocking`] workers. `None` if
+    /// the app exited before running it.
+    ///
+    /// # Panics
+    ///
+    /// When called from async code (the app thread or an async worker), which would
+    /// deadlock or stall the runtime; use [`AppHandle::call`] there.
+    pub fn call_from_thread<R: Send + 'static>(
+        &self,
+        f: impl FnOnce(&mut Ctx) -> R + Send + 'static,
+    ) -> Option<R> {
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        if !self.call_later(move |ctx| {
+            let _ = tx.send(f(ctx));
+        }) {
+            return None;
+        }
+        rx.blocking_recv().ok()
+    }
+
+    /// Whether the app is still running (it accepts messages).
+    pub fn is_running(&self) -> bool {
+        !self.tx.is_closed()
     }
 
     pub fn exit(&self) {
         let _ = self.tx.send(Signal::Exit);
+    }
+
+    fn send(&self, signal: Signal) -> bool {
+        self.tx.send(signal).is_ok()
     }
 }
 
@@ -156,11 +281,22 @@ pub struct ScreenDismissed;
 
 pub(crate) enum Pending {
     Mount(NodeId),
-    Message { target: NodeId, msg: Message },
-    Event { target: NodeId, event: Event },
-    Action { target: NodeId, action: String },
+    Message {
+        target: NodeId,
+        msg: Message,
+    },
+    Event {
+        target: NodeId,
+        event: Event,
+    },
+    Action {
+        target: NodeId,
+        action: String,
+    },
     AutoFocus(NodeId),
     PopScreen(Option<Box<dyn Any + Send>>),
+    /// A closure from [`AppHandle::call_later`] (queued, to keep the order of signals).
+    Call(AppCall),
 }
 
 pub(crate) struct AppState {
@@ -219,6 +355,10 @@ pub(crate) struct AppState {
     pub keymap: crate::binding::Keymap,
     /// Message types currently suppressed (Textual's `prevent`), innermost scope last.
     pub prevented: Vec<Vec<std::any::TypeId>>,
+    /// Most frames drawn per second in a terminal ([`App::max_fps`]).
+    pub max_fps: u32,
+    /// Selector of the widget focused when a screen activates ([`App::auto_focus`]).
+    pub auto_focus: Option<String>,
 }
 
 /// The application: build with [`App::new`], configure, then [`App::run`] (or [`App::test`]).
@@ -275,7 +415,7 @@ impl App {
             exit_requested: false,
             arrangements: HashMap::new(),
             themes: Theme::builtin(),
-            theme: "textual-dark".to_string(),
+            theme: default_theme(),
             ansi_color: None,
             no_color: std::env::var_os("NO_COLOR").is_some(),
             last_active_screen: None,
@@ -300,6 +440,8 @@ impl App {
             terminal: Default::default(),
             keymap: Default::default(),
             prevented: Vec::new(),
+            max_fps: default_max_fps(),
+            auto_focus: Some("*".to_string()),
         };
         App {
             state: Box::new(state),
@@ -331,7 +473,8 @@ impl App {
         self
     }
 
-    /// Select a theme by name (see [`Theme::builtin`]).
+    /// Select a theme by name (see [`Theme::builtin`]). The default is `TEXTUAL_THEME`, else
+    /// `textual-dark`; an unknown name falls back to `textual-dark`.
     pub fn theme(mut self, name: &str) -> Self {
         self.state.theme = name.to_string();
         self
@@ -368,6 +511,21 @@ impl App {
     pub fn register_theme(mut self, theme: Theme) -> Self {
         self.state.themes.retain(|t| t.name != theme.name);
         self.state.themes.push(theme);
+        self
+    }
+
+    /// Draw at most `fps` frames a second in the terminal (default: `TEXTUAL_FPS`, else 60,
+    /// as in Textual). Changes made faster than that are merged into the next frame.
+    pub fn max_fps(mut self, fps: u32) -> Self {
+        self.state.max_fps = fps.max(1);
+        self
+    }
+
+    /// Which widget gets focus when a screen becomes active with nothing on it focused: the
+    /// first focusable widget matching `selector` (default `"*"`), or none for `None` (Textual's
+    /// `App.AUTO_FOCUS`). Screens can override it with [`Widget::auto_focus`].
+    pub fn auto_focus(mut self, selector: Option<&str>) -> Self {
+        self.state.auto_focus = selector.map(String::from);
         self
     }
 
@@ -463,6 +621,10 @@ async fn run_loop(
     mut events: crossterm::event::EventStream,
 ) -> io::Result<()> {
     use futures::StreamExt;
+    // Like Textual (`TEXTUAL_FPS`), frames are drawn at most `max_fps` times a second: changes
+    // arriving faster (e.g. a 1 kHz stream of messages) are merged into the next frame.
+    let frame_interval = state.frame_interval();
+    let mut last_draw: Option<Instant> = None;
     loop {
         state.process_queue();
         if state.exit_requested {
@@ -472,15 +634,26 @@ async fn run_loop(
             events = driver.event_stream();
             state.resize(state.size);
             state.process_queue();
+            last_draw = None;
         }
+        let mut draw_at = None;
         if state.dirty {
-            let frame = state.render_frame();
-            driver.draw(&frame, state.last_frame.as_ref())?;
-            state.last_frame = Some(frame);
+            let now = Instant::now();
+            match last_draw {
+                Some(last) if now < last + frame_interval => draw_at = Some(last + frame_interval),
+                _ => {
+                    let frame = state.render_frame();
+                    driver.draw(&frame, state.last_frame.as_ref())?;
+                    state.last_frame = Some(frame);
+                    last_draw = Some(now);
+                }
+            }
         }
         crate::terminal::flush(state, driver)?;
-        let deadline = state
-            .next_deadline()
+        let deadline = [state.next_deadline(), draw_at]
+            .into_iter()
+            .flatten()
+            .min()
             .unwrap_or_else(|| Instant::now() + Duration::from_secs(3600));
         tokio::select! {
             ev = events.next() => {
@@ -491,6 +664,8 @@ async fn run_loop(
                                 state.last_frame = None;
                                 driver.clear()?;
                                 state.resize(size);
+                                // Redraw the cleared screen at once.
+                                last_draw = None;
                             } else {
                                 state.handle_driver_event(ev);
                             }
@@ -501,17 +676,51 @@ async fn run_loop(
                 }
             }
             sig = rx.recv() => {
-                if let Some(sig) = sig { state.handle_signal(sig); }
+                if let Some(sig) = sig {
+                    state.handle_signal(sig);
+                    // Take everything else that is already waiting, then handle it all before
+                    // the next frame.
+                    for _ in 1..SIGNAL_BATCH {
+                        match rx.try_recv() {
+                            Ok(sig) => state.handle_signal(sig),
+                            Err(_) => break,
+                        }
+                    }
+                }
             }
-            _ = tokio::time::sleep_until(deadline) => {
-                state.fire_due_timers();
-            }
+            _ = tokio::time::sleep_until(deadline) => {}
         }
+        // Timers fire on time even while events or signals keep the loop busy.
+        state.fire_due_timers();
     }
     Ok(())
 }
 
+const DEFAULT_THEME: &str = "textual-dark";
+
+/// `TEXTUAL_THEME`, else `textual-dark` (Textual's `constants.DEFAULT_THEME`).
+fn default_theme() -> String {
+    std::env::var("TEXTUAL_THEME")
+        .ok()
+        .map(|t| t.trim().to_string())
+        .filter(|t| !t.is_empty())
+        .unwrap_or_else(|| DEFAULT_THEME.to_string())
+}
+
+/// `TEXTUAL_FPS` (at least 1), else 60.
+fn default_max_fps() -> u32 {
+    std::env::var("TEXTUAL_FPS")
+        .ok()
+        .and_then(|v| v.trim().parse::<u32>().ok())
+        .map_or(60, |fps| fps.max(1))
+}
+
 impl AppState {
+    /// Shortest time between two frames drawn in the terminal.
+    pub(crate) fn frame_interval(&self) -> Duration {
+        Duration::from_secs_f64(1.0 / f64::from(self.max_fps.max(1)))
+    }
+
     // ------------------------------------------------------------------ startup
 
     pub(crate) fn startup(&mut self) {
@@ -523,7 +732,10 @@ impl AppState {
             .stylesheet
             .add_source("App", APP_DEFAULT_CSS, Origin::Default);
         let theme_name = self.theme.clone();
-        self.apply_theme(&theme_name);
+        if !self.apply_theme(&theme_name) {
+            // Unknown name (e.g. a typo in `TEXTUAL_THEME`): use the default theme.
+            self.apply_theme(DEFAULT_THEME);
+        }
         for (key, css) in self.app_css.clone() {
             for e in self.env.stylesheet.add_source(&key, &css, Origin::App) {
                 self.css_errors.push(format!("{key}:{e}"));
@@ -780,9 +992,26 @@ impl AppState {
         {
             return;
         }
+        let selector = self
+            .dom
+            .get(screen)
+            .and_then(|n| n.widget())
+            .and_then(|w| w.auto_focus().map(String::from))
+            .or_else(|| self.auto_focus.clone());
+        let Some(selector) = selector.filter(|s| !s.trim().is_empty()) else {
+            return;
+        };
         let chain = self.focus_chain();
-        if let Some(first) = chain.first() {
-            self.set_focus(Some(*first));
+        let target = if selector.trim() == "*" {
+            chain.first().copied()
+        } else {
+            self.dom
+                .query_str(screen, &selector)
+                .into_iter()
+                .find(|id| chain.contains(id))
+        };
+        if let Some(target) = target {
+            self.set_focus(Some(target));
         }
     }
 
@@ -833,6 +1062,8 @@ impl AppState {
             .collect();
         self.dom.screen_breakpoints.retain(|k, _| live.contains(k));
         self.timers.retain(|t| !ids.contains(&t.node));
+        // Like Textual, a removed widget's workers are cancelled.
+        self.workers.cancel_nodes(&ids);
         self.screens.retain(|s| !ids.contains(s));
         for a in self.arrangements.values_mut() {
             a.order.retain(|n| !ids.contains(n));
@@ -918,6 +1149,10 @@ impl AppState {
                 Pending::PopScreen(result) => {
                     self.pop_screen(result);
                 }
+                Pending::Call(f) => {
+                    f(self);
+                    self.dirty = true;
+                }
             }
         }
         self.apply_removals();
@@ -985,13 +1220,19 @@ impl AppState {
 
     pub(crate) fn handle_signal(&mut self, sig: Signal) {
         match sig {
-            Signal::Message { target, payload } => {
+            Signal::Message {
+                target,
+                payload,
+                bubble,
+            } => {
                 if self.dom.contains(target) {
                     let css = self.dom.get(target).and_then(|n| n.css_id.clone());
-                    let msg = Message::from_boxed(target, css, payload);
+                    let mut msg = Message::from_boxed(target, css, payload);
+                    msg.bubble = bubble;
                     self.post(target, msg);
                 }
             }
+            Signal::Call(f) => self.queue.push_back(Pending::Call(f)),
             Signal::Exit => self.exit_requested = true,
         }
     }

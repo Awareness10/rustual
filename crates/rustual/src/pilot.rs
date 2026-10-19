@@ -76,14 +76,30 @@ impl Pilot {
     /// Wait (in real or tokio-paused time) and then process what became due.
     /// Timers fire at each of their deadlines along the way, like in the real event loop, and
     /// running animations get a final frame at exactly the target time (so animated values are
-    /// deterministic under `#[tokio::test(start_paused = true)]`).
+    /// deterministic under `#[tokio::test(start_paused = true)]`). Messages and calls sent
+    /// through an [`AppHandle`](crate::AppHandle) are handled as they arrive.
     pub async fn wait(&mut self, d: Duration) {
         let target = tokio::time::Instant::now() + d;
-        while let Some(next) = self.state.next_deadline().filter(|n| *n <= target) {
-            tokio::time::sleep_until(next).await;
+        loop {
+            let next = self.state.next_deadline().filter(|n| *n <= target);
+            let until = next.unwrap_or(target);
+            if tokio::time::Instant::now() < until {
+                tokio::select! {
+                    sig = self.rx.recv() => {
+                        if let Some(sig) = sig {
+                            self.state.handle_signal(sig);
+                        }
+                        self.pause().await;
+                        continue;
+                    }
+                    _ = tokio::time::sleep_until(until) => {}
+                }
+            }
+            if next.is_none() {
+                break;
+            }
             self.pause().await;
         }
-        tokio::time::sleep_until(target).await;
         self.state.tick_animations(target, true);
         self.pause().await;
     }

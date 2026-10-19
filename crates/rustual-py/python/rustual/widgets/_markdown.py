@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path, PurePath
-from typing import Any, Callable, ClassVar
+from typing import Any, ClassVar
 
 from .._bridge import _native
 from ..message import Message
-from ..widget import AwaitComplete, Widget, _NATIVE_CLASSES, _widget_for
+from ..widget import _NATIVE_CLASSES, AwaitComplete, Widget, _widget_for
 
 TableOfContentsType = list[tuple[int, str, "str | None"]]
 """Table of contents entries: ``(level, label, block_id)``."""
@@ -50,7 +51,9 @@ class Markdown(Widget):
     class TableOfContentsUpdated(Message):
         """Posted when the table of contents changes."""
 
-        def __init__(self, markdown: Markdown | None = None, table_of_contents: TableOfContentsType | None = None) -> None:
+        def __init__(
+            self, markdown: Markdown | None = None, table_of_contents: TableOfContentsType | None = None
+        ) -> None:
             super().__init__()
             self._markdown = markdown
             self.table_of_contents = [tuple(entry) for entry in table_of_contents or []]

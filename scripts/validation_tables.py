@@ -22,9 +22,7 @@ def main() -> None:
     assert sum(unicodedata.decimal(chr(c), None) is not None for c in range(0x110000)) == 10 * len(zeros)
 
     spaces = [c for c in range(0x110000) if chr(c).isspace()]
-    delimiters = [
-        c for c in range(0x80, 0x110000) if any(d in unicodedata.normalize("NFKC", chr(c)) for d in "/?#@:")
-    ]
+    delimiters = [c for c in range(0x80, 0x110000) if any(d in unicodedata.normalize("NFKC", chr(c)) for d in "/?#@:")]
     ranges = []
     start = None
     for c in range(0x110000):
@@ -53,13 +51,25 @@ def main() -> None:
             line += f" {item},"
         out.write(line + "\n];\n\n")
 
-    table("DECIMAL_ZEROS", "The `0` of each run of ten decimal digits (Python `unicodedata.decimal`).", "u32",
-          [f"0x{c:04X}" for c in zeros])
+    table(
+        "DECIMAL_ZEROS",
+        "The `0` of each run of ten decimal digits (Python `unicodedata.decimal`).",
+        "u32",
+        [f"0x{c:04X}" for c in zeros],
+    )
     table("SPACES", "Characters Python's `str.isspace()` accepts.", "u32", [f"0x{c:04X}" for c in spaces])
-    table("NFKC_URL_DELIMITERS", "Non-ASCII characters whose NFKC form contains one of `/?#@:`.", "u32",
-          [f"0x{c:04X}" for c in delimiters])
-    table("NON_PRINTABLE", "Inclusive ranges of characters that are not printable (`str.isprintable()`).",
-          "(u32, u32)", [f"(0x{a:04X}, 0x{b:04X})" for a, b in ranges])
+    table(
+        "NFKC_URL_DELIMITERS",
+        "Non-ASCII characters whose NFKC form contains one of `/?#@:`.",
+        "u32",
+        [f"0x{c:04X}" for c in delimiters],
+    )
+    table(
+        "NON_PRINTABLE",
+        "Inclusive ranges of characters that are not printable (`str.isprintable()`).",
+        "(u32, u32)",
+        [f"(0x{a:04X}, 0x{b:04X})" for a, b in ranges],
+    )
 
 
 if __name__ == "__main__":

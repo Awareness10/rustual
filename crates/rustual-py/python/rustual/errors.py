@@ -17,4 +17,4 @@ class DuplicateKeyHandlers(TextualError):
     """More than one handler for a single key press."""
 
 
-__all__ = ["TextualError", "NoWidget", "RenderError", "DuplicateKeyHandlers"]
+__all__ = ["DuplicateKeyHandlers", "NoWidget", "RenderError", "TextualError"]

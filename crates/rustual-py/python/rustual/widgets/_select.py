@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, ClassVar, Generic, Hashable, Iterable, TypeVar
+from collections.abc import Hashable, Iterable
+from typing import Any, ClassVar, Generic, TypeVar
 
 from .._bridge import _native
 from ..message import Message
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 from ._helpers import compact_property, prompt_markup
 
 

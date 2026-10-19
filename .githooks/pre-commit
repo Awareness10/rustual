@@ -1,0 +1,48 @@
+#!/bin/sh
+# Fast checks before a commit (CI runs these and more). Enable once per clone with:
+#
+#     git config core.hooksPath .githooks
+#
+# Rust: `cargo fmt --check` when .rs files are staged. Python: `ruff check` and
+# `ruff format --check` (settings in crates/rustual-py/pyproject.toml) when .py files are staged.
+# The checks look at the working tree, not only the staged changes. Skip once with
+# `git commit --no-verify`.
+
+set -u
+root=$(git rev-parse --show-toplevel) || exit 1
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+status=0
+
+if printf '%s\n' "$staged" | grep -q '\.rs$'; then
+    if command -v cargo >/dev/null 2>&1; then
+        if ! (cd "$root" && cargo fmt --all --check >/dev/null 2>&1); then
+            echo "pre-commit: Rust code isn't formatted; run: cargo fmt --all" >&2
+            status=1
+        fi
+    else
+        echo "pre-commit: cargo not found, skipping cargo fmt" >&2
+    fi
+fi
+
+if printf '%s\n' "$staged" | grep -q '\.pyi\?$'; then
+    if command -v uv >/dev/null 2>&1; then
+        paths=". ../../scripts"
+        cd "$root/crates/rustual-py" || exit 1
+        # shellcheck disable=SC2086
+        if ! uv run -q --only-group lint ruff check $paths; then
+            echo "pre-commit: ruff found problems; fix with (in crates/rustual-py):" >&2
+            echo "    uv run ruff check --fix $paths" >&2
+            status=1
+        fi
+        # shellcheck disable=SC2086
+        if ! uv run -q --only-group lint ruff format --check $paths >/dev/null; then
+            echo "pre-commit: Python code isn't formatted; run (in crates/rustual-py):" >&2
+            echo "    uv run ruff format $paths" >&2
+            status=1
+        fi
+    else
+        echo "pre-commit: uv not found, skipping ruff" >&2
+    fi
+fi
+
+exit $status

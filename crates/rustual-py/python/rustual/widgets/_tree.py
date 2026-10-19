@@ -4,7 +4,7 @@ from typing import Any, ClassVar, Generic, TypeVar
 
 from .._bridge import _native
 from ..message import Message
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 from ._detached import DetachedNative, markup_of
 
 TreeDataType = TypeVar("TreeDataType")
@@ -292,9 +292,6 @@ class Tree(DetachedNative, Widget, Generic[TreeDataType]):
         self._rs_kw = {"label": markup_of(label)}
         self._tree_nodes: dict[int, TreeNode[TreeDataType]] = {}
         self._get_node(0)._data = data
-
-    def __class_getitem__(cls, item: Any) -> Any:
-        return cls
 
     # -- nodes --------------------------------------------------------------------------------------
 

@@ -5,7 +5,7 @@ from typing import Any, ClassVar
 from .._bridge import _native
 from ..content import to_markup
 from ..message import Message
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 
 
 class CollapsibleTitle(Widget):

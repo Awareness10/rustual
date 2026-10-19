@@ -14,7 +14,7 @@ async def test_register_and_switch_theme():
 
     app = MyApp()
     app.register_theme(Theme(name="early", primary="#ff0000", dark=False))
-    async with app.run_test() as pilot:
+    async with app.run_test():
         assert app.theme == "arctic"
         assert "early" in app.available_themes
         app.theme = "early"

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Callable, ClassVar, Sequence
+from typing import Any, ClassVar
 
-from ..widget import Widget, _NATIVE_CLASSES
+from ..widget import _NATIVE_CLASSES, Widget
 from ._detached import DetachedNative
 
 _UNUSED: Any = object()

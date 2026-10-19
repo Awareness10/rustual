@@ -1,14 +1,15 @@
 """Descriptors for widget properties (Textual's ``textual.getters``)::
 
-    class MyScreen(Screen):
-        output = getters.query_one("#output", RichLog)
-        app = getters.app(MyApp)
+class MyScreen(Screen):
+    output = getters.query_one("#output", RichLog)
+    app = getters.app(MyApp)
 """
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from inspect import isclass
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from .widget import Widget
 
