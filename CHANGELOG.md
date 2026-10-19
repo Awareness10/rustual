@@ -7,6 +7,8 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+## 0.6.0 - 2026-10-19
+
 ### Added
 - `rustual::validation`, a port of `textual.validation`: `Validator`, `ValidationResult`,
   `Failure` and the `Number`, `Integer`, `Length`, `Regex`, `Function` and `Url` validators.
