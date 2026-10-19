@@ -7,6 +7,8 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+## 0.5.2 - 2026-10-19
+
 ### Fixed
 - The command palette's "Keys" command always offered to show the help panel in Python apps,
   even when it was shown: the system commands looked at the palette's own screen. They now
