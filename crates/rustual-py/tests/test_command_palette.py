@@ -132,3 +132,26 @@ async def test_matcher():
 
     # A hit's text is the plain text of its display.
     assert Hit(1.0, Content.from_markup("[b]Bold[/] name"), lambda: None).text == "Bold name"
+
+
+async def test_keys_command_hides_shown_help_panel():
+    app = PaletteApp()
+    async with app.run_test(size=(100, 50)) as pilot:
+        await pilot.press("ctrl+p")
+        await pilot.pause()
+        assert "Show help for the focused widget" in palette_lines(pilot)
+        await type_text(pilot, "keys")
+        await pilot.press("enter")
+        await pilot.pause()
+        assert app.screen.query("HelpPanel")
+
+        # Textual offers "hide" once the help panel is shown (queried on the invoking screen,
+        # not the palette).
+        await pilot.press("ctrl+p")
+        await pilot.pause()
+        text = palette_lines(pilot)
+        assert "Hide the keys and widget help panel" in text, text
+        await type_text(pilot, "keys")
+        await pilot.press("enter")
+        await pilot.pause()
+        assert not app.screen.query("HelpPanel")

@@ -380,30 +380,29 @@ impl CommandProvider for SystemCommandsProvider {
                 "app.quit",
             ),
         ];
-        let screen = ctx.screen();
-        if ctx.query_in(screen, "KeyPanel").is_empty() {
-            commands.push(Command::new(
-                "Keys",
-                "Show help for the focused widget and a summary of available keys",
-                "app.show_help_panel",
-            ));
-        } else {
+        // Describe the screen the palette was invoked from, even when asked while it is open
+        // (Textual: `get_system_commands(screen)` with the provider's `screen`).
+        let (screen, focused) = invoking_screen(ctx.app);
+        if screen.is_some_and(|s| !ctx.query_in(s, "HelpPanel").is_empty()) {
             commands.push(Command::new(
                 "Keys",
                 "Hide the keys and widget help panel",
                 "app.hide_help_panel",
             ));
+        } else {
+            commands.push(Command::new(
+                "Keys",
+                "Show help for the focused widget and a summary of available keys",
+                "app.show_help_panel",
+            ));
         }
-        if ctx.maximized().is_some() {
+        if screen.is_some_and(|s| crate::screens::maximized_of(ctx.dom(), s).is_some()) {
             commands.push(Command::new(
                 "Minimize",
                 "Minimize the widget and restore to normal size",
                 "app.minimize",
             ));
-        } else if ctx
-            .focused()
-            .is_some_and(|f| crate::screens::allow_maximize(ctx.dom(), f))
-        {
+        } else if focused.is_some_and(|f| crate::screens::allow_maximize(ctx.dom(), f)) {
             commands.push(Command::new(
                 "Maximize",
                 "Maximize the focused widget",
@@ -428,6 +427,17 @@ pub(crate) fn palette_binding() -> Binding {
 }
 
 // ---------------------------------------------------------------------------------- opening
+
+/// The screen the palette was invoked from and its focused widget: the active screen, or the
+/// one below an open palette (whose focus was saved when the palette was pushed).
+fn invoking_screen(state: &AppState) -> (Option<NodeId>, Option<NodeId>) {
+    if is_open(state) && state.screens.len() > 1 {
+        let screen = state.screens[state.screens.len() - 2];
+        (Some(screen), state.screen_focus.get(&screen).copied())
+    } else {
+        (state.active_screen(), state.dom.focused)
+    }
+}
 
 /// Whether a command palette is the active screen (Textual: `CommandPalette.is_open`).
 pub(crate) fn is_open(state: &AppState) -> bool {
@@ -590,7 +600,8 @@ impl Ctx<'_> {
         self.with_id::<CommandPalette, _>(palette, |p, ctx| p.add_hits(generation, hits, ctx));
     }
 
-    /// The built-in system commands for the current screen (theme, quit, keys, ...).
+    /// The built-in system commands for the current screen, or the one below an open palette
+    /// (theme, quit, keys, ...).
     pub fn system_commands(&mut self) -> Vec<Command> {
         SystemCommandsProvider.commands(self)
     }
