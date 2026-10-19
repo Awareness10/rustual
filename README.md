@@ -134,7 +134,9 @@ async fn main() -> std::io::Result<()> {
 ```
 
 Or try the example apps: `cargo run -p rustual --example tasks` (a task manager), `monitor`
-(a live process monitor) or `chat` (a streaming Markdown chat). `ctrl+p` opens the command palette, `ctrl+q` quits.
+(a live process monitor), `chat` (a streaming Markdown chat) or `live_json` (JSON received over
+TCP written into input fields at 60 Hz; also in Python for Textual and rustual-py in
+[`examples/live_json`](examples/live_json)). `ctrl+p` opens the command palette, `ctrl+q` quits.
 
 </details>
 
@@ -210,9 +212,10 @@ app is usually a matter of changing its imports:
   and `action_*`, `reactive` with `watch_` / `validate_` / `compute_`, messages with `@on`
   selectors, screens and `ModalScreen`, `run_test()` + `Pilot`.
 - **Async and threads, done safely:** async handlers and `@work` workers run on an asyncio loop
-  on the app thread; thread workers can call widget methods directly (calls are marshalled to the
-  app thread). The event loop runs with the GIL released, and nothing waits on another thread
-  while holding it.
+  on the app thread, woken exactly when timers are due or I/O is ready; thread workers can call
+  widget methods directly (calls are marshalled to the app thread) and `post_message` from any
+  thread without waiting. The event loop runs with the GIL released, and nothing waits on another
+  thread while holding it.
 - **Rich renderables:** `Table`, `Syntax`, `Panel` and friends render in `Static` and `render()`.
 
 Details: [`crates/rustual-py`](crates/rustual-py/README.md) ·
@@ -299,6 +302,7 @@ Per-feature parity with Textual is tracked in [`features.md`](features.md).
 | `on_button_pressed(self, event)` | `on_message`: `msg.get::<button::Pressed>()` |
 | `self.query_one("#x", Label)` | `ctx.query_one::<Label>("#x")` |
 | `@work async def` | `ctx.run_worker(async { Msg })` |
+| `post_message` / `call_from_thread` from a thread | `ctx.app_handle()` → `handle.post_message(id, Msg)` / `handle.call_from_thread(\|ctx\| ..)` |
 | `set_interval` | `ctx.set_interval(dur, \|w: &mut Self, ctx\| ..)` |
 | `push_screen` / `dismiss` | `ctx.push_screen` / `ctx.push_modal` / `ctx.dismiss(result)` |
 | `async with app.run_test() as pilot` | `let mut pilot = App::new(..).test(size).await` |

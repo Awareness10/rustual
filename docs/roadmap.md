@@ -49,7 +49,6 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 - [ ] **`@click` links** (S): `link-*-hover` styles; `@mouse.down` / `@mouse.up` handlers.
 - [ ] **Screens & modes** (S): `remove_mode`, modes from screen names; unknown screen/mode names should be
   reported (currently return `None`/`false`).
-- [ ] **Workers** (S): cancel a widget's workers when it is removed (results are currently dropped).
 - [ ] **Loading** (S): refuse programmatic focus of loading widgets (Textual does); block their bindings.
 - [ ] **Screenshots** (S): local-time filenames and default to the Downloads folder like Textual.
 - [ ] **Command palette** (S): busy indicator while searches run; delay "No matches found" like Textual.
@@ -104,6 +103,8 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
   `textual.style.Style`, `MarkdownStream`.
 - [ ] **`App.save_screenshot` / `export_screenshot`** (S): Textual's screenshot methods are missing on the
   Python `App` (only the `screenshot` action and `pilot.export_svg()` exist).
+- [ ] **asyncio wake-ups on macOS / Windows** (S): only Linux watches the loop's selector (epoll) to
+  wake the app on I/O; macOS (kqueue) and Windows (proactor loop) poll pending tasks every 10 ms.
 - [ ] **Type stubs** (S): a `_native.pyi` stub (the package already ships `py.typed`).
 - [ ] **Python CI on Windows/macOS** (S): the Python test suite runs on Linux only (release wheels are
   smoke-tested on all platforms).
@@ -115,4 +116,4 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 - [ ] **Gallery script** (S): a script that regenerates `docs/assets/screenshots/` from the examples via
   `TEXTUAL_SCREENSHOT` (the README gallery's five captures are currently made by hand).
 - [ ] **Bundled examples** (S): more demos in `rustual.demo` (the `rustual-py` launcher), e.g. ports
-  of Textual's calculator and five-by-five.
+  of Textual's calculator and five-by-five, and the live JSON form (`examples/live_json`).

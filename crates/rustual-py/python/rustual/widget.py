@@ -16,7 +16,7 @@ import threading
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, ClassVar, Iterable, Iterator, TypeVar
 
 from . import _context, events
-from ._bridge import native
+from ._bridge import _native, native
 from .binding import Binding, collect_bindings
 from .css.query import DOMQuery, NoMatches, TooManyMatches, WrongType
 from .geometry import Offset, Region, Size
@@ -402,6 +402,8 @@ class Widget:
             "has_check_consume_key": user_defines("check_consume_key"),
             "bindings": [b._native() for b in collect_bindings(cls)],
             "help": cls.HELP,
+            # Screens only (Textual `Screen.AUTO_FOCUS`); the app's is passed with its config.
+            "auto_focus": getattr(cls, "AUTO_FOCUS", None) if _is_screen_class(cls) else None,
         }
 
     def _rs_spec(self) -> dict[str, Any]:
@@ -449,6 +451,10 @@ class Widget:
 
     def _rs_on_unmount(self) -> None:
         self._dispatch(events.Unmount())
+        # Like Textual, a removed widget's workers are cancelled.
+        from .worker import WorkerManager
+
+        WorkerManager._cancel_node(self)
 
     def _rs_event(self, data: tuple) -> int:
         _context.flush_deferred()
@@ -1117,6 +1123,14 @@ class Widget:
     # -- messages, timers, workers ---------------------------------------------------------------
 
     def post_message(self, message: Message) -> bool:
+        if not _native.on_app_thread():
+            # Thread-safe and non-blocking, as in Textual: queued for the app thread (in order),
+            # and dropped there if the widget has been removed by then.
+            if self._node is None:
+                return False
+            if message._sender is None:
+                message._sender = self
+            return bool(_native.post_message_threadsafe(self._node, message, type(message).bubble))
         if not self.is_mounted:
             return False
         if _context.is_prevented(message):
@@ -1372,6 +1386,12 @@ class _PreventContext:
                 native.prevent_pop()
             except RuntimeError:
                 pass
+
+
+def _is_screen_class(cls: type) -> bool:
+    from .screen import Screen
+
+    return issubclass(cls, Screen)
 
 
 class Timer:

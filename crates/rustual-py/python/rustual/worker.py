@@ -141,7 +141,8 @@ class Worker(Generic[ResultType]):
         self._state = state
         node = self._node
         try:
-            if node.is_mounted:
+            # From a thread, `post_message` queues without waiting (and checks the node later).
+            if not _native.on_app_thread() or node.is_mounted:
                 node.post_message(Worker.StateChanged(self, state))
         except RuntimeError:
             pass
@@ -276,6 +277,11 @@ class WorkerManager:
         for w in workers:
             w.cancel()
         return workers
+
+    @classmethod
+    def _cancel_node(cls, node: Widget) -> None:
+        for w in [w for w in cls._workers if w.node is node]:
+            w.cancel()
 
     def cancel_node(self, node: Widget) -> list[Worker[Any]]:
         workers = [w for w in list(self._workers) if w.node is node]

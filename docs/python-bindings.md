@@ -67,7 +67,7 @@ frame:
 | `render` | read-only; mutations raise `RuntimeError` |
 | `compose` / screen factory | none (the runtime is mid-mount); use `on_mount` |
 | none, test pilot registered | access through the pilot (test code between steps) |
-| none, another thread | `WrongThreadError`, turned into a `call_from_thread` round trip |
+| none, another thread | `WrongThreadError`, turned into a `call_from_thread` round trip (except `post_message`, which is queued without waiting) |
 
 All native functions take explicit node ids, so they behave the same whichever frame is on top.
 
@@ -77,6 +77,12 @@ All native functions take explicit node ids, so they behave the same whichever f
   with `Python::attach`. Python threads keep running while the UI is idle.
 - Nothing blocks on another thread while holding the GIL. A worker thread calling a widget API
   posts the call to the app thread and waits on a `threading.Event` (which releases the GIL).
+- `post_message` from another thread never waits (as in Textual): the message goes through the
+  app's `AppHandle` channel, in order, and is dropped on the app thread if its target has been
+  removed by then. Prefer it to widget calls for high-rate updates from threads.
+- `App.call_from_thread` runs a callable on the app thread and returns its result; an async
+  callable is awaited on the app's loop first. Like Textual it raises `RuntimeError` on the app
+  thread itself.
 - Rust panics inside native functions become Python exceptions (PyO3); the frame stack unwinds
   with them, and the terminal is restored by the driver's panic hook.
 - A Python exception in a handler is recorded, the app exits, and `run()` (or the next `Pilot`
@@ -88,8 +94,12 @@ Async handlers, async watchers and async workers run as tasks on an asyncio loop
 the app thread, so they may touch widgets directly:
 
 - `App.run()`: the loop is owned by `rustual` and pumped by the Rust event loop (each pump
-  runs ready callbacks without blocking; while tasks are pending a 10 ms native timer keeps
-  pumping, so `await asyncio.sleep()` and network I/O make progress).
+  runs ready callbacks without blocking). After each pump a one-shot native timer is set for the
+  loop's next scheduled callback, so `await asyncio.sleep(1 / 60)` ticks at 60 Hz. On Linux a
+  daemon thread (`rustual-asyncio`) blocks in `poll()` on the loop's epoll descriptor and posts
+  a pump as soon as a socket, pipe or `call_soon_threadsafe` makes it readable (it waits for
+  that pump before polling again). Elsewhere (macOS for now, Windows' proactor loop) pending
+  tasks are polled every 10 ms instead.
 - `App.run_test()`: the test's running loop is used; tasks start eagerly and `Pilot` methods
   yield to the loop until the app is idle.
 
@@ -157,4 +167,5 @@ widget. The Rust method dispatcher receives `Option<&mut Ctx>` and uses ctx-free
   (stale ones are dropped), and selecting a hit runs `app._rs_palette_callback(n)`.
 - `Lazy` / `Reveal` mount their widget at once (Textual defers it until after a refresh).
 - Calls from worker threads are marshalled to the app thread automatically (Textual requires
-  `call_from_thread`, which also works).
+  `call_from_thread`, which also works); each such call waits for the app thread, while
+  `post_message` doesn't.
