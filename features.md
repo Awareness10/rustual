@@ -12,27 +12,27 @@ How the percentages are made:
   matter in practice.
 
 **Overall: ~90% of commonly used Textual functionality, ~70% of full parity** (estimates).
-**Python API surface: 58% of Textual's public names** (measured: 763 / 1306 class attributes,
-140 / 247 module names, 2026-10-17); the commonly used part is far higher, the misses are mostly
+**Python API surface: 58% of Textual's public names** (measured: 765 / 1306 class attributes,
+140 / 247 module names, 2026-10-19); the commonly used part is far higher, the misses are mostly
 internals and rarely used hooks. Test counts and coverage: see the badges in the [README](README.md#testing) (updated by CI). CI tests Linux, macOS and Windows; Python wheels for all three are on [PyPI](https://pypi.org/project/rustual-py/) and [GitHub releases](https://github.com/Awareness10/rustual/releases).
 
-_Last updated: 2026-10-17._
+_Last updated: 2026-10-19._
 
 ## Core runtime
 
 | Feature | Status | % | Notes |
 |---|---|---|---|
 | App, compose, mount/remove | ✅ | 95 | `App::new(root)`, `compose![...]`, `.with([...])`, `ctx.mount/remove` |
-| Event loop (tokio + crossterm) | ✅ | 92 | raw mode, alt screen, synchronized output, frame diffing; resizes during startup are kept; consecutive runs can stay on the alternate screen (launcher) |
+| Event loop (tokio + crossterm) | ✅ | 93 | raw mode, alt screen, synchronized output, frame diffing; frames capped at `App::max_fps` (`TEXTUAL_FPS`, default 60 like Textual), with everything queued by other threads (up to 1024 messages) handled before each frame; resizes during startup are kept; consecutive runs can stay on the alternate screen (launcher) |
 | Keyboard input & key names | ✅ | 90 | Textual-style names; bindings may use Textual's character names (`slash`, `question_mark`, ...), which match the typed character; no kitty keyboard protocol |
 | Mouse: click, hover, wheel | ✅ | 90 | `:hover`, Enter/Leave, Click (+ `ctx.click_chain()` for double/triple clicks), wheel scrolls nearest scrollable |
 | Mouse capture / drag | ✅ | 85 | `ctx.capture_mouse/release_mouse`; drags go to the MouseDown widget; scrollbar thumb drag + track paging; no `MouseCapture`/`MouseRelease` events |
-| Focus chain, tab/shift+tab, auto-focus | ✅ | 90 | `can_focus_children`, focus on click, restore on screen pop |
-| Messages (bubbling) | ✅ | 95 | typed payloads, `Flow::Stop`, `sender_id()` |
+| Focus chain, tab/shift+tab, auto-focus | ✅ | 93 | `can_focus_children`, focus on click, restore on screen pop; `App::auto_focus` / `Widget::auto_focus` selectors (Textual `AUTO_FOCUS`, app and screen) |
+| Messages (bubbling) | ✅ | 97 | typed payloads, `Flow::Stop`, `sender_id()`; from any thread or task through `AppHandle` (never blocks, keeps order): `post_message` / `post_message_no_bubble`, and code on the app thread with `call_later`, `call_on::<W>`, `call().await`, `call_from_thread` |
 | Bindings & actions | ✅ | 90 | priority, namespaces `app.`/`screen.`/`focused.`, args; keymaps (`Binding::id`, `App::keymap`, `ctx.set_keymap/update_keymap`, clashing keys dropped); runtime bindings (`ctx.bind`, Textual `bind`); `check_action` (hide / disable bindings, footer dims); `check_consume_key` (a focused input hides / skips printable-key bindings); modal screens stop the chain (only priority bindings reach the app) |
 | Builtin actions | ✅ | 85 | quit, bell, toggle_dark, set_theme, focus, focus_next/previous, pop_screen, push_screen/switch_screen/switch_mode('name'), maximize, minimize, screenshot, suspend_process, add/remove/toggle_class, notify, scroll_* |
 | Timers (`set_timer`, `set_interval`) | ✅ | 95 | |
-| Workers (async + blocking) | ✅ | 90 | result posted as message; `run_worker_with`/`run_blocking_with` + `WorkerOptions { name, group, exclusive }` post `worker::StateChanged` (Pending/Running/Success/Error=panic/Cancelled); `cancel_workers(group)`, `WorkerHandle::state()`; errors don't exit the app; plain `run_worker` posts no state events |
+| Workers (async + blocking) | ✅ | 93 | result posted as message; cancelled when their widget is removed; `run_worker_with`/`run_blocking_with` + `WorkerOptions { name, group, exclusive }` post `worker::StateChanged` (Pending/Running/Success/Error=panic/Cancelled); `cancel_workers(group)`, `WorkerHandle::state()`; errors don't exit the app; plain `run_worker` posts no state events |
 | Screens: push/pop/dismiss, modal, switch, named, modes | ✅ | 90 | modal dims the screen below; `ctx.switch_screen`, `App::screen/modal_screen` (installed, kept when popped) + `push_screen_named/switch_screen_named/install_screen`; `App::mode` + `default_mode` + `ctx.switch_mode` (per-mode stacks); `ScreenSuspend` / `ScreenResume` events; per-screen titles (`ctx.set_screen_title`); no `remove_mode` |
 | Notifications (toasts) | ✅ | 90 | `ctx.notify`, severity, timeout, click to dismiss |
 | Animation (`animate`, easing, transitions) | ✅ | 90 | all 33 easings, `ctx.animate_value`, `animate_style` (opacity/offset/width/height), `animate_color` (background/color/tint/background-tint, `Color::blend`), `AnimateOptions` (`delay`, `speed`, easing, level) via `*_opts`, smooth scroll, animation levels, CSS transitions, Tabs/Switch animate; delayed style animations read their start value at request time |
@@ -140,9 +140,9 @@ See [`docs/python-bindings.md`](docs/python-bindings.md).
 | App lifecycle | ✅ | 85 | `run()` with GIL released (returns `exit()` value), `run_async`, `run_test` + `Pilot`; handler exceptions exit cleanly and re-raise; measured 54% of `App`'s public names: no `save_screenshot` / `export_screenshot`, `suspend`, `simulate_key`, `get_widget_at`, `refresh_css`, `unregister_theme` |
 | Widget API | 🟡 | 80 | compose (incl. `with` blocks), render (markup / Content / Rich renderables), DEFAULT_CSS, BINDINGS + `bind()`, queries + `getters` (`query_one`, `child_by_id`, `app`), classes, styles (write), `rich_style` / `get_component_rich_style` (partial, default), `data_bind`, `set_reactive`, display/visible/disabled/loading, mount/remove/recompose, focus, scrolling, timers, `animate()`, `log` (to `TEXTUAL_LOG` and Python `logging`); measured 43% of `Widget`'s public names: missing `render_line` / `render_lines`, `move_child` / `sort_children`, `query_one_optional` / `query_ancestor`, `first_child` / `siblings`, `scroll_to_region`, `BORDER_TITLE` / `BORDER_SUBTITLE` class vars, `allow_focus*`, text selection, and many internals |
 | Reactivity | ✅ | 90 | reactive/var with watch/validate/compute, init, always_update, layout, recompose, toggle_class, `watch()` |
-| Messages & events | ✅ | 90 | custom messages (incl. `@dataclass` ones), bubbling, stop/prevent_default, `@on` with selectors, MRO dispatch, `key_*` methods, mouse/focus/enter/leave/resize/paste, `DescendantFocus` / `DescendantBlur`, `ScreenResume` / `ScreenSuspend` |
-| Screens & modes | ✅ | 85 | Screen/ModalScreen, dismiss + callback, `push_screen_wait`, SCREENS/MODES, screen CSS, `title` / `sub_title` (`TITLE` / `SUB_TITLE`), `COMMANDS`, `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS`, `is_active`, `focus_next` / `focus_previous`; no `add_mode` / `remove_mode` / `get_screen_stack`, no `active_bindings` |
-| Workers & async | ✅ | 90 | async handlers/workers on an app-thread asyncio loop; thread workers; widget calls from threads auto-marshalled |
+| Messages & events | ✅ | 92 | custom messages (incl. `@dataclass` ones), thread-safe non-blocking `post_message`, bubbling, stop/prevent_default, `@on` with selectors, MRO dispatch, `key_*` methods, mouse/focus/enter/leave/resize/paste, `DescendantFocus` / `DescendantBlur`, `ScreenResume` / `ScreenSuspend` |
+| Screens & modes | ✅ | 86 | Screen/ModalScreen, dismiss + callback, `push_screen_wait`, SCREENS/MODES, screen CSS, `AUTO_FOCUS` (app and screen), `title` / `sub_title` (`TITLE` / `SUB_TITLE`), `COMMANDS`, `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS`, `is_active`, `focus_next` / `focus_previous`; no `add_mode` / `remove_mode` / `get_screen_stack`, no `active_bindings` |
+| Workers & async | ✅ | 95 | async handlers/workers on an app-thread asyncio loop, woken when its next timer is due and (Linux) as soon as I/O is ready (elsewhere pending tasks are polled every 10 ms); thread workers; widget calls from threads auto-marshalled; `post_message` from threads never waits; `call_from_thread` awaits async callbacks (raises on the app thread, as in Textual); workers cancelled when their widget is removed |
 | Themes, validation | ✅ | 95 | `Theme` (incl. `ansi=`) / `register_theme`, `App(ansi_color=...)`, `app.ansi_color` / `native_ansi_color` / `no_color`; `rustual.validation` (Textual's module, checked against Textual goldens); Input `restrict` regex |
 | Bindings | ✅ | 90 | `BINDINGS` (tuples / `Binding`), MRO merge, `check_action` / `refresh_bindings` |
 | Built-in widgets | ✅ | 85 | every built-in widget is bound except `Tooltip` (see below) |

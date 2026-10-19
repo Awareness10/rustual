@@ -26,6 +26,8 @@ pub struct AppConfig {
     default_mode: Option<String>,
     themes: Vec<ThemeSpec>,
     command_palette: bool,
+    /// `App.AUTO_FOCUS`.
+    auto_focus: Option<String>,
     /// `App(ansi_color=...)`: `None` follows the theme.
     ansi_color: Option<bool>,
     /// `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS`.
@@ -99,6 +101,7 @@ fn build_app(py: Python<'_>, app: &Bound<'_, PyAny>, cfg: AppConfig) -> PyResult
     let root = build_root(py, app)?;
     let mut a = App::new(root).title(&cfg.title).sub_title(&cfg.sub_title);
     a = a.enable_command_palette(cfg.command_palette);
+    a = a.auto_focus(cfg.auto_focus.as_deref());
     // Python apps search with `App.COMMANDS` providers (system commands included, via
     // `App.get_system_commands`), driven by `App._rs_command_search`.
     let app_obj = app.clone().unbind();

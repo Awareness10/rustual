@@ -7,6 +7,42 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+### Added
+- `AppHandle` runs code on the app thread from other threads and tasks, in order with the
+  messages sent before it: `call_later(|ctx| ..)`, `call_on::<W>(node, |w, ctx| ..)`,
+  `call(..).await` (async workers) and `call_from_thread(..)` (blocking, Textual's
+  `App.call_from_thread`); also `post_message_no_bubble` and `is_running`.
+- `App::max_fps` (default `TEXTUAL_FPS`, else 60, as in Textual): the terminal is redrawn at most
+  that often, and changes arriving faster are merged into the next frame.
+- `App::auto_focus` and `Widget::auto_focus` (Textual's `App.AUTO_FOCUS` / `Screen.AUTO_FOCUS`):
+  a selector for the widget focused when a screen activates, or none. Python apps now honour both
+  class variables (the first focusable widget always got focus before).
+- `TimerId::to_raw` / `TimerId::from_raw`.
+- A live JSON form example: JSON received over TCP is written into input fields at 60 Hz (or
+  faster), received by a thread or an asyncio / tokio worker that hands each object to the UI
+  with `post_message`. `cargo run -p rustual --example live_json` in Rust, and
+  `examples/live_json/` for Python Textual and rustual-py (the two files differ only in their
+  imports), with a stdlib feeder and benchmark numbers.
+
+### Changed
+- The run loop handles every message and call already queued by other threads (up to 1024)
+  before it draws, and draws at most `max_fps` frames a second; due timers fire on time even
+  while events or messages keep it busy.
+- Removing a widget cancels its workers (Rust and Python), as in Textual.
+- `Pilot::wait` handles messages sent through an `AppHandle` as they arrive instead of at the end
+  of the wait.
+- Python: `post_message` from another thread no longer waits for the app thread: the message is
+  queued (in order) like in Textual, and dropped if its target is removed meanwhile.
+- Python: `App.call_from_thread` awaits async callbacks and returns their result, and raises
+  `RuntimeError` when called on the app thread or while the app isn't running (Textual's
+  behaviour; it used to run the callback directly and return a task for async ones).
+
+### Fixed
+- Python: the asyncio loop of `App.run()` was polled every 10 ms, so `await asyncio.sleep(1/60)`
+  loops ran at 50 Hz and socket reads waited ~5 ms. It now wakes when its next timer is due and,
+  on Linux, as soon as I/O is ready (a watcher thread polls the loop's epoll descriptor).
+- Python: every `set_timer` / `call_later` left an entry in a process-wide timer table.
+
 ## 0.6.0 - 2026-10-19
 
 ### Added

@@ -408,6 +408,21 @@ pub fn run_action(node: Node, action: &str) -> PyResult<()> {
     })
 }
 
+/// Post a message from any thread without waiting (Textual's thread-safe `post_message`): it
+/// is queued for the app thread and dropped there if `target` is gone by then. Returns false
+/// if no app runs.
+#[pyfunction]
+pub fn post_message_threadsafe(target: Node, message: Py<PyAny>, bubble: bool) -> bool {
+    let running = bridge::running_lock();
+    match running.as_ref() {
+        Some(r) if bubble => r.handle.post_message(n(target), PyMessage(message)),
+        Some(r) => r
+            .handle
+            .post_message_no_bubble(n(target), PyMessage(message)),
+        None => false,
+    }
+}
+
 /// Post a callable to be run on the app thread (any thread). Returns false if no app runs.
 #[pyfunction]
 pub fn post_call(callable: Py<PyAny>) -> bool {
@@ -451,28 +466,15 @@ pub fn set_timer(node: Node, delay: f64, callback: Py<PyAny>, repeat: bool) -> P
 }
 
 fn timer_to_int(id: rustual::TimerId) -> u64 {
-    // TimerId is opaque; keep the ids in a side table.
-    TIMERS.with(|t| {
-        let mut t = t.borrow_mut();
-        t.push(id);
-        (t.len() - 1) as u64
-    })
-}
-
-thread_local! {
-    static TIMERS: std::cell::RefCell<Vec<rustual::TimerId>> = const { std::cell::RefCell::new(Vec::new()) };
+    id.to_raw()
 }
 
 #[pyfunction]
 pub fn cancel_timer(id: u64) -> PyResult<()> {
-    let tid = TIMERS.with(|t| t.borrow().get(id as usize).copied());
-    if let Some(tid) = tid {
-        with_ctx(|ctx| {
-            ctx.cancel_timer(tid);
-            Ok(())
-        })?;
-    }
-    Ok(())
+    with_ctx(|ctx| {
+        ctx.cancel_timer(rustual::TimerId::from_raw(id));
+        Ok(())
+    })
 }
 
 // ---------------------------------------------------------------------------- app-level

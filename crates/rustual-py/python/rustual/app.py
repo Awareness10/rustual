@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 import os
+import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncIterator, Callable, ClassVar, Generic, Iterable, NamedTuple, TypeVar, Union
@@ -149,6 +150,7 @@ class App(Widget, Generic[ReturnType]):
             "default_mode": self.DEFAULT_MODE,
             "themes": [t._native() for t in self._themes.values()],
             "command_palette": bool(self.ENABLE_COMMAND_PALETTE),
+            "auto_focus": self.AUTO_FOCUS,
             "ansi_color": self._ansi_color,
             "horizontal_breakpoints": [(int(n), str(c)) for n, c in (self.HORIZONTAL_BREAKPOINTS or [])],
             "vertical_breakpoints": [(int(n), str(c)) for n, c in (self.VERTICAL_BREAKPOINTS or [])],
@@ -380,15 +382,48 @@ class App(Widget, Generic[ReturnType]):
         native.help_panel(False)
 
     def call_from_thread(self, callback: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
-        """Run ``callback`` on the app thread from another thread and return its result."""
+        """Run ``callback`` on the app thread from another thread and return its result.
 
-        def run() -> Any:
-            result = callback(*args, **kwargs)
+        As in Textual, an async callback is awaited (on the app's loop) and its result returned,
+        and calling this on the app thread itself raises ``RuntimeError``. For fire-and-forget
+        updates, ``post_message`` (thread-safe, never blocks) is cheaper.
+        """
+        if not getattr(self, "_running", False) or not _native.app_running():
+            raise RuntimeError("App is not running")
+        if _native.on_app_thread():
+            raise RuntimeError("The `call_from_thread` method must run in a different thread from the app")
+        done = threading.Event()
+        box: dict[str, Any] = {}
+
+        async def finish(awaitable: Any) -> None:
+            try:
+                box["result"] = await awaitable
+            except BaseException as error:  # noqa: BLE001 - re-raised in the caller's thread
+                box["error"] = error
+            finally:
+                done.set()
+
+        def run() -> None:
+            try:
+                result = callback(*args, **kwargs)
+            except BaseException as error:  # noqa: BLE001
+                box["error"] = error
+                done.set()
+                return
             if inspect.isawaitable(result):
-                return _context.run_coroutine(result)
-            return result
+                _context.run_coroutine(finish(result))
+            else:
+                box["result"] = result
+                done.set()
 
-        return _bridge.call_from_thread(run)
+        if not _native.post_call(run):
+            raise RuntimeError("App is not running")
+        while not done.wait(0.05):
+            if not _native.app_running():
+                raise _bridge.NoActiveAppError("the app exited before the call completed")
+        if "error" in box:
+            raise box["error"]
+        return box.get("result")
 
     # -- engine hooks ---------------------------------------------------------------------------
 

@@ -34,6 +34,8 @@ pub(crate) struct ClassInfo {
     has_check_consume_key: bool,
     bindings: Vec<Binding>,
     help: Option<&'static str>,
+    /// `Screen.AUTO_FOCUS` (screens only).
+    auto_focus: Option<&'static str>,
     /// Base widget CSS + Python `DEFAULT_CSS` (the base kind is fixed per class).
     combined_css: std::sync::OnceLock<&'static str>,
 }
@@ -96,6 +98,7 @@ pub(crate) fn class_info(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Arc
         bindings.push(binding_from_py(&b)?);
     }
     let help: Option<String> = get("help")?.extract()?;
+    let auto_focus: Option<String> = get("auto_focus")?.extract()?;
     let info = Arc::new(ClassInfo {
         type_names,
         default_css,
@@ -109,6 +112,7 @@ pub(crate) fn class_info(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Arc
         handlers,
         bindings,
         help: help.map(leak),
+        auto_focus: auto_focus.map(leak),
         combined_css: std::sync::OnceLock::new(),
     });
     let _ = py;
@@ -556,6 +560,10 @@ impl Widget for PyWidget {
 
     fn help(&self) -> Option<&str> {
         self.info.help.or_else(|| self.base.help())
+    }
+
+    fn auto_focus(&self) -> Option<&str> {
+        self.info.auto_focus
     }
 
     fn delegate(&self) -> Option<&dyn Widget> {
