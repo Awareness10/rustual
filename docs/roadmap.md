@@ -4,7 +4,7 @@ Where rustual is heading: full parity with Python Textual 8.2.8, and production 
 Per-feature status lives in [`features.md`](../features.md); releases follow
 [`RELEASING.md`](../RELEASING.md). Items are sized **S** (hours), **M** (a day) or **L** (several days).
 
-Latest release: **v0.5.0** on [PyPI](https://pypi.org/project/rustual-py/),
+Latest release: **v0.5.1** on [PyPI](https://pypi.org/project/rustual-py/),
 [crates.io](https://crates.io/crates/rustual) and [GitHub](https://github.com/Awareness10/rustual/releases).
 
 ## Next up

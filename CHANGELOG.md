@@ -7,6 +7,15 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+## 0.5.2 - 2026-10-19
+
+### Fixed
+- The command palette's "Keys" command always offered to show the help panel in Python apps,
+  even when it was shown: the system commands looked at the palette's own screen. They now
+  describe the screen the palette was invoked from (also for "Maximize" / "Minimize"), and, as in
+  Textual, "Keys" hides the panel when that screen has a `HelpPanel` (a stand-alone `KeyPanel`
+  from `app.show_keys` no longer turns it into a "hide" that did nothing).
+
 ## 0.5.1 - 2026-10-17
 
 ### Fixed

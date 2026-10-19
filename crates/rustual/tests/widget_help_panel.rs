@@ -176,3 +176,49 @@ async fn ctx_help_panel_api_and_command_palette() {
     p.press(&["enter"]).await;
     assert!(p.query("HelpPanel").is_empty());
 }
+
+#[tokio::test]
+async fn palette_keys_command_follows_help_panel() {
+    use std::{cell::RefCell, rc::Rc};
+    // Like rustual-py, ask for the system commands while the palette is open: they still
+    // describe the screen it was invoked from.
+    let seen: Rc<RefCell<Vec<String>>> = Rc::default();
+    let s = seen.clone();
+    let mut p = App::new(App1)
+        .command_search(move |_palette, event, ctx| {
+            if matches!(event, rustual::command::SearchEvent::Opened) {
+                let keys = ctx.system_commands().into_iter().find(|c| c.name == "Keys");
+                s.borrow_mut().push(keys.unwrap().help);
+            }
+        })
+        .test(Size::new(100, 30))
+        .await;
+    let (text, help) = keys_help(&mut p, &seen).await;
+    assert!(text.contains("Show help for the focused widget"), "{text}");
+    assert!(help.starts_with("Show help"), "{help}");
+
+    p.press(&["f1"]).await;
+    let (text, help) = keys_help(&mut p, &seen).await;
+    assert!(
+        text.contains("Hide the keys and widget help panel"),
+        "{text}"
+    );
+    assert!(help.starts_with("Hide"), "{help}");
+
+    // A stand-alone key panel is not a help panel (Textual queries `HelpPanel`).
+    p.press(&["f2"]).await;
+    p.press(&["f3"]).await;
+    let (_, help) = keys_help(&mut p, &seen).await;
+    assert!(help.starts_with("Show help"), "{help}");
+}
+
+/// Open and close the palette: its text, and the "Keys" help seen by the search hook.
+async fn keys_help(
+    p: &mut rustual::Pilot,
+    seen: &std::cell::RefCell<Vec<String>>,
+) -> (String, String) {
+    p.press(&["ctrl+p"]).await;
+    let text = p.screen_text();
+    p.press(&["escape"]).await;
+    (text, seen.borrow_mut().pop().unwrap())
+}
