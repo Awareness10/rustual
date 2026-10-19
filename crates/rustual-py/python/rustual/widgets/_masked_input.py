@@ -1,22 +1,33 @@
 from __future__ import annotations
 
-from typing import Any, ClassVar, Iterable, Literal
+from typing import Any, ClassVar, Iterable
 
 from ..validation import ValidationResult, Validator
 from ..widget import _NATIVE_CLASSES
-from ._input import Input
-
-InputValidationOn = Literal["blur", "changed", "submitted"]
+from ._input import Input, InputValidationOn
 
 
 class _Template(Validator):
-    """The template check as a validator (the check itself runs natively)."""
+    """The template mask as a validator (Textual's ``_Template.validate``; the template itself
+    is parsed and checked natively)."""
+
+    def __init__(self, input: MaskedInput) -> None:
+        super().__init__()
+        self.input = input
 
     def validate(self, value: str) -> ValidationResult:
-        return self.success()
+        """Checks if `value` matches this template, always returning a ValidationResult."""
+        if self.check(value):
+            return self.success()
+        else:
+            return self.failure("Value does not match template!", value)
 
-
-_TEMPLATE = _Template()
+    def check(self, value: str) -> bool:
+        """Whether every required position of the template is filled (characters past the
+        template are ignored). Before the input is mounted the template can't be checked."""
+        if not self.input.is_mounted:
+            return True
+        return bool(self.input._native_call("matches_template", value))
 
 
 class MaskedInput(Input):
@@ -58,6 +69,7 @@ class MaskedInput(Input):
             tooltip=tooltip,
             compact=compact,
         )
+        self._template = _Template(self)
         self._rs_kw = {
             "template": template,
             "value": value or "",
@@ -65,6 +77,7 @@ class MaskedInput(Input):
             "valid_empty": valid_empty,
             "select_on_focus": select_on_focus,
             "compact": compact,
+            "validate_on": [],
         }
 
     @property
@@ -85,10 +98,6 @@ class MaskedInput(Input):
         """Set the value; raises ``ValueError`` if it doesn't match the template."""
         self._native_set("value", str(value))
 
-    @property
-    def is_valid(self) -> bool:
-        return self._native_get("is_valid", True)
-
     def clear(self) -> None:
         """Clear the input (separators at the start are kept)."""
         if self.is_mounted:
@@ -97,20 +106,34 @@ class MaskedInput(Input):
             self._rs_kw["value"] = ""
 
     def validate(self, value: str | None = None) -> ValidationResult | None:
-        """Validate against the template (an implicit validator) and any ``validators``."""
-        if value is None or value == self.value:
-            ok = bool(self._native_call("validate")) if self.is_mounted else True
-        else:
-            ok = bool(self._native_call("matches_template", value)) or (self.valid_empty and value == "")
-        results = [ValidationResult.success() if ok else _TEMPLATE.failure("Value does not match template!", value)]
-        if self.validators:
-            v = self.value if value is None else value
-            if not (self.valid_empty and v == ""):
-                results.extend(validator.validate(v) for validator in self.validators)
-        result = ValidationResult.merge(results)
-        self.set_class(not result.is_valid, "-invalid")
-        self.set_class(result.is_valid, "-valid")
-        return result
+        """Run all the validators associated with this MaskedInput on the supplied value.
+
+        Same as `Input.validate()` but also validates against template which acts as an
+        additional implicit validator.
+
+        Returns:
+            A ValidationResult indicating whether *all* validators succeeded or not.
+                That is, if *any* validator fails, the result will be an unsuccessful
+                validation.
+        """
+        if value is None:
+            value = self.value
+
+        def set_classes() -> None:
+            """Set classes for valid flag."""
+            valid = self._valid
+            self.set_class(not valid, "-invalid")
+            self.set_class(valid, "-valid")
+
+        result = super().validate(value)
+        validation_results: list[ValidationResult] = [self._template.validate(value)]
+        if result is not None:
+            validation_results.append(result)
+        combined_result = ValidationResult.merge(validation_results)
+        self._valid = combined_result.is_valid
+        set_classes()
+
+        return combined_result
 
     def action_cursor_left(self) -> None:
         self._native_call("run_action", "cursor_left")

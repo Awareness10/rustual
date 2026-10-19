@@ -94,8 +94,8 @@ _Last updated: 2026-10-17._
 | Static | ✅ | 95 | markup / plain / Text content, Rich-style renderables (`Static::renderable`, `update_renderable`), `update` |
 | Label | ✅ | 95 | variants via classes |
 | Button | ✅ | 95 | variants, flat, action, active effect |
-| Input | ✅ | 85 | password, restrict (char predicate or whole-value `restrict_value`), max length, integer/number, selection; no suggester; validators only in Python (`rustual.validation`) |
-| MaskedInput | ✅ | 90 | full template engine (`A a N n X x 9 0 D d # H h B b`, case, escapes, blank char), validity classes; no `validators=` |
+| Input | ✅ | 90 | password, restrict (char predicate or whole-value `restrict_value`), max length, integer/number, selection; validators (`validation`), `validate_on`, `valid_empty`, `validation_result` on Changed / Submitted / Blurred; no suggester |
+| MaskedInput | ✅ | 95 | full template engine (`A a N n X x 9 0 D d # H h B b`, case, escapes, blank char), validity classes; template as an implicit validator plus `validators=` / `validate_on` / `valid_empty` |
 | TextArea | 🟡 | 80 | editing, selection (keys/mouse drag/double+triple click), undo/redo batching, soft wrap, line numbers, themes (css/monokai/dracula/vscode_dark/github_light), bracket matching, read-only, placeholder; no tree-sitter (simple per-line keyword highlighter for python/rust/js/json/toml), no suggestions; copy/cut use the OSC 52 clipboard |
 | Checkbox / ToggleButton | ✅ | 95 | |
 | RadioButton / RadioSet | ✅ | 95 | |
@@ -143,7 +143,7 @@ See [`docs/python-bindings.md`](docs/python-bindings.md).
 | Messages & events | ✅ | 90 | custom messages (incl. `@dataclass` ones), bubbling, stop/prevent_default, `@on` with selectors, MRO dispatch, `key_*` methods, mouse/focus/enter/leave/resize/paste, `DescendantFocus` / `DescendantBlur`, `ScreenResume` / `ScreenSuspend` |
 | Screens & modes | ✅ | 85 | Screen/ModalScreen, dismiss + callback, `push_screen_wait`, SCREENS/MODES, screen CSS, `title` / `sub_title` (`TITLE` / `SUB_TITLE`), `COMMANDS`, `HORIZONTAL_BREAKPOINTS` / `VERTICAL_BREAKPOINTS`, `is_active`, `focus_next` / `focus_previous`; no `add_mode` / `remove_mode` / `get_screen_stack`, no `active_bindings` |
 | Workers & async | ✅ | 90 | async handlers/workers on an app-thread asyncio loop; thread workers; widget calls from threads auto-marshalled |
-| Themes, validation | ✅ | 90 | `Theme` (incl. `ansi=`) / `register_theme`, `App(ansi_color=...)`, `app.ansi_color` / `native_ansi_color` / `no_color`; `rustual.validation`; Input `restrict` regex |
+| Themes, validation | ✅ | 95 | `Theme` (incl. `ansi=`) / `register_theme`, `App(ansi_color=...)`, `app.ansi_color` / `native_ansi_color` / `no_color`; `rustual.validation` (Textual's module, checked against Textual goldens); Input `restrict` regex |
 | Bindings | ✅ | 90 | `BINDINGS` (tuples / `Binding`), MRO merge, `check_action` / `refresh_bindings` |
 | Built-in widgets | ✅ | 85 | every built-in widget is bound except `Tooltip` (see below) |
 | Packaging | ✅ | 90 | `rustual-py` on PyPI (`pip install rustual-py`, `uvx rustual-py`): abi3 wheels (CPython 3.10+) for manylinux_2_28 / musllinux_1_2 x86_64, Windows x86_64, macOS universal2 + sdist, also on GitHub releases; Rust crates on crates.io |

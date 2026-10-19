@@ -25,22 +25,28 @@
 //! let code = MaskedInput::new(">AAA-999"); // upper-cased letters
 //! ```
 //!
-//! The inner `Input` posts `input::Changed` / `input::Submitted` / `input::Blurred`.
-//! The widget gets the `-valid` / `-invalid` class after each change, on blur and on submit.
+//! The inner `Input` posts `input::Changed` / `input::Submitted` / `input::Blurred`. The
+//! template is an implicit validator that always runs first ("Value does not match
+//! template!"), followed by any [`validators`](MaskedInput::validator); the widget gets the
+//! `-valid` / `-invalid` class and the messages carry the combined result, as for [`Input`].
+//! As in Textual, `valid_empty` exempts an empty value from the validators but not from the
+//! template.
 //!
-//! Deviations from Textual: no `validators` argument (only the template is validated);
-//! typing or deleting with a selection first collapses / blanks the selection.
+//! Deviation from Textual: typing or deleting with a selection first collapses / blanks the
+//! selection.
 
 use crate::binding::Binding;
 use crate::context::Ctx;
 use crate::events::Event;
 use crate::message::Flow;
+use crate::validation::{ValidationResult, Validator};
 use crate::widget::{Content, RenderCtx, Widget};
-use crate::widgets::input::{self, Input, Selection};
+use crate::widgets::input::{self, Input, Selection, ValidateOn};
 use rustual_render::cells::cell_len;
 use rustual_render::{Span, Strip, Style};
 use std::any::Any;
 use std::cell::Cell;
+use std::rc::Rc;
 
 /// What a template position accepts.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -361,14 +367,30 @@ impl Template {
     }
 }
 
+/// The template as a validator (Textual: `_Template.validate`).
+struct TemplateValidator(Template);
+
+impl Validator for TemplateValidator {
+    fn validate(&self, value: &str) -> ValidationResult {
+        let v: Vec<char> = value.chars().collect();
+        if self.0.validate(&v) {
+            self.success()
+        } else {
+            self.failure(Some("Value does not match template!"), Some(value))
+        }
+    }
+
+    fn name(&self) -> &str {
+        "Template"
+    }
+}
+
 /// A text input that follows a template mask.
 #[derive(Debug, Clone)]
 pub struct MaskedInput {
     input: Input,
     template_str: String,
     template: Template,
-    valid_empty: bool,
-    valid: bool,
     scroll_x: Cell<i32>,
 }
 
@@ -389,12 +411,11 @@ impl MaskedInput {
         let mut input = Input::new().value(value.iter().collect::<String>());
         input.set_cursor_position(cursor);
         input.access = masked_access;
+        input.template_validator = Some(Rc::new(TemplateValidator(t.clone())));
         Ok(MaskedInput {
             input,
             template_str: template.to_string(),
             template: t,
-            valid_empty: false,
-            valid: true,
             scroll_x: Cell::new(0),
         })
     }
@@ -418,9 +439,27 @@ impl MaskedInput {
         self
     }
 
-    /// Treat an empty value as valid.
+    /// An empty value passes the validators (not the template, as in Textual).
     pub fn valid_empty(mut self, valid_empty: bool) -> Self {
-        self.valid_empty = valid_empty;
+        self.input = self.input.valid_empty(valid_empty);
+        self
+    }
+
+    /// Add a validator, run after the template (Textual: `validators=`).
+    pub fn validator(mut self, validator: impl Validator + 'static) -> Self {
+        self.input = self.input.validator(validator);
+        self
+    }
+
+    /// Add validators (Textual: `validators=`).
+    pub fn validators(mut self, validators: impl IntoIterator<Item = Box<dyn Validator>>) -> Self {
+        self.input = self.input.validators(validators);
+        self
+    }
+
+    /// When to validate (Textual: `validate_on`; default: all three).
+    pub fn validate_on(mut self, on: impl IntoIterator<Item = ValidateOn>) -> Self {
+        self.input = self.input.validate_on(on);
         self
     }
 
@@ -466,15 +505,30 @@ impl MaskedInput {
         self.template.mask().into_iter().collect()
     }
 
-    /// Whether the value matched the template at the last validation.
+    /// Whether the value passed the last validation (template and validators).
     pub fn is_valid(&self) -> bool {
-        self.valid
+        self.input.is_valid()
     }
 
-    /// Whether `value` fully matches the template (all required positions filled).
+    /// The validators (the template is checked before them).
+    pub fn get_validators(&self) -> &[Rc<dyn Validator>] {
+        self.input.get_validators()
+    }
+
+    /// Whether the value is validated on `on`.
+    pub fn validates_on(&self, on: ValidateOn) -> bool {
+        self.input.validates_on(on)
+    }
+
+    pub fn is_valid_empty(&self) -> bool {
+        self.input.is_valid_empty()
+    }
+
+    /// Whether `value` passes the template check (every required position filled with an
+    /// accepted character). As in Textual, characters past the template's end are ignored.
     pub fn matches_template(&self, value: &str) -> bool {
         let v: Vec<char> = value.chars().collect();
-        v.len() <= self.template.len() && self.template.validate(&v)
+        self.template.validate(&v)
     }
 
     // ------------------------------------------------------------ mutation
@@ -487,7 +541,6 @@ impl MaskedInput {
         let value: String = value.into_iter().collect();
         self.input.set_value(value, ctx);
         self.input.set_cursor_position(cursor);
-        self.validate(ctx);
     }
 
     fn set_cursor(&mut self, cursor: usize) {
@@ -507,12 +560,28 @@ impl MaskedInput {
         true
     }
 
-    /// Change the template (re-validates the value).
+    /// Change the template. Like Textual, this re-validates and posts `input::Changed`.
     pub fn set_template(&mut self, template: &str, ctx: &mut Ctx) -> Result<(), TemplateError> {
         self.template = Template::parse(template, self.input.get_placeholder())?;
         self.template_str = template.to_string();
-        self.validate(ctx);
+        self.input.template_validator = Some(Rc::new(TemplateValidator(self.template.clone())));
+        self.input.post_changed(ctx);
         Ok(())
+    }
+
+    /// Replace the validators.
+    pub fn set_validators(&mut self, validators: impl IntoIterator<Item = Box<dyn Validator>>) {
+        self.input.set_validators(validators);
+    }
+
+    /// Change `valid_empty`; like Textual, this re-validates and posts `input::Changed`.
+    pub fn set_valid_empty(&mut self, valid_empty: bool, ctx: &mut Ctx) {
+        self.input.set_valid_empty(valid_empty, ctx);
+    }
+
+    /// Change when the value is validated.
+    pub fn set_validate_on(&mut self, on: impl IntoIterator<Item = ValidateOn>) {
+        self.input.set_validate_on(on);
     }
 
     pub fn set_placeholder(&mut self, placeholder: &str) {
@@ -526,13 +595,16 @@ impl MaskedInput {
         self.set(v, c, ctx);
     }
 
-    /// Validate against the template, setting the `-valid` / `-invalid` classes.
-    pub fn validate(&mut self, ctx: &mut Ctx) -> bool {
-        let v = self.chars();
-        self.valid = (self.valid_empty && v.is_empty()) || self.template.validate(&v);
-        ctx.set_class(!self.valid, "-invalid");
-        ctx.set_class(self.valid, "-valid");
-        self.valid
+    /// Validate the value against the template, then the validators, setting the `-valid` /
+    /// `-invalid` classes (Textual: `MaskedInput.validate`). Always a result: the template is
+    /// always checked.
+    pub fn validate(&mut self, ctx: &mut Ctx) -> Option<ValidationResult> {
+        self.input.validate(ctx)
+    }
+
+    /// Validate `value` (see [`validate`](MaskedInput::validate)).
+    pub fn validate_value(&mut self, value: &str, ctx: &mut Ctx) -> Option<ValidationResult> {
+        self.input.validate_value(value, ctx)
     }
 
     /// Collapse a selection to its start (returns the cursor).
@@ -788,14 +860,6 @@ impl Widget for MaskedInput {
                 let len = self.chars().len();
                 self.set_cursor(len);
             }
-            "submit" => {
-                self.input.action_submit(ctx);
-                self.validate(ctx);
-            }
-            "delete_right_all" => {
-                self.input.run_action(action, args, ctx);
-                self.validate(ctx);
-            }
             _ => return self.input.run_action(action, args, ctx),
         }
         true
@@ -830,11 +894,6 @@ impl Widget for MaskedInput {
                 } else if flow == Flow::Stop {
                     self.input.set_selection(Selection::new(sel.start, idx));
                 }
-                flow
-            }
-            Event::Blur => {
-                let flow = self.input.on_event(event, ctx);
-                self.validate(ctx);
                 flow
             }
             _ => self.input.on_event(event, ctx),

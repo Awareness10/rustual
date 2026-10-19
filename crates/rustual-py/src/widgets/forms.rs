@@ -139,6 +139,9 @@ pub(crate) fn register(r: &mut Registry) {
                 m = m.value(&v);
             }
         }
+        if let Some(on) = kw::<Vec<String>>(k, "validate_on")? {
+            m = m.validate_on(super::validate_on(&on));
+        }
         m = m
             .valid_empty(kw(k, "valid_empty")?.unwrap_or(false))
             .select_on_focus(kw(k, "select_on_focus")?.unwrap_or(true))
@@ -509,6 +512,7 @@ fn set(
                     .map_err(|e| PyValueError::new_err(e.to_string()))
             })()),
             "placeholder" => Some(v.extract::<String>().map(|s| m.set_placeholder(&s))),
+            "valid_empty" => Some(v.extract::<bool>().map(|b| m.set_valid_empty(b, ctx))),
             _ => None,
         };
     }
@@ -586,7 +590,6 @@ fn call(
                 m.insert_text_at_cursor(&arg::<String>(args, 0)?, ctx);
                 none(py)
             })()),
-            "validate" => Some(to_py(py, m.validate(ctx))),
             "matches_template" => Some((|| {
                 let v: String = arg(args, 0)?;
                 to_py(py, m.matches_template(&v))

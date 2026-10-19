@@ -7,6 +7,36 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+## 0.6.0 - 2026-10-19
+
+### Added
+- `rustual::validation`, a port of `textual.validation`: `Validator`, `ValidationResult`,
+  `Failure` and the `Number`, `Integer`, `Length`, `Regex`, `Function` and `Url` validators.
+  Values are read as Python reads them (`float()` / `int()` with digits of any script,
+  `urllib.parse` for URLs), and failure descriptions match Textual's word for word; 5,800
+  goldens generated with Textual (`scripts/validation_golden.py`) check both packages.
+- `Input` / `MaskedInput` validators in Rust: `.validator(...)` / `.validators(...)`,
+  `.validate_on([ValidateOn::...])`, `.valid_empty(...)`, `validate_value()`, runtime setters;
+  `input::Changed` / `Submitted` / `Blurred` carry the `validation_result`. As in Textual,
+  `InputType::Integer` / `Number` validate with `Integer` / `Number` when no validators are given,
+  and `MaskedInput`'s template is an implicit validator ("Value does not match template!").
+
+### Changed
+- `Input::validate` / `MaskedInput::validate` return `Option<ValidationResult>` instead of `bool`;
+  the Input messages have a new `validation_result` field.
+- An `Input` with an initial value validates it and posts `input::Changed` when mounted, as in
+  Textual.
+- `MaskedInput`'s `valid_empty` exempts an empty value from the validators, not from the template
+  (Textual's behaviour), and `matches_template` ignores characters past the template.
+
+### Fixed
+- Python: `rustual.validation` now matches Textual exactly (`Regex.NoResults`, the default
+  `describe_failure`, `failure(failures=[])`, flags with compiled patterns), and `Input` validates
+  like Textual's: `validate_on` keeps only known triggers, `integer` / `number` inputs get an
+  `Integer()` / `Number()` validator, inputs without validators still get `-valid`, `is_valid`
+  follows the validators, and setting `valid_empty` re-validates. An unknown `type` raises
+  `ValueError` as in Textual.
+
 ## 0.5.2 - 2026-10-19
 
 ### Fixed

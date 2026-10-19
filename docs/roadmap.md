@@ -4,7 +4,7 @@ Where rustual is heading: full parity with Python Textual 8.2.8, and production 
 Per-feature status lives in [`features.md`](../features.md); releases follow
 [`RELEASING.md`](../RELEASING.md). Items are sized **S** (hours), **M** (a day) or **L** (several days).
 
-Latest release: **v0.5.1** on [PyPI](https://pypi.org/project/rustual-py/),
+Latest release: **v0.5.2** on [PyPI](https://pypi.org/project/rustual-py/),
 [crates.io](https://crates.io/crates/rustual) and [GitHub](https://github.com/Awareness10/rustual/releases).
 
 ## Next up
@@ -74,8 +74,7 @@ and `mother` need a web API / an LLM). Next, Textual's demo:
 - [ ] **Markdown** (M): streaming / incremental `append` (`MarkdownStream`), horizontal scrolling in code
   fences, custom block classes (`parser_factory`).
 - [ ] **DataTable** (S): re-measure row heights on column changes; wrap long cells in auto-height rows.
-- [ ] **Input** (S): `Suggester` (inline completion); pluggable validators in the Rust API (Python has
-  `validators=` via `rustual.validation`).
+- [ ] **Input** (S): `Suggester` (inline completion).
 - [ ] **Button** (S): the focus style (`b reverse`) should cover the padded label like Textual (an empty
   label shows one reversed cell; visible in `calculator` and `five_by_five`).
 - [ ] **Select** (S): render the dropdown as an overlay instead of a modal screen (after `overlay: screen`).

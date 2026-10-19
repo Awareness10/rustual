@@ -250,3 +250,18 @@ pub(crate) fn arg<'py, T: FromPyObjectOwned<'py>>(
 pub(crate) fn none(py: Python<'_>) -> PyResult<Py<PyAny>> {
     Ok(py.None())
 }
+
+/// The `validate_on` of an `Input` / `MaskedInput` (`"blur"`, `"changed"`, `"submitted"`;
+/// other names are ignored, as Textual intersects them with the valid ones).
+pub(crate) fn validate_on(names: &[String]) -> Vec<rustual::widgets::ValidateOn> {
+    use rustual::widgets::ValidateOn;
+    names
+        .iter()
+        .filter_map(|n| match n.as_str() {
+            "blur" => Some(ValidateOn::Blur),
+            "changed" => Some(ValidateOn::Changed),
+            "submitted" => Some(ValidateOn::Submitted),
+            _ => None,
+        })
+        .collect()
+}

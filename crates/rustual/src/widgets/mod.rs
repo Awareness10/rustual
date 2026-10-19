@@ -16,7 +16,7 @@ pub mod radio_set;
 pub mod switch;
 pub mod toggle_button;
 pub use checkbox::Checkbox;
-pub use input::{Input, InputType, Selection};
+pub use input::{Input, InputType, Selection, ValidateOn};
 pub use radio_button::RadioButton;
 pub use radio_set::RadioSet;
 pub use switch::Switch;

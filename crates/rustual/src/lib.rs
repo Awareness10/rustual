@@ -25,6 +25,7 @@ pub mod terminal;
 pub mod tooltip;
 pub mod transition;
 mod ux;
+pub mod validation;
 pub mod widget;
 pub mod widgets;
 pub mod workers;
@@ -61,6 +62,7 @@ pub mod prelude {
     pub use crate::events::{Event, KeyEvent, MouseButton, MouseEvent};
     pub use crate::message::{Flow, Message};
     pub use crate::pilot::Pilot;
+    pub use crate::validation::{self, ValidationResult, Validator};
     pub use crate::widget::{Child, Content, RenderCtx, Widget, WidgetExt};
     pub use crate::widgets::*;
     pub use crate::workers::{self as worker, WorkerId, WorkerOptions, WorkerState};
