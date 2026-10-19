@@ -34,6 +34,8 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
   numbers.
 
 ### Changed
+- `rustual-css`: `Styles::border_title_color` / `border_subtitle_color` are `Option<ColorValue>`
+  (were `Option<Color>`), so they can hold `auto [N%]`.
 - The run loop handles every message and call already queued by other threads (up to 1024)
   before it draws, and draws at most `max_fps` frames a second; due timers fire on time even
   while events or messages keep it busy.
