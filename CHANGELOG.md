@@ -7,6 +7,8 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 
 ## Unreleased
 
+## 0.7.0 - 2026-10-19
+
 ### Added
 - `AppHandle` runs code on the app thread from other threads and tasks, in order with the
   messages sent before it: `call_later(|ctx| ..)`, `call_on::<W>(node, |w, ctx| ..)`,
