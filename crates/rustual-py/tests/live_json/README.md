@@ -8,17 +8,17 @@ input updates (its tests run in CI), not a showcase. The same app exists three t
 |---|---|
 | [`textual_app.py`](textual_app.py) | Python [Textual](https://github.com/Textualize/textual) 8.2.8 |
 | [`rustual_app.py`](rustual_app.py) | rustual-py: the same file with only the imports swapped |
-| [`../../crates/rustual/examples/live_json.rs`](../../crates/rustual/examples/live_json.rs) | rustual in Rust |
+| [`crates/rustual/examples/live_json.rs`](../../../rustual/examples/live_json.rs) | rustual in Rust |
 
 [`feed.py`](feed.py) (stdlib only) sends the data. Each app runs one internally unless started
 with `--no-feed`.
 
 ```sh
 # rustual-py (from crates/rustual-py, which has the package installed)
-cd crates/rustual-py && uv run python ../../examples/live_json/rustual_app.py
+cd crates/rustual-py && uv run python tests/live_json/rustual_app.py
 
 # Python Textual
-uv run --with textual==8.2.8 python examples/live_json/textual_app.py
+uv run --no-project --with textual==8.2.8 python crates/rustual-py/tests/live_json/textual_app.py
 
 # Rust
 cargo run --release -p rustual --example live_json
@@ -31,7 +31,7 @@ Options (the same for all three):
 | `--mode thread` | (default) a thread accepts clients; one thread per client reads lines |
 | `--mode async` | an asyncio server (Python) / a tokio worker (Rust) |
 | `--rate 240` | rate of the internal feed in Hz (default 60) |
-| `--no-feed` | only listen; feed it from another terminal: `python examples/live_json/feed.py --rate 60` |
+| `--no-feed` | only listen; feed it from another terminal: `python crates/rustual-py/tests/live_json/feed.py --rate 60` |
 | `--port 9000`, `--host` | where to listen (default `127.0.0.1:7878`; port 0 picks a free one) |
 | `--duration 10` | quit after 10 seconds and print the stats |
 
@@ -75,6 +75,6 @@ draws at most 60 frames a second (`TEXTUAL_FPS`, as in Textual) and handles all 
 that arrived in between before each frame.
 
 The Python tests are in
-[`crates/rustual-py/tests/test_live_json.py`](../../crates/rustual-py/tests/test_live_json.py)
+[`crates/rustual-py/tests/test_live_json.py`](../test_live_json.py)
 (they also check that the two Python files differ only in their imports); the Rust ones run with
 `cargo test -p rustual --example live_json`.

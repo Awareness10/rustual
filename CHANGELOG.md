@@ -29,11 +29,15 @@ project uses [Semantic Versioning](https://semver.org/). Releases are made with
 - A live JSON form, kept as a regression test for workers and `post_message`: JSON received over
   TCP is written into input fields at 60 Hz (or faster), received by a thread or an asyncio /
   tokio worker that hands each object to the UI with `post_message`. In Rust
-  (`cargo run -p rustual --example live_json`), and in `examples/live_json/` for Python Textual
+  (`cargo run -p rustual --example live_json`), and in `crates/rustual-py/tests/live_json/` for Python Textual
   and rustual-py (the two files differ only in their imports), with a stdlib feeder and benchmark
   numbers.
 
 ### Changed
+- SVG screenshots (`to_svg`, `TEXTUAL_SCREENSHOT`, the `screenshot` action) draw block elements
+  (`▁`..`█`, half blocks, shades) and box-drawing lines (light, heavy, double, rounded) as exact
+  vector shapes instead of font glyphs: sparklines, bars and borders no longer show gaps between
+  rows or seams between columns, at any zoom. The README gallery is regenerated with it.
 - `rustual-css`: `Styles::border_title_color` / `border_subtitle_color` are `Option<ColorValue>`
   (were `Option<Color>`), so they can hold `auto [N%]`.
 - The run loop handles every message and call already queued by other threads (up to 1024)

@@ -9,332 +9,414 @@
 <g transform="translate(12, 48)">
 <rect x="0.0" y="0.0" width="882.5" height="20" fill="#434C5E" shape-rendering="crispEdges"/>
 <rect x="882.0" y="0.0" width="98.5" height="20" fill="#495263" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="9.8" y="10.0" fill="#D8DEE9" textLength="9.8" lengthAdjust="spacingAndGlyphs">⭘</text>
-<text xml:space="preserve" class="t" x="294.0" y="10.0" fill="#D8DEE9" textLength="68.6" lengthAdjust="spacingAndGlyphs">Monitor</text>
-<text xml:space="preserve" class="t" x="372.4" y="10.0" fill="#A5ACB9" textLength="294.0" lengthAdjust="spacingAndGlyphs">— 40 processes · sorted by CPU</text>
-<text xml:space="preserve" class="t" x="891.8" y="10.0" fill="#C2C9D4" textLength="78.4" lengthAdjust="spacingAndGlyphs">20:03:14</text>
 <rect x="0.0" y="20.0" width="980.5" height="20" fill="#2E3440" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="30.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">╭─</text>
-<text xml:space="preserve" class="t" x="29.4" y="30.0" fill="#D8DEE9" textLength="29.4" lengthAdjust="spacingAndGlyphs">CPU</text>
-<text xml:space="preserve" class="t" x="68.6" y="30.0" fill="#88C0D0" textLength="274.4" lengthAdjust="spacingAndGlyphs">─────────────────────────╮╭─</text>
-<text xml:space="preserve" class="t" x="352.8" y="30.0" fill="#D8DEE9" textLength="58.8" lengthAdjust="spacingAndGlyphs">Memory</text>
-<text xml:space="preserve" class="t" x="421.4" y="30.0" fill="#88C0D0" textLength="245.0" lengthAdjust="spacingAndGlyphs">──────────────────────╮╭─</text>
-<text xml:space="preserve" class="t" x="676.2" y="30.0" fill="#D8DEE9" textLength="68.6" lengthAdjust="spacingAndGlyphs">Network</text>
-<text xml:space="preserve" class="t" x="754.6" y="30.0" fill="#88C0D0" textLength="225.4" lengthAdjust="spacingAndGlyphs">──────────────────────╮</text>
 <rect x="0.0" y="40.0" width="980.5" height="20" fill="#2E3440" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="50.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="19.6" y="50.0" fill="#D8DEE9" textLength="58.8" lengthAdjust="spacingAndGlyphs">╭─╴╭─╴</text>
-<text xml:space="preserve" class="t" x="313.6" y="50.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="343.0" y="50.0" fill="#D8DEE9" textLength="68.6" lengthAdjust="spacingAndGlyphs">╶─┐ ╷ ╷</text>
-<text xml:space="preserve" class="t" x="637.0" y="50.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="666.4" y="50.0" fill="#D8DEE9" textLength="58.8" lengthAdjust="spacingAndGlyphs">╭─╮╭─╴</text>
-<text xml:space="preserve" class="t" x="970.2" y="50.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="60.0" width="980.5" height="20" fill="#2E3440" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="70.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="19.6" y="70.0" fill="#D8DEE9" textLength="58.8" lengthAdjust="spacingAndGlyphs">├─╮╰─╮</text>
-<text xml:space="preserve" class="t" x="313.6" y="70.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="362.6" y="70.0" fill="#D8DEE9" textLength="49.0" lengthAdjust="spacingAndGlyphs">│ ╰─┤</text>
-<text xml:space="preserve" class="t" x="637.0" y="70.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="666.4" y="70.0" fill="#D8DEE9" textLength="58.8" lengthAdjust="spacingAndGlyphs">╰─┤╰─╮</text>
-<text xml:space="preserve" class="t" x="970.2" y="70.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="80.0" width="980.5" height="20" fill="#2E3440" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="90.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="19.6" y="90.0" fill="#D8DEE9" textLength="68.6" lengthAdjust="spacingAndGlyphs">╰─╯╶─╯%</text>
-<text xml:space="preserve" class="t" x="313.6" y="90.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="362.6" y="90.0" fill="#D8DEE9" textLength="58.8" lengthAdjust="spacingAndGlyphs">╵•  ╵G</text>
-<text xml:space="preserve" class="t" x="637.0" y="90.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="666.4" y="90.0" fill="#D8DEE9" textLength="68.6" lengthAdjust="spacingAndGlyphs">╶─╯╶─╯M</text>
-<text xml:space="preserve" class="t" x="970.2" y="90.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="100.0" width="980.5" height="20" fill="#2E3440" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="110.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="313.6" y="110.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="637.0" y="110.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="970.2" y="110.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="120.0" width="980.5" height="20" fill="#2E3440" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="130.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="127.4" y="130.0" fill="#709BAA" textLength="19.6" lengthAdjust="spacingAndGlyphs">▂▂</text>
-<text xml:space="preserve" class="t" x="147.0" y="130.0" fill="#6D96A5" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
-<text xml:space="preserve" class="t" x="156.8" y="130.0" fill="#75A3B2" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
-<text xml:space="preserve" class="t" x="166.6" y="130.0" fill="#729EAD" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
-<text xml:space="preserve" class="t" x="205.8" y="130.0" fill="#6D96A5" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
-<text xml:space="preserve" class="t" x="215.6" y="130.0" fill="#76A4B3" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
-<text xml:space="preserve" class="t" x="225.4" y="130.0" fill="#739FAE" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
-<text xml:space="preserve" class="t" x="235.2" y="130.0" fill="#78A7B7" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="245.0" y="130.0" fill="#77A5B4" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
-<text xml:space="preserve" class="t" x="254.8" y="130.0" fill="#7DAFBF" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="264.6" y="130.0" fill="#729FAE" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
-<text xml:space="preserve" class="t" x="274.4" y="130.0" fill="#7BABBB" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="284.2" y="130.0" fill="#79A9B8" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="294.0" y="130.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="313.6" y="130.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="343.0" y="130.0" fill="#81B5C4" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
-<text xml:space="preserve" class="t" x="352.8" y="130.0" fill="#7CADBD" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="362.6" y="130.0" fill="#7DB0BF" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="372.4" y="130.0" fill="#7DAFBE" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="382.2" y="130.0" fill="#7EB0C0" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="392.0" y="130.0" fill="#7EB1C0" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="401.8" y="130.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="411.6" y="130.0" fill="#85BBCB" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
-<text xml:space="preserve" class="t" x="421.4" y="130.0" fill="#7BACBC" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="431.2" y="130.0" fill="#78A7B6" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="441.0" y="130.0" fill="#7AABBA" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="450.8" y="130.0" fill="#74A1B0" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
-<text xml:space="preserve" class="t" x="460.6" y="130.0" fill="#74A2B1" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
-<text xml:space="preserve" class="t" x="470.4" y="130.0" fill="#76A4B3" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
-<text xml:space="preserve" class="t" x="480.2" y="130.0" fill="#6E97A6" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
-<text xml:space="preserve" class="t" x="490.0" y="130.0" fill="#719DAC" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
-<text xml:space="preserve" class="t" x="499.8" y="130.0" fill="#709BAA" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
-<text xml:space="preserve" class="t" x="637.0" y="130.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="676.2" y="130.0" fill="#75A3B2" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
-<text xml:space="preserve" class="t" x="695.8" y="130.0" fill="#86BDCD" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
-<text xml:space="preserve" class="t" x="715.4" y="130.0" fill="#7CAEBE" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="725.2" y="130.0" fill="#7EB1C0" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="764.4" y="130.0" fill="#78A8B7" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="784.0" y="130.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="793.8" y="130.0" fill="#6C95A4" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
-<text xml:space="preserve" class="t" x="803.6" y="130.0" fill="#83B8C8" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
-<text xml:space="preserve" class="t" x="823.2" y="130.0" fill="#83B8C8" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
-<text xml:space="preserve" class="t" x="842.8" y="130.0" fill="#7EB0C0" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="882.0" y="130.0" fill="#77A6B5" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="911.4" y="130.0" fill="#7DB0BF" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="921.2" y="130.0" fill="#6A92A1" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
-<text xml:space="preserve" class="t" x="931.0" y="130.0" fill="#79A8B8" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="940.8" y="130.0" fill="#81B5C5" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
-<text xml:space="preserve" class="t" x="950.6" y="130.0" fill="#85BCCC" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
-<text xml:space="preserve" class="t" x="970.2" y="130.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="140.0" width="980.5" height="20" fill="#2E3440" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="150.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="19.6" y="150.0" fill="#506976" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
-<text xml:space="preserve" class="t" x="29.4" y="150.0" fill="#4D6572" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
-<text xml:space="preserve" class="t" x="39.2" y="150.0" fill="#587684" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="49.0" y="150.0" fill="#5D7D8B" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="58.8" y="150.0" fill="#546F7D" textLength="19.6" lengthAdjust="spacingAndGlyphs">▃▃</text>
-<text xml:space="preserve" class="t" x="78.4" y="150.0" fill="#516A78" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
-<text xml:space="preserve" class="t" x="88.2" y="150.0" fill="#4E6573" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
-<text xml:space="preserve" class="t" x="98.0" y="150.0" fill="#495E6B" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
-<text xml:space="preserve" class="t" x="107.8" y="150.0" fill="#4C626F" textLength="9.8" lengthAdjust="spacingAndGlyphs">▁</text>
-<text xml:space="preserve" class="t" x="117.6" y="150.0" fill="#5F808E" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
-<text xml:space="preserve" class="t" x="127.4" y="150.0" fill="#709BAA" textLength="19.6" lengthAdjust="spacingAndGlyphs">██</text>
-<text xml:space="preserve" class="t" x="147.0" y="150.0" fill="#6D96A5" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="156.8" y="150.0" fill="#75A3B2" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="166.6" y="150.0" fill="#729EAD" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="176.4" y="150.0" fill="#678D9B" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="186.2" y="150.0" fill="#688F9D" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="196.0" y="150.0" fill="#5F808E" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
-<text xml:space="preserve" class="t" x="205.8" y="150.0" fill="#6D96A5" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="215.6" y="150.0" fill="#76A4B3" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="225.4" y="150.0" fill="#739FAE" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="235.2" y="150.0" fill="#78A7B7" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="245.0" y="150.0" fill="#77A5B4" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="254.8" y="150.0" fill="#7DAFBF" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="264.6" y="150.0" fill="#729FAE" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="274.4" y="150.0" fill="#7BABBB" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="284.2" y="150.0" fill="#79A9B8" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="294.0" y="150.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="313.6" y="150.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="343.0" y="150.0" fill="#81B5C4" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="352.8" y="150.0" fill="#7CADBD" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="362.6" y="150.0" fill="#7DB0BF" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="372.4" y="150.0" fill="#7DAFBE" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="382.2" y="150.0" fill="#7EB0C0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="392.0" y="150.0" fill="#7EB1C0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="401.8" y="150.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="411.6" y="150.0" fill="#85BBCB" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="421.4" y="150.0" fill="#7BACBC" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="431.2" y="150.0" fill="#78A7B6" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="441.0" y="150.0" fill="#7AABBA" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="450.8" y="150.0" fill="#74A1B0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="460.6" y="150.0" fill="#74A2B1" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="470.4" y="150.0" fill="#76A4B3" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="480.2" y="150.0" fill="#6E97A6" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="490.0" y="150.0" fill="#719DAC" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="499.8" y="150.0" fill="#709BAA" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="509.6" y="150.0" fill="#69909F" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="519.4" y="150.0" fill="#668B9A" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="529.2" y="150.0" fill="#678E9C" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="539.0" y="150.0" fill="#638795" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
-<text xml:space="preserve" class="t" x="548.8" y="150.0" fill="#678D9B" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="558.6" y="150.0" fill="#648997" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
-<text xml:space="preserve" class="t" x="568.4" y="150.0" fill="#628593" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
-<text xml:space="preserve" class="t" x="578.2" y="150.0" fill="#608391" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
-<text xml:space="preserve" class="t" x="588.0" y="150.0" fill="#5B7B89" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="597.8" y="150.0" fill="#587683" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="607.6" y="150.0" fill="#546F7D" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
-<text xml:space="preserve" class="t" x="617.4" y="150.0" fill="#506976" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
-<text xml:space="preserve" class="t" x="637.0" y="150.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="666.4" y="150.0" fill="#536D7B" textLength="9.8" lengthAdjust="spacingAndGlyphs">▃</text>
-<text xml:space="preserve" class="t" x="676.2" y="150.0" fill="#75A3B2" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="686.0" y="150.0" fill="#648897" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
-<text xml:space="preserve" class="t" x="695.8" y="150.0" fill="#86BDCD" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="705.6" y="150.0" fill="#6A919F" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="715.4" y="150.0" fill="#7CAEBE" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="725.2" y="150.0" fill="#7EB1C0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="735.0" y="150.0" fill="#5D7D8B" textLength="9.8" lengthAdjust="spacingAndGlyphs">▅</text>
-<text xml:space="preserve" class="t" x="744.8" y="150.0" fill="#4D6572" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
-<text xml:space="preserve" class="t" x="754.6" y="150.0" fill="#577482" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="764.4" y="150.0" fill="#78A8B7" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="774.2" y="150.0" fill="#648896" textLength="9.8" lengthAdjust="spacingAndGlyphs">▇</text>
-<text xml:space="preserve" class="t" x="784.0" y="150.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="793.8" y="150.0" fill="#6C95A4" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="803.6" y="150.0" fill="#83B8C8" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="813.4" y="150.0" fill="#55717F" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="823.2" y="150.0" fill="#83B8C8" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="833.0" y="150.0" fill="#608391" textLength="9.8" lengthAdjust="spacingAndGlyphs">▆</text>
-<text xml:space="preserve" class="t" x="842.8" y="150.0" fill="#7EB0C0" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="852.6" y="150.0" fill="#55717F" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="862.4" y="150.0" fill="#4F6875" textLength="9.8" lengthAdjust="spacingAndGlyphs">▂</text>
-<text xml:space="preserve" class="t" x="872.2" y="150.0" fill="#567380" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="882.0" y="150.0" fill="#77A6B5" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="891.8" y="150.0" fill="#567280" textLength="9.8" lengthAdjust="spacingAndGlyphs">▄</text>
-<text xml:space="preserve" class="t" x="901.6" y="150.0" fill="#69909E" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="911.4" y="150.0" fill="#7DB0BF" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="921.2" y="150.0" fill="#6A92A1" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="931.0" y="150.0" fill="#79A8B8" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="940.8" y="150.0" fill="#81B5C5" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="950.6" y="150.0" fill="#85BCCC" textLength="9.8" lengthAdjust="spacingAndGlyphs">█</text>
-<text xml:space="preserve" class="t" x="970.2" y="150.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="160.0" width="980.5" height="20" fill="#2E3440" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="170.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="313.6" y="170.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="343.0" y="170.0" fill="#88C0D0" textLength="147.0" lengthAdjust="spacingAndGlyphs">━━━━━━━━━━━━━━━</text>
-<text xml:space="preserve" class="t" x="490.0" y="170.0" fill="#3B4252" textLength="137.2" lengthAdjust="spacingAndGlyphs">╺━━━━━━━━━━━━━</text>
-<text xml:space="preserve" class="t" x="637.0" y="170.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">││</text>
-<text xml:space="preserve" class="t" x="970.2" y="170.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="180.0" width="980.5" height="20" fill="#2E3440" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="190.0" fill="#88C0D0" textLength="980.0" lengthAdjust="spacingAndGlyphs">╰───────────────────────────────╯╰───────────────────────────────╯╰────────────────────────────────╯</text>
 <rect x="0.0" y="200.0" width="980.5" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="210.0" fill="#81A1C1" textLength="19.6" lengthAdjust="spacingAndGlyphs">╭─</text>
-<text xml:space="preserve" class="t" x="29.4" y="210.0" fill="#D8DEE9" textLength="88.2" lengthAdjust="spacingAndGlyphs">Processes</text>
-<text xml:space="preserve" class="t" x="127.4" y="210.0" fill="#81A1C1" textLength="852.6" lengthAdjust="spacingAndGlyphs">──────────────────────────────────────────────────────────────────────────────────────╮</text>
 <rect x="0.0" y="220.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="9.8" y="220.0" width="941.3" height="20" fill="#434C5E" shape-rendering="crispEdges"/>
 <rect x="950.6" y="220.0" width="20.1" height="20" fill="#48626F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="220.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="230.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t b" x="19.6" y="230.0" fill="#D8DEE9" textLength="421.4" lengthAdjust="spacingAndGlyphs">PID   Name           CPU %  Mem MB  Threads</text>
-<text xml:space="preserve" class="t" x="970.2" y="230.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="240.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="9.8" y="240.0" width="941.3" height="20" fill="#88C0D0" shape-rendering="crispEdges"/>
 <rect x="950.6" y="240.0" width="20.1" height="20" fill="#48626F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="240.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="250.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="19.6" y="250.0" fill="#2E3440" textLength="421.4" lengthAdjust="spacingAndGlyphs">1410  kworker         41.1     384        1</text>
-<text xml:space="preserve" class="t" x="970.2" y="250.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="260.0" width="951.1" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="950.6" y="260.0" width="20.1" height="20" fill="#48626F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="260.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="270.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="29.4" y="270.0" fill="#D8DEE9" textLength="117.6" lengthAdjust="spacingAndGlyphs">855  rustual</text>
-<text xml:space="preserve" class="t" x="235.2" y="270.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">38.8</text>
-<text xml:space="preserve" class="t" x="333.2" y="270.0" fill="#D8DEE9" textLength="107.8" lengthAdjust="spacingAndGlyphs">63        5</text>
-<text xml:space="preserve" class="t" x="970.2" y="270.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="280.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="9.8" y="280.0" width="941.3" height="20" fill="#343B4A" shape-rendering="crispEdges"/>
 <rect x="950.6" y="280.0" width="20.1" height="20" fill="#48626F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="280.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="290.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="29.4" y="290.0" fill="#D8DEE9" textLength="166.6" lengthAdjust="spacingAndGlyphs">596  redis-server</text>
-<text xml:space="preserve" class="t" x="235.2" y="290.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">37.9</text>
-<text xml:space="preserve" class="t" x="323.4" y="290.0" fill="#D8DEE9" textLength="117.6" lengthAdjust="spacingAndGlyphs">104       16</text>
-<text xml:space="preserve" class="t" x="970.2" y="290.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="300.0" width="951.1" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="950.6" y="300.0" width="20.1" height="20" fill="#48626F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="300.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="310.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="29.4" y="310.0" fill="#D8DEE9" textLength="117.6" lengthAdjust="spacingAndGlyphs">448  firefox</text>
-<text xml:space="preserve" class="t" x="235.2" y="310.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">35.9</text>
-<text xml:space="preserve" class="t" x="333.2" y="310.0" fill="#D8DEE9" textLength="107.8" lengthAdjust="spacingAndGlyphs">31       37</text>
-<text xml:space="preserve" class="t" x="970.2" y="310.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="320.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="9.8" y="320.0" width="941.3" height="20" fill="#343B4A" shape-rendering="crispEdges"/>
 <rect x="950.6" y="320.0" width="20.1" height="20" fill="#48626F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="320.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="330.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="29.4" y="330.0" fill="#D8DEE9" textLength="127.4" lengthAdjust="spacingAndGlyphs">892  postgres</text>
-<text xml:space="preserve" class="t" x="235.2" y="330.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">34.2</text>
-<text xml:space="preserve" class="t" x="333.2" y="330.0" fill="#D8DEE9" textLength="107.8" lengthAdjust="spacingAndGlyphs">52       21</text>
-<text xml:space="preserve" class="t" x="970.2" y="330.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="340.0" width="951.1" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="950.6" y="340.0" width="20.1" height="20" fill="#48626F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="340.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="350.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="19.6" y="350.0" fill="#D8DEE9" textLength="98.0" lengthAdjust="spacingAndGlyphs">1151  sshd</text>
-<text xml:space="preserve" class="t" x="235.2" y="350.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">32.0</text>
-<text xml:space="preserve" class="t" x="323.4" y="350.0" fill="#D8DEE9" textLength="117.6" lengthAdjust="spacingAndGlyphs">246        4</text>
-<text xml:space="preserve" class="t" x="970.2" y="350.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="360.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="9.8" y="360.0" width="941.3" height="20" fill="#343B4A" shape-rendering="crispEdges"/>
 <rect x="950.6" y="360.0" width="20.1" height="20" fill="#48626F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="360.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="370.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="29.4" y="370.0" fill="#D8DEE9" textLength="88.2" lengthAdjust="spacingAndGlyphs">485  code</text>
-<text xml:space="preserve" class="t" x="235.2" y="370.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">26.4</text>
-<text xml:space="preserve" class="t" x="323.4" y="370.0" fill="#D8DEE9" textLength="117.6" lengthAdjust="spacingAndGlyphs">112        3</text>
-<text xml:space="preserve" class="t" x="950.6" y="370.0" fill="#1E242F" textLength="19.6" lengthAdjust="spacingAndGlyphs">▇▇</text>
-<text xml:space="preserve" class="t" x="970.2" y="370.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="380.0" width="951.1" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="950.6" y="380.0" width="20.1" height="20" fill="#1E242F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="380.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="390.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="19.6" y="390.0" fill="#D8DEE9" textLength="98.0" lengthAdjust="spacingAndGlyphs">1669  code</text>
-<text xml:space="preserve" class="t" x="235.2" y="390.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">25.0</text>
-<text xml:space="preserve" class="t" x="323.4" y="390.0" fill="#D8DEE9" textLength="117.6" lengthAdjust="spacingAndGlyphs">181       37</text>
-<text xml:space="preserve" class="t" x="970.2" y="390.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="400.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="9.8" y="400.0" width="941.3" height="20" fill="#343B4A" shape-rendering="crispEdges"/>
 <rect x="950.6" y="400.0" width="20.1" height="20" fill="#1E242F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="400.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="410.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="29.4" y="410.0" fill="#D8DEE9" textLength="411.6" lengthAdjust="spacingAndGlyphs">411  cargo           23.0      97       39</text>
-<text xml:space="preserve" class="t" x="970.2" y="410.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="420.0" width="951.1" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="950.6" y="420.0" width="20.1" height="20" fill="#1E242F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="420.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="430.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="29.4" y="430.0" fill="#D8DEE9" textLength="411.6" lengthAdjust="spacingAndGlyphs">670  node            21.4     105       33</text>
-<text xml:space="preserve" class="t" x="970.2" y="430.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="440.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="9.8" y="440.0" width="941.3" height="20" fill="#343B4A" shape-rendering="crispEdges"/>
 <rect x="950.6" y="440.0" width="20.1" height="20" fill="#1E242F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="440.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="450.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="29.4" y="450.0" fill="#D8DEE9" textLength="411.6" lengthAdjust="spacingAndGlyphs">633  python3         21.0     315       25</text>
-<text xml:space="preserve" class="t" x="970.2" y="450.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="460.0" width="951.1" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="950.6" y="460.0" width="20.1" height="20" fill="#1E242F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="460.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="470.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="29.4" y="470.0" fill="#D8DEE9" textLength="411.6" lengthAdjust="spacingAndGlyphs">744  pipewire        19.5     154       20</text>
-<text xml:space="preserve" class="t" x="970.2" y="470.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="480.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="9.8" y="480.0" width="941.3" height="20" fill="#343B4A" shape-rendering="crispEdges"/>
 <rect x="950.6" y="480.0" width="20.1" height="20" fill="#1E242F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="480.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="490.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="19.6" y="490.0" fill="#D8DEE9" textLength="421.4" lengthAdjust="spacingAndGlyphs">1521  nginx           15.7     247       33</text>
-<text xml:space="preserve" class="t" x="970.2" y="490.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="500.0" width="951.1" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="950.6" y="500.0" width="20.1" height="20" fill="#1E242F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="500.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="510.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="19.6" y="510.0" fill="#D8DEE9" textLength="421.4" lengthAdjust="spacingAndGlyphs">1077  code            14.5     250       38</text>
-<text xml:space="preserve" class="t" x="970.2" y="510.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="520.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="9.8" y="520.0" width="941.3" height="20" fill="#343B4A" shape-rendering="crispEdges"/>
 <rect x="950.6" y="520.0" width="20.1" height="20" fill="#1E242F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="520.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="530.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="19.6" y="530.0" fill="#D8DEE9" textLength="421.4" lengthAdjust="spacingAndGlyphs">1336  pipewire        13.5      18        1</text>
-<text xml:space="preserve" class="t" x="970.2" y="530.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="540.0" width="951.1" height="20" fill="#424959" shape-rendering="crispEdges"/>
 <rect x="950.6" y="540.0" width="20.1" height="20" fill="#1E242F" shape-rendering="crispEdges"/>
 <rect x="970.2" y="540.0" width="10.3" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="550.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
-<text xml:space="preserve" class="t" x="29.4" y="550.0" fill="#D8DEE9" textLength="411.6" lengthAdjust="spacingAndGlyphs">559  sshd            13.4     180       26</text>
-<text xml:space="preserve" class="t" x="970.2" y="550.0" fill="#81A1C1" textLength="9.8" lengthAdjust="spacingAndGlyphs">│</text>
 <rect x="0.0" y="560.0" width="980.5" height="20" fill="#424959" shape-rendering="crispEdges"/>
-<text xml:space="preserve" class="t" x="0.0" y="570.0" fill="#81A1C1" textLength="980.0" lengthAdjust="spacingAndGlyphs">╰──────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
 <rect x="0.0" y="580.0" width="980.5" height="20" fill="#434C5E" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="9.8" y="10.0" fill="#D8DEE9" textLength="9.8" lengthAdjust="spacingAndGlyphs">⭘</text>
+<text xml:space="preserve" class="t" x="294.0" y="10.0" fill="#D8DEE9" textLength="68.6" lengthAdjust="spacingAndGlyphs">Monitor</text>
+<text xml:space="preserve" class="t" x="372.4" y="10.0" fill="#A5ACB9" textLength="294.0" lengthAdjust="spacingAndGlyphs">— 40 processes · sorted by CPU</text>
+<text xml:space="preserve" class="t" x="891.8" y="10.0" fill="#C2C9D4" textLength="78.4" lengthAdjust="spacingAndGlyphs">20:26:19</text>
+<path d="M9.80 30.00 H9.80 A4.90 4.90 0 0 0 4.90 34.90 V40.00" fill="none" stroke="#88C0D0" stroke-width="1.25"/>
+<rect x="9.80" y="29.38" width="9.80" height="1.25" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="68.60" y="29.38" width="245.00" height="1.25" fill="#88C0D0" shape-rendering="crispEdges"/>
+<path d="M313.60 30.00 H313.60 A4.90 4.90 0 0 1 318.50 34.90 V40.00" fill="none" stroke="#88C0D0" stroke-width="1.25"/>
+<path d="M333.20 30.00 H333.20 A4.90 4.90 0 0 0 328.30 34.90 V40.00" fill="none" stroke="#88C0D0" stroke-width="1.25"/>
+<rect x="333.20" y="29.38" width="9.80" height="1.25" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="421.40" y="29.38" width="215.60" height="1.25" fill="#88C0D0" shape-rendering="crispEdges"/>
+<path d="M637.00 30.00 H637.00 A4.90 4.90 0 0 1 641.90 34.90 V40.00" fill="none" stroke="#88C0D0" stroke-width="1.25"/>
+<path d="M656.60 30.00 H656.60 A4.90 4.90 0 0 0 651.70 34.90 V40.00" fill="none" stroke="#88C0D0" stroke-width="1.25"/>
+<rect x="656.60" y="29.38" width="9.80" height="1.25" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="754.60" y="29.38" width="215.60" height="1.25" fill="#88C0D0" shape-rendering="crispEdges"/>
+<path d="M970.20 30.00 H970.20 A4.90 4.90 0 0 1 975.10 34.90 V40.00" fill="none" stroke="#88C0D0" stroke-width="1.25"/>
+<text xml:space="preserve" class="t" x="29.4" y="30.0" fill="#D8DEE9" textLength="29.4" lengthAdjust="spacingAndGlyphs">CPU</text>
+<text xml:space="preserve" class="t" x="352.8" y="30.0" fill="#D8DEE9" textLength="58.8" lengthAdjust="spacingAndGlyphs">Memory</text>
+<text xml:space="preserve" class="t" x="676.2" y="30.0" fill="#D8DEE9" textLength="68.6" lengthAdjust="spacingAndGlyphs">Network</text>
+<rect x="4.28" y="40.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<path d="M29.40 50.00 H29.40 A4.90 4.90 0 0 0 24.50 54.90 V60.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="29.40" y="49.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="39.20" y="49.38" width="5.53" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<path d="M58.80 50.00 H58.80 A4.90 4.90 0 0 0 53.90 54.90 V60.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="58.80" y="49.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="68.60" y="49.38" width="5.53" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="317.88" y="40.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="327.67" y="40.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="347.27" y="49.38" width="5.52" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="352.80" y="49.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="362.60" y="49.38" width="5.52" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="366.88" y="49.38" width="1.25" height="10.62" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="386.48" y="49.38" width="1.25" height="10.62" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="406.08" y="49.38" width="1.25" height="10.62" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="641.28" y="40.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="651.08" y="40.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<path d="M676.20 50.00 H676.20 A4.90 4.90 0 0 0 671.30 54.90 V60.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="676.20" y="49.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<path d="M686.00 50.00 H686.00 A4.90 4.90 0 0 1 690.90 54.90 V60.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<path d="M705.60 50.00 H705.60 A4.90 4.90 0 0 0 700.70 54.90 V60.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="705.60" y="49.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="715.40" y="49.38" width="5.53" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="974.48" y="40.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="4.28" y="60.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="23.88" y="69.38" width="5.53" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="23.88" y="60.00" width="1.25" height="20.00" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="29.40" y="69.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<path d="M39.20 70.00 H39.20 A4.90 4.90 0 0 1 44.10 74.90 V80.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<path d="M58.80 70.00 H58.80 A4.90 4.90 0 0 1 53.90 65.10 V60.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="58.80" y="69.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<path d="M68.60 70.00 H68.60 A4.90 4.90 0 0 1 73.50 74.90 V80.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="317.88" y="60.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="327.67" y="60.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="366.88" y="60.00" width="1.25" height="20.00" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<path d="M392.00 70.00 H392.00 A4.90 4.90 0 0 1 387.10 65.10 V60.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="392.00" y="69.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="401.80" y="69.38" width="5.52" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="406.08" y="60.00" width="1.25" height="20.00" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="641.28" y="60.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="651.08" y="60.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<path d="M676.20 70.00 H676.20 A4.90 4.90 0 0 1 671.30 65.10 V60.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="676.20" y="69.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="686.00" y="69.38" width="5.53" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="690.28" y="60.00" width="1.25" height="20.00" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<path d="M705.60 70.00 H705.60 A4.90 4.90 0 0 1 700.70 65.10 V60.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="705.60" y="69.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<path d="M715.40 70.00 H715.40 A4.90 4.90 0 0 1 720.30 74.90 V80.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="974.48" y="60.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="4.28" y="80.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<path d="M29.40 90.00 H29.40 A4.90 4.90 0 0 1 24.50 85.10 V80.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="29.40" y="89.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<path d="M39.20 90.00 H39.20 A4.90 4.90 0 0 0 44.10 85.10 V80.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="53.28" y="89.38" width="5.52" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="58.80" y="89.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<path d="M68.60 90.00 H68.60 A4.90 4.90 0 0 0 73.50 85.10 V80.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="317.88" y="80.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="327.67" y="80.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="366.88" y="80.00" width="1.25" height="10.62" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="406.08" y="80.00" width="1.25" height="10.62" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="641.28" y="80.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="651.08" y="80.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="670.68" y="89.38" width="5.52" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="676.20" y="89.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<path d="M686.00 90.00 H686.00 A4.90 4.90 0 0 0 690.90 85.10 V80.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="700.08" y="89.38" width="5.52" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<rect x="705.60" y="89.38" width="9.80" height="1.25" fill="#D8DEE9" shape-rendering="crispEdges"/>
+<path d="M715.40 90.00 H715.40 A4.90 4.90 0 0 0 720.30 85.10 V80.00" fill="none" stroke="#D8DEE9" stroke-width="1.25"/>
+<rect x="974.48" y="80.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="78.4" y="90.0" fill="#D8DEE9" textLength="9.8" lengthAdjust="spacingAndGlyphs">%</text>
+<text xml:space="preserve" class="t" x="372.4" y="90.0" fill="#D8DEE9" textLength="9.8" lengthAdjust="spacingAndGlyphs">•</text>
+<text xml:space="preserve" class="t" x="411.6" y="90.0" fill="#D8DEE9" textLength="9.8" lengthAdjust="spacingAndGlyphs">G</text>
+<text xml:space="preserve" class="t" x="725.2" y="90.0" fill="#D8DEE9" textLength="9.8" lengthAdjust="spacingAndGlyphs">M</text>
+<rect x="4.28" y="100.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="317.88" y="100.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="327.67" y="100.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="641.28" y="100.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="651.08" y="100.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="974.48" y="100.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="4.28" y="120.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="127.40" y="135.00" width="19.60" height="5.00" fill="#709BAA" shape-rendering="crispEdges"/>
+<rect x="147.00" y="137.50" width="9.80" height="2.50" fill="#6D96A5" shape-rendering="crispEdges"/>
+<rect x="156.80" y="132.50" width="9.80" height="7.50" fill="#75A3B2" shape-rendering="crispEdges"/>
+<rect x="166.60" y="135.00" width="9.80" height="5.00" fill="#729EAD" shape-rendering="crispEdges"/>
+<rect x="205.80" y="137.50" width="9.80" height="2.50" fill="#6D96A5" shape-rendering="crispEdges"/>
+<rect x="215.60" y="132.50" width="9.80" height="7.50" fill="#76A4B3" shape-rendering="crispEdges"/>
+<rect x="225.40" y="132.50" width="9.80" height="7.50" fill="#739FAE" shape-rendering="crispEdges"/>
+<rect x="235.20" y="130.00" width="9.80" height="10.00" fill="#78A7B7" shape-rendering="crispEdges"/>
+<rect x="245.00" y="132.50" width="9.80" height="7.50" fill="#77A5B4" shape-rendering="crispEdges"/>
+<rect x="254.80" y="127.50" width="9.80" height="12.50" fill="#7DAFBF" shape-rendering="crispEdges"/>
+<rect x="264.60" y="135.00" width="9.80" height="5.00" fill="#729FAE" shape-rendering="crispEdges"/>
+<rect x="274.40" y="130.00" width="9.80" height="10.00" fill="#7BABBB" shape-rendering="crispEdges"/>
+<rect x="284.20" y="130.00" width="9.80" height="10.00" fill="#79A9B8" shape-rendering="crispEdges"/>
+<rect x="294.00" y="120.00" width="9.80" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="317.88" y="120.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="327.67" y="120.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="343.00" y="125.00" width="9.80" height="15.00" fill="#81B5C4" shape-rendering="crispEdges"/>
+<rect x="352.80" y="127.50" width="9.80" height="12.50" fill="#7CADBD" shape-rendering="crispEdges"/>
+<rect x="362.60" y="127.50" width="9.80" height="12.50" fill="#7DB0BF" shape-rendering="crispEdges"/>
+<rect x="372.40" y="127.50" width="9.80" height="12.50" fill="#7DAFBE" shape-rendering="crispEdges"/>
+<rect x="382.20" y="127.50" width="9.80" height="12.50" fill="#7EB0C0" shape-rendering="crispEdges"/>
+<rect x="392.00" y="127.50" width="9.80" height="12.50" fill="#7EB1C0" shape-rendering="crispEdges"/>
+<rect x="401.80" y="120.00" width="9.80" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="411.60" y="122.50" width="9.80" height="17.50" fill="#85BBCB" shape-rendering="crispEdges"/>
+<rect x="421.40" y="127.50" width="9.80" height="12.50" fill="#7BACBC" shape-rendering="crispEdges"/>
+<rect x="431.20" y="130.00" width="9.80" height="10.00" fill="#78A7B6" shape-rendering="crispEdges"/>
+<rect x="441.00" y="130.00" width="9.80" height="10.00" fill="#7AABBA" shape-rendering="crispEdges"/>
+<rect x="450.80" y="132.50" width="9.80" height="7.50" fill="#74A1B0" shape-rendering="crispEdges"/>
+<rect x="460.60" y="132.50" width="9.80" height="7.50" fill="#74A2B1" shape-rendering="crispEdges"/>
+<rect x="470.40" y="132.50" width="9.80" height="7.50" fill="#76A4B3" shape-rendering="crispEdges"/>
+<rect x="480.20" y="137.50" width="9.80" height="2.50" fill="#6E97A6" shape-rendering="crispEdges"/>
+<rect x="490.00" y="135.00" width="9.80" height="5.00" fill="#719DAC" shape-rendering="crispEdges"/>
+<rect x="499.80" y="135.00" width="9.80" height="5.00" fill="#709BAA" shape-rendering="crispEdges"/>
+<rect x="641.28" y="120.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="651.08" y="120.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="676.20" y="132.50" width="9.80" height="7.50" fill="#75A3B2" shape-rendering="crispEdges"/>
+<rect x="695.80" y="122.50" width="9.80" height="17.50" fill="#86BDCD" shape-rendering="crispEdges"/>
+<rect x="715.40" y="127.50" width="9.80" height="12.50" fill="#7CAEBE" shape-rendering="crispEdges"/>
+<rect x="725.20" y="127.50" width="9.80" height="12.50" fill="#7EB1C0" shape-rendering="crispEdges"/>
+<rect x="764.40" y="130.00" width="9.80" height="10.00" fill="#78A8B7" shape-rendering="crispEdges"/>
+<rect x="784.00" y="120.00" width="9.80" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="793.80" y="137.50" width="9.80" height="2.50" fill="#6C95A4" shape-rendering="crispEdges"/>
+<rect x="803.60" y="125.00" width="9.80" height="15.00" fill="#83B8C8" shape-rendering="crispEdges"/>
+<rect x="823.20" y="125.00" width="9.80" height="15.00" fill="#83B8C8" shape-rendering="crispEdges"/>
+<rect x="842.80" y="127.50" width="9.80" height="12.50" fill="#7EB0C0" shape-rendering="crispEdges"/>
+<rect x="882.00" y="130.00" width="9.80" height="10.00" fill="#77A6B5" shape-rendering="crispEdges"/>
+<rect x="911.40" y="127.50" width="9.80" height="12.50" fill="#7DB0BF" shape-rendering="crispEdges"/>
+<rect x="921.20" y="137.50" width="9.80" height="2.50" fill="#6A92A1" shape-rendering="crispEdges"/>
+<rect x="931.00" y="130.00" width="9.80" height="10.00" fill="#79A8B8" shape-rendering="crispEdges"/>
+<rect x="940.80" y="125.00" width="9.80" height="15.00" fill="#81B5C5" shape-rendering="crispEdges"/>
+<rect x="950.60" y="122.50" width="9.80" height="17.50" fill="#85BCCC" shape-rendering="crispEdges"/>
+<rect x="974.48" y="120.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="4.28" y="140.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="19.60" y="155.00" width="9.80" height="5.00" fill="#506976" shape-rendering="crispEdges"/>
+<rect x="29.40" y="155.00" width="9.80" height="5.00" fill="#4D6572" shape-rendering="crispEdges"/>
+<rect x="39.20" y="150.00" width="9.80" height="10.00" fill="#587684" shape-rendering="crispEdges"/>
+<rect x="49.00" y="147.50" width="9.80" height="12.50" fill="#5D7D8B" shape-rendering="crispEdges"/>
+<rect x="58.80" y="152.50" width="19.60" height="7.50" fill="#546F7D" shape-rendering="crispEdges"/>
+<rect x="78.40" y="155.00" width="9.80" height="5.00" fill="#516A78" shape-rendering="crispEdges"/>
+<rect x="88.20" y="155.00" width="9.80" height="5.00" fill="#4E6573" shape-rendering="crispEdges"/>
+<rect x="98.00" y="157.50" width="9.80" height="2.50" fill="#495E6B" shape-rendering="crispEdges"/>
+<rect x="107.80" y="157.50" width="9.80" height="2.50" fill="#4C626F" shape-rendering="crispEdges"/>
+<rect x="117.60" y="145.00" width="9.80" height="15.00" fill="#5F808E" shape-rendering="crispEdges"/>
+<rect x="127.40" y="140.00" width="19.60" height="20.00" fill="#709BAA" shape-rendering="crispEdges"/>
+<rect x="147.00" y="140.00" width="9.80" height="20.00" fill="#6D96A5" shape-rendering="crispEdges"/>
+<rect x="156.80" y="140.00" width="9.80" height="20.00" fill="#75A3B2" shape-rendering="crispEdges"/>
+<rect x="166.60" y="140.00" width="9.80" height="20.00" fill="#729EAD" shape-rendering="crispEdges"/>
+<rect x="176.40" y="140.00" width="9.80" height="20.00" fill="#678D9B" shape-rendering="crispEdges"/>
+<rect x="186.20" y="140.00" width="9.80" height="20.00" fill="#688F9D" shape-rendering="crispEdges"/>
+<rect x="196.00" y="145.00" width="9.80" height="15.00" fill="#5F808E" shape-rendering="crispEdges"/>
+<rect x="205.80" y="140.00" width="9.80" height="20.00" fill="#6D96A5" shape-rendering="crispEdges"/>
+<rect x="215.60" y="140.00" width="9.80" height="20.00" fill="#76A4B3" shape-rendering="crispEdges"/>
+<rect x="225.40" y="140.00" width="9.80" height="20.00" fill="#739FAE" shape-rendering="crispEdges"/>
+<rect x="235.20" y="140.00" width="9.80" height="20.00" fill="#78A7B7" shape-rendering="crispEdges"/>
+<rect x="245.00" y="140.00" width="9.80" height="20.00" fill="#77A5B4" shape-rendering="crispEdges"/>
+<rect x="254.80" y="140.00" width="9.80" height="20.00" fill="#7DAFBF" shape-rendering="crispEdges"/>
+<rect x="264.60" y="140.00" width="9.80" height="20.00" fill="#729FAE" shape-rendering="crispEdges"/>
+<rect x="274.40" y="140.00" width="9.80" height="20.00" fill="#7BABBB" shape-rendering="crispEdges"/>
+<rect x="284.20" y="140.00" width="9.80" height="20.00" fill="#79A9B8" shape-rendering="crispEdges"/>
+<rect x="294.00" y="140.00" width="9.80" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="317.88" y="140.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="327.67" y="140.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="343.00" y="140.00" width="9.80" height="20.00" fill="#81B5C4" shape-rendering="crispEdges"/>
+<rect x="352.80" y="140.00" width="9.80" height="20.00" fill="#7CADBD" shape-rendering="crispEdges"/>
+<rect x="362.60" y="140.00" width="9.80" height="20.00" fill="#7DB0BF" shape-rendering="crispEdges"/>
+<rect x="372.40" y="140.00" width="9.80" height="20.00" fill="#7DAFBE" shape-rendering="crispEdges"/>
+<rect x="382.20" y="140.00" width="9.80" height="20.00" fill="#7EB0C0" shape-rendering="crispEdges"/>
+<rect x="392.00" y="140.00" width="9.80" height="20.00" fill="#7EB1C0" shape-rendering="crispEdges"/>
+<rect x="401.80" y="140.00" width="9.80" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="411.60" y="140.00" width="9.80" height="20.00" fill="#85BBCB" shape-rendering="crispEdges"/>
+<rect x="421.40" y="140.00" width="9.80" height="20.00" fill="#7BACBC" shape-rendering="crispEdges"/>
+<rect x="431.20" y="140.00" width="9.80" height="20.00" fill="#78A7B6" shape-rendering="crispEdges"/>
+<rect x="441.00" y="140.00" width="9.80" height="20.00" fill="#7AABBA" shape-rendering="crispEdges"/>
+<rect x="450.80" y="140.00" width="9.80" height="20.00" fill="#74A1B0" shape-rendering="crispEdges"/>
+<rect x="460.60" y="140.00" width="9.80" height="20.00" fill="#74A2B1" shape-rendering="crispEdges"/>
+<rect x="470.40" y="140.00" width="9.80" height="20.00" fill="#76A4B3" shape-rendering="crispEdges"/>
+<rect x="480.20" y="140.00" width="9.80" height="20.00" fill="#6E97A6" shape-rendering="crispEdges"/>
+<rect x="490.00" y="140.00" width="9.80" height="20.00" fill="#719DAC" shape-rendering="crispEdges"/>
+<rect x="499.80" y="140.00" width="9.80" height="20.00" fill="#709BAA" shape-rendering="crispEdges"/>
+<rect x="509.60" y="140.00" width="9.80" height="20.00" fill="#69909F" shape-rendering="crispEdges"/>
+<rect x="519.40" y="140.00" width="9.80" height="20.00" fill="#668B9A" shape-rendering="crispEdges"/>
+<rect x="529.20" y="140.00" width="9.80" height="20.00" fill="#678E9C" shape-rendering="crispEdges"/>
+<rect x="539.00" y="142.50" width="9.80" height="17.50" fill="#638795" shape-rendering="crispEdges"/>
+<rect x="548.80" y="140.00" width="9.80" height="20.00" fill="#678D9B" shape-rendering="crispEdges"/>
+<rect x="558.60" y="142.50" width="9.80" height="17.50" fill="#648997" shape-rendering="crispEdges"/>
+<rect x="568.40" y="142.50" width="9.80" height="17.50" fill="#628593" shape-rendering="crispEdges"/>
+<rect x="578.20" y="145.00" width="9.80" height="15.00" fill="#608391" shape-rendering="crispEdges"/>
+<rect x="588.00" y="147.50" width="9.80" height="12.50" fill="#5B7B89" shape-rendering="crispEdges"/>
+<rect x="597.80" y="150.00" width="9.80" height="10.00" fill="#587683" shape-rendering="crispEdges"/>
+<rect x="607.60" y="152.50" width="9.80" height="7.50" fill="#546F7D" shape-rendering="crispEdges"/>
+<rect x="617.40" y="155.00" width="9.80" height="5.00" fill="#506976" shape-rendering="crispEdges"/>
+<rect x="641.28" y="140.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="651.08" y="140.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="666.40" y="152.50" width="9.80" height="7.50" fill="#536D7B" shape-rendering="crispEdges"/>
+<rect x="676.20" y="140.00" width="9.80" height="20.00" fill="#75A3B2" shape-rendering="crispEdges"/>
+<rect x="686.00" y="142.50" width="9.80" height="17.50" fill="#648897" shape-rendering="crispEdges"/>
+<rect x="695.80" y="140.00" width="9.80" height="20.00" fill="#86BDCD" shape-rendering="crispEdges"/>
+<rect x="705.60" y="140.00" width="9.80" height="20.00" fill="#6A919F" shape-rendering="crispEdges"/>
+<rect x="715.40" y="140.00" width="9.80" height="20.00" fill="#7CAEBE" shape-rendering="crispEdges"/>
+<rect x="725.20" y="140.00" width="9.80" height="20.00" fill="#7EB1C0" shape-rendering="crispEdges"/>
+<rect x="735.00" y="147.50" width="9.80" height="12.50" fill="#5D7D8B" shape-rendering="crispEdges"/>
+<rect x="744.80" y="155.00" width="9.80" height="5.00" fill="#4D6572" shape-rendering="crispEdges"/>
+<rect x="754.60" y="150.00" width="9.80" height="10.00" fill="#577482" shape-rendering="crispEdges"/>
+<rect x="764.40" y="140.00" width="9.80" height="20.00" fill="#78A8B7" shape-rendering="crispEdges"/>
+<rect x="774.20" y="142.50" width="9.80" height="17.50" fill="#648896" shape-rendering="crispEdges"/>
+<rect x="784.00" y="140.00" width="9.80" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="793.80" y="140.00" width="9.80" height="20.00" fill="#6C95A4" shape-rendering="crispEdges"/>
+<rect x="803.60" y="140.00" width="9.80" height="20.00" fill="#83B8C8" shape-rendering="crispEdges"/>
+<rect x="813.40" y="150.00" width="9.80" height="10.00" fill="#55717F" shape-rendering="crispEdges"/>
+<rect x="823.20" y="140.00" width="9.80" height="20.00" fill="#83B8C8" shape-rendering="crispEdges"/>
+<rect x="833.00" y="145.00" width="9.80" height="15.00" fill="#608391" shape-rendering="crispEdges"/>
+<rect x="842.80" y="140.00" width="9.80" height="20.00" fill="#7EB0C0" shape-rendering="crispEdges"/>
+<rect x="852.60" y="150.00" width="9.80" height="10.00" fill="#55717F" shape-rendering="crispEdges"/>
+<rect x="862.40" y="155.00" width="9.80" height="5.00" fill="#4F6875" shape-rendering="crispEdges"/>
+<rect x="872.20" y="150.00" width="9.80" height="10.00" fill="#567380" shape-rendering="crispEdges"/>
+<rect x="882.00" y="140.00" width="9.80" height="20.00" fill="#77A6B5" shape-rendering="crispEdges"/>
+<rect x="891.80" y="150.00" width="9.80" height="10.00" fill="#567280" shape-rendering="crispEdges"/>
+<rect x="901.60" y="140.00" width="9.80" height="20.00" fill="#69909E" shape-rendering="crispEdges"/>
+<rect x="911.40" y="140.00" width="9.80" height="20.00" fill="#7DB0BF" shape-rendering="crispEdges"/>
+<rect x="921.20" y="140.00" width="9.80" height="20.00" fill="#6A92A1" shape-rendering="crispEdges"/>
+<rect x="931.00" y="140.00" width="9.80" height="20.00" fill="#79A8B8" shape-rendering="crispEdges"/>
+<rect x="940.80" y="140.00" width="9.80" height="20.00" fill="#81B5C5" shape-rendering="crispEdges"/>
+<rect x="950.60" y="140.00" width="9.80" height="20.00" fill="#85BCCC" shape-rendering="crispEdges"/>
+<rect x="974.48" y="140.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="4.28" y="160.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="317.88" y="160.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="327.67" y="160.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="343.00" y="168.75" width="147.00" height="2.50" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="493.65" y="168.75" width="6.15" height="2.50" fill="#3B4252" shape-rendering="crispEdges"/>
+<rect x="499.80" y="168.75" width="127.40" height="2.50" fill="#3B4252" shape-rendering="crispEdges"/>
+<rect x="641.28" y="160.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="651.08" y="160.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<rect x="974.48" y="160.00" width="1.25" height="20.00" fill="#88C0D0" shape-rendering="crispEdges"/>
+<path d="M9.80 190.00 H9.80 A4.90 4.90 0 0 1 4.90 185.10 V180.00" fill="none" stroke="#88C0D0" stroke-width="1.25"/>
+<rect x="9.80" y="189.38" width="303.80" height="1.25" fill="#88C0D0" shape-rendering="crispEdges"/>
+<path d="M313.60 190.00 H313.60 A4.90 4.90 0 0 0 318.50 185.10 V180.00" fill="none" stroke="#88C0D0" stroke-width="1.25"/>
+<path d="M333.20 190.00 H333.20 A4.90 4.90 0 0 1 328.30 185.10 V180.00" fill="none" stroke="#88C0D0" stroke-width="1.25"/>
+<rect x="333.20" y="189.38" width="303.80" height="1.25" fill="#88C0D0" shape-rendering="crispEdges"/>
+<path d="M637.00 190.00 H637.00 A4.90 4.90 0 0 0 641.90 185.10 V180.00" fill="none" stroke="#88C0D0" stroke-width="1.25"/>
+<path d="M656.60 190.00 H656.60 A4.90 4.90 0 0 1 651.70 185.10 V180.00" fill="none" stroke="#88C0D0" stroke-width="1.25"/>
+<rect x="656.60" y="189.38" width="313.60" height="1.25" fill="#88C0D0" shape-rendering="crispEdges"/>
+<path d="M970.20 190.00 H970.20 A4.90 4.90 0 0 0 975.10 185.10 V180.00" fill="none" stroke="#88C0D0" stroke-width="1.25"/>
+<path d="M9.80 210.00 H9.80 A4.90 4.90 0 0 0 4.90 214.90 V220.00" fill="none" stroke="#81A1C1" stroke-width="1.25"/>
+<rect x="9.80" y="209.38" width="9.80" height="1.25" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="127.40" y="209.38" width="842.80" height="1.25" fill="#81A1C1" shape-rendering="crispEdges"/>
+<path d="M970.20 210.00 H970.20 A4.90 4.90 0 0 1 975.10 214.90 V220.00" fill="none" stroke="#81A1C1" stroke-width="1.25"/>
+<text xml:space="preserve" class="t" x="29.4" y="210.0" fill="#D8DEE9" textLength="88.2" lengthAdjust="spacingAndGlyphs">Processes</text>
+<rect x="4.28" y="220.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="220.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t b" x="19.6" y="230.0" fill="#D8DEE9" textLength="421.4" lengthAdjust="spacingAndGlyphs">PID   Name           CPU %  Mem MB  Threads</text>
+<rect x="4.28" y="240.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="240.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="19.6" y="250.0" fill="#2E3440" textLength="421.4" lengthAdjust="spacingAndGlyphs">1410  kworker         41.1     384        1</text>
+<rect x="4.28" y="260.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="260.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="29.4" y="270.0" fill="#D8DEE9" textLength="117.6" lengthAdjust="spacingAndGlyphs">855  rustual</text>
+<text xml:space="preserve" class="t" x="235.2" y="270.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">38.8</text>
+<text xml:space="preserve" class="t" x="333.2" y="270.0" fill="#D8DEE9" textLength="107.8" lengthAdjust="spacingAndGlyphs">63        5</text>
+<rect x="4.28" y="280.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="280.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="29.4" y="290.0" fill="#D8DEE9" textLength="166.6" lengthAdjust="spacingAndGlyphs">596  redis-server</text>
+<text xml:space="preserve" class="t" x="235.2" y="290.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">37.9</text>
+<text xml:space="preserve" class="t" x="323.4" y="290.0" fill="#D8DEE9" textLength="117.6" lengthAdjust="spacingAndGlyphs">104       16</text>
+<rect x="4.28" y="300.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="300.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="29.4" y="310.0" fill="#D8DEE9" textLength="117.6" lengthAdjust="spacingAndGlyphs">448  firefox</text>
+<text xml:space="preserve" class="t" x="235.2" y="310.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">35.9</text>
+<text xml:space="preserve" class="t" x="333.2" y="310.0" fill="#D8DEE9" textLength="107.8" lengthAdjust="spacingAndGlyphs">31       37</text>
+<rect x="4.28" y="320.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="320.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="29.4" y="330.0" fill="#D8DEE9" textLength="127.4" lengthAdjust="spacingAndGlyphs">892  postgres</text>
+<text xml:space="preserve" class="t" x="235.2" y="330.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">34.2</text>
+<text xml:space="preserve" class="t" x="333.2" y="330.0" fill="#D8DEE9" textLength="107.8" lengthAdjust="spacingAndGlyphs">52       21</text>
+<rect x="4.28" y="340.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="340.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="19.6" y="350.0" fill="#D8DEE9" textLength="98.0" lengthAdjust="spacingAndGlyphs">1151  sshd</text>
+<text xml:space="preserve" class="t" x="235.2" y="350.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">32.0</text>
+<text xml:space="preserve" class="t" x="323.4" y="350.0" fill="#D8DEE9" textLength="117.6" lengthAdjust="spacingAndGlyphs">246        4</text>
+<rect x="4.28" y="360.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="950.60" y="362.50" width="19.60" height="17.50" fill="#1E242F" shape-rendering="crispEdges"/>
+<rect x="974.48" y="360.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="29.4" y="370.0" fill="#D8DEE9" textLength="88.2" lengthAdjust="spacingAndGlyphs">485  code</text>
+<text xml:space="preserve" class="t" x="235.2" y="370.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">26.4</text>
+<text xml:space="preserve" class="t" x="323.4" y="370.0" fill="#D8DEE9" textLength="117.6" lengthAdjust="spacingAndGlyphs">112        3</text>
+<rect x="4.28" y="380.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="380.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="19.6" y="390.0" fill="#D8DEE9" textLength="98.0" lengthAdjust="spacingAndGlyphs">1669  code</text>
+<text xml:space="preserve" class="t" x="235.2" y="390.0" fill="#EACB8B" textLength="39.2" lengthAdjust="spacingAndGlyphs">25.0</text>
+<text xml:space="preserve" class="t" x="323.4" y="390.0" fill="#D8DEE9" textLength="117.6" lengthAdjust="spacingAndGlyphs">181       37</text>
+<rect x="4.28" y="400.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="400.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="29.4" y="410.0" fill="#D8DEE9" textLength="411.6" lengthAdjust="spacingAndGlyphs">411  cargo           23.0      97       39</text>
+<rect x="4.28" y="420.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="420.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="29.4" y="430.0" fill="#D8DEE9" textLength="411.6" lengthAdjust="spacingAndGlyphs">670  node            21.4     105       33</text>
+<rect x="4.28" y="440.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="440.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="29.4" y="450.0" fill="#D8DEE9" textLength="411.6" lengthAdjust="spacingAndGlyphs">633  python3         21.0     315       25</text>
+<rect x="4.28" y="460.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="460.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="29.4" y="470.0" fill="#D8DEE9" textLength="411.6" lengthAdjust="spacingAndGlyphs">744  pipewire        19.5     154       20</text>
+<rect x="4.28" y="480.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="480.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="19.6" y="490.0" fill="#D8DEE9" textLength="421.4" lengthAdjust="spacingAndGlyphs">1521  nginx           15.7     247       33</text>
+<rect x="4.28" y="500.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="500.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="19.6" y="510.0" fill="#D8DEE9" textLength="421.4" lengthAdjust="spacingAndGlyphs">1077  code            14.5     250       38</text>
+<rect x="4.28" y="520.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="520.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="19.6" y="530.0" fill="#D8DEE9" textLength="421.4" lengthAdjust="spacingAndGlyphs">1336  pipewire        13.5      18        1</text>
+<rect x="4.28" y="540.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<rect x="974.48" y="540.00" width="1.25" height="20.00" fill="#81A1C1" shape-rendering="crispEdges"/>
+<text xml:space="preserve" class="t" x="29.4" y="550.0" fill="#D8DEE9" textLength="411.6" lengthAdjust="spacingAndGlyphs">559  sshd            13.4     180       26</text>
+<path d="M9.80 570.00 H9.80 A4.90 4.90 0 0 1 4.90 565.10 V560.00" fill="none" stroke="#81A1C1" stroke-width="1.25"/>
+<rect x="9.80" y="569.38" width="960.40" height="1.25" fill="#81A1C1" shape-rendering="crispEdges"/>
+<path d="M970.20 570.00 H970.20 A4.90 4.90 0 0 0 975.10 565.10 V560.00" fill="none" stroke="#81A1C1" stroke-width="1.25"/>
+<rect x="862.40" y="580.00" width="1.23" height="20.00" fill="#606979" shape-rendering="crispEdges"/>
 <text xml:space="preserve" class="t b" x="9.8" y="590.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">^q</text>
 <text xml:space="preserve" class="t" x="39.2" y="590.0" fill="#D8DEE9" textLength="39.2" lengthAdjust="spacingAndGlyphs">Quit</text>
 <text xml:space="preserve" class="t b" x="98.0" y="590.0" fill="#88C0D0" textLength="9.8" lengthAdjust="spacingAndGlyphs">c</text>
@@ -349,7 +431,6 @@
 <text xml:space="preserve" class="t" x="470.4" y="590.0" fill="#D8DEE9" textLength="39.2" lengthAdjust="spacingAndGlyphs">Kill</text>
 <text xml:space="preserve" class="t b" x="529.2" y="590.0" fill="#88C0D0" textLength="49.0" lengthAdjust="spacingAndGlyphs">space</text>
 <text xml:space="preserve" class="t" x="588.0" y="590.0" fill="#D8DEE9" textLength="49.0" lengthAdjust="spacingAndGlyphs">Pause</text>
-<text xml:space="preserve" class="t" x="862.4" y="590.0" fill="#606979" textLength="9.8" lengthAdjust="spacingAndGlyphs">▏</text>
 <text xml:space="preserve" class="t b" x="872.2" y="590.0" fill="#88C0D0" textLength="19.6" lengthAdjust="spacingAndGlyphs">^p</text>
 <text xml:space="preserve" class="t" x="901.6" y="590.0" fill="#D8DEE9" textLength="68.6" lengthAdjust="spacingAndGlyphs">palette</text>
 </g>

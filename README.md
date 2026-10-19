@@ -404,7 +404,7 @@ Issues and pull requests are welcome; work happens on the `dev` branch (`main` h
 ```sh
 cargo fmt --all && cargo clippy --workspace --all-targets -- -D warnings && cargo test
 cd crates/rustual-py && uv sync --reinstall-package rustual-py && uv run pytest
-uv run ruff check --fix . ../../scripts ../../examples && uv run ruff format . ../../scripts ../../examples
+uv run ruff check --fix . ../../scripts && uv run ruff format . ../../scripts
 ```
 
 `git config core.hooksPath .githooks` turns on a pre-commit hook with the fast checks

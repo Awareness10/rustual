@@ -1,11 +1,11 @@
 //! Live JSON form: JSON objects arriving over TCP are written into input fields in real time.
 //!
-//! The Rust twin of `examples/live_json/rustual_app.py` (same UI, options and wire format):
+//! The Rust twin of `crates/rustual-py/tests/live_json/rustual_app.py` (same UI, options and wire format):
 //!
 //! ```text
 //! cargo run -p rustual --example live_json                    # listen on 127.0.0.1:7878, feed itself at 60 Hz
 //! cargo run -p rustual --example live_json -- --rate 240      # a faster internal feed
-//! cargo run -p rustual --example live_json -- --no-feed       # only listen (feed with examples/live_json/feed.py)
+//! cargo run -p rustual --example live_json -- --no-feed       # only listen (feed with crates/rustual-py/tests/live_json/feed.py)
 //! cargo run -p rustual --example live_json -- --mode async    # receive with tokio instead of threads
 //! cargo run -p rustual --example live_json -- --duration 10   # quit after 10 seconds and print the stats
 //! ```

@@ -1,4 +1,4 @@
-"""The live JSON form example (examples/live_json): TCP → worker → post_message → inputs."""
+"""The live JSON form (tests/live_json), a regression test: TCP → worker → post_message → inputs."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-EXAMPLE = Path(__file__).resolve().parents[3] / "examples" / "live_json"
+EXAMPLE = Path(__file__).resolve().parent / "live_json"
 sys.path.insert(0, str(EXAMPLE))
 live = importlib.import_module("rustual_app")
 feed = importlib.import_module("feed")

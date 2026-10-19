@@ -26,7 +26,7 @@ fi
 
 if printf '%s\n' "$staged" | grep -q '\.pyi\?$'; then
     if command -v uv >/dev/null 2>&1; then
-        paths=". ../../scripts ../../examples"
+        paths=". ../../scripts"
         cd "$root/crates/rustual-py" || exit 1
         # shellcheck disable=SC2086
         if ! uv run -q --only-group lint ruff check $paths; then

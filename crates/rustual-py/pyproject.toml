@@ -47,7 +47,7 @@ asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 
 # Ruff checks every Python file in the repository: run it from this directory with
-# `uv run ruff check --fix . ../../scripts ../../examples` (and `ruff format` with the same paths);
+# `uv run ruff check --fix . ../../scripts` (and `ruff format` with the same paths);
 # files outside this directory use these settings too, since they have none of their own.
 [tool.ruff]
 line-length = 120
@@ -66,5 +66,5 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["rustual"]
-# examples/live_json: the Textual and rustual versions must differ only in their imports.
+# tests/live_json: the Textual and rustual versions must differ only in their imports.
 known-local-folder = ["feed"]

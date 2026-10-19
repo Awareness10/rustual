@@ -35,9 +35,9 @@ jobs:
       - uses: astral-sh/setup-uv@v10.3.0
       # Every Python file in the repository, with the settings in crates/rustual-py/pyproject.toml.
       # The `lint` group installs only ruff (pinned there), so the extension isn't built.
-      - run: uv run --only-group lint ruff check --output-format github . ../../scripts ../../examples
+      - run: uv run --only-group lint ruff check --output-format github . ../../scripts
         working-directory: crates/rustual-py
-      - run: uv run --only-group lint ruff format --check . ../../scripts ../../examples
+      - run: uv run --only-group lint ruff format --check . ../../scripts
         working-directory: crates/rustual-py
 
   test:
